@@ -8,26 +8,35 @@
 
 struct FallbackBehaviourType
 {
-  enum type { continue, abort, fail };
+  enum type { Continue, Abort, Fail };
 };
 
-FallbackBehaviourType::type DefaultFallbackBehaviour(Plan& plan, const Operation& op)
-{
-  return FallbackBehaviourType::fail;
-}
+template <class RLIST, class OLIST>
+class PlanContainer;
 
 template <class RLIST, class OLIST>
-class Plan
+struct DefaultFallbackBehaviour
+{
+	typedef Operation<RLIST,OLIST>			OperationType;
+	typedef PlanContainer<RLIST, OLIST>		PlanType;
+	FallbackBehaviourType::type operator () (PlanType& /*plan*/, const OperationType& /*op*/) const
+	{
+	  return FallbackBehaviourType::Fail;
+	}
+};
+
+template <class RLIST, class OLIST>
+class PlanContainer
 {
 	public:
-		typedef Resources<RLIST>		ResourcesType;
-		typedef Operation<RLIST,OLIST>	OperationType;
-		typedef Plan<RLIST, OLIST>		ThisType;
+		typedef Resources<RLIST>				ResourcesType;
+		typedef Operation<RLIST,OLIST>			OperationType;
+		typedef PlanContainer<RLIST, OLIST>		ThisType;
 		
 	public:
 		class Situation
 		{
-			friend class Plan;
+			friend class PlanContainer;
 			
 			public:
 				Situation& operator * ()
@@ -90,16 +99,23 @@ class Plan
 				int 	     	currenttime;
 				ResourcesType	current;
 				
-				Situation(const ThisType& p, int time = p.starttime) : parent(p), currenttime(time), current(parent.startres)
+				Situation(const ThisType& p, int time = -1) : parent(p), currenttime(time), current(parent.startres)
 				{
-					parent.evalOperations(current, parent.starttime, time);
+					if (currenttime < 0)
+						currenttime = parent.starttime;
+					parent.evalOperations(current, parent.starttime, currenttime);
 				}
 		};
 
 	public:
-		Plan(ResourcesType sr, int st=0)
+		PlanContainer(ResourcesType sr, int st=0)
 			: startres(sr), starttime(st), opendtime(0), endtime(0)
 		{ }
+		
+		bool empty() const
+		{
+			return operations.empty();
+		}
 		
 		Situation at(int time) const
 		{
@@ -134,37 +150,46 @@ class Plan
 			return true;
 		}
       
-    template <class FallbackBehaviour>
-    bool rebase(int timeinc, const ResourceType& newres, const FallbackBehaviour& fbb = DefaultFallbackBehaviour)
-    {
-      ThisType newplan(newres, starttime+timeinc);
-      for (auto it : operations) {
-        if (!newplan.push_back(it)) {
-          FallbackBehaviourType res = ffb(newplan, it);
-          switch (res) {
-            case FallbackBehaviourType::fail:
-              return false;
-            case FallbackBehaviourType::abort:
-              std::swap(*this, newplan);
-              return true;
-            case FallbackBehaviourType::continue:
-              break;
-          }
-        }
-      }
-      std::swap(*this, newplan);
-      return true;
-    }
+		template <class FallbackBehaviour>
+		bool rebase(int timeinc, const ResourcesType& newres, const FallbackBehaviour& fbb)
+		{
+			ThisType newplan(newres, starttime+timeinc);
+			for (auto it : operations) {
+				if (!newplan.push_back(it)) {
+					FallbackBehaviourType::type res = fbb(newplan, it);
+					switch (res)
+					{
+						case FallbackBehaviourType::Fail:
+						  return false;
+						case FallbackBehaviourType::Abort:
+						  std::swap(*this, newplan);
+						  return true;
+						case FallbackBehaviourType::Continue:
+						  break;
+					}
+				}
+			}
+			std::swap(*this, newplan);
+			return true;
+		}
+		
+		bool rebase(int timeinc, const ResourcesType& newres)
+		{
+			return rebase(timeinc, newres, DefaultFallbackBehaviour<RLIST, OLIST>());
+		}
+		
+		void execute()
+		{ }
 		
 		const ResourcesType& startResources() const
 		{
 			return startres;
 		}
 		
-    int getStartTime() const
-    {
-      return starttime;
-    }
+		int getStartTime() const
+		{
+			return starttime;
+		}
     
 		int endTime() const
 		{
@@ -180,7 +205,7 @@ class Plan
 		ResourcesType				startres;
 		std::list<OperationType>	operations;
 		std::set<int>				changeTimes;
-    int              starttime;
+		int              			starttime;
 		int							opendtime;
 		int							endtime;
 

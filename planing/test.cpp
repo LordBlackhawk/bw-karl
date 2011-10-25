@@ -4,8 +4,8 @@
 #include "operations.h"
 #include "plan.h"
 
-#include "broodwar_resources.h"
-#include "broodwar_operations.h"
+// #include "broodwar_resources.h"
+// #include "broodwar_operations.h"
 
 template <class T>
 struct outputName

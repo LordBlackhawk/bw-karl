@@ -11,5 +11,5 @@ typedef type_list<Minerals, CommandCenter, Worker>		res_list;
 DEF_RESGROWTH(Minerals)
 {
   const int factor = 1;
-  return factor * res.getNotLocked<Worker>();
+  return factor * res.template getNotLocked<Worker>();
 }

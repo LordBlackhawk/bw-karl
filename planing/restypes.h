@@ -1,6 +1,8 @@
 #pragma once
 
-#include "resources.h"
+#include "typelists.h"
+
+#include <string>
 
 namespace Plan
 {
@@ -24,26 +26,30 @@ namespace Plan
 }
 	
 #define DEF_RESTYPE(Name)                                                      \
-	struct Name { };                                                             \
+	struct Name { };                                                           \
 	template <> const char Plan::ResourceName<Name>::name[] = #Name;
    
 #define DEF_RESGROWTH(Name)                                                    \
-  template <> struct Plan::ResourceGrowth<Name>                                \
+  namespace Plan { template <> struct ResourceGrowth<Name>                     \
   {                                                                            \
     enum { isgrowing = true };                                                 \
-    static int getGrowth(const Resources& res);                                \
-  };                                                                           \
-  template <> static int Plan::ResourceGrowth<Name>::getGrowth(const Resources& res)
+	template <class RESTYPE>                                                   \
+    static int getGrowth(const RESTYPE& res);                                  \
+  }; }                                                                         \
+  template <class RESTYPE>                                                     \
+  int Plan::ResourceGrowth<Name>::getGrowth(const RESTYPE& res)
   
 #define DEF_RESSTOPTIME(Name)                                                  \
-  template <> struct Plan::ResourceStopTime<Name>                              \
+  namespace Plan { template <> struct ResourceStopTime<Name>                   \
   {                                                                            \
     enum { needstoptime = true };                                              \
-    static int getStopTime(const Resources& res);                              \
-  };                                                                           \
-  template <> static int Plan::ResourceStopTime<Name>::getStopTime(const Resources& res)
+	template <class RESTYPE>                                                   \
+    static int getStopTime(const RESTYPE& res);                                \
+  }; }                                                                         \
+  template <class RESTYPE>                                                     \
+  int Plan::ResourceStopTime<Name>::getStopTime(const RESTYPE& res)
   
-template <RLIST>
+template <class RLIST>
 class ResourceIndex
 {
   typedef ResourceIndex<RLIST> ThisType;
@@ -52,7 +58,7 @@ class ResourceIndex
     ResourceIndex(int i) : index_(i)
     { }
     
-    template <RT>
+    template <class RT>
     static ThisType get()
     {
       return ResourceIndex(indexof<RT, RLIST>::value);
@@ -61,7 +67,7 @@ class ResourceIndex
     std::string getName() const
     {
       std::string result;
-      dispatch<RLIST>::call<GetName, std::string&>(index_, result);
+      dispatch<RLIST>::template call<GetName, std::string&>(index_, result);
       return result;
     }
     

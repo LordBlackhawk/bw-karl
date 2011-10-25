@@ -4,13 +4,13 @@
 #include "restypes.h"
 
 template <class RLIST>
-public Resources
+class Resources
 {
   public:
      Resources() : amount(0), locked(0)
      { }
      
-     Resources(const Resources& r) : amount(r.amount), locked(r.locket)
+     Resources(const Resources& r) : amount(r.amount), locked(r.locked)
      { }
 	
      bool valid() const
@@ -29,9 +29,21 @@ public Resources
      {
        return amount.get<RT>();
      }
+	 
+	 template <class RT>
+     int get() const
+     {
+       return amount.get<RT>();
+     }
      
      template <class RT>
      int& getLocked()
+     {
+       return locked.get<RT>();
+     }
+	 
+	 template <class RT>
+     int getLocked() const
      {
        return locked.get<RT>();
      }
@@ -41,18 +53,32 @@ public Resources
      {
        return amount.get<RT>() + locked.get<RT>();
      }
+	 
+	 template <class RT>
+	 void incLocked(int value = 1)
+	 {
+		amount.get<RT> -= 1;
+		locked.get<RT> += 1;
+	 }
+	 
+	 template <class RT>
+	 void decLocked(int value = 1)
+	 {
+		amount.get<RT> += 1;
+		locked.get<RT> -= 1;
+	 }
      
-     int& get(const ResourceIndex& ri)
+     int& get(const ResourceIndex<RLIST>& ri)
      {
        return amount[ri.getIndex()];
      }
      
-     int& getLocked(const ResourceIndex& ri)
+     int& getLocked(const ResourceIndex<RLIST>& ri)
      {
        return locked[ri.getIndex()];
      }
      
-     int getExisting(const ResourceIndex& ri) const
+     int getExisting(const ResourceIndex<RLIST>& ri) const
      {
        return amount[ri.getIndex()] + locked[ri.getIndex()];
      }

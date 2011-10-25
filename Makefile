@@ -1,42 +1,37 @@
-OBJECTPATH  = out/
-BWAPIPATH   = ../bwapi/trunk/bwapi/include
-BWTAPATH    = ../bwta/include
+OBJECTPATH   = out/
+BWAPIPATH    = ../bwapi/trunk/bwapi/include/
+BWTAPATH     = ../bwta/include/
+BOOSTPATH    = ../boost_1_46_1/
 
-CXX         = g++
-CXXFLAGS    = -Wall -Wextra -O2 --std=c++0x -I$(BWAPIPATH) -I$(BWTAPATH)
-CXXLIBS     = -L. -lBWAPI -lBWTA
+CXX          = g++
+CXXFLAGS     = -Wall -Wextra -O2 --std=c++0x -I$(BWAPIPATH) -I$(BWTAPATH) -I$(BOOSTPATH)
+CXXLIBS      = -L. -lBWAPI -lBWTA
 
-# CSOURCES    = $(wildcard $(CLIENTPATH)*.cpp)
-# LSOURCES    = $(wildcard $(LIBPATH)*.cpp)
-# SSOURCES    = $(wildcard $(SHAREDPATH)*.cpp)
-# USOURCES    = $(wildcard $(UTILPATH)Util/*.cpp)
-# SOURCES     = $(CSOURCES) $(LSOURCES) $(SSOURCES) $(USOURCES) $(LIBPATH)../UnitCommand.cpp
-# OBJECTS     = $(addprefix $(OBJECTPATH), $(notdir $(SOURCES:.cpp=.o)))
+SOURCES      = $(wildcard */*.cpp)
+EXECUTEABLES = $(notdir $(SOURCES:.cpp=.exe))
+DEPS         = $(addprefix $(OBJECTPATH), $(notdir $(SOURCES:.cpp=.d)))
 
-all: ExampleAIClient.exe
+all: $(EXECUTEABLES) $(DEPS)
 
-ExampleAIClient.exe: ExampleAIClient.cpp
+echo:
+	@echo $(SOURCES)
+
+%.exe: $(OBJECTPATH)%.o
 	$(CXX) $(CXXFLAGS) $< $(CXXLIBS) -o $@
+	
+$(OBJECTPATH)%.o: */%.cpp $(OBJECTPATH)%.d
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+	
+$(OBJECTPATH)%.d: */%.cpp
+	@echo 'Calculating Dependencies of "$<"...'
+	@$(CXX) -std=c++0x -MM -MG $< | sed 's,\($*\)\.o[ :]*,$(OBJECTPATH)\1.o $@ : ,g' | sed 's,boost/.*\.hpp,,g' > $@;
+	
+-include $(DEPS)
 
-# $(OBJECTPATH)%.o: $(CLIENTPATH)%.cpp
-	# $(CXX) $(CXXFLAGS) -c $< -o $@
-
-# $(OBJECTPATH)%.o: $(LIBPATH)%.cpp
-	# $(CXX) $(CXXFLAGS) -c $< -o $@
-
-# $(OBJECTPATH)%.o: $(SHAREDPATH)%.cpp
-	# $(CXX) $(CXXFLAGS) -c $< -o $@
-
-# $(OBJECTPATH)%.o: $(UTILPATH)Util/%.cpp
-	# $(CXX) $(CXXFLAGS) -c $< -o $@
-
-# $(OBJECTPATH)UnitCommand.o: $(LIBPATH)../UnitCommand.cpp
-	# $(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OBJECTS): | $(OBJECTPATH)
+$(DEPS): | $(OBJECTPATH)
 
 $(OBJECTPATH):
 	mkdir $(OBJECTPATH)
 
 clean:
-	rm -rf $(OBJECTPATH) *.exe
+	rm -rf $(OBJECTPATH) $(EXECUTEABLES)
