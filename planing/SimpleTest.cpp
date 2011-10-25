@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "restypes.h"
 #include "optypes.h"
 #include "checkpoints.h"
@@ -26,7 +28,7 @@ BEGIN_DEF_OPTYPE(BuildTerranWorker)
 	Locks<1, CommandCenter>,
 	Consums<50, Minerals>,
 	Consums<1, TerranSupply>,
-		CheckPoint<Build, 50>,
+		CheckPoint<Build, 4>,
 	Prods<1, TerranWorker>,
 	Unlocks<1, CommandCenter>,
 		CheckPoint<BuildFinished, 1>
@@ -50,33 +52,39 @@ void simulateNextRound()
 
 DEF_CHECKPOINTCODE(Build)
 {
+	//std::cout << "Build called with (scheduledtime=" << scheduledtime << ", status=" << (int)status << ", details=" << (int)details << ")\n";
 	switch (status)
 	{
-	case OperationStatus::scheduled:
-		std::cout << "\tResources consumt...\n";
+	case OperationStatus::started:
+		//std::cout << "\tResources consumt...\n";
 		current.get<Minerals>() -= 50;
 		current.get<TerranSupply>() -= 1;
 		current.incLocked<CommandCenter>();
 		return CheckPointResult::running;
 	case OperationStatus::running:
 		return CheckPointResult::completed;
+	default:
+		return CheckPointResult::waiting;
 	}
 }
 
 DEF_CHECKPOINTCODE(BuildFinished)
 {
+	//std::cout << "BuildFinished called with (scheduledtime=" << scheduledtime << ", status=" << (int)status << ", details=" << (int)details << ")\n";
 	switch (status)
 	{
-	case OperationStatus::scheduled:
+	case OperationStatus::started:
 	case OperationStatus::running:
-		if (time >= starttime + 50) {
-			std::cout << "\tWorker built...\n";
+		if (time > scheduledtime + 4) {
+			return CheckPointResult::completed;
+		} else if (time == scheduledtime + 4) {
+			//std::cout << "\tWorker built...\n";
 			current.get<TerranWorker>() += 1;
 			current.decLocked<CommandCenter>();
-			return CheckPointResult::completed;
-		} else {
-			return CheckPointResult::running;
 		}
+		return CheckPointResult::running;
+	default:
+		return CheckPointResult::waiting;
 	}
 }
 
@@ -91,22 +99,37 @@ void outputResources(const TestResources& res)
 int main()
 {
 	time = 0;
-	current.get<Minerals>() = 50;
-	current.get<CommandCenter>() = 1;
-	current.get<TerranWorker>() = 2;
-	current.get<TerranSupply>() = 7;
+	current.get<Minerals>() 		= 150;
+	current.get<CommandCenter>() 	= 1;
+	current.get<TerranWorker>() 	= 2;
+	current.get<TerranSupply>() 	= 7;
+	
+	TestOperation op = TestOperation::get<BuildTerranWorker>();
+	std::cout << "StageCount:  " << op.stageCount() << "\n";
+	std::cout << "IsApplyable: " << op.isApplyable(current, 0) << "\n";
+	std::cout << "Duration:    " << op.duration() << "\n";
+	std::cout << "Duration(0): " << op.stageDuration(0) << "\n";
+	std::cout << "Duration(1): " << op.stageDuration(1) << "\n";
+	std::cout << "\n";
 
 	TestPlan plan(current);
 	for (int k=0; k<5; ++k)
 		plan.push_back(TestOperation::get<BuildTerranWorker>());
+		
+	std::cout << "Plan.size:   " << plan.scheduledCount() << "\n";
+	for (int k=0; k<plan.scheduledCount(); ++k)
+		std::cout << "Scheduled("<<k<<"):" << plan.scheduled(k).scheduledTime() << "\n";
+	std::cout << "\n";
 
-	while (!plan.empty()) {
+	int counter = 0;
+	while (!plan.empty() && (++counter < 15))
+	{
 		simulateNextRound();
-		std::cout << "Planed: "; outputResources(plan.at(time).getResources());
-		std::cout << "Found: "; outputResources(current);
-		plan.rebase(1, current); //, exampleFallbackBehaviour);
-		//plan.optimize();
+		std::cout << "Planed: \t"; outputResources(plan.at(time).getResources());
+		plan.rebase(1, current);
 		plan.execute();
+		std::cout << "Found:  \t"; outputResources(current);
+		std::cout << "\n";
 	}
 	return 0;
 }

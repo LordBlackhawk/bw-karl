@@ -6,12 +6,20 @@
 template <class RLIST>
 class Resources
 {
+  typedef Resources<RLIST> ThisType;
+  
   public:
      Resources() : amount(0), locked(0)
      { }
      
      Resources(const Resources& r) : amount(r.amount), locked(r.locked)
      { }
+	 
+	 void swap(ThisType& other)
+	 {
+		amount.swap(other.amount);
+		locked.swap(other.locked);
+	 }
 	
      bool valid() const
      {
@@ -57,15 +65,15 @@ class Resources
 	 template <class RT>
 	 void incLocked(int value = 1)
 	 {
-		amount.get<RT> -= 1;
-		locked.get<RT> += 1;
+		amount.get<RT>() -= value;
+		locked.get<RT>() += value;
 	 }
 	 
 	 template <class RT>
 	 void decLocked(int value = 1)
 	 {
-		amount.get<RT> += 1;
-		locked.get<RT> -= 1;
+		amount.get<RT>() += value;
+		locked.get<RT>() -= value;
 	 }
      
      int& get(const ResourceIndex<RLIST>& ri)

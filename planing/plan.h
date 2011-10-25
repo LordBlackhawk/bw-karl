@@ -4,7 +4,7 @@
 #include "resources.h"
 #include "operations.h"
 
-#include <list>
+#include <vector>
 
 struct FallbackBehaviourType
 {
@@ -21,7 +21,8 @@ struct DefaultFallbackBehaviour
 	typedef PlanContainer<RLIST, OLIST>		PlanType;
 	FallbackBehaviourType::type operator () (PlanType& /*plan*/, const OperationType& /*op*/) const
 	{
-	  return FallbackBehaviourType::Fail;
+		std::cout << "!!!!Fallback\n";
+		return FallbackBehaviourType::Continue;
 	}
 };
 
@@ -61,8 +62,16 @@ class PlanContainer
 				
 				Situation& operator ++ ()
 				{
-					std::set<int>::const_iterator it = parent.changeTimes.lower_bound(currenttime+1);
-					int newtime = (it == parent.changeTimes.end()) ? parent.endtime+1 : *it;
+					std::set<int>::const_iterator it = parent.changetimes.lower_bound(currenttime+1);
+					int newtime = (it == parent.changetimes.end()) ? parent.endtime+1 : *it;
+					parent.evalOperations(current, currenttime+1, newtime);
+					currenttime = newtime;
+					return *this;
+				}
+				
+				Situation& inc(int dt)
+				{
+					int newtime = currenttime + dt;
 					parent.evalOperations(current, currenttime+1, newtime);
 					currenttime = newtime;
 					return *this;
@@ -78,9 +87,9 @@ class PlanContainer
 					return current.valid();
 				}
 				
-				bool isApplyable(const OperationType& op) const
+				bool isApplyable(const OperationType& op, int stage) const
 				{
-					return op.isApplyable(current);
+					return op.isApplyable(current, stage);
 				}
 				
 				Situation& applyOperation(const OperationType& op, int btime, int etime)
@@ -92,6 +101,11 @@ class PlanContainer
 				const ResourcesType& getResources() const
 				{
 					return current;
+				}
+				
+				bool beyond() const
+				{
+					return (currenttime > parent.endtime);
 				}
 			
 			protected:
@@ -109,12 +123,28 @@ class PlanContainer
 
 	public:
 		PlanContainer(ResourcesType sr, int st=0)
-			: startres(sr), starttime(st), opendtime(0), endtime(0)
+			: startres(sr), starttime(st), opendtime(st), endtime(st)
 		{ }
+		
+		void swap(ThisType& other)
+		{
+			startres.swap(other.startres);
+			active_operations.swap(other.active_operations);
+			scheduled_operations.swap(other.scheduled_operations);
+			changetimes.swap(other.changetimes);
+			std::swap(starttime, other.starttime);
+			std::swap(endtime, other.endtime);
+			std::swap(opendtime, other.opendtime);
+		}
+		
+		friend void swap(ThisType& lhr, ThisType& rhs)
+		{
+			lhr.swap(rhs);
+		}
 		
 		bool empty() const
 		{
-			return operations.empty();
+			return scheduled_operations.empty() && active_operations.empty();
 		}
 		
 		Situation at(int time) const
@@ -139,14 +169,19 @@ class PlanContainer
 		
 		bool push_back(const OperationType& op)
 		{
-			Situation it = opend(), itend = end();
-			while ( (it != itend) && !it.isApplyable(op) )
-				++it;
-			
-			if (it == end())
-				return false;
+			Situation it = opend();
+			for (int k=0; k<op.stageCount(); ++k)
+			{
+				bool applyable;
+				while ( !(applyable = it.isApplyable(op, k)) && !it.beyond() )
+					++it;
 				
-			add(op, it.time());
+				if (!applyable)
+					return false;
+				
+				it.inc(op.stageDuration(k));
+			}
+			add(op, it.time() - op.duration());
 			return true;
 		}
       
@@ -154,7 +189,13 @@ class PlanContainer
 		bool rebase(int timeinc, const ResourcesType& newres, const FallbackBehaviour& fbb)
 		{
 			ThisType newplan(newres, starttime+timeinc);
-			for (auto it : operations) {
+			
+			for (auto it : active_operations) {
+				it.execute(false);
+				newplan.addActive(it);
+			}
+			
+			for (auto it : scheduled_operations) {
 				if (!newplan.push_back(it)) {
 					FallbackBehaviourType::type res = fbb(newplan, it);
 					switch (res)
@@ -162,14 +203,14 @@ class PlanContainer
 						case FallbackBehaviourType::Fail:
 						  return false;
 						case FallbackBehaviourType::Abort:
-						  std::swap(*this, newplan);
+						  swap(newplan);
 						  return true;
 						case FallbackBehaviourType::Continue:
 						  break;
 					}
 				}
 			}
-			std::swap(*this, newplan);
+			swap(newplan);
 			return true;
 		}
 		
@@ -179,7 +220,13 @@ class PlanContainer
 		}
 		
 		void execute()
-		{ }
+		{
+			while (!scheduled_operations.empty() && (scheduled_operations.front().scheduledTime() == starttime)) {
+				active_operations.push_back(scheduled_operations.front());
+				scheduled_operations.erase(scheduled_operations.begin());
+				active_operations.back().execute(true);
+			}
+		}
 		
 		const ResourcesType& startResources() const
 		{
@@ -196,32 +243,48 @@ class PlanContainer
 			return endtime;
 		}
 		
-		int size() const
+		int scheduledCount() const
 		{
-			return operations.size();
+			return scheduled_operations.size();
+		}
+		
+		OperationType& scheduled(int i)
+		{
+			return scheduled_operations[i];
 		}
 
 	protected:
 		ResourcesType				startres;
-		std::list<OperationType>	operations;
-		std::set<int>				changeTimes;
+		std::vector<OperationType>	active_operations;
+		std::vector<OperationType>	scheduled_operations;
+		std::set<int>				changetimes;
 		int              			starttime;
 		int							opendtime;
 		int							endtime;
 
 		void evalOperations(ResourcesType& res, int btime, int etime) const
 		{
-			for (auto it : operations)
+			for (auto it : active_operations)
+				it.apply(res, btime, etime);
+				
+			for (auto it : scheduled_operations)
 				it.apply(res, btime, etime);
 		}
 		
 		void add(const OperationType& op, int time)
 		{
 			OperationType newop(op, time);
-			newop.changeTimes(changeTimes);
-			operations.push_back(newop);
+			newop.changeTimes(changetimes);
+			scheduled_operations.push_back(newop);
 			opendtime = std::max(opendtime, time);
-			endtime = *changeTimes.rbegin();
+			endtime = *changetimes.rbegin();
+		}
+		
+		void addActive(const OperationType& op)
+		{
+			active_operations.push_back(op);
+			op.changeTimes(changetimes);
+			endtime = *changetimes.rbegin();
 		}
 };
 
