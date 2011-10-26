@@ -18,7 +18,7 @@ namespace Plan
     enum { value = false };
   };
   
-  template <class RT>
+  template <class RT, class depRT>
   struct ResourceGrowth
   {
     enum { value = false };
@@ -26,7 +26,7 @@ namespace Plan
 }
  
 #define DEF_RESTYPE(Name)                                                      \
-	struct Name { };                                                             \
+	struct Name { };                                                           \
 	template <> const char Plan::ResourceName<Name>::name[] = #Name;
 
 #define DEF_RESLOCKABLE(Name)                                                  \
@@ -37,10 +37,37 @@ namespace Plan
 #define DEF_RESGROWTH(Name, Factor, DepName)                                   \
   struct Name;                                                                 \
   struct DepName;                                                              \
-  namespace Plan { template <> struct ResourceGrowth<Name>                     \
+  namespace Plan { template <> struct ResourceGrowth<Name, DepName>            \
   {                                                                            \
     enum { value = true };                                                     \
     enum { factor = Factor };                                                  \
-    typedef DepName dependentRT;                                               \
+	typedef Name     RT;													   \
+	typedef DepName  depRT;                                                    \
   }; }
+
+template <class RLIST>
+struct GrowthPairs
+{
+	template <class T>
+	struct Predicate
+	{
+		enum { value = T::value };
+	};
+	
+	typedef typename tensorlist< Plan::ResourceGrowth, RLIST >::type  TENSORLIST;
+	typedef typename sublist< Predicate, TENSORLIST >::type type;
+};	
+ 
+template <class RLIST, class depRT>
+struct GrowthInverseList
+{
+  template <class PT>
+  struct Predicate
+  {
+    enum { value = boost::is_same<depRT, typename PT::depRT>::value };
+  };
+  
+  typedef typename GrowthPairs<RLIST>::type list;
+  typedef typename sublist< Predicate, list >::type type;
+};
 

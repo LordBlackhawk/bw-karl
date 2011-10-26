@@ -117,6 +117,11 @@ class Operation
 		{
 			details_ = ptr;
 		}
+		
+		OperationStatus::type status() const
+		{
+			return status_;
+		}
       
 	private:
 		template <class OT>

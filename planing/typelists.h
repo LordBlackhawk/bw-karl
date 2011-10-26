@@ -52,7 +52,8 @@ struct indexof
 template <class C, class F, class ... T>
 struct indexof<C, type_list<F, T...> >
 {
-	enum { value = (boost::is_same<C, F>::value) ? 0 : (indexof< C, type_list<T...> >::value + 1) };
+	enum { next  = indexof< C, type_list<T...> >::value };
+	enum { value = (boost::is_same<C, F>::value) ? 0 : ((next!=-1) ? next+1 : -1) };
 };
 
 template <class C>
@@ -110,8 +111,53 @@ struct sublist< PREDICATE, type_list<F, T...> >
 {
 	typedef typename combine<
 						typename sublist_helper<PREDICATE<F>::value, F>::type,
-	  				 typename sublist< PREDICATE, type_list<T...> >::type
+						typename sublist< PREDICATE, type_list<T...> >::type
 					>::type type;
+};
+
+template <template <class> class FUNCTION, class LIST>
+struct maplist
+{
+	typedef type_list<> type;
+};
+
+template <template <class> class FUNCTION, class F, class ... T>
+struct maplist< FUNCTION, type_list<F, T...> >
+{
+	typedef typename combine<
+						type_list< typename FUNCTION<F>::type >,
+						typename maplist< FUNCTION, type_list<T...> >::type
+					>::type type;
+};
+
+template <template <class, class> class FUNC, class LIST>
+struct tensorlist
+{
+	typedef type_list<> type;
+};
+
+template <template <class, class> class FUNC, class F, class ... T>
+struct tensorlist< FUNC, type_list<F, T...> >
+{
+	template <class ARG2>
+	struct Func
+	{
+		typedef FUNC< F, ARG2 > type;
+	};
+	
+	template <class ARG1>
+	struct InvF
+	{
+		typedef FUNC< ARG1, F > type;
+	};
+	
+	typedef typename maplist< Func, type_list<T...> >::type  RES1;
+	typedef typename maplist< InvF, type_list<T...> >::type  RES2;
+	
+	typedef typename combine<
+				typename combine< RES1, RES2 >::type,
+				typename tensorlist< FUNC, type_list<T...> >::type
+			>::type type;
 };
 
 template <class LIST>

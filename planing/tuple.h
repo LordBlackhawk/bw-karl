@@ -2,6 +2,7 @@
 
 #include "typelists.h"
 #include <array>
+#include <cassert>
 
 template <class LIST, class T>
 struct Tuple : public std::array<T, size<LIST>::value>
@@ -23,12 +24,16 @@ struct Tuple : public std::array<T, size<LIST>::value>
 	template <class ID>
 	T& get()
 	{
-		return (*this)[indexof<ID, LIST>::value];
+		int index = indexof<ID, LIST>::value;
+		assert(index >= 0);
+		return (*this)[index];
 	}
 	
 	template <class ID>
 	const T& get() const
 	{
-		return (*this)[indexof<ID, LIST>::value];
+		int index = indexof<ID, LIST>::value;
+		assert(index >= 0);
+		return (*this)[index];
 	}
 };

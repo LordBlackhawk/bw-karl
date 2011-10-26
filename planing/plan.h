@@ -64,13 +64,13 @@ class PlanContainer
 				{
 					std::set<int>::const_iterator it = parent.changetimes.lower_bound(currenttime+1);
 					int newtime = (it == parent.changetimes.end()) ? parent.endtime+1 : *it;
-          advance(newtime);
+					advance(newtime);
 					return *this;
 				}
 				
 				Situation& inc(int dt)
 				{
-          advance(currenttime + dt);
+					advance(currenttime + dt);
  					return *this;
 				}
 				
@@ -110,25 +110,27 @@ class PlanContainer
 				int 	     	currenttime;
 				ResourcesType	current;
 				
-				Situation(const ThisType& p, int time = -1) : parent(p), currenttime(parent.starttime), current(parent.startres)
+				Situation(const ThisType& p, int time = -1) : parent(p), currenttime(parent.starttime-1), current(parent.startres)
 				{
 					if (time < 0)
 						time = parent.starttime;
-          advance(time);
+					advance(time);
 				}
             
-        void advance(int newtime)
-        {
-          current.advance(newtime-currenttime);
-          parent.evalOperations(current, currenttime+1, newtime);
+				void advance(int newtime)
+				{
+					current.advance(newtime-currenttime);
+					parent.evalOperations(current, currenttime+1, newtime);
 					currenttime = newtime;
-        }
+				}
 		};
 
 	public:
 		PlanContainer(ResourcesType sr, int st=0)
 			: startres(sr), starttime(st), opendtime(st), endtime(st)
-		{ }
+		{
+			startres.setTime(starttime);
+		}
 		
 		void swap(ThisType& other)
 		{
@@ -194,9 +196,11 @@ class PlanContainer
 		{
 			ThisType newplan(newres, starttime+timeinc);
 			
-			for (auto it : active_operations) {
+			for (auto& it : active_operations) {
 				it.execute(false);
-				newplan.addActive(it);
+				if (   (it.status() != OperationStatus::completed)
+				    && (it.status() != OperationStatus::failed))
+					newplan.addActive(it);
 			}
 			
 			for (auto it : scheduled_operations) {
