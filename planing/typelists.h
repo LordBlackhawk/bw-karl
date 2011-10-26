@@ -87,6 +87,33 @@ struct combine< type_list<T...>, type_list<U...> >
 	typedef type_list<T..., U...> type;
 };
 
+template <bool, class T>
+struct sublist_helper
+{
+	typedef type_list < > type;
+};
+
+template <class T>
+struct sublist_helper<true, T>
+{
+	typedef type_list < T > type;
+};
+
+template <template <class> class PREDICATE, class LIST>
+struct sublist
+{
+	typedef type_list<> type;
+};
+
+template <template <class> class PREDICATE, class F, class ...T>
+struct sublist< PREDICATE, type_list<F, T...> >
+{
+	typedef typename combine<
+						typename sublist_helper<PREDICATE<F>::value, F>::type,
+	  				 typename sublist< PREDICATE, type_list<T...> >::type
+					>::type type;
+};
+
 template <class LIST>
 struct enumerate
 {
