@@ -258,7 +258,7 @@ class Operation
 			{
 				if (stage <= 0)
 					if ((btime <= time) && (time <= etime))
-						res.template get<RT>() -= num;
+						res.template dec<RT>(time, num);
 			}
 		};
 
@@ -269,7 +269,7 @@ class Operation
 			{
 				if (stage <= 0)
 					if ((btime <= time) && (time <= etime))
-						res.template incLocked<RT>(num);
+						res.template incLocked<RT>(time, num);
 			}
 		};
 		
@@ -280,7 +280,7 @@ class Operation
 			{
 				if (stage <= 0)
 					if ((btime <= time) && (time <= etime))
-						res.template decLocked<RT>(num);
+						res.template decLocked<RT>(time, num);
 			}
 		};
 
@@ -291,7 +291,7 @@ class Operation
 			{
 				if (stage <= 0)
 					if ((btime <= time) && (time <= etime))
-						res.template get<RT>() += num;
+						res.template inc<RT>(time, num);
 			}
 		};
 		
