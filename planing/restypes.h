@@ -21,7 +21,7 @@ namespace Plan
   template <class RT>
   struct ResourceGrowth
   {
-    enum { isgrowing = false };
+    enum { value = false };
   };
 }
  
@@ -39,7 +39,7 @@ namespace Plan
   struct DepName;                                                              \
   namespace Plan { template <> struct ResourceGrowth<Name>                     \
   {                                                                            \
-    enum { isgrowing = true };                                                 \
+    enum { value = true };                                                     \
     enum { factor = Factor };                                                  \
     typedef DepName dependentRT;                                               \
   }; }
