@@ -64,17 +64,14 @@ class PlanContainer
 				{
 					std::set<int>::const_iterator it = parent.changetimes.lower_bound(currenttime+1);
 					int newtime = (it == parent.changetimes.end()) ? parent.endtime+1 : *it;
-					parent.evalOperations(current, currenttime+1, newtime);
-					currenttime = newtime;
+          advance(newtime);
 					return *this;
 				}
 				
 				Situation& inc(int dt)
 				{
-					int newtime = currenttime + dt;
-					parent.evalOperations(current, currenttime+1, newtime);
-					currenttime = newtime;
-					return *this;
+          advance(currenttime + dt);
+ 					return *this;
 				}
 				
 				int time() const
@@ -113,12 +110,19 @@ class PlanContainer
 				int 	     	currenttime;
 				ResourcesType	current;
 				
-				Situation(const ThisType& p, int time = -1) : parent(p), currenttime(time), current(parent.startres)
+				Situation(const ThisType& p, int time = -1) : parent(p), currenttime(parent.starttime), current(parent.startres)
 				{
-					if (currenttime < 0)
-						currenttime = parent.starttime;
-					parent.evalOperations(current, parent.starttime, currenttime);
+					if (time < 0)
+						time = parent.starttime;
+          advance(time);
 				}
+            
+        void advance(int newtime)
+        {
+          current.advance(newtime-currenttime);
+          parent.evalOperations(current, currenttime+1, newtime);
+					currenttime = newtime;
+        }
 		};
 
 	public:
