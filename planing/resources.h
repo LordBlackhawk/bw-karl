@@ -3,11 +3,24 @@
 #include "tuple.h"
 #include "restypes.h"
 
+template <class GROWTHLIST, class depRT>
+struct GrowthInverseList
+{
+  template <class RT>
+  struct Predicate
+  {
+    enum { value = boost::is_same<depRT, Plan::ResourceGrowth<RT>::dependentRT >::value };
+  };
+  
+  typedef sublist< Predicate, GROWTHLIST >::type type;
+};
+
 template <class RLIST>
 class Resources
 {
   typedef Resources<RLIST> ThisType;
   typedef sublist< Plan::ResourceLockable, RLIST > LOCKLIST;
+  typedef sublist< Plan::ResourceGrowth, RLIST > GROWTHLIST;
   
   public:
      Resources() : time(0), amount(0), locked(0)
@@ -67,7 +80,8 @@ class Resources
      void inc(int optime, int value = 1)
      {
        amount.get<RT>() += value;
-       // TODO: ResGrowth
+       typedef GrowthInverseList< GROWTHLIST, RT >::type MYLIST;
+       enumerate<MYLIST>::call<AdvanceInternal, Tuple<RLIST, int>&, int> (amount, time - optime);
      }
      
      template <class RT>
@@ -91,7 +105,7 @@ class Resources
      
      void advance(int dt)
      {
-       // TODO: ResGrowth
+       enumerate<GROWTHLIST>::call<AdvanceInternal, Tuple<RLIST, int>&, int> (amount, dt);
        time += dt;
      }
      
@@ -104,6 +118,18 @@ class Resources
      {
        return time;
      }
+     
+  private:
+    template <class RT>
+    struct AdvanceInternal
+    {
+      typedef Plan::ResourceGrowth<RT>::dependentRT depRT;
+      enum { factor = Plan::ResourceGrowth<RT>::factor };
+      static call(Tuple<RLIST, int>& amount, int dt)
+      {
+        amount.template get<RT>() += dt * factor * amount.template get<depRT>();
+      }
+    };
 
   protected:
     int                  time;
