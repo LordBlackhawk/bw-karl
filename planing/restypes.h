@@ -35,6 +35,8 @@ namespace Plan
   { enum { value = true }; }; }
 
 #define DEF_RESGROWTH(Name, Factor, DepName)                                   \
+  struct Name;                                                                 \
+  struct DepName;                                                              \
   namespace Plan { template <> struct ResourceGrowth<Name>                     \
   {                                                                            \
     enum { isgrowing = true };                                                 \
