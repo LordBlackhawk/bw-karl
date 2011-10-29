@@ -19,6 +19,12 @@ echo:
 %.exe: $(OBJECTPATH)%.o
 	$(CXX) $(CXXFLAGS) $< $(CXXLIBS) -o $@
 	
+bwplan/auto-res-types.h: BWPlanWriter.exe
+	$< auto-res-types.h > $@
+
+bwplan/auto-op-types.h: BWPlanWriter.exe
+	$< auto-op-types.h > $@
+	
 $(OBJECTPATH)%.o: */%.cpp $(OBJECTPATH)%.d
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 	

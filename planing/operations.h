@@ -1,7 +1,8 @@
 #pragma once
 
+#include "operationindex.h"
 #include "resources.h"
-#include "optypes.h"
+#include "operationstatus.h"
 #include "checkpoints.h"
 
 #include <set>
@@ -12,11 +13,13 @@ template <class RLIST, class OLIST>
 class Operation
 {
 	public:
-		 typedef Resources<RLIST>			ResourcesType;
-		 typedef Operation<RLIST, OLIST>	ThisType;
+		typedef Operation<RLIST, OLIST>		ThisType;
+		typedef Resources<RLIST>			ResourcesType;
+		typedef OperationIndex<OLIST>		IndexType;
+		typedef ResourceIndex<RLIST>		ResIndexType;
 
 	public:
-		explicit Operation(int i, int st = 0)
+		explicit Operation(const IndexType& i, int st = 0)
 			: index_(i), status_(OperationStatus::scheduled), stage_(0), scheduledtime_(st), details_(NULL)
 		{ }
 		
@@ -24,12 +27,6 @@ class Operation
 			: index_(o.index_), status_(o.status_), stage_(o.stage_), scheduledtime_(st), details_(o.details_)
 		{ }
 		
-		template <class OP>
-		static ThisType get(int st = 0)
-		{
-			return Operation(indexof<OP, OLIST>::value, st);
-		}
-
 		int duration() const
 		{
 			int result = 0;
@@ -102,9 +99,7 @@ class Operation
       
 		std::string getName() const
 		{
-			std::string result;
-			dispatch<OLIST>::template call<GetName, std::string&>(index_, result);
-			return result;
+			return index_.getName();
 		}
 		  
 		template <class OT>
@@ -122,16 +117,6 @@ class Operation
 		{
 			return status_;
 		}
-      
-	private:
-		template <class OT>
-		struct GetName
-		{
-		  static void call(std::string& result)
-		  {
-			result = Plan::OperationName<OT>::name;
-		  }
-		};
 
 	private:
 		template <class OT, class T>
@@ -365,14 +350,14 @@ class Operation
 		};
 		
 		template <class OT, class FIRST, class ... TAIL>
-		struct mydispatch2< OT, type_list<FIRST, TAIL...> >
+		struct mydispatch2< OT, TL::type_list<FIRST, TAIL...> >
 		{
 			template <template<class, class> class DISPATCHER, class... ARGS>
 			static void call(int time, int* details, ARGS... args)
 			{
 				docall<OT, FIRST>::template call<DISPATCHER, ARGS...>(time, details, args...);
 				DISPATCHER<OT, FIRST>::call(time, details, args...);
-				mydispatch2< OT, type_list<TAIL...> >::template call<DISPATCHER, ARGS...>(time, details, args...);
+				mydispatch2< OT, TL::type_list<TAIL...> >::template call<DISPATCHER, ARGS...>(time, details, args...);
 			}
 		};
 		
@@ -387,7 +372,7 @@ class Operation
 		};
 
 		template <class FIRST, class ... TAIL>
-		struct mydispatch< type_list<FIRST, TAIL...> >
+		struct mydispatch< TL::type_list<FIRST, TAIL...> >
 		{
 			template <template<class, class> class DISPATCHER, class ... ARGS>
 			static void call(int index, int time, int* details, ARGS... args)
@@ -395,7 +380,7 @@ class Operation
 				if (index == 0)
 					mydispatch2< FIRST, typename Plan::OperationList<FIRST>::type >::template call<DISPATCHER, ARGS...>(time, details, args...);
 				else 
-					mydispatch< type_list<TAIL...> >::template call<DISPATCHER, ARGS...>(index-1, time, details, args...);
+					mydispatch< TL::type_list<TAIL...> >::template call<DISPATCHER, ARGS...>(index-1, time, details, args...);
 			}
 		};
 		
@@ -406,7 +391,7 @@ class Operation
 		}
 
 	protected:
-		int   					index_;
+		IndexType				index_;
 		OperationStatus::type 	status_;
 		int						stage_;
 		int   					scheduledtime_;

@@ -1,5 +1,4 @@
-#ifndef PLAN_h
-#define PLAN_h
+#pragma once
 
 #include "resources.h"
 #include "operations.h"
@@ -21,7 +20,7 @@ struct DefaultFallbackBehaviour
 	typedef PlanContainer<RLIST, OLIST>		PlanType;
 	FallbackBehaviourType::type operator () (PlanType& /*plan*/, const OperationType& /*op*/) const
 	{
-		std::cout << "!!!!Fallback\n";
+		//std::cout << "!!!!Fallback\n";
 		return FallbackBehaviourType::Continue;
 	}
 };
@@ -295,5 +294,3 @@ class PlanContainer
 			endtime = *changetimes.rbegin();
 		}
 };
-
-#endif

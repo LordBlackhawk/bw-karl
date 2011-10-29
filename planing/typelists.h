@@ -2,6 +2,8 @@
 
 #include <boost/type_traits/is_same.hpp>
 
+namespace TL {
+
 struct empty_type
 { };
 
@@ -198,3 +200,5 @@ struct dispatch< type_list<F, T...> >
 		dispatch< type_list<T...> >::template call<DISPATCHER, ARGS...>(index-1, args...);
 	}
 };
+
+} // namespace TL

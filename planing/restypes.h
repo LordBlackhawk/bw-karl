@@ -2,8 +2,6 @@
 
 #include "typelists.h"
 
-#include <string>
-
 namespace Plan
 {
 	template <class RT>
@@ -12,17 +10,17 @@ namespace Plan
 		static const char name[];
 	};
    
-  template <class RT>
-  struct ResourceLockable
-  {
-    enum { value = false };
-  };
+	template <class RT>
+	struct ResourceLockable
+	{
+		enum { value = false };
+	};
   
-  template <class RT, class depRT>
-  struct ResourceGrowth
-  {
-    enum { value = false };
-  };
+	template <class RT, class depRT>
+	struct ResourceGrowth
+	{
+		enum { value = false };
+	};
 }
  
 #define DEF_RESTYPE(Name)                                                      \
@@ -54,20 +52,20 @@ struct GrowthPairs
 		enum { value = T::value };
 	};
 	
-	typedef typename tensorlist< Plan::ResourceGrowth, RLIST >::type  TENSORLIST;
-	typedef typename sublist< Predicate, TENSORLIST >::type type;
+	typedef typename TL::tensorlist< Plan::ResourceGrowth, RLIST >::type  TENSORLIST;
+	typedef typename TL::sublist< Predicate, TENSORLIST >::type type;
 };	
  
 template <class RLIST, class depRT>
 struct GrowthInverseList
 {
-  template <class PT>
-  struct Predicate
-  {
-    enum { value = boost::is_same<depRT, typename PT::depRT>::value };
-  };
+	template <class PT>
+	struct Predicate
+	{
+		enum { value = boost::is_same<depRT, typename PT::depRT>::value };
+	};
   
-  typedef typename GrowthPairs<RLIST>::type list;
-  typedef typename sublist< Predicate, list >::type type;
+	typedef typename GrowthPairs<RLIST>::type list;
+	typedef typename TL::sublist< Predicate, list >::type type;
 };
 

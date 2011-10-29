@@ -1,11 +1,7 @@
 #pragma once
 
 #include "optypes.h"
-
-struct OperationStatus
-{
-	enum type { scheduled, started, running, completed, failed };
-};
+#include "operationstatus.h"
 
 struct CheckPointResult
 {

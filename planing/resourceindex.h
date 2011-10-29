@@ -1,19 +1,29 @@
 #pragma once
 
-#include "associations.h"
+#include "association.h"
 #include "restypes.h"
+
+#include <string>
+
+template <class RLIST>
+class ResourceIndexContainer;
 
 template <class RLIST>
 class ResourceIndex
 {
 	typedef ResourceIndex<RLIST>											ThisType;
 	typedef typename TL::sublist< Plan::ResourceLockable, RLIST >::type		LOCKLIST;
+	
+	friend class ResourceIndexContainer<RLIST>;
 
 	public:
+		enum { IndexCount = TL::size<RLIST>::value };
+		enum { LockIndexCount = TL::size<LOCKLIST>::value };
+	
 		template <class RT>
 		static ThisType byClass()
 		{
-			return ResourceIndex(TL::indexof<RT, RLIST>::value);
+			return ThisType(TL::indexof<RT, RLIST>::value);
 		}
 
 		template <class T>
@@ -21,14 +31,14 @@ class ResourceIndex
 		{
 			int result = -1;
 			TL::enumerate<RLIST>::template call<ByAssociation, const T&, int&>(value, result);
-			return ResourceIndex(result);
+			return ThisType(result);
 		}
 
 		static ThisType byName(const std::string& name)
 		{
 			int result = -1;
 			TL::enumerate<RLIST>::template call<ByName, const std::string&, int&>(name, result);
-			return ResourceIndex(result);
+			return ThisType(result);
 		}
 
 		std::string getName() const
@@ -50,7 +60,7 @@ class ResourceIndex
 			return index_;
 		}
 
-		int getIndexLocked() const
+		int getLockedIndex() const
 		{
 			int result = -1;
 			TL::dispatch<RLIST>::template call<GetIndexLocked, int&>(index_, result);
@@ -132,21 +142,24 @@ class ResourceIndex
 template <class RLIST>
 class ResourceIndexContainer
 {
+	typedef ResourceIndex<RLIST>	IndexType;
+
 	public:
+		enum { IndexCount = IndexType::IndexCount };
+		enum { LockIndexCount = IndexType::LockIndexCount };
+	
 		int size() const
 		{
-			return TL::size<RLIST>::value;
+			return IndexCount;
 		}
 
-		ResourceIndex<RLIST> begin() const
+		IndexType begin() const
 		{
-			return ResourceIndex<RLIST>(0);
+			return IndexType(0);
 		}
 
-		ResourceIndex<RLIST> end() const
+		IndexType end() const
 		{
-			return ResourceIndex<RLIST>(size());
+			return IndexType(size());
 		}
 };
-
-ResourceIndexContainer ResourceIndices;
