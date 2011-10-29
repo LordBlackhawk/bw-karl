@@ -17,9 +17,11 @@ DEF_RESTYPE(TerranWorker)
 DEF_RESLOCKABLE(CommandCenter)
 DEF_RESLOCKABLE(TerranSupply)
 
-DEF_RESGROWTH(Minerals, 5, TerranWorker)
+BEGIN_DEF_RESGROWTH(Minerals)
+	LINEAR(5, TerranWorker)
+END_DEF_RESGROWTH
 
-typedef type_list< Minerals, CommandCenter, TerranSupply, TerranWorker > res_list;
+typedef TL::type_list< Minerals, CommandCenter, TerranSupply, TerranWorker > res_list;
 
 DEF_CHECKPOINT(Build)
 DEF_CHECKPOINT(BuildFinished)
@@ -34,11 +36,12 @@ BEGIN_DEF_OPTYPE(BuildTerranWorker)
 		CheckPoint<BuildFinished, 0>
 END_DEF_OPTYPE
 
-typedef type_list< BuildTerranWorker > op_list;
+typedef TL::type_list< BuildTerranWorker > op_list;
 
-typedef PlanContainer<res_list, op_list>	TestPlan;
-typedef TestPlan::ResourcesType				TestResources;
-typedef TestPlan::OperationType				TestOperation;
+typedef PlanContainer<res_list, op_list>			TestPlan;
+typedef TestPlan::ResourcesType						TestResources;
+typedef TestPlan::OperationType						TestOperation;
+typedef TestOperation::IndexType					TestOpIndex;
 typedef DefaultFallbackBehaviour<res_list, op_list>	TestBehaviour;
 
 TestResources current;
@@ -104,7 +107,7 @@ int main()
 	current.set<TerranWorker>	(2);
 	current.set<TerranSupply>	(7);
 	
-	TestOperation op = TestOperation::get<BuildTerranWorker>();
+	TestOperation op = TestOperation(TestOpIndex::byClass<BuildTerranWorker>());
 	std::cout << "StageCount:  " << op.stageCount() << "\n";
 	std::cout << "IsApplyable: " << op.isApplyable(current, 0) << "\n";
 	std::cout << "Duration:    " << op.duration() << "\n";
@@ -114,11 +117,14 @@ int main()
 
 	TestPlan plan(current);
 	for (int k=0; k<3; ++k)
-		plan.push_back(TestOperation::get<BuildTerranWorker>());
+		plan.push_back(op);
 		
 	std::cout << "Plan.size:   " << plan.scheduledCount() << "\n";
-	for (int k=0; k<plan.scheduledCount(); ++k)
-		std::cout << "Scheduled("<<k<<"):" << plan.scheduled(k).scheduledTime() << "\n";
+	int k = 0;
+	for (auto it : plan.scheduledOperations()) {
+		std::cout << "Scheduled("<<k<<"):" << it.scheduledTime() << "\n";
+		++k;
+	}
 	std::cout << "\n";
 	
 	std::cout << "Plan complete:\n";

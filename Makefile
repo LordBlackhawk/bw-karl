@@ -4,7 +4,7 @@ BWTAPATH     = ../bwta/include/
 BOOSTPATH    = ../boost_1_46_1/
 
 CXX          = g++
-CXXFLAGS     = -Wall -Wextra -O2 --std=c++0x -I$(BWAPIPATH) -I$(BWTAPATH) -I$(BOOSTPATH)
+CXXFLAGS     = -Wall -Wextra -O2 --std=c++0x -I$(BWAPIPATH) -I$(BWTAPATH) -I$(BOOSTPATH) -I.
 CXXLIBS      = -L. -lBWAPI -lBWTA
 
 SOURCES      = $(wildcard */*.cpp)

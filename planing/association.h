@@ -10,9 +10,13 @@ namespace Plan {
 	};
 }
 
+#ifdef NO_ASSOCIATIONS
+#define DEF_ASSOCIATION(Name, Type, Value)
+#else
 #define DEF_ASSOCIATION(Name, Type, Value)		 										\
 	struct Name;																		\
 	template <> static Type Plan::Associations<Name, Type>::value = Value;
+#endif
 
 template <class OT, class T>
 T getAssociation()

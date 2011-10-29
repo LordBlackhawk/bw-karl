@@ -20,27 +20,24 @@ struct OutputInternal
 void outputResources(const BWResources& res)
 {
 	bool first = true;
-	enumerate<BWResourceList>::call<OutputInternal, const BWResources&, bool&> (res, first);
+	TL::enumerate<BWResourceList>::call<OutputInternal, const BWResources&, bool&> (res, first);
 	if (first)
 		std::cout << "[There are no resources!]";
 	std::cout << "\n";
 }
 
-BWOperation getOperationByName(const std::string& name)
+BWOperationIndex getOperationIndexByName(const std::string& name)
 {
-	BWOperation res = BWOperation::getByName(name);
-	if (res.status() != OperationStatus::failed)
-		return res;
-	res = BWOperation::getByName("OBuildZerg_" + name);
-	if (res.status() != OperationStatus::failed)
-		return res;
-	res = BWOperation::getByName("OBuildProtoss_" + name);
-	if (res.status() != OperationStatus::failed)
-		return res;
-	res = BWOperation::getByName("OBuildTerran_" + name);
-	if (res.status() != OperationStatus::failed)
-		return res;
-	return BWOperation::getByName("OBuild" + name);
+	BWOperationIndex index = BWOperationIndex::byName(name);
+	if (!index.valid())
+		index = BWOperationIndex::byName("OBuildZerg" + name);
+	if (!index.valid())
+		index = BWOperationIndex::byName("OBuildProtoss" + name);
+	if (!index.valid())
+		index = BWOperationIndex::byName("OBuildTerran" + name);
+	if (!index.valid())
+		index = BWOperationIndex::byName("OBuild" + name);
+	return index;
 }
 
 int main(int argc, const char* argv[])
@@ -56,13 +53,18 @@ int main(int argc, const char* argv[])
 	if (race == "Terran") {
 		res.set<RTerranWorker>(4);
 		res.set<RTerranCommandCenter>(1);
+		res.set<RTerranSupply>(10);
+		res.incLocked<RTerranSupply>(4);
 	} else if (race == "Protoss") {
 		res.set<RProtossWorker>(4);
 		res.set<RProtossNexus>(1);
+		res.set<RProtossSupply>(9);
+		res.incLocked<RProtossSupply>(4);
 	} else if (race == "Zerg") {
 		res.set<RZergWorker>(4);
-		res.set<RZergOverlord>(1);
 		res.set<RZergHatchery>(1);
+		res.set<RZergSupply>(9);
+		res.incLocked<RZergSupply>(4);
 	} else {
 		std::cerr << "Unknown Race: " << race << "\n";
 		return 1;
@@ -71,27 +73,27 @@ int main(int argc, const char* argv[])
 	BWPlan plan(res, 0);
 	std::cout << "Parsing arguments...\n";
 	for (int k=2; k<argc; ++k) {
-		BWOperation op = getOperationByName(argv[k]);
-		if (op.status() == OperationStatus::failed) {
+		BWOperationIndex index = getOperationIndexByName(argv[k]);
+		if (!index.valid()) {
 			std::cerr << "Unknown Operation Name: " << argv[k] << "\n";
 			continue;
 		}
-		plan.push_back(op);
+		plan.push_back(BWOperation(index));
 	}
 	std::cout << "\n";
 
 	std::cout << "Planed Operations:\n";
-	for (auto it : plan.scheduled_operations())
+	for (auto it : plan.scheduledOperations())
 		std::cout << "planed(" << it.scheduledTime() << "): " << it.getName() << "\n";
 	std::cout << "\n";
 
 	std::cout << "Planed Resources:\n";
 	for (auto it : plan) {
-		std::cout << "planed(" << it.getTime() << "): \t";
+		std::cout << "planed(" << it.time() << "): \t";
 		outputResources(it.getResources());
 	}
 	std::cout << "\n";
 
-	std::cout << "Plan finished after " << plan.end().getTime() << " frames.\n";
+	std::cout << "Plan finished after " << plan.end().time() << " frames.\n";
 	return 0;
 }

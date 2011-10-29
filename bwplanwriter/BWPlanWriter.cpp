@@ -106,7 +106,7 @@ void writeResFile()
 	writeHeader();
 	for (auto it : BWAPI::UnitTypes::allUnitTypes())
 		writeResForUnitType(it);
-	std::cout << "typedef type_list<\n";
+	std::cout << "typedef TL::type_list<\n";
 	writeStringList(resnames);
 	std::cout << "\t> AutoResourceTypeList;\n";
 }
@@ -169,7 +169,7 @@ void writeOpForUnitType(const BWAPI::UnitType& ut)
 	}
 	for (auto it : ut.requiredUnits())
 		if (isResource(it.first)) {
-			std::cout << "\tExists<" << it.second << ", " << getResourceName(it.first) << ">,\n";
+			std::cout << "\tNeeds<" << it.second << ", " << getResourceName(it.first) << ">,\n";
 		} else if ((it.first != BWAPI::UnitTypes::Zerg_Larva) && !it.first.isWorker()) {
 			std::cout << "\t// " << it.second << " " << it.first.getName() << "\n";
 		}
@@ -242,7 +242,7 @@ void writeOpFile()
 	writeHeader();
 	for (auto it : BWAPI::UnitTypes::allUnitTypes())
 		writeOpForUnitType(it);
-	std::cout << "typedef type_list<\n";
+	std::cout << "typedef TL::type_list<\n";
 	writeStringList(opnames);
 	std::cout << "\t> AutoOperationTypeList;\n";
 }

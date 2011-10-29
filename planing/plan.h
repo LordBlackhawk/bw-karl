@@ -131,22 +131,6 @@ class PlanContainer
 			startres.setTime(starttime);
 		}
 		
-		void swap(ThisType& other)
-		{
-			startres.swap(other.startres);
-			active_operations.swap(other.active_operations);
-			scheduled_operations.swap(other.scheduled_operations);
-			changetimes.swap(other.changetimes);
-			std::swap(starttime, other.starttime);
-			std::swap(endtime, other.endtime);
-			std::swap(opendtime, other.opendtime);
-		}
-		
-		friend void swap(ThisType& lhr, ThisType& rhs)
-		{
-			lhr.swap(rhs);
-		}
-		
 		bool empty() const
 		{
 			return scheduled_operations.empty() && active_operations.empty();
@@ -210,14 +194,14 @@ class PlanContainer
 						case FallbackBehaviourType::Fail:
 						  return false;
 						case FallbackBehaviourType::Abort:
-						  swap(newplan);
+						  std::swap(*this, newplan);
 						  return true;
 						case FallbackBehaviourType::Continue:
 						  break;
 					}
 				}
 			}
-			swap(newplan);
+			std::swap(*this, newplan);
 			return true;
 		}
 		
@@ -255,9 +239,9 @@ class PlanContainer
 			return scheduled_operations.size();
 		}
 		
-		OperationType& scheduled(int i)
+		const std::vector<OperationType> scheduledOperations() const
 		{
-			return scheduled_operations[i];
+			return scheduled_operations;
 		}
 
 	protected:

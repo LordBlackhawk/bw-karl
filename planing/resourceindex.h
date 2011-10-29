@@ -18,7 +18,7 @@ class ResourceIndex
 
 	public:
 		enum { IndexCount = TL::size<RLIST>::value };
-		enum { LockIndexCount = TL::size<LOCKLIST>::value };
+		enum { LockedIndexCount = TL::size<LOCKLIST>::value };
 	
 		template <class RT>
 		static ThisType byClass()

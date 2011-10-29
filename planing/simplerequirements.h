@@ -23,5 +23,5 @@ struct SimpleRequirementList
 	struct Predicate
 	{ enum { value = Plan::SimpleRequirement<RT, OT>::value }; };
 
-	typedef TL::sublist< Predicate, OLIST >::type type;
+	typedef typename TL::sublist< Predicate, OLIST >::type type;
 };

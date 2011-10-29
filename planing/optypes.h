@@ -1,5 +1,7 @@
 #pragma once
 
+#include "typelists.h"
+
 template <int, class RT>
 struct Needs
 { };
@@ -57,7 +59,7 @@ namespace Plan
 	struct Name { };                                   							  	\
 	template <> const char Plan::OperationName<Name>::name[] = #Name;				\
 	namespace Plan { template <> struct OperationList<Name> {		   				\
-		typedef type_list<
+		typedef TL::type_list<
 		
 #define END_DEF_OPTYPE															   \
 		> type;																       \

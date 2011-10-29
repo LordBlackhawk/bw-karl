@@ -387,7 +387,7 @@ class Operation
 		template <template <class, class> class DISPATCHER, class ... ARGS>
 		void idispatch(ARGS... args) const
 		{
-			mydispatch<OLIST>::template call<DISPATCHER, ARGS...>(index_, scheduledtime_, details_, args...);
+			mydispatch<OLIST>::template call<DISPATCHER, ARGS...>(index_.getIndex(), scheduledtime_, details_, args...);
 		}
 
 	protected:

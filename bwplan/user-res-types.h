@@ -14,6 +14,9 @@ DEF_RESTYPE(RZergWorker)
 DEF_RESTYPE(RZergGasWorker)
 DEF_RESTYPE(RZergSupply)
 
+DEF_RESTYPE(RLarva)
+// TODO: Growth for RLarva
+
 DEF_RESLOCKABLE(RGeyserWorkingPlace)
 DEF_RESLOCKABLE(RTerranWorker)
 DEF_RESLOCKABLE(RTerranSupply)
@@ -23,19 +26,23 @@ DEF_RESLOCKABLE(RZergWorker)
 DEF_RESLOCKABLE(RZergSupply)
 
 #define MINERALVALUE 45
-DEF_RESGROWTH(RMinerals, MINERALVALUE, RTerranWorker)
-DEF_RESGROWTH(RMinerals, MINERALVALUE, RProtossWorker)
-DEF_RESGROWTH(RMinerals, MINERALVALUE, RZergWorker)
+BEGIN_DEF_RESGROWTH(RMinerals)
+	LINEAR(MINERALVALUE, RTerranWorker),
+	LINEAR(MINERALVALUE, RProtossWorker),
+	LINEAR(MINERALVALUE, RZergWorker)
+END_DEF_RESGROWTH
 
 #define GASVALUE 45
-DEF_RESGROWTH(RGas, GASVALUE, RTerranGasWorker)
-DEF_RESGROWTH(RGas, GASVALUE, RProtossGasWorker)
-DEF_RESGROWTH(RGas, GASVALUE, RZergGasWorker)
+BEGIN_DEF_RESGROWTH(RGas)
+	LINEAR(GASVALUE, RTerranGasWorker),
+	LINEAR(GASVALUE, RProtossGasWorker),
+	LINEAR(GASVALUE, RZergGasWorker)
+END_DEF_RESGROWTH
 
-typedef type_list<
+typedef TL::type_list<
                     RMinerals, RGas, RGeyserWorkingPlace,
                     RTerranWorker, RTerranGasWorker, RTerranSupply,
                     RProtossWorker, RProtossGasWorker, RProtossSupply,
                     RZergWorker, RZergGasWorker, RZergSupply
-                 > BWUserResourceList;
+                 > UserResourceTypeList;
 

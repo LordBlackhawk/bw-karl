@@ -45,6 +45,11 @@ class OperationIndex
 			TL::dispatch<OLIST>::template call<GetName, std::string&>(index_, result);
 			return result;
 		}
+		
+		bool valid() const
+		{
+			return (index_ >= 0) && (index_ < IndexCount);
+		}
 
 		int getIndex() const
 		{

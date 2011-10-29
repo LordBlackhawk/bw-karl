@@ -1,5 +1,18 @@
 #pragma once
 
+DEF_CHECKPOINT(CSendGasWorker)
+DEF_CHECKPOINT(CReturnGasWorker)
+
+DEF_CHECKPOINT(CSendWorkerToBuildingPlace)
+DEF_CHECKPOINT(CBuildAddon)
+DEF_CHECKPOINT(CBuildAddonFinished)
+DEF_CHECKPOINT(CBuildBuilding)
+DEF_CHECKPOINT(CBuildingFinished)
+DEF_CHECKPOINT(CMorphUnit)
+DEF_CHECKPOINT(CCombineUnit)
+DEF_CHECKPOINT(CTrainUnit)
+DEF_CHECKPOINT(CUnitFinished)
+
 BEGIN_DEF_OPTYPE(OSendTerranGasWorker)
     Locks<1, RGeyserWorkingPlace>,
     Locks<1, RTerranWorker>,
@@ -9,7 +22,7 @@ END_DEF_OPTYPE
 BEGIN_DEF_OPTYPE(OReturnTerranGasWorker)
     Consums<1, RTerranGasWorker>,
     Unlocks<1, RTerranWorker>,
-    Unlocks<1, RGeyserWorkingPlace>
+    Unlocks<1, RGeyserWorkingPlace>,
         CheckPoint<CReturnGasWorker, 1>
 END_DEF_OPTYPE
 
@@ -57,9 +70,9 @@ DEF_ASSOCIATION(OReturnZergGasWorker, BWAPI::Race, BWAPI::Races::Zerg)
 DEF_SIMPLEREQUIREMENT(RGas,      OSendZergGasWorker)
 DEF_SIMPLEREQUIREMENT(RMinerals, OReturnZergGasWorker)
 
-typedef type_list<
+typedef TL::type_list<
                     OSendTerranGasWorker, OReturnTerranGasWorker,
                     OSendProtossGasWorker, OReturnProtossGasWorker,
                     OSendZergGasWorker, OReturnZergGasWorker
-                 > BWUserOperationList;
+                 > UserOperationTypeList;
 

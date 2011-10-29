@@ -2,6 +2,14 @@
 
 #include "typelists.h"
 
+template <class RT_, int f, class DepRT_>
+struct LinearGrowth
+{
+	typedef RT_			RT;
+	typedef DepRT_		depRT;
+	enum { factor = f };
+};
+
 namespace Plan
 {
 	template <class RT>
@@ -16,10 +24,11 @@ namespace Plan
 		enum { value = false };
 	};
   
-	template <class RT, class depRT>
+	template <class RT>
 	struct ResourceGrowth
 	{
 		enum { value = false };
+		typedef TL::type_list<> type;
 	};
 }
  
@@ -31,31 +40,36 @@ namespace Plan
   struct Name;                                                                 \
   namespace Plan { template <> struct ResourceLockable<Name>                   \
   { enum { value = true }; }; }
+  
+#define BEGIN_DEF_RESGROWTH(Name)												\
+	struct Name;																\
+	namespace Plan { template <> struct ResourceGrowth<Name>					\
+	{   enum { value = true };													\
+		typedef Name InternalRT;												\
+		typedef TL::type_list<
 
-#define DEF_RESGROWTH(Name, Factor, DepName)                                   \
-  struct Name;                                                                 \
-  struct DepName;                                                              \
-  namespace Plan { template <> struct ResourceGrowth<Name, DepName>            \
-  {                                                                            \
-    enum { value = true };                                                     \
-    enum { factor = Factor };                                                  \
-	typedef Name     RT;													   \
-	typedef DepName  depRT;                                                    \
-  }; }
+#define LINEAR(Num, DepName)													\
+	LinearGrowth<InternalRT, Num, DepName>
+		
+#define END_DEF_RESGROWTH														\
+			> type;																\
+	}; }
 
 template <class RLIST>
 struct GrowthPairs
 {
-	template <class T>
-	struct Predicate
-	{
-		enum { value = T::value };
-	};
-	
-	typedef typename TL::tensorlist< Plan::ResourceGrowth, RLIST >::type  TENSORLIST;
-	typedef typename TL::sublist< Predicate, TENSORLIST >::type type;
-};	
- 
+	typedef TL::type_list<> type;
+};
+
+template <class F, class ... T>
+struct GrowthPairs< TL::type_list<F, T...> >
+{
+	typedef typename TL::combine<
+							typename Plan::ResourceGrowth<F>::type,
+							typename GrowthPairs< TL::type_list<T...> >::type
+						>::type type;
+};
+
 template <class RLIST, class depRT>
 struct GrowthInverseList
 {
