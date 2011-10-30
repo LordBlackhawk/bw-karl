@@ -4,7 +4,8 @@ BWTAPATH     = ../bwta/include/
 BOOSTPATH    = ../boost_1_46_1/
 
 CXX          = g++
-CXXFLAGS     = -Wall -Wextra -O2 --std=c++0x -I$(BWAPIPATH) -I$(BWTAPATH) -I$(BOOSTPATH) -I.
+CXXINCLUDES  = -I$(BWAPIPATH) -I$(BWTAPATH) -I$(BOOSTPATH) -I.
+CXXFLAGS     = -Wall -Wextra -O2 --std=c++0x $(CXXINCLUDES)
 CXXLIBS      = -L. -lBWAPI -lBWTA
 
 SOURCES      = $(wildcard */*.cpp)
@@ -30,7 +31,7 @@ $(OBJECTPATH)%.o: */%.cpp $(OBJECTPATH)%.d
 	
 $(OBJECTPATH)%.d: */%.cpp
 	@echo 'Calculating Dependencies of "$<"...'
-	@$(CXX) -std=c++0x -MM -MG $< | sed 's,\($*\)\.o[ :]*,$(OBJECTPATH)\1.o $@ : ,g' | sed 's,boost/.*\.hpp,,g' > $@;
+	@$(CXX) --std=c++0x -I. -MM -MG $< | sed 's,\($*\)\.o[ :]*,$(OBJECTPATH)\1.o $@ : ,g' | sed 's,boost/.*\.hpp,,g' > $@;
 	
 -include $(DEPS)
 

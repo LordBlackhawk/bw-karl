@@ -3,27 +3,24 @@
 
 #include <iostream>
 
-template <class RT>
-struct OutputInternal
-{
-	static void call(const BWResources& res, bool& first)
-	{
-		if (res.get<RT>() > 0) {
-			if (!first)
-				std::cout << ", ";
-			std::cout << res.get<RT>() << " " << Plan::ResourceName<RT>::name;
-			first = false;
-		}
-	}
-};
-
-void outputResources(const BWResources& res)
+template <class STREAM>
+void outputResources(STREAM& stream, const BWResources& res)
 {
 	bool first = true;
-	TL::enumerate<BWResourceList>::call<OutputInternal, const BWResources&, bool&> (res, first);
+	for (auto it : BWResourceIndices)
+		if (res.get(it) > 0)
+	{
+		if (!first)
+				stream << ", ";
+		stream << res.get(it);
+		if (it.isLockable())
+			stream << "/" << res.getExisting(it);
+		stream << " " << it.getName();
+		first = false;
+	}
 	if (first)
-		std::cout << "[There are no resources!]";
-	std::cout << "\n";
+		stream << "[There are no resources!]";
+	stream << "\n";
 }
 
 BWOperationIndex getOperationIndexByName(const std::string& name)
@@ -53,18 +50,19 @@ int main(int argc, const char* argv[])
 	if (race == "Terran") {
 		res.set<RTerranWorker>(4);
 		res.set<RTerranCommandCenter>(1);
-		res.set<RTerranSupply>(10);
-		res.incLocked<RTerranSupply>(4);
+		res.set<RTerranSupply>(2*10);
+		res.incLocked<RTerranSupply>(0, 2*4);
 	} else if (race == "Protoss") {
 		res.set<RProtossWorker>(4);
 		res.set<RProtossNexus>(1);
-		res.set<RProtossSupply>(9);
-		res.incLocked<RProtossSupply>(4);
+		res.set<RProtossSupply>(2*9);
+		res.incLocked<RProtossSupply>(0, 2*4);
 	} else if (race == "Zerg") {
 		res.set<RZergWorker>(4);
 		res.set<RZergHatchery>(1);
-		res.set<RZergSupply>(9);
-		res.incLocked<RZergSupply>(4);
+		res.set<RZergSupply>(2*9);
+		res.incLocked<RZergSupply>(0, 2*4);
+		res.set<RLarva>(3);
 	} else {
 		std::cerr << "Unknown Race: " << race << "\n";
 		return 1;
@@ -78,7 +76,8 @@ int main(int argc, const char* argv[])
 			std::cerr << "Unknown Operation Name: " << argv[k] << "\n";
 			continue;
 		}
-		plan.push_back(BWOperation(index));
+		if (!plan.push_back(BWOperation(index)))
+			std::cerr << "Unable to add " << index.getName() << "!\n";
 	}
 	std::cout << "\n";
 
@@ -90,7 +89,7 @@ int main(int argc, const char* argv[])
 	std::cout << "Planed Resources:\n";
 	for (auto it : plan) {
 		std::cout << "planed(" << it.time() << "): \t";
-		outputResources(it.getResources());
+		outputResources(std::cout, it.getResources());
 	}
 	std::cout << "\n";
 

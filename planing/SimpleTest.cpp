@@ -17,8 +17,8 @@ DEF_RESTYPE(TerranWorker)
 DEF_RESLOCKABLE(CommandCenter)
 DEF_RESLOCKABLE(TerranSupply)
 
-BEGIN_DEF_RESGROWTH(Minerals)
-	LINEAR(5, TerranWorker)
+BEGIN_DEF_RESGROWTH(Minerals, 1000)
+	LINEAR(45, TerranWorker)
 END_DEF_RESGROWTH
 
 typedef TL::type_list< Minerals, CommandCenter, TerranSupply, TerranWorker > res_list;

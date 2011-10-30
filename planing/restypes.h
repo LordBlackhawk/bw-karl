@@ -28,6 +28,7 @@ namespace Plan
 	struct ResourceGrowth
 	{
 		enum { value = false };
+		enum { scaling = 1 };
 		typedef TL::type_list<> type;
 	};
 }
@@ -41,10 +42,11 @@ namespace Plan
   namespace Plan { template <> struct ResourceLockable<Name>                   \
   { enum { value = true }; }; }
   
-#define BEGIN_DEF_RESGROWTH(Name)												\
+#define BEGIN_DEF_RESGROWTH(Name, Scaling)										\
 	struct Name;																\
 	namespace Plan { template <> struct ResourceGrowth<Name>					\
 	{   enum { value = true };													\
+		enum { scaling = Scaling };												\
 		typedef Name InternalRT;												\
 		typedef TL::type_list<
 

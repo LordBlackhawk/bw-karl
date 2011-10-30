@@ -7,13 +7,14 @@
 template <class RLIST>
 class Resources
 {
-  typedef Resources<RLIST> 												ThisType;
-  typedef ResourceIndex<RLIST>											IndexType;
-  
-  typedef std::array<int, IndexType::IndexCount>						AmountType;
-  typedef std::array<int, IndexType::LockedIndexCount>					LockedType;
+	public:
+	  typedef Resources<RLIST> 												ThisType;
+	  typedef ResourceIndex<RLIST>											IndexType;
+	  
+	  typedef std::array<int, IndexType::IndexCount>						AmountType;
+	  typedef std::array<int, IndexType::LockedIndexCount>					LockedType;
 
-  typedef typename GrowthPairs<RLIST>::type 							PairTypeList;
+	  typedef typename GrowthPairs<RLIST>::type 							PairTypeList;
   
   public:	
     Resources() : time(0)
@@ -38,12 +39,12 @@ class Resources
   public:
 	int get(const IndexType& ri) const
 	{
-		return amount[ri.getIndex()];
+		return amount[ri.getIndex()] / ri.getScaling();
 	}
 	
 	int getLocked(const IndexType& ri) const
 	{
-		return locked[ri.getLockedIndex()];
+		return locked[ri.getLockedIndex()] / ri.getScaling();
 	}
 	
 	int getExisting(const IndexType& ri) const
@@ -53,18 +54,18 @@ class Resources
 	
 	void set(const IndexType& ri, int value)
 	{
-		amount[ri.getIndex()] = value;
+		amount[ri.getIndex()] = value * ri.getScaling();
 	}
 	
 	void setLocked(const IndexType& ri, int value)
 	{
-		locked[ri.getLockedIndex()] = value;
+		locked[ri.getLockedIndex()] = value * ri.getScaling();
 	}
 	
 	void inc(const IndexType& ri, int optime, int value)
 	{
 		TL::dispatch<RLIST>::template call<IncInternal, AmountType&, int> (ri.getIndex(), amount, value * (time - optime));
-		amount[ri.getIndex()] += value;
+		amount[ri.getIndex()] += value * ri.getScaling();
 	}
 	
 	void dec(const IndexType& ri, int optime, int value)
@@ -75,7 +76,7 @@ class Resources
 	void incLocked(const IndexType& ri, int optime, int value)
 	{
 		dec(ri, optime, value);
-		locked[ri.getLockedIndex()] += value;
+		locked[ri.getLockedIndex()] += value * ri.getScaling();
 	}
 	
 	void decLocked(const IndexType& ri, int optime, int value)

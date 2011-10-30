@@ -18,6 +18,11 @@ typedef TL::combine< UserOperationTypeList, AutoOperationTypeList >::type	BWOper
 
 typedef PlanContainer<BWResourceList, BWOperationList>              		BWPlan;
 typedef BWPlan::ResourcesType                            					BWResources;
+typedef BWResources::IndexType						 						BWResourceIndex;
+typedef BWResourceIndex::ContainerType										BWResourceIndexContainer;
 typedef BWPlan::OperationType                            					BWOperation;
 typedef BWOperation::IndexType							 					BWOperationIndex;
-typedef BWOperation::ResIndexType						 					BWResourceIndex;
+typedef BWOperationIndex::ContainerType										BWOperationIndexContainer;
+
+BWResourceIndexContainer 	BWResourceIndices;
+BWOperationIndexContainer	BWOperationIndices;

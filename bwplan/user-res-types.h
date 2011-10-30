@@ -26,23 +26,26 @@ DEF_RESLOCKABLE(RZergWorker)
 DEF_RESLOCKABLE(RZergSupply)
 
 #define MINERALVALUE 45
-BEGIN_DEF_RESGROWTH(RMinerals)
+BEGIN_DEF_RESGROWTH(RMinerals, 1000)
 	LINEAR(MINERALVALUE, RTerranWorker),
 	LINEAR(MINERALVALUE, RProtossWorker),
 	LINEAR(MINERALVALUE, RZergWorker)
 END_DEF_RESGROWTH
 
 #define GASVALUE 45
-BEGIN_DEF_RESGROWTH(RGas)
+BEGIN_DEF_RESGROWTH(RGas, 1000)
 	LINEAR(GASVALUE, RTerranGasWorker),
 	LINEAR(GASVALUE, RProtossGasWorker),
 	LINEAR(GASVALUE, RZergGasWorker)
 END_DEF_RESGROWTH
 
+// BEGIN_DEF_RESGROWTH(RLarva, 1000)
+// END_DEF_RESGROWTH
+
 typedef TL::type_list<
                     RMinerals, RGas, RGeyserWorkingPlace,
                     RTerranWorker, RTerranGasWorker, RTerranSupply,
                     RProtossWorker, RProtossGasWorker, RProtossSupply,
-                    RZergWorker, RZergGasWorker, RZergSupply
+                    RLarva, RZergWorker, RZergGasWorker, RZergSupply
                  > UserResourceTypeList;
 

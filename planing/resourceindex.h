@@ -11,10 +11,12 @@ class ResourceIndexContainer;
 template <class RLIST>
 class ResourceIndex
 {
-	typedef ResourceIndex<RLIST>											ThisType;
-	typedef typename TL::sublist< Plan::ResourceLockable, RLIST >::type		LOCKLIST;
-	
 	friend class ResourceIndexContainer<RLIST>;
+
+	public:
+		typedef ResourceIndex<RLIST>											ThisType;
+		typedef typename TL::sublist< Plan::ResourceLockable, RLIST >::type		LOCKLIST;
+		typedef ResourceIndexContainer<RLIST>									ContainerType;
 
 	public:
 		enum { IndexCount = TL::size<RLIST>::value };
@@ -66,13 +68,20 @@ class ResourceIndex
 			TL::dispatch<RLIST>::template call<GetIndexLocked, int&>(index_, result);
 			return result;
 		}
+		
+		int getScaling() const
+		{
+			int result = -1;
+			TL::dispatch<RLIST>::template call<GetScaling, int&>(index_, result);
+			return result;
+		}
 
-		ThisType& operator * () const
+		ThisType& operator * ()
 		{
 			return *this;
 		}
 
-		ThisType& operator -> () const
+		ThisType& operator -> ()
 		{
 			return *this;
 		}
@@ -81,6 +90,11 @@ class ResourceIndex
 		{
 			++index_;
 			return *this;
+		}
+		
+		bool operator != (const ThisType& other) const
+		{
+			return index_ != other.index_;
 		}
 
 	private:
@@ -131,6 +145,15 @@ class ResourceIndex
 				result = TL::indexof<RT, LOCKLIST>::value;
 			}
 		};
+		
+		template <class RT>
+		struct GetScaling
+		{
+			static void call(int& result)
+			{
+				result = Plan::ResourceGrowth<RT>::scaling;
+			}
+		};
 
 	protected:
 		int index_;
@@ -146,7 +169,7 @@ class ResourceIndexContainer
 
 	public:
 		enum { IndexCount = IndexType::IndexCount };
-		enum { LockIndexCount = IndexType::LockIndexCount };
+		enum { LockIndexCount = IndexType::LockedIndexCount };
 	
 		int size() const
 		{

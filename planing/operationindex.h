@@ -11,9 +11,11 @@ class OperationIndexContainer;
 template <class OLIST>
 class OperationIndex
 {
-	typedef OperationIndex<OLIST>			ThisType;
-	
 	friend class OperationIndexContainer<OLIST>;
+	
+	public:
+		typedef OperationIndex<OLIST>			ThisType;
+		typedef OperationIndexContainer<OLIST>	ContainerType;
 	
 	public:
 		enum { IndexCount = TL::size<OLIST>::value };
@@ -70,6 +72,11 @@ class OperationIndex
 		{
 			++index_;
 			return *this;
+		}
+		
+		bool operator != (const ThisType& other) const
+		{
+			return index_ != other.index_;
 		}
 
 	private:
