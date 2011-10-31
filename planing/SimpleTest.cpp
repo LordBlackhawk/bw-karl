@@ -21,8 +21,6 @@ BEGIN_DEF_RESGROWTH(Minerals, 1000)
 	LINEAR(45, TerranWorker)
 END_DEF_RESGROWTH
 
-typedef TL::type_list< Minerals, CommandCenter, TerranSupply, TerranWorker > res_list;
-
 DEF_CHECKPOINT(Build)
 DEF_CHECKPOINT(BuildFinished)
 
@@ -36,13 +34,17 @@ BEGIN_DEF_OPTYPE(BuildTerranWorker)
 		CheckPoint<BuildFinished, 0>
 END_DEF_OPTYPE
 
-typedef TL::type_list< BuildTerranWorker > op_list;
+struct Traits
+{
+	typedef TL::type_list< Minerals, CommandCenter, TerranSupply, TerranWorker > 	ResourceList;
+	typedef TL::type_list< BuildTerranWorker > 										OperationList;
+};
 
-typedef PlanContainer<res_list, op_list>			TestPlan;
-typedef TestPlan::ResourcesType						TestResources;
-typedef TestPlan::OperationType						TestOperation;
-typedef TestOperation::IndexType					TestOpIndex;
-typedef DefaultFallbackBehaviour<res_list, op_list>	TestBehaviour;
+typedef PlanContainer<Traits>				TestPlan;
+typedef TestPlan::ResourcesType				TestResources;
+typedef TestPlan::OperationType				TestOperation;
+typedef TestOperation::IndexType			TestOpIndex;
+typedef DefaultFallbackBehaviour<Traits>	TestBehaviour;
 
 TestResources current;
 int time;

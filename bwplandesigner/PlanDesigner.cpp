@@ -2,13 +2,26 @@
 #include "bwplan/bwplan.h"
 
 #include <iostream>
+#include <iomanip>
+
+struct outTime
+{
+	int time;
+	outTime(int t) : time(t) { }
+	template <class Stream>
+	friend Stream& operator << (Stream& stream, const outTime& data)
+	{
+		stream << data.time << " (" << std::setprecision(3) << ((double)data.time/15./60.) << " min)";
+		return stream;
+	}
+};
 
 template <class STREAM>
 void outputResources(STREAM& stream, const BWResources& res)
 {
 	bool first = true;
 	for (auto it : BWResourceIndices)
-		if (res.get(it) > 0)
+		if ((res.get(it) > 0) || (res.getLocked(it) > 0))
 	{
 		if (!first)
 				stream << ", ";
@@ -93,6 +106,6 @@ int main(int argc, const char* argv[])
 	}
 	std::cout << "\n";
 
-	std::cout << "Plan finished after " << plan.end().time() << " frames.\n";
+	std::cout << "Plan finished after " << outTime(plan.end().time()) << " frames.\n";
 	return 0;
 }

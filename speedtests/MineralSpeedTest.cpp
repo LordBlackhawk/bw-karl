@@ -77,9 +77,16 @@ int main(int /*argc*/, const char**/* argv[]*/)
 
 		while(Broodwar->isInGame())
 		{
-			if (Broodwar->getFrameCount() % 100 == 1)
+			if (Broodwar->getFrameCount() % 100 == 2)
 			{
 				std::cout << "Average Minerals/Worker/1000*Frame: " << 1000.0/4.0 * (double)Broodwar->self()->minerals()/(double) Broodwar->getFrameCount() << "\n";
+				
+				for (auto it : Broodwar->self()->getUnits()) {
+					BWAPI::UnitType ut = it->getType();
+					if (ut.producesLarva()) {
+						std::cout << "RemainingTrainTime: " << it->getRemainingTrainTime() << "\n";
+					}
+				}
 			}
 
 			Broodwar->drawTextScreen(300,0,"FPS: %f",Broodwar->getAverageFPS());

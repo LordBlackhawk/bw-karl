@@ -15,7 +15,6 @@ DEF_RESTYPE(RZergGasWorker)
 DEF_RESTYPE(RZergSupply)
 
 DEF_RESTYPE(RLarva)
-// TODO: Growth for RLarva
 
 DEF_RESLOCKABLE(RGeyserWorkingPlace)
 DEF_RESLOCKABLE(RTerranWorker)
@@ -39,8 +38,11 @@ BEGIN_DEF_RESGROWTH(RGas, 1000)
 	LINEAR(GASVALUE, RZergGasWorker)
 END_DEF_RESGROWTH
 
-// BEGIN_DEF_RESGROWTH(RLarva, 1000)
-// END_DEF_RESGROWTH
+BEGIN_DEF_RESGROWTH(RLarva, 240)
+	LINEAR(1, RZergHatchery),
+	LINEAR(1, RZergLair),
+	LINEAR(1, RZergHive)
+END_DEF_RESGROWTH
 
 typedef TL::type_list<
                     RMinerals, RGas, RGeyserWorkingPlace,
@@ -48,4 +50,3 @@ typedef TL::type_list<
                     RProtossWorker, RProtossGasWorker, RProtossSupply,
                     RLarva, RZergWorker, RZergGasWorker, RZergSupply
                  > UserResourceTypeList;
-

@@ -3,13 +3,15 @@
 #include "resourceindex.h"
 
 #include <array>
+#include <limits>
 
-template <class RLIST>
+template <class Traits>
 class Resources
 {
 	public:
-	  typedef Resources<RLIST> 												ThisType;
-	  typedef ResourceIndex<RLIST>											IndexType;
+	  typedef typename Traits::ResourceList									RLIST;
+	  typedef Resources<Traits> 											ThisType;
+	  typedef ResourceIndex<Traits>											IndexType;
 	  
 	  typedef std::array<int, IndexType::IndexCount>						AmountType;
 	  typedef std::array<int, IndexType::LockedIndexCount>					LockedType;
@@ -83,6 +85,27 @@ class Resources
 	{
 		incLocked(ri, optime, -value);
 	}
+	
+	int getGrowth(const IndexType& ri) const
+	{
+		int result = 0;
+		TL::dispatch<RLIST>::template call<GetGrowth, const AmountType&, int&>(ri.getIndex(), amount, result);
+		return result;
+	}
+	
+	int firstMoreThan(const IndexType& ri, int value) const
+	{
+		int current = get(ri);
+		int growth  = getGrowth(ri);
+		value *= ri.getScaling();
+		if (current >= value) {
+			return 0;
+		} else if (growth > 0) {
+			return (value - current + growth - 1) / growth;
+		} else {
+			return std::numeric_limits<int>::max();
+		}
+	}
 
   public:
 	template <class RT>
@@ -138,6 +161,18 @@ class Resources
     {
         decLocked(IndexType::template byClass<RT>(), optime, value);
     }
+	
+	template <class RT>
+	int getGrowth() const
+	{
+		return getGrowth(IndexType::template byClass<RT>());
+	}
+	
+	template <class RT>
+	int firstMoreThan(int value) const
+	{
+		return firstMoreThan(IndexType::template byClass<RT>(), value);
+	}
     
   public:
     void advance(int dt)
@@ -172,7 +207,7 @@ class Resources
 	template <class RT>
 	struct IncInternal
 	{
-		typedef typename GrowthInverseList< RLIST, RT >::type MYLIST;
+		typedef typename GrowthInverseList< Traits, RT >::type MYLIST;
 		static void call(AmountType& amount, int dt_value)
 		{
 			TL::enumerate<MYLIST>::template call<IncInternal2, AmountType&, int> (amount, dt_value);
@@ -192,6 +227,28 @@ class Resources
 			amount[ri.getIndex()] += dt * factor * amount[depri.getIndex()];
 		}
     };
+	
+	template <class PT>
+	struct GetGrowth2
+	{
+		typedef typename PT::depRT depRT;
+		enum { factor = PT::factor };
+		static void call(const AmountType& amount, int& result)
+		{
+			IndexType ri = IndexType::template byClass<depRT>();
+			result += factor * amount[ri.getIndex()];
+		}
+	};
+	
+	template <class RT>
+	struct GetGrowth
+	{
+		typedef typename GrowthList< Traits, RT >::type MYLIST;
+		static void call(const AmountType& amount, int& result)
+		{
+			TL::enumerate<MYLIST>::template call<GetGrowth2, const AmountType&, int&> (amount, result);
+		}
+	};
 
   protected:
     int             time;

@@ -72,7 +72,21 @@ struct GrowthPairs< TL::type_list<F, T...> >
 						>::type type;
 };
 
-template <class RLIST, class depRT>
+template <class Traits, class RT>
+struct GrowthList
+{
+	template <class PT>
+	struct Predicate
+	{
+		enum { value = boost::is_same<RT, typename PT::RT>::value };
+	};
+	
+	typedef typename Traits::ResourceList 					RLIST;
+	typedef typename GrowthPairs<RLIST>::type				list;
+	typedef typename TL::sublist< Predicate, list >::type	type;
+};
+
+template <class Traits, class depRT>
 struct GrowthInverseList
 {
 	template <class PT>
@@ -81,7 +95,7 @@ struct GrowthInverseList
 		enum { value = boost::is_same<depRT, typename PT::depRT>::value };
 	};
   
-	typedef typename GrowthPairs<RLIST>::type list;
-	typedef typename TL::sublist< Predicate, list >::type type;
+    typedef typename Traits::ResourceList 					RLIST;
+	typedef typename GrowthPairs<RLIST>::type				list;
+	typedef typename TL::sublist< Predicate, list >::type	type;
 };
-

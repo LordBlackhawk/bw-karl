@@ -8,15 +8,18 @@
 #include <set>
 #include <string>
 #include <stdexcept>
+#include <limits>
 
-template <class RLIST, class OLIST>
+template <class Traits>
 class Operation
 {
 	public:
-		typedef Operation<RLIST, OLIST>		ThisType;
-		typedef Resources<RLIST>			ResourcesType;
-		typedef OperationIndex<OLIST>		IndexType;
-		typedef ResourceIndex<RLIST>		ResIndexType;
+		typedef typename Traits::ResourceList	RLIST;
+		typedef typename Traits::OperationList	OLIST;
+		typedef Operation<Traits>				ThisType;
+		typedef Resources<Traits>				ResourcesType;
+		typedef OperationIndex<Traits>			IndexType;
+		typedef ResourceIndex<Traits>			ResIndexType;
 
 	public:
 		explicit Operation(const IndexType& i, int st = 0)
@@ -72,8 +75,13 @@ class Operation
 		
 		bool isApplyable(const ResourcesType& res, int stage) const
 		{
-			bool result = true;
-			idispatch<IsApplyableInternal, const ResourcesType&, bool&, int&>(res, result, stage);
+			return (firstApplyableAt(res, stage) == 0);
+		}
+		
+		int firstApplyableAt(const ResourcesType& res, int stage) const
+		{
+			int result = 0;
+			idispatch<FirstApplyableAt, const ResourcesType&, int&, int&>(res, result, stage);
 			return result;
 		}
 		
@@ -173,54 +181,53 @@ class Operation
 				--stage;
 			}
 		};
-
+		
 	private:
 		template <class OT, class T>
-		struct IsApplyableInternal
+		struct FirstApplyableAt
 		{
-			static void call(int /*time*/, int* /*details*/, const ResourcesType& /*res*/, bool& /*result*/, int /*stage*/)
+			static void call(int /*time*/, int* /*details*/, const ResourcesType& /*res*/, int& /*result*/, int /*stage*/)
 			{ }
 		};
 		
 		template <class OT, class CT, int num>
-		struct IsApplyableInternal< OT, CheckPoint<CT, num> >
+		struct FirstApplyableAt< OT, CheckPoint<CT, num> >
 		{
-			static void call(int /*time*/, int* /*details*/, const ResourcesType& /*res*/, bool& /*result*/, int stage)
+			static void call(int /*time*/, int* /*details*/, const ResourcesType& /*res*/, int& /*result*/, int stage)
 			{
 				--stage;
 			}
 		};
 
 		template <class OT, int num, class RT>
-		struct IsApplyableInternal< OT, Needs<num, RT> >
+		struct FirstApplyableAt< OT, Needs<num, RT> >
 		{
-			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, bool& result, int stage)
+			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, int& result, int stage)
 			{
 				if (stage == 0)
 					if (res.template getExisting<RT>() < num)
-						result = false;
+						result = std::numeric_limits<int>::max();
 			}
 		};
       
 		template <class OT, int num, class RT>
-		struct IsApplyableInternal< OT, Locks<num, RT> >
+		struct FirstApplyableAt< OT, Locks<num, RT> >
 		{
-			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, bool& result, int stage)
+			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, int& result, int stage)
 			{
 				if (stage == 0)
 					if (res.template get<RT>() < num)
-						result = false;
+						result = std::numeric_limits<int>::max();
 			}
 		};
       
 		template <class OT, int num, class RT>
-		struct IsApplyableInternal< OT, Consums<num, RT> >
+		struct FirstApplyableAt< OT, Consums<num, RT> >
 		{
-			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, bool& result, int stage)
+			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, int& result, int stage)
 			{
 				if (stage == 0)
-					if (res.template get<RT>() < num)
-						result = false;
+					result = std::max(result, res.template firstMoreThan<RT>(num));
 			}
 		};
 

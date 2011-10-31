@@ -8,21 +8,24 @@
 #include <BWAPI.h>
 #endif
 
-#include "user-res-types.h"
 #include "auto-res-types.h"
+#include "user-res-types.h"
 #include "user-op-types.h"
 #include "auto-op-types.h"
 
-typedef TL::combine< UserResourceTypeList, AutoResourceTypeList >::type		BWResourceList;
-typedef TL::combine< UserOperationTypeList, AutoOperationTypeList >::type	BWOperationList;
+struct BWTraits
+{
+	typedef TL::combine< UserResourceTypeList, AutoResourceTypeList >::type		ResourceList;
+	typedef TL::combine< UserOperationTypeList, AutoOperationTypeList >::type	OperationList;
+};
 
-typedef PlanContainer<BWResourceList, BWOperationList>              		BWPlan;
-typedef BWPlan::ResourcesType                            					BWResources;
-typedef BWResources::IndexType						 						BWResourceIndex;
-typedef BWResourceIndex::ContainerType										BWResourceIndexContainer;
-typedef BWPlan::OperationType                            					BWOperation;
-typedef BWOperation::IndexType							 					BWOperationIndex;
-typedef BWOperationIndex::ContainerType										BWOperationIndexContainer;
+typedef PlanContainer<BWTraits>              		BWPlan;
+typedef BWPlan::ResourcesType                    	BWResources;
+typedef BWResources::IndexType						BWResourceIndex;
+typedef BWResourceIndex::ContainerType				BWResourceIndexContainer;
+typedef BWPlan::OperationType                       BWOperation;
+typedef BWOperation::IndexType						BWOperationIndex;
+typedef BWOperationIndex::ContainerType				BWOperationIndexContainer;
 
 BWResourceIndexContainer 	BWResourceIndices;
 BWOperationIndexContainer	BWOperationIndices;

@@ -5,18 +5,19 @@
 
 #include <string>
 
-template <class RLIST>
+template <class Traits>
 class ResourceIndexContainer;
 
-template <class RLIST>
+template <class Traits>
 class ResourceIndex
 {
-	friend class ResourceIndexContainer<RLIST>;
+	typedef typename Traits::ResourceList				RLIST;
+	friend class ResourceIndexContainer<Traits>;
 
 	public:
-		typedef ResourceIndex<RLIST>											ThisType;
+		typedef ResourceIndex<Traits>											ThisType;
 		typedef typename TL::sublist< Plan::ResourceLockable, RLIST >::type		LOCKLIST;
-		typedef ResourceIndexContainer<RLIST>									ContainerType;
+		typedef ResourceIndexContainer<Traits>									ContainerType;
 
 	public:
 		enum { IndexCount = TL::size<RLIST>::value };
@@ -162,10 +163,10 @@ class ResourceIndex
 		{ }
 };
 
-template <class RLIST>
+template <class Traits>
 class ResourceIndexContainer
 {
-	typedef ResourceIndex<RLIST>	IndexType;
+	typedef ResourceIndex<Traits>	IndexType;
 
 	public:
 		enum { IndexCount = IndexType::IndexCount };

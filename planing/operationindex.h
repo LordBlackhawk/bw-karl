@@ -5,17 +5,18 @@
 
 #include <string>
 
-template <class OLIST>
+template <class Traits>
 class OperationIndexContainer;
 
-template <class OLIST>
+template <class Traits>
 class OperationIndex
 {
-	friend class OperationIndexContainer<OLIST>;
+	typedef typename Traits::OperationList	OLIST;
+	friend class OperationIndexContainer<Traits>;
 	
 	public:
-		typedef OperationIndex<OLIST>			ThisType;
-		typedef OperationIndexContainer<OLIST>	ContainerType;
+		typedef OperationIndex<Traits>			ThisType;
+		typedef OperationIndexContainer<Traits>	ContainerType;
 	
 	public:
 		enum { IndexCount = TL::size<OLIST>::value };

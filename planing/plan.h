@@ -10,14 +10,14 @@ struct FallbackBehaviourType
   enum type { Continue, Abort, Fail };
 };
 
-template <class RLIST, class OLIST>
+template <class Traits>
 class PlanContainer;
 
-template <class RLIST, class OLIST>
+template <class Traits>
 struct DefaultFallbackBehaviour
 {
-	typedef Operation<RLIST,OLIST>			OperationType;
-	typedef PlanContainer<RLIST, OLIST>		PlanType;
+	typedef Operation<Traits>			OperationType;
+	typedef PlanContainer<Traits>		PlanType;
 	FallbackBehaviourType::type operator () (PlanType& /*plan*/, const OperationType& /*op*/) const
 	{
 		//std::cout << "!!!!Fallback\n";
@@ -25,13 +25,15 @@ struct DefaultFallbackBehaviour
 	}
 };
 
-template <class RLIST, class OLIST>
+template <class Traits>
 class PlanContainer
 {
 	public:
-		typedef Resources<RLIST>				ResourcesType;
-		typedef Operation<RLIST,OLIST>			OperationType;
-		typedef PlanContainer<RLIST, OLIST>		ThisType;
+		typedef typename Traits::ResourceList	RLIST;
+		typedef typename Traits::OperationList	OLIST;
+		typedef Resources<Traits>				ResourcesType;
+		typedef Operation<Traits>				OperationType;
+		typedef PlanContainer<Traits>			ThisType;
 		
 	public:
 		class Situation
@@ -57,6 +59,12 @@ class PlanContainer
 				bool operator != (const Situation& arg) const
 				{
 					return !(*this == arg);
+				}
+				
+				int getNextTime() const
+				{
+					std::set<int>::const_iterator it = parent.changetimes.lower_bound(currenttime+1);
+					return (it == parent.changetimes.end()) ? std::numeric_limits<int>::max() : *it;
 				}
 				
 				Situation& operator ++ ()
@@ -86,6 +94,13 @@ class PlanContainer
 				bool isApplyable(const OperationType& op, int stage) const
 				{
 					return op.isApplyable(current, stage);
+				}
+				
+				int firstApplyableAt(const OperationType& op, int stage) const
+				{
+					int value = currenttime + op.firstApplyableAt(current, stage);
+					if (value < 0) value = std::numeric_limits<int>::max();
+					return value;
 				}
 				
 				Situation& applyOperation(const OperationType& op, int btime, int etime)
@@ -161,14 +176,14 @@ class PlanContainer
 			Situation it = opend();
 			for (int k=0; k<op.stageCount(); ++k)
 			{
-				bool applyable;
-				while ( !(applyable = it.isApplyable(op, k)) && !it.beyond() )
+				int firstapplyable;
+				while ((firstapplyable = it.firstApplyableAt(op, k)) > it.getNextTime())
 					++it;
-				
-				if (!applyable)
+			
+				if (firstapplyable == std::numeric_limits<int>::max())
 					return false;
 				
-				it.inc(op.stageDuration(k));
+				it.inc(op.stageDuration(k) + firstapplyable - it.time());
 			}
 			add(op, it.time() - op.duration());
 			return true;
@@ -207,7 +222,7 @@ class PlanContainer
 		
 		bool rebase(int timeinc, const ResourcesType& newres)
 		{
-			return rebase(timeinc, newres, DefaultFallbackBehaviour<RLIST, OLIST>());
+			return rebase(timeinc, newres, DefaultFallbackBehaviour<Traits>());
 		}
 		
 		void execute()
