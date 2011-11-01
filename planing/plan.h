@@ -2,28 +2,9 @@
 
 #include "resources.h"
 #include "operations.h"
+#include "fallbackbehaviour.h"
 
 #include <vector>
-
-struct FallbackBehaviourType
-{
-  enum type { Continue, Abort, Fail };
-};
-
-template <class Traits>
-class PlanContainer;
-
-template <class Traits>
-struct DefaultFallbackBehaviour
-{
-	typedef Operation<Traits>			OperationType;
-	typedef PlanContainer<Traits>		PlanType;
-	FallbackBehaviourType::type operator () (PlanType& /*plan*/, const OperationType& /*op*/) const
-	{
-		//std::cout << "!!!!Fallback\n";
-		return FallbackBehaviourType::Continue;
-	}
-};
 
 template <class Traits>
 class PlanContainer
@@ -34,6 +15,7 @@ class PlanContainer
 		typedef Resources<Traits>				ResourcesType;
 		typedef Operation<Traits>				OperationType;
 		typedef PlanContainer<Traits>			ThisType;
+		typedef ResourceIndex<Traits>			ResIndexType;
 		
 	public:
 		class Situation
@@ -96,9 +78,9 @@ class PlanContainer
 					return op.isApplyable(current, stage);
 				}
 				
-				int firstApplyableAt(const OperationType& op, int stage) const
+				int firstApplyableAt(const OperationType& op, int stage, ResIndexType& blocking) const
 				{
-					int value = currenttime + op.firstApplyableAt(current, stage);
+					int value = currenttime + op.firstApplyableAt(current, stage, blocking);
 					if (value < 0) value = std::numeric_limits<int>::max();
 					return value;
 				}
@@ -171,26 +153,41 @@ class PlanContainer
 			return at(endtime+1);
 		}
 		
-		bool push_back(const OperationType& op)
+		template <class FallbackBehaviour>
+		FallbackBehaviourType::type push_back(const OperationType& op, FallbackBehaviour& fbb)
 		{
 			Situation it = opend();
 			for (int k=0; k<op.stageCount(); ++k)
 			{
 				int firstapplyable;
-				while ((firstapplyable = it.firstApplyableAt(op, k)) > it.getNextTime())
+				ResIndexType blocking;
+				while ((firstapplyable = it.firstApplyableAt(op, k, blocking)) > it.getNextTime())
 					++it;
 			
 				if (firstapplyable == std::numeric_limits<int>::max())
-					return false;
+					return fbb(*this, op, blocking);
 				
 				it.inc(op.stageDuration(k) + firstapplyable - it.time());
 			}
 			add(op, it.time() - op.duration());
-			return true;
+			return FallbackBehaviourType::Success;
+		}
+		
+		FallbackBehaviourType::type push_back_sr(const OperationType& op)
+		{
+			DefaultFallbackBehaviour<Traits> dfbb;
+			SimpleFallbackBehaviour< Traits, DefaultFallbackBehaviour<Traits> > sfbb(dfbb);
+			return push_back(op, sfbb);
+		}
+		
+		FallbackBehaviourType::type push_back_df(const OperationType& op)
+		{
+			DefaultFallbackBehaviour<Traits> dfbb;
+			return push_back(op, dfbb);
 		}
       
 		template <class FallbackBehaviour>
-		bool rebase(int timeinc, const ResourcesType& newres, const FallbackBehaviour& fbb)
+		bool rebase(int timeinc, const ResourcesType& newres, FallbackBehaviour& fbb)
 		{
 			ThisType newplan(newres, starttime+timeinc);
 			
@@ -202,27 +199,34 @@ class PlanContainer
 			}
 			
 			for (auto it : scheduled_operations) {
-				if (!newplan.push_back(it)) {
-					FallbackBehaviourType::type res = fbb(newplan, it);
-					switch (res)
-					{
-						case FallbackBehaviourType::Fail:
-						  return false;
-						case FallbackBehaviourType::Abort:
-						  std::swap(*this, newplan);
-						  return true;
-						case FallbackBehaviourType::Continue:
-						  break;
-					}
+				FallbackBehaviourType::type res = newplan.push_back(it, fbb);
+				switch (res)
+				{
+					case FallbackBehaviourType::Fail:
+					  return false;
+					case FallbackBehaviourType::Abort:
+					  std::swap(*this, newplan);
+					  return true;
+					case FallbackBehaviourType::Continue:
+					case FallbackBehaviourType::Success:
+					  break;
 				}
 			}
 			std::swap(*this, newplan);
 			return true;
 		}
 		
-		bool rebase(int timeinc, const ResourcesType& newres)
+		bool rebase_sr(int timeinc, const ResourcesType& newres)
 		{
-			return rebase(timeinc, newres, DefaultFallbackBehaviour<Traits>());
+			DefaultFallbackBehaviour<Traits> dfbb;
+			SimpleFallbackBehaviour< Traits, DefaultFallbackBehaviour<Traits> > sfbb(dfbb);
+			return rebase(timeinc, newres, sfbb);
+		}
+		
+		bool rebase_df(int timeinc, const ResourcesType& newres)
+		{
+			DefaultFallbackBehaviour<Traits> dfbb;
+			return rebase(timeinc, newres, dfbb);
 		}
 		
 		void execute()
@@ -283,7 +287,8 @@ class PlanContainer
 			newop.changeTimes(changetimes);
 			scheduled_operations.push_back(newop);
 			opendtime = std::max(opendtime, time);
-			endtime = *changetimes.rbegin();
+			if (!changetimes.empty())
+				endtime = *changetimes.rbegin();
 		}
 		
 		void addActive(const OperationType& op)

@@ -26,6 +26,9 @@ template <class HT, int = 1>
 struct CheckPoint
 { };
 
+struct Dummy // Last Item in Operation!!!!
+{ };
+
 namespace Plan
 {
 	template <class OT>
@@ -62,7 +65,7 @@ namespace Plan
 		typedef TL::type_list<
 		
 #define END_DEF_OPTYPE															   \
-		> type;																       \
+		Dummy > type;														       \
 	}; }
 
 #define DEF_OPDETAILS(Name, Type)                                                  	\

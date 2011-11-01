@@ -184,7 +184,7 @@ void writeOpForUnitType(const BWAPI::UnitType& ut)
 			auto what = ut.whatBuilds();
 			std::cout << "\t\tCheckPoint<CBuildAddon, " << ut.buildTime() << ">,\n";
 			std::cout << "\tUnlocks<1, " << getResourceName(what.first) << ">,\n";
-			std::cout << "\t\tCheckPoint<CBuildAddonFinished, 1>\n";
+			std::cout << "\t\tCheckPoint<CBuildAddonFinished, 1>,\n";
 		} else {
 			if (ut.getRace() == BWAPI::Races::Protoss)
 				std::cout << "\tUnlocks<1, RProtossWorker>,\n";
@@ -197,7 +197,7 @@ void writeOpForUnitType(const BWAPI::UnitType& ut)
 				std::cout << "\tProds<" << ut.supplyProvided() << ", R" << race << "Supply>,\n";
 			if (ut.isRefinery())
 				std::cout << "\tProds<3, RGeyserWorkingPlace>,\n";
-			std::cout << "\t\tCheckPoint<CBuildingFinished, 1>\n";
+			std::cout << "\t\tCheckPoint<CBuildingFinished, 1>,\n";
 		}
 	} else {
 		bool writeUnitFinished = false;
@@ -225,7 +225,7 @@ void writeOpForUnitType(const BWAPI::UnitType& ut)
 			writeUnitFinished = true;
 		}
 		if (writeUnitFinished)
-			std::cout << "\t\tCheckPoint<CUnitFinished, 1>\n";
+			std::cout << "\t\tCheckPoint<CUnitFinished, 1>,\n";
 	}
 	std::cout << "END_DEF_OPTYPE\n";
 	std::cout << "DEF_ASSOCIATION(" << opName << ", BWAPI::Race, BWAPI::Races::" << race << ")\n";

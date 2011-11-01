@@ -17,13 +17,13 @@ BEGIN_DEF_OPTYPE(OSendTerranGasWorker)
     Locks<1, RGeyserWorkingPlace>,
     Locks<1, RTerranWorker>,
     Prods<1, RTerranGasWorker>,
-        CheckPoint<CSendGasWorker, 1>
+        CheckPoint<CSendGasWorker, 1>,
 END_DEF_OPTYPE
 BEGIN_DEF_OPTYPE(OReturnTerranGasWorker)
     Consums<1, RTerranGasWorker>,
     Unlocks<1, RTerranWorker>,
     Unlocks<1, RGeyserWorkingPlace>,
-        CheckPoint<CReturnGasWorker, 1>
+        CheckPoint<CReturnGasWorker, 1>,
 END_DEF_OPTYPE
 
 DEF_ASSOCIATION(OSendTerranGasWorker,   BWAPI::Race, BWAPI::Races::Terran)
@@ -36,13 +36,13 @@ BEGIN_DEF_OPTYPE(OSendProtossGasWorker)
     Locks<1, RGeyserWorkingPlace>,
     Locks<1, RProtossWorker>,
     Prods<1, RProtossGasWorker>,
-        CheckPoint<CSendGasWorker, 1>
+        CheckPoint<CSendGasWorker, 1>,
 END_DEF_OPTYPE
 BEGIN_DEF_OPTYPE(OReturnProtossGasWorker)
     Consums<1, RProtossGasWorker>,
     Unlocks<1, RProtossWorker>,
     Unlocks<1, RGeyserWorkingPlace>,
-        CheckPoint<CReturnGasWorker, 1>
+        CheckPoint<CReturnGasWorker, 1>,
 END_DEF_OPTYPE
 
 DEF_ASSOCIATION(OSendProtossGasWorker,   BWAPI::Race, BWAPI::Races::Protoss)
@@ -55,13 +55,13 @@ BEGIN_DEF_OPTYPE(OSendZergGasWorker)
     Locks<1, RGeyserWorkingPlace>,
     Locks<1, RZergWorker>,
     Prods<1, RZergGasWorker>,
-        CheckPoint<CSendGasWorker, 1>
+        CheckPoint<CSendGasWorker, 1>,
 END_DEF_OPTYPE
 BEGIN_DEF_OPTYPE(OReturnZergGasWorker)
     Consums<1, RZergGasWorker>,
     Unlocks<1, RZergWorker>,
     Unlocks<1, RGeyserWorkingPlace>,
-        CheckPoint<CReturnGasWorker, 1>
+        CheckPoint<CReturnGasWorker, 1>,
 END_DEF_OPTYPE
 
 DEF_ASSOCIATION(OSendZergGasWorker,   BWAPI::Race, BWAPI::Races::Zerg)

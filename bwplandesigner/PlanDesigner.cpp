@@ -89,7 +89,7 @@ int main(int argc, const char* argv[])
 			std::cerr << "Unknown Operation Name: " << argv[k] << "\n";
 			continue;
 		}
-		if (!plan.push_back(BWOperation(index)))
+		if (!plan.push_back_sr(BWOperation(index)))
 			std::cerr << "Unable to add " << index.getName() << "!\n";
 	}
 	std::cout << "\n";

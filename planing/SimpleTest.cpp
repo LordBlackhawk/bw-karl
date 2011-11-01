@@ -119,7 +119,7 @@ int main()
 
 	TestPlan plan(current);
 	for (int k=0; k<3; ++k)
-		plan.push_back(op);
+		plan.push_back_sr(op);
 		
 	std::cout << "Plan.size:   " << plan.scheduledCount() << "\n";
 	int k = 0;
@@ -138,7 +138,7 @@ int main()
 	int counter = 0;
 	while (!plan.empty() && (++counter < 15))
 	{	
-		plan.rebase(1, current);
+		plan.rebase_sr(1, current);
 		plan.execute();
 		
 		simulateNextRound();

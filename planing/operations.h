@@ -75,13 +75,14 @@ class Operation
 		
 		bool isApplyable(const ResourcesType& res, int stage) const
 		{
-			return (firstApplyableAt(res, stage) == 0);
+			ResIndexType blocking;
+			return (firstApplyableAt(res, stage, blocking) == 0);
 		}
 		
-		int firstApplyableAt(const ResourcesType& res, int stage) const
+		int firstApplyableAt(const ResourcesType& res, int stage, ResIndexType& blocking) const
 		{
 			int result = 0;
-			idispatch<FirstApplyableAt, const ResourcesType&, int&, int&>(res, result, stage);
+			idispatch<FirstApplyableAt, const ResourcesType&, int&, int&, ResIndexType&>(res, result, stage, blocking);
 			return result;
 		}
 		
@@ -186,14 +187,14 @@ class Operation
 		template <class OT, class T>
 		struct FirstApplyableAt
 		{
-			static void call(int /*time*/, int* /*details*/, const ResourcesType& /*res*/, int& /*result*/, int /*stage*/)
+			static void call(int /*time*/, int* /*details*/, const ResourcesType& /*res*/, int& /*result*/, int /*stage*/, ResIndexType& /*blocking*/)
 			{ }
 		};
 		
 		template <class OT, class CT, int num>
 		struct FirstApplyableAt< OT, CheckPoint<CT, num> >
 		{
-			static void call(int /*time*/, int* /*details*/, const ResourcesType& /*res*/, int& /*result*/, int stage)
+			static void call(int /*time*/, int* /*details*/, const ResourcesType& /*res*/, int& /*result*/, int stage, ResIndexType& /*blocking*/)
 			{
 				--stage;
 			}
@@ -202,32 +203,36 @@ class Operation
 		template <class OT, int num, class RT>
 		struct FirstApplyableAt< OT, Needs<num, RT> >
 		{
-			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, int& result, int stage)
+			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, int& result, int stage, ResIndexType& blocking)
 			{
 				if (stage == 0)
-					if (res.template getExisting<RT>() < num)
+					if (res.template getExisting<RT>() < num) {
 						result = std::numeric_limits<int>::max();
+						blocking = ResIndexType::template byClass<RT>();
+					}
 			}
 		};
       
 		template <class OT, int num, class RT>
 		struct FirstApplyableAt< OT, Locks<num, RT> >
 		{
-			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, int& result, int stage)
+			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, int& result, int stage, ResIndexType& blocking)
 			{
 				if (stage == 0)
-					if (res.template get<RT>() < num)
+					if (res.template get<RT>() < num) {
 						result = std::numeric_limits<int>::max();
+						blocking = ResIndexType::template byClass<RT>();
+					}
 			}
 		};
       
 		template <class OT, int num, class RT>
 		struct FirstApplyableAt< OT, Consums<num, RT> >
 		{
-			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, int& result, int stage)
+			static void call(int /*time*/, int* /*details*/, const ResourcesType& res, int& result, int stage, ResIndexType& blocking)
 			{
 				if (stage == 0)
-					result = std::max(result, res.template firstMoreThan<RT>(num));
+					result = std::max(result, res.template firstMoreThan<RT>(num, blocking));
 			}
 		};
 

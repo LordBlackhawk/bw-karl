@@ -4,6 +4,7 @@
 
 #include <array>
 #include <limits>
+#include <cassert>
 
 template <class Traits>
 class Resources
@@ -41,11 +42,13 @@ class Resources
   public:
 	int get(const IndexType& ri) const
 	{
+		assert(ri.valid());
 		return amount[ri.getIndex()] / ri.getScaling();
 	}
 	
 	int getLocked(const IndexType& ri) const
 	{
+		assert(ri.valid());
 		return locked[ri.getLockedIndex()] / ri.getScaling();
 	}
 	
@@ -56,16 +59,19 @@ class Resources
 	
 	void set(const IndexType& ri, int value)
 	{
+		assert(ri.valid());
 		amount[ri.getIndex()] = value * ri.getScaling();
 	}
 	
 	void setLocked(const IndexType& ri, int value)
 	{
+		assert(ri.valid());
 		locked[ri.getLockedIndex()] = value * ri.getScaling();
 	}
 	
 	void inc(const IndexType& ri, int optime, int value)
 	{
+		assert(ri.valid());
 		TL::dispatch<RLIST>::template call<IncInternal, AmountType&, int> (ri.getIndex(), amount, value * (time - optime));
 		amount[ri.getIndex()] += value * ri.getScaling();
 	}
@@ -77,6 +83,7 @@ class Resources
 	
 	void incLocked(const IndexType& ri, int optime, int value)
 	{
+		assert(ri.valid());
 		dec(ri, optime, value);
 		locked[ri.getLockedIndex()] += value * ri.getScaling();
 	}
@@ -93,9 +100,10 @@ class Resources
 		return result;
 	}
 	
-	int firstMoreThan(const IndexType& ri, int value) const
+	int firstMoreThan(const IndexType& ri, int value, IndexType& blocking) const
 	{
-		int current = get(ri);
+		assert(ri.valid());
+		int current = amount[ri.getIndex()];
 		int growth  = getGrowth(ri);
 		value *= ri.getScaling();
 		if (current >= value) {
@@ -103,6 +111,7 @@ class Resources
 		} else if (growth > 0) {
 			return (value - current + growth - 1) / growth;
 		} else {
+			blocking = ri;
 			return std::numeric_limits<int>::max();
 		}
 	}
@@ -169,9 +178,9 @@ class Resources
 	}
 	
 	template <class RT>
-	int firstMoreThan(int value) const
+	int firstMoreThan(int value, IndexType& blocking) const
 	{
-		return firstMoreThan(IndexType::template byClass<RT>(), value);
+		return firstMoreThan(IndexType::template byClass<RT>(), value, blocking);
 	}
     
   public:

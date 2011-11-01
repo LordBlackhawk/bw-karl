@@ -79,6 +79,37 @@ class OperationIndex
 		{
 			return index_ != other.index_;
 		}
+		
+		bool operator == (const ThisType& other) const
+		{
+			return index_ == other.index_;
+		}
+		
+		bool operator < (const ThisType& other) const
+		{
+			return index_ < other.index_;
+		}
+		
+		bool operator <= (const ThisType& other) const
+		{
+			return index_ <= other.index_;
+		}
+		
+		bool operator > (const ThisType& other) const
+		{
+			return index_ < other.index_;
+		}
+		
+		bool operator >= (const ThisType& other) const
+		{
+			return index_ <= other.index_;
+		}
+		
+		template <class T>
+		bool hasDetails() const
+		{
+			return HasDetails<T>::call();
+		}
 
 	private:
 		template <class OT>
@@ -108,6 +139,26 @@ class OperationIndex
 			static void call(std::string& result)
 			{
 				result = Plan::OperationName<OT>::name;
+			}
+		};
+		
+		template <class T>
+		struct HasDetails
+		{
+			template <class OT>
+			struct Internal
+			{
+				static void call(bool& result)
+				{
+					return boost::is_same<T, typename Plan::OperationDetailType<OT>::type>::value;
+				}
+			};
+			
+			bool call() const
+			{
+				bool result;
+				TL::dispatch<OLIST>::template call<Internal, bool&>(index_, result);
+				return result;
 			}
 		};
 

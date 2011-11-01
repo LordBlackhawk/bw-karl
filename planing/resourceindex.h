@@ -43,6 +43,14 @@ class ResourceIndex
 			TL::enumerate<RLIST>::template call<ByName, const std::string&, int&>(name, result);
 			return ThisType(result);
 		}
+		
+		ResourceIndex() : index_(-1)
+		{ }
+		
+		bool valid() const
+		{
+			return (index_ >= 0) && (index_ < IndexCount);
+		}
 
 		std::string getName() const
 		{
@@ -96,6 +104,31 @@ class ResourceIndex
 		bool operator != (const ThisType& other) const
 		{
 			return index_ != other.index_;
+		}
+		
+		bool operator == (const ThisType& other) const
+		{
+			return index_ == other.index_;
+		}
+		
+		bool operator < (const ThisType& other) const
+		{
+			return index_ < other.index_;
+		}
+		
+		bool operator <= (const ThisType& other) const
+		{
+			return index_ <= other.index_;
+		}
+		
+		bool operator > (const ThisType& other) const
+		{
+			return index_ < other.index_;
+		}
+		
+		bool operator >= (const ThisType& other) const
+		{
+			return index_ <= other.index_;
 		}
 
 	private:
