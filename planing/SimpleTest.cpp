@@ -31,7 +31,7 @@ BEGIN_DEF_OPTYPE(BuildTerranWorker)
 		CheckPoint<Build, 4>,
 	Prods<1, TerranWorker>,
 	Unlocks<1, CommandCenter>,
-		CheckPoint<BuildFinished, 0>
+		CheckPoint<BuildFinished, 0>,
 END_DEF_OPTYPE
 
 struct Traits

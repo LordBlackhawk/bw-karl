@@ -38,6 +38,16 @@ std::string getOperationName(const BWAPI::UnitType& ut)
 	return removeSpaces("OBuild" + ut.getName());
 }
 
+std::string getTechName(const BWAPI::TechType& tt)
+{
+	return removeSpaces("OTech" + tt.getName());
+}
+
+std::string getTechResourceName(const BWAPI::TechType& tt)
+{
+	return removeSpaces("RTech" + tt.getName());
+}
+
 void writeStringList(const std::vector<std::string>& list)
 {
 	bool first = true;
@@ -101,11 +111,34 @@ void writeResForUnitType(const BWAPI::UnitType& ut)
 	resnames.push_back(resName);
 }
 
+bool isTechResource(const BWAPI::TechType& tt)
+{
+	BWAPI::UnitType what = tt.whatResearches();
+	if (what == BWAPI::UnitTypes::None)
+		return false;
+	return true;
+}
+
+void writeResForTechType(const BWAPI::TechType& tt)
+{
+	if (!isTechResource(tt))
+		return;
+
+	std::string resName = getTechResourceName(tt);
+
+	std::cout << "DEF_RESTYPE(" << resName << ")\n";
+	std::cout << "\n";
+
+	resnames.push_back(resName);
+}
+
 void writeResFile()
 {
 	writeHeader();
 	for (auto it : BWAPI::UnitTypes::allUnitTypes())
 		writeResForUnitType(it);
+	for (auto it : BWAPI::TechTypes::allTechTypes())
+		writeResForTechType(it);
 	std::cout << "typedef TL::type_list<\n";
 	writeStringList(resnames);
 	std::cout << "\t> AutoResourceTypeList;\n";
@@ -137,8 +170,8 @@ bool isOperation(const BWAPI::UnitType& ut)
 		return false;
 	if (ut == BWAPI::UnitTypes::Protoss_Scarab)
 		return false;
-	if (ut == BWAPI::UnitTypes::Zerg_Lurker)
-		return false;
+	//if (ut == BWAPI::UnitTypes::Zerg_Lurker)
+	//	return false;
 	if (ut == BWAPI::UnitTypes::Terran_Vulture_Spider_Mine)
 		return false;
 	return true;
@@ -164,6 +197,7 @@ void writeOpForUnitType(const BWAPI::UnitType& ut)
 			if (ut.getRace() == BWAPI::Races::Zerg) {
 				std::cout << "\tUnlocks<1, RZergWorker>,\n";
 				std::cout << "\tConsums<1, RZergWorker>,\n";
+				std::cout << "\tUnlocks<2, RZergSupply>,\n";
 			}
 		}
 	}
@@ -178,7 +212,9 @@ void writeOpForUnitType(const BWAPI::UnitType& ut)
 	if (ut.gasPrice() > 0)
 		std::cout << "\tConsums<" << ut.gasPrice() << ", RGas>,\n";
 	if (ut.supplyRequired() > 0)
-		std::cout << "\tLocks<" << ut.supplyRequired() << ", R" << race << "Supply>,\n";
+		std::cout << "\tLocks<" << (ut.isTwoUnitsInOneEgg() ? 2 : 1) * ut.supplyRequired() << ", R" << race << "Supply>,\n";
+	if (ut.requiredTech() != BWAPI::TechTypes::None)
+		std::cout << "\tNeeds<1, " << getTechResourceName(ut.requiredTech()) << ">,\n";
 	if (ut.isBuilding()) {
 		if (ut.isAddon()) {
 			auto what = ut.whatBuilds();
@@ -228,6 +264,10 @@ void writeOpForUnitType(const BWAPI::UnitType& ut)
 			std::cout << "\t\tCheckPoint<CUnitFinished, 1>,\n";
 	}
 	std::cout << "END_DEF_OPTYPE\n";
+	if (ut.isBuilding())
+		std::cout << "DEF_OPDETAILS(" << opName << ", BuildBuildingDetails)\n";
+	else
+		std::cout << "DEF_OPDETAILS(" << opName << ", BuildUnitDetails)\n";
 	std::cout << "DEF_ASSOCIATION(" << opName << ", BWAPI::Race, BWAPI::Races::" << race << ")\n";
 	std::cout << "DEF_ASSOCIATION(" << opName << ", BWAPI::UnitType, BWAPI::UnitTypes::" << toCName(ut.getName()) << ")\n";
 	if (isResource(ut))
@@ -237,11 +277,43 @@ void writeOpForUnitType(const BWAPI::UnitType& ut)
 	opnames.push_back(opName);
 }
 
+void writeOpForTechType(const BWAPI::TechType& tt)
+{
+	BWAPI::UnitType what = tt.whatResearches();
+	if (what == BWAPI::UnitTypes::None)
+		return;
+		
+	std::string opName = getTechName(tt);
+	std::string resName = getTechResourceName(tt);
+
+	std::cout << "BEGIN_DEF_OPTYPE(" << opName << ")\n";
+	if (tt.mineralPrice() > 0)
+		std::cout << "\tConsums<" << tt.mineralPrice() << ", RMinerals>,\n";
+	if (tt.gasPrice() > 0)
+		std::cout << "\tConsums<" << tt.gasPrice() << ", RGas>,\n";
+	std::cout << "\tLocks<1, " << getResourceName(what) << ">,\n";
+	std::cout << "\t\tCheckPoint<CTechStart, " << tt.researchTime() << ">,\n";
+	if (isTechResource(tt))
+		std::cout << "\tProds<1, " << getTechResourceName(tt) << ">,\n";
+	std::cout << "\tUnlocks<1, " << getResourceName(what) << ">,\n";
+	std::cout << "\t\tCheckPoint<CTechFinished, 1>,\n";
+	std::cout << "END_DEF_OPTYPE\n";
+	std::cout << "DEF_OPDETAILS(" << opName << ", TechDetails)\n";
+	std::cout << "DEF_ASSOCIATION(" << opName << ", BWAPI::TechType, BWAPI::TechTypes::" << toCName(tt.getName()) << ")\n";
+	if (isTechResource(tt))
+		std::cout << "DEF_SIMPLEREQUIREMENT(" << resName << ", " << opName << ")\n";
+	std::cout << "\n";
+	
+	opnames.push_back(opName);
+}
+
 void writeOpFile()
 {
 	writeHeader();
 	for (auto it : BWAPI::UnitTypes::allUnitTypes())
 		writeOpForUnitType(it);
+	for (auto it : BWAPI::TechTypes::allTechTypes())
+		writeOpForTechType(it);
 	std::cout << "typedef TL::type_list<\n";
 	writeStringList(opnames);
 	std::cout << "\t> AutoOperationTypeList;\n";

@@ -1,18 +1,5 @@
 #pragma once
 
-DEF_CHECKPOINT(CSendGasWorker)
-DEF_CHECKPOINT(CReturnGasWorker)
-
-DEF_CHECKPOINT(CSendWorkerToBuildingPlace)
-DEF_CHECKPOINT(CBuildAddon)
-DEF_CHECKPOINT(CBuildAddonFinished)
-DEF_CHECKPOINT(CBuildBuilding)
-DEF_CHECKPOINT(CBuildingFinished)
-DEF_CHECKPOINT(CMorphUnit)
-DEF_CHECKPOINT(CCombineUnit)
-DEF_CHECKPOINT(CTrainUnit)
-DEF_CHECKPOINT(CUnitFinished)
-
 BEGIN_DEF_OPTYPE(OSendTerranGasWorker)
     Locks<1, RGeyserWorkingPlace>,
     Locks<1, RTerranWorker>,
@@ -29,8 +16,11 @@ END_DEF_OPTYPE
 DEF_ASSOCIATION(OSendTerranGasWorker,   BWAPI::Race, BWAPI::Races::Terran)
 DEF_ASSOCIATION(OReturnTerranGasWorker, BWAPI::Race, BWAPI::Races::Terran)
 
-DEF_SIMPLEREQUIREMENT(RGas,      OSendTerranGasWorker)
-DEF_SIMPLEREQUIREMENT(RMinerals, OReturnTerranGasWorker)
+DEF_SIMPLEREQUIREMENT(RGas,                OSendTerranGasWorker)
+DEF_SIMPLEREQUIREMENT(RMinerals,           OBuildTerranSCV)
+//DEF_SIMPLEREQUIREMENT(RMinerals, 		   OReturnTerranGasWorker)
+DEF_SIMPLEREQUIREMENT(RGeyserWorkingPlace, OBuildTerranRefinery)
+DEF_SIMPLEREQUIREMENT(RTerranSupply, 	   OBuildTerranSupplyDepot)
 
 BEGIN_DEF_OPTYPE(OSendProtossGasWorker)
     Locks<1, RGeyserWorkingPlace>,
@@ -48,8 +38,11 @@ END_DEF_OPTYPE
 DEF_ASSOCIATION(OSendProtossGasWorker,   BWAPI::Race, BWAPI::Races::Protoss)
 DEF_ASSOCIATION(OReturnProtossGasWorker, BWAPI::Race, BWAPI::Races::Protoss)
 
-DEF_SIMPLEREQUIREMENT(RGas,      OSendProtossGasWorker)
-DEF_SIMPLEREQUIREMENT(RMinerals, OReturnProtossGasWorker)
+DEF_SIMPLEREQUIREMENT(RGas,                OSendProtossGasWorker)
+DEF_SIMPLEREQUIREMENT(RMinerals,           OBuildProtossProbe)
+//DEF_SIMPLEREQUIREMENT(RMinerals,           OReturnProtossGasWorker)
+DEF_SIMPLEREQUIREMENT(RGeyserWorkingPlace, OBuildProtossAssimilator)
+DEF_SIMPLEREQUIREMENT(RProtossSupply, 	   OBuildProtossPylon)
 
 BEGIN_DEF_OPTYPE(OSendZergGasWorker)
     Locks<1, RGeyserWorkingPlace>,
@@ -67,8 +60,11 @@ END_DEF_OPTYPE
 DEF_ASSOCIATION(OSendZergGasWorker,   BWAPI::Race, BWAPI::Races::Zerg)
 DEF_ASSOCIATION(OReturnZergGasWorker, BWAPI::Race, BWAPI::Races::Zerg)
 
-DEF_SIMPLEREQUIREMENT(RGas,      OSendZergGasWorker)
-DEF_SIMPLEREQUIREMENT(RMinerals, OReturnZergGasWorker)
+DEF_SIMPLEREQUIREMENT(RGas,                OSendZergGasWorker)
+DEF_SIMPLEREQUIREMENT(RMinerals,           OBuildZergDrone)
+//DEF_SIMPLEREQUIREMENT(RMinerals,           OReturnZergGasWorker)
+DEF_SIMPLEREQUIREMENT(RGeyserWorkingPlace, OBuildZergExtractor)
+DEF_SIMPLEREQUIREMENT(RZergSupply, 		   OBuildZergOverlord)
 
 typedef TL::type_list<
                     OSendTerranGasWorker, OReturnTerranGasWorker,

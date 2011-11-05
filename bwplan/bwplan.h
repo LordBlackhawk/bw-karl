@@ -10,8 +10,9 @@
 
 #include "auto-res-types.h"
 #include "user-res-types.h"
-#include "user-op-types.h"
+#include "user-checkpoints.h"
 #include "auto-op-types.h"
+#include "user-op-types.h"
 
 struct BWTraits
 {

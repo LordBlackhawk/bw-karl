@@ -21,7 +21,7 @@ void outputResources(STREAM& stream, const BWResources& res)
 {
 	bool first = true;
 	for (auto it : BWResourceIndices)
-		if ((res.get(it) > 0) || (res.getLocked(it) > 0))
+		if ((res.get(it) > 0) || (it.isLockable() && (res.getLocked(it) > 0)))
 	{
 		if (!first)
 				stream << ", ";
