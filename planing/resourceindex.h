@@ -44,6 +44,11 @@ class ResourceIndex
 			return ThisType(result);
 		}
 		
+		static ThisType byUserName(const std::string& name)
+		{
+			return Traits::NameTraits::getResourceIndexByName(name);
+		}
+		
 		ResourceIndex() : index_(-1)
 		{ }
 		

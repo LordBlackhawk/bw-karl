@@ -41,6 +41,11 @@ class OperationIndex
 			TL::enumerate<OLIST>::template call<ByName, const std::string&, int&>(name, result);
 			return ThisType(result);
 		}
+
+		static ThisType byUserName(const std::string& name)
+		{
+			return Traits::NameTraits::getOperationIndexByName(name);
+		}
 		
 		std::string getName() const
 		{

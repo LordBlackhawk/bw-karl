@@ -1,65 +1,19 @@
 #define  NO_ASSOCIATIONS
 #include "bwplan/bwplan.h"
+#include "bwplan/stream-output.h"
 
 #include <iostream>
-#include <iomanip>
-
-struct outTime
-{
-	int time;
-	outTime(int t) : time(t) { }
-	template <class Stream>
-	friend Stream& operator << (Stream& stream, const outTime& data)
-	{
-		stream << data.time << " (" << std::setprecision(3) << ((double)data.time/15./60.) << " min)";
-		return stream;
-	}
-};
-
-template <class STREAM>
-void outputResources(STREAM& stream, const BWResources& res)
-{
-	bool first = true;
-	for (auto it : BWResourceIndices)
-		if ((res.get(it) > 0) || (it.isLockable() && (res.getLocked(it) > 0)))
-	{
-		if (!first)
-				stream << ", ";
-		stream << res.get(it);
-		if (it.isLockable())
-			stream << "/" << res.getExisting(it);
-		stream << " " << it.getName();
-		first = false;
-	}
-	if (first)
-		stream << "[There are no resources!]";
-	stream << "\n";
-}
-
-BWOperationIndex getOperationIndexByName(const std::string& name)
-{
-	BWOperationIndex index = BWOperationIndex::byName(name);
-	if (!index.valid())
-		index = BWOperationIndex::byName("OBuildZerg" + name);
-	if (!index.valid())
-		index = BWOperationIndex::byName("OBuildProtoss" + name);
-	if (!index.valid())
-		index = BWOperationIndex::byName("OBuildTerran" + name);
-	if (!index.valid())
-		index = BWOperationIndex::byName("OBuild" + name);
-	return index;
-}
 
 int main(int argc, const char* argv[])
 {
-	BWResources res;
-	res.set<RMinerals>(50);
 	if (argc < 2) {
 		std::cerr << "Use: PlanDesigner [Terran|Protoss|Zerg] [Operations...]\n";
 		return 1;
 	}
 
 	std::string race = argv[1];
+	BWResources res;
+	res.set<RMinerals>(50);
 	if (race == "Terran") {
 		res.set<RTerranWorker>(4);
 		res.set<RTerranCommandCenter>(1);
@@ -84,7 +38,7 @@ int main(int argc, const char* argv[])
 	BWPlan plan(res, 0);
 	std::cout << "Parsing arguments...\n";
 	for (int k=2; k<argc; ++k) {
-		BWOperationIndex index = getOperationIndexByName(argv[k]);
+		BWOperationIndex index = BWOperationIndex::byUserName(argv[k]);
 		if (!index.valid()) {
 			std::cerr << "Unknown Operation Name: " << argv[k] << "\n";
 			continue;
@@ -101,11 +55,13 @@ int main(int argc, const char* argv[])
 
 	std::cout << "Planed Resources:\n";
 	for (auto it : plan) {
-		std::cout << "planed(" << it.time() << "): \t";
-		outputResources(std::cout, it.getResources());
+		std::cout << "planed(" << it.time() << "): \t" << outResources(it.getResources());
 	}
 	std::cout << "\n";
 
 	std::cout << "Plan finished after " << outTime(plan.end().time()) << " frames.\n";
+	
+	plan.saveToFile("default.bwb");
+	
 	return 0;
 }

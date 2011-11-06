@@ -47,12 +47,12 @@ typedef TestOperation::IndexType			TestOpIndex;
 typedef DefaultFallbackBehaviour<Traits>	TestBehaviour;
 
 TestResources current;
-int time;
+int curtime;
 
 void simulateNextRound()
 {
 	current.advance(1);
-	time = current.getTime();
+	curtime = current.getTime();
 }
 
 DEF_CHECKPOINTCODE(Build)
@@ -62,9 +62,9 @@ DEF_CHECKPOINTCODE(Build)
 	{
 	case OperationStatus::started:
 		std::cout << "\tResources consumt...\n";
-		current.dec<Minerals>(time, 50);
-		current.incLocked<TerranSupply>(time);
-		current.incLocked<CommandCenter>(time);
+		current.dec<Minerals>(curtime, 50);
+		current.incLocked<TerranSupply>(curtime);
+		current.incLocked<CommandCenter>(curtime);
 		return CheckPointResult::running;
 	case OperationStatus::running:
 		return CheckPointResult::completed;
@@ -80,12 +80,12 @@ DEF_CHECKPOINTCODE(BuildFinished)
 	{
 	case OperationStatus::started:
 	case OperationStatus::running:
-		if (time > scheduledtime + 3) {
+		if (curtime > scheduledtime + 3) {
 			return CheckPointResult::completed;
-		} else if (time == scheduledtime + 3) {
+		} else if (curtime == scheduledtime + 3) {
 			std::cout << "\tWorker built...\n";
-			current.inc<TerranWorker>(time);
-			current.decLocked<CommandCenter>(time);
+			current.inc<TerranWorker>(curtime);
+			current.decLocked<CommandCenter>(curtime);
 		}
 		return CheckPointResult::running;
 	default:
@@ -103,7 +103,7 @@ void outputResources(const TestResources& res)
 
 int main()
 {
-	time = 0;
+	curtime = 0;
 	current.set<Minerals>		(150);
 	current.set<CommandCenter>	(1);
 	current.set<TerranWorker>	(2);
@@ -143,8 +143,8 @@ int main()
 		
 		simulateNextRound();
 		
-		//std::cout << "Planed("<<time<<"): \t"; outputResources(plan.at(time).getResources());
-		std::cout << "Found("<<time-1<<"):  \t"; outputResources(current);
+		//std::cout << "Planed("<<curtime<<"): \t"; outputResources(plan.at(curtime).getResources());
+		std::cout << "Found("<<curtime-1<<"):  \t"; outputResources(current);
 		//std::cout << "\n";
 	}
 	return 0;

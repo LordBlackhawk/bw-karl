@@ -13,11 +13,14 @@
 #include "user-checkpoints.h"
 #include "auto-op-types.h"
 #include "user-op-types.h"
+#include "user-names.h"
 
 struct BWTraits
 {
+	typedef BWTraits															Traits;
 	typedef TL::combine< UserResourceTypeList, AutoResourceTypeList >::type		ResourceList;
 	typedef TL::combine< UserOperationTypeList, AutoOperationTypeList >::type	OperationList;
+	typedef BWUserNames<Traits>													NameTraits;
 };
 
 typedef PlanContainer<BWTraits>              		BWPlan;

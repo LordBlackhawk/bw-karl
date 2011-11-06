@@ -3,7 +3,9 @@
 #include "resources.h"
 #include "operations.h"
 #include "fallbackbehaviour.h"
+#include "utils/fileutils.h"
 
+#include <boost/regex.hpp>
 #include <vector>
 
 template <class Traits>
@@ -16,6 +18,7 @@ class PlanContainer
 		typedef Operation<Traits>				OperationType;
 		typedef PlanContainer<Traits>			ThisType;
 		typedef ResourceIndex<Traits>			ResIndexType;
+		typedef OperationIndex<Traits>			OpIndexType;
 		
 	public:
 		class Situation
@@ -261,6 +264,46 @@ class PlanContainer
 		const std::vector<OperationType> scheduledOperations() const
 		{
 			return scheduled_operations;
+		}
+		
+		void clear()
+		{
+		
+		}
+		
+		bool loadFromFile(const char* filename)
+		{
+			std::string content;
+			if (!readFileToString(filename, content))
+				return false;
+			
+			static boost::regex expression("^[[:space:]]*(\\*([[:digit:]]*))?[[:space:]]*([[:word:]])");
+			std::string::const_iterator start = content.begin(), end = content.end();
+			boost::match_results<std::string::const_iterator> what;
+			boost::match_flag_type flags = boost::match_default;
+			while(regex_search(start, end, what, expression, flags))
+			{
+				// what[0] whole string.
+				// what[2] Anzahl.
+				// what[3] Operationsname.
+				OpIndexType index = OpIndexType::byName(what.str(3));
+				if (!index.valid())
+					continue;
+				int count = (what.str(2) != "") ? atoi(what.str(2).c_str()) : 1;
+				for (int k=0; k<count; ++k)
+					push_back_df(OperationType(index));
+			}
+		}
+		
+		bool saveToFile(const char* filename) const
+		{
+			FILE* file = fopen(filename, "w");
+			if (file == NULL)
+				return false;
+			for (auto it : scheduled_operations)
+				fprintf(file, "%s\n", it.getName().c_str());
+			fclose(file);
+			return true;
 		}
 
 	protected:
