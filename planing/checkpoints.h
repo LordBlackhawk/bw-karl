@@ -1,7 +1,10 @@
 #pragma once
 
+#include "timetype.h"
 #include "optypes.h"
 #include "operationstatus.h"
+
+#include <boost/shared_ptr.hpp>
 
 struct CheckPointResult
 {
@@ -29,15 +32,15 @@ namespace Plan {
 	struct Name;																						\
 	namespace Plan { template <class OT> struct CheckPointCode<Name, OT> {								\
 		typedef OT OperationType;																		\
-		typedef typename Plan::OperationDetailType<OT>::type Details;									\
+		typedef boost::shared_ptr<typename Plan::OperationDetailType<OT>::type> Details;									\
 		const OperationStatus::type status;																\
-		int& scheduledtime;																				\
-		const Details* details;																			\
-		CheckPointCode(OperationStatus::type s, int& st, Details* d)									\
+		TimeType& scheduledtime;																				\
+		Details& details;																			\
+		CheckPointCode(OperationStatus::type s, TimeType& st, Details& d)									\
 			: status(s), scheduledtime(st), details(d) { }												\
 		CheckPointResult::type callInternal();															\
-		static CheckPointResult::type call(OperationStatus::type s, int& st, int* d)					\
-		{ return CheckPointCode<Name, OT>(s, st, (Details*) d).callInternal(); }						\
+		static CheckPointResult::type call(OperationStatus::type s, TimeType& st, Details& d)					\
+		{ return CheckPointCode<Name, OT>(s, st, d).callInternal(); }						\
 	}; }																								\
 	template <class OT> CheckPointResult::type Plan::CheckPointCode<Name, OT>::callInternal()
 
@@ -46,14 +49,14 @@ namespace Plan {
 	struct OT;																							\
 	namespace Plan { template <> struct CheckPointCode<Name, OT> {										\
 		typedef OT OperationType;																		\
-		typedef Plan::OperationDetailType<OT>::type Details;											\
+		typedef boost::shared_ptr<typename Plan::OperationDetailType<OT>::type> Details;											\
 		const OperationStatus::type status;																\
-		int& scheduledtime;																				\
-		const Details* details;																			\
-		CheckPointCode(OperationStatus::type s, int& st, Details* d)									\
+		TimeType& scheduledtime;																				\
+		Details& details;																			\
+		CheckPointCode(OperationStatus::type s, TimeType& st, Details& d)									\
 			: status(s), scheduledtime(st), details(d) { }												\
 		CheckPointResult::type callInternal();															\
-		static CheckPointResult::type call(OperationStatus::type s, int& st, int* d)					\
-		{ return CheckPointCode<Name, OT>(s, st, (Details*) d).callInternal(); }						\
+		static CheckPointResult::type call(OperationStatus::type s, TimeType& st, Details& d)					\
+		{ return CheckPointCode<Name, OT>(s, st, d).callInternal(); }						\
 	}; }																								\
 	CheckPointResult::type Plan::CheckPointCode<Name, OT>::callInternal()
