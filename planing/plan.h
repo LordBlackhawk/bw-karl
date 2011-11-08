@@ -268,7 +268,10 @@ class PlanContainer
 		
 		void clear()
 		{
-		
+			active_operations.clear();
+			scheduled_operations.clear();
+			changetimes.clear();
+			opendtime = endtime = starttime;
 		}
 		
 		bool loadFromFile(const char* filename)
@@ -286,7 +289,7 @@ class PlanContainer
 				// what[0] whole string.
 				// what[2] Anzahl.
 				// what[3] Operationsname.
-				OpIndexType index = OpIndexType::byName(what.str(3));
+				OpIndexType index = OpIndexType::byUserName(what.str(3));
 				if (!index.valid())
 					continue;
 				int count = (what.str(2) != "") ? atoi(what.str(2).c_str()) : 1;
@@ -301,7 +304,7 @@ class PlanContainer
 			if (file == NULL)
 				return false;
 			for (auto it : scheduled_operations)
-				fprintf(file, "%s\n", it.getName().c_str());
+				fprintf(file, "%s\n", it.getUserName().c_str());
 			fclose(file);
 			return true;
 		}

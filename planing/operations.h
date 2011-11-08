@@ -110,6 +110,11 @@ class Operation
 		{
 			return index_.getName();
 		}
+		
+		std::string getUserName() const
+		{
+			return index_.getUserName();
+		}
 		  
 		template <class OT>
 		typename Plan::OperationDetailType<OT>::type* getDetails()

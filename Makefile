@@ -3,12 +3,14 @@ BWAPIPATH    = ../bwapi/trunk/bwapi/include/
 BWTAPATH     = ../bwta/include/
 BOOSTPATH    = ../boost_1_46_1/
 
-# for debug: -ggdb
-
 CXX          = g++
 CXXINCLUDES  = -I$(BWAPIPATH) -I$(BWTAPATH) -I$(BOOSTPATH) -I.
 CXXFLAGS     = -Wall -Wextra -O2 --std=c++0x $(CXXINCLUDES)
 CXXLIBS      = -L. -lBWAPI -lBWTA
+
+ifdef DEBUG
+CXX         += -ggdb
+endif
 
 SOURCES      = $(wildcard */*.cpp)
 EXECUTEABLES = $(notdir $(SOURCES:.cpp=.exe))

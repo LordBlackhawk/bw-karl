@@ -63,6 +63,11 @@ class ResourceIndex
 			TL::dispatch<RLIST>::template call<GetName, std::string&>(index_, result);
 			return result;
 		}
+		
+		std::string getUserName() const
+		{
+			return Traits::NameTraits::getResourceName(*this);
+		}
 
 		bool isLockable() const
 		{

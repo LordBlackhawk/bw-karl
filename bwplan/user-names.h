@@ -2,6 +2,7 @@
 
 #include "planing/resourceindex.h"
 #include "planing/operationindex.h"
+#include <string>
 
 template <class Traits>
 struct BWUserNames
@@ -26,6 +27,14 @@ struct BWUserNames
 		return ResIndexType::byName("R" + name);
 	}
 	
+	static std::string getResourceName(const ResIndexType& i)
+	{
+		std::string name = i.getName();
+		if (name[0] == 'R')
+			name.erase(name.begin());
+		return name;
+	}
+	
 	static OpIndexType getOperationIndexByName(const std::string& name)
 	{
 		OpIndexType index = OpIndexType::byName(name);
@@ -38,5 +47,15 @@ struct BWUserNames
 		if (!index.valid())
 			index = OpIndexType::byName("OBuild" + name);
 		return index;
+	}
+	
+	static std::string getOperationName(const OpIndexType& i)
+	{
+		std::string name = i.getName();
+		if (name.find("OBuild") == 0)
+			name.erase(name.begin(), name.begin()+6);
+		if (name[0] == 'O')
+			name.erase(name.begin());
+		return name;
 	}
 };

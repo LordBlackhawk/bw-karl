@@ -54,6 +54,11 @@ class OperationIndex
 			return result;
 		}
 		
+		std::string getUserName() const
+		{
+			return Traits::NameTraits::getOperationName(*this);
+		}
+		
 		bool valid() const
 		{
 			return (index_ >= 0) && (index_ < IndexCount);

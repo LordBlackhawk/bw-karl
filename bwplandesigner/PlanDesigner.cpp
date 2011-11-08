@@ -44,13 +44,13 @@ int main(int argc, const char* argv[])
 			continue;
 		}
 		if (!plan.push_back_sr(BWOperation(index)))
-			std::cerr << "Unable to add " << index.getName() << "!\n";
+			std::cerr << "Unable to add " << index.getUserName() << "!\n";
 	}
 	std::cout << "\n";
 
 	std::cout << "Planed Operations:\n";
 	for (auto it : plan.scheduledOperations())
-		std::cout << "planed(" << it.scheduledTime() << "): " << it.getName() << "\n";
+		std::cout << "planed(" << it.scheduledTime() << "): " << it.getUserName() << "\n";
 	std::cout << "\n";
 
 	std::cout << "Planed Resources:\n";

@@ -45,7 +45,7 @@ class SimpleFallbackBehaviour
 		
 		FallbackBehaviourType::type operator () (PlanType& plan, const OperationType& op, const ResIndexType& blocking)
 		{
-			std::cout << "Operation " << op.getName() << " failed, problem resource is " << blocking.getName() << "\n";
+			std::cout << "Operation " << op.getUserName() << " failed, problem resource is " << blocking.getUserName() << "\n";
 			if (!blocking.valid()) {
 				if (level == 0)
 					return nextfbb(plan, op, blocking);

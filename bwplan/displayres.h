@@ -11,9 +11,9 @@ void displayResources(const BWResources& res)
 		if (res.get(it) != 0)
 	{
 		if (it.isLockable()) {
-			Broodwar->drawTextScreen(5, 16*line, "- %d/%d %ss", res.get(it), res.getLocked(it), it.getName());
+			Broodwar->drawTextScreen(5, 16*line, "- %d/%d %ss", res.get(it), res.getLocked(it), it.getUserName());
 		} else {
-			Broodwar->drawTextScreen(5, 16*line, "-   %d  %ss", res.get(it), it.getName());
+			Broodwar->drawTextScreen(5, 16*line, "-   %d  %ss", res.get(it), it.getUserName());
 		}
 		++line;
 	}

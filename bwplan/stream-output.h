@@ -32,7 +32,7 @@ struct outResources
 			stream << res.get(it);
 			if (it.isLockable())
 				stream << "/" << res.getExisting(it);
-			stream << " " << it.getName();
+			stream << " " << it.getUserName();
 			first = false;
 		}
 		if (first)
