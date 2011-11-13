@@ -3,8 +3,6 @@
 #include "timetype.h"
 #include "operationstatus.h"
 
-#include <boost/shared_ptr.hpp>
-
 struct CheckPointResult
 {
 	enum type { waiting, running, completed, failed };
@@ -13,24 +11,26 @@ struct CheckPointResult
 struct Operation;
 
 struct SendWorkerDetails;
-void CSendGasWorker(Operation& op);
-void CReturnGasWorker(Operation& op);
+CheckPointResult::type CSendGasWorker(Operation& op);
+CheckPointResult::type CReturnGasWorker(Operation& op);
 
 struct BuildBuildingDetails;
-void CSendWorkerToBuildingPlace(Operation& op);
-void CBuildAddon(Operation& op);
-void CBuildAddonFinished(Operation& op);
-void CBuildBuilding(Operation& op);
-void CBuildingFinished(Operation& op);
+CheckPointResult::type CSendWorkerToBuildingPlace(Operation& op);
+CheckPointResult::type CBuildAddon(Operation& op);
+CheckPointResult::type CBuildAddonFinished(Operation& op);
+CheckPointResult::type CBuildBuilding(Operation& op);
+CheckPointResult::type CBuildingFinished(Operation& op);
 
 struct BuildUnitDetails;
-void CMorphUnit(Operation& op);
-void CCombineUnit(Operation& op);
-void CTrainUnit(Operation& op);
-void CUnitFinished(Operation& op);
+CheckPointResult::type CMorphUnit(Operation& op);
+CheckPointResult::type CCombineUnit(Operation& op);
+CheckPointResult::type CTrainUnit(Operation& op);
+CheckPointResult::type CUnitFinished(Operation& op);
 
 struct TechDetails;
-void CTechStart(Operation& op);
-void CTechFinished(Operation& op);
+CheckPointResult::type CTechStart(Operation& op);
+CheckPointResult::type CTechFinished(Operation& op);
 
 struct UpgradeDetails;
+CheckPointResult::type CUpgradeStart(Operation& op);
+CheckPointResult::type CUpgradeFinished(Operation& op);

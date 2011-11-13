@@ -27,12 +27,16 @@ class TimeInterval
 
 		bool contains(const ctype& value) const
 		{
-			return (lower <= value) && (value <= upper);
+			return (lower <= value) && (value < upper);
 		}
-
-		bool contains(const ThisType& other) const
+		
+		bool contains(const ctype& value, bool pushdecs) const
 		{
-			return (lower <= other.lower) && (other.upper <= upper);
+			if (pushdecs) {
+				return (lower <= value) && (value <= upper);
+			} else {
+				return contains(value);
+			}
 		}
 
 		ctype length() const

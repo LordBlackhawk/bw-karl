@@ -38,7 +38,7 @@ class Resources
 		
 		int getLocked(const ResourceIndex& ri) const
 		{
-			assert(ri.valid());
+			assert(ri.valid() && ri.isLockable());
 			return locked[ri.getIndex()] / ri.getScaling();
 		}
 		
@@ -47,7 +47,7 @@ class Resources
 			return get(ri) + getLocked(ri);
 		}
 		
-		int getInternalValue(const ResourceIndex& ri) const
+		int getInternal(const ResourceIndex& ri) const
 		{
 			assert(ri.valid());
 			return amount[ri.getIndex()];
@@ -61,7 +61,7 @@ class Resources
 		
 		void setLocked(const ResourceIndex& ri, int value)
 		{
-			assert(ri.valid());
+			assert(ri.valid() && ri.isLockable());
 			locked[ri.getIndex()] = value * ri.getScaling();
 		}
 		
@@ -81,7 +81,7 @@ class Resources
 		
 		void incLocked(const ResourceIndex& ri, int optime, int value)
 		{
-			assert(ri.valid());
+			assert(ri.valid() && ri.isLockable());
 			dec(ri, optime, value);
 			locked[ri.getIndex()] += value * ri.getScaling();
 		}

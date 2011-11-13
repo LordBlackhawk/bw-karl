@@ -49,23 +49,23 @@ struct BWParameterReader
 	BWPlan getStartPlan() const
 	{
 		BWResources res;
-		res.set<RMinerals>(50);
+		res.set(BWResourceIndex::Minerals, 50);
 		if (race == "Terran") {
-			res.set<RTerranWorker>(4);
-			res.set<RTerranCommandCenter>(1);
-			res.set<RTerranSupply>(2*10);
-			res.incLocked<RTerranSupply>(0, 2*4);
+			res.set(BWResourceIndex::TerranWorker, 4);
+			res.set(BWResourceIndex::TerranCommandCenter, 1);
+			res.set(BWResourceIndex::TerranSupply, 2*10);
+			res.incLocked(BWResourceIndex::TerranSupply, 0, 2*4);
 		} else if (race == "Protoss") {
-			res.set<RProtossWorker>(4);
-			res.set<RProtossNexus>(1);
-			res.set<RProtossSupply>(2*9);
-			res.incLocked<RProtossSupply>(0, 2*4);
+			res.set(BWResourceIndex::ProtossWorker, 4);
+			res.set(BWResourceIndex::ProtossNexus, 1);
+			res.set(BWResourceIndex::ProtossSupply, 2*9);
+			res.incLocked(BWResourceIndex::ProtossSupply, 0, 2*4);
 		} else if (race == "Zerg") {
-			res.set<RZergWorker>(4);
-			res.set<RZergHatchery>(1);
-			res.set<RZergSupply>(2*9);
-			res.incLocked<RZergSupply>(0, 2*4);
-			res.set<RLarva>(3);
+			res.set(BWResourceIndex::ZergWorker, 4);
+			res.set(BWResourceIndex::ZergHatchery, 1);
+			res.set(BWResourceIndex::ZergSupply, 2*9);
+			res.incLocked(BWResourceIndex::ZergSupply, 0, 2*4);
+			res.set(BWResourceIndex::Larva, 3);
 		} else {
 			std::cerr << "Unknown Race: " << race << "\n";
 			exit(1);
@@ -76,7 +76,7 @@ struct BWParameterReader
 			plan.loadFromFile(loadfilename.c_str());
 
 		for (auto it : inputops) {
-			BWOperationIndex index = BWOperationIndex::byUserName(it);
+			BWOperationIndex index = BWOperationIndex::byName(it);
 			if (!index.valid()) {
 				std::cerr << "Unknown Operation Name: " << it << "\n";
 				continue;

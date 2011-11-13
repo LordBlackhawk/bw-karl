@@ -24,7 +24,7 @@ struct outResources
 	{
 		const BWResources& res = o.res;
 		bool first = true;
-		for (auto it : BWResourceIndices)
+		for (auto it : BWAllResourceIndices())
 			if ((res.get(it) > 0) || (it.isLockable() && (res.getLocked(it) > 0)))
 		{
 			if (!first)
@@ -32,7 +32,7 @@ struct outResources
 			stream << res.get(it);
 			if (it.isLockable())
 				stream << "/" << res.getExisting(it);
-			stream << " " << it.getUserName();
+			stream << " " << it.getName();
 			first = false;
 		}
 		if (first)

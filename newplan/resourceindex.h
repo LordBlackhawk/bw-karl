@@ -1,11 +1,17 @@
 #pragma once
 
+#ifndef NO_ASSOCIATIONS
+#include <BWAPI.h>
+#endif
+
 #include <boost/operators.hpp>
 #include <string>
 
 class ResourceIndex;
 class AllResourceIndices;
 class LockedResourceIndices;
+
+class OperationIndex;
 
 class ResourceIndex : boost::totally_ordered<ResourceIndex>, boost::incrementable<ResourceIndex>
 {
@@ -23,13 +29,20 @@ class ResourceIndex : boost::totally_ordered<ResourceIndex>, boost::incrementabl
 
 		// Auto-generated functions see bwplan.cpp
 		std::string getName() const;
-		static ThisType byName(const std::string& name)
-		{
-			for (auto it : AllResourceIndices())
-				if (it->getName() == name)
-					return *it;
-			return ResourceIndex(None);
-		}
+		static ThisType byName(const std::string& name);
+		
+	#ifndef NO_ASSOCIATIONS
+		BWAPI::Race associatedRace() const;
+		BWAPI::UnitType associatedUnitType() const;
+		BWAPI::TechType associatedTechType() const;
+		BWAPI::UpgradeType associatedUpgradeType() const;
+		
+		static ThisType byUnitType(const BWAPI::UnitType& ut);
+		static ThisType byTechType(const BWAPI::TechType& tt);
+		static ThisType byUpgradeType(const BWAPI::UpgradeType& gt);
+	#endif
+		
+		std::set<OperationIndex> getAssociatedOperations() const;
 		
 		bool isLockable() const;
 		bool isGrowthing() const;
@@ -41,6 +54,11 @@ class ResourceIndex : boost::totally_ordered<ResourceIndex>, boost::incrementabl
 		}
 		
 		int getIndex() const
+		{
+			return index_;
+		}
+		
+		type getType() const
 		{
 			return index_;
 		}

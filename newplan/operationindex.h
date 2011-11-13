@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef NO_ASSOCIATIONS
+#include <BWAPI.h>
+#endif
+
 #include <string>
 
 class OperationIndex;
@@ -21,13 +25,18 @@ class OperationIndex : boost::totally_ordered<ResourceIndex>, boost::incrementab
 		
 		// Auto-generated functions see bwplan.cpp
 		std::string getName() const;
-		static ThisType byName(const std::string& name)
-		{
-			for (auto it : AllOperationIndices())
-				if (it->getName() == name)
-					return *it;
-			return OperationIndex(None);
-		}		
+		static ThisType byName(const std::string& name);
+
+	#ifndef NO_ASSOCIATIONS
+		BWAPI::Race associatedRace() const;
+		BWAPI::UnitType associatedUnitType() const;
+		BWAPI::TechType associatedTechType() const;
+		BWAPI::UpgradeType associatedUpgradeType() const;
+		
+		static ThisType byUnitType(const BWAPI::UnitType& ut);
+		static ThisType byTechType(const BWAPI::TechType& tt);
+		static ThisType byUpgradeType(const BWAPI::UpgradeType& gt);
+	#endif
 		
 		bool valid() const
 		{
@@ -35,6 +44,11 @@ class OperationIndex : boost::totally_ordered<ResourceIndex>, boost::incrementab
 		}
 
 		int getIndex() const
+		{
+			return index_;
+		}
+		
+		type getType() const
 		{
 			return index_;
 		}
@@ -54,14 +68,6 @@ class OperationIndex : boost::totally_ordered<ResourceIndex>, boost::incrementab
 		{
 			return index_ < other.index_;
 		}
-		
-		/*
-		template <class T>
-		bool hasDetails() const
-		{
-			return HasDetails<T>::call();
-		}
-		*/
 
 	protected:
 		type index_;

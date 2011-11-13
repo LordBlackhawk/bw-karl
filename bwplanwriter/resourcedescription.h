@@ -12,8 +12,15 @@ struct ResourceDescription
 	bool lockable;
 	int scaling;
 	std::vector< std::pair<int, ResourceDescription*> > growth, influence;
+	std::vector< OperationDescription* > associated;
 	
-	ResourceDescription(std::string n, bool l = false, int s = 1) : name(n), lockable(l), scaling(s)
+	BWAPI::Race race;
+	BWAPI::UnitType ut;
+	BWAPI::TechType tt;
+	BWAPI::UpgradeType gt;
+	
+	ResourceDescription(std::string n, bool l = false, int s = 1)
+		: name(n), lockable(l), scaling(s), race(BWAPI::Races::None), ut(BWAPI::UnitTypes::None), tt(BWAPI::TechTypes::None), gt(BWAPI::UgradeTypes::None)
 	{
 		resourceDescriptions.push_back(this);
 	}

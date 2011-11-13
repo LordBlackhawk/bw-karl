@@ -13,9 +13,12 @@ struct ItemDescription
 	ResourceDescription* res;
 	std::string name;
 	
-	ItemDescription(std::string n, int duration) : type(CheckPoint), count(duration), name(n) { }
+	ItemDescription(std::string n, int duration)
+		: type(CheckPoint), count(duration), name(n)
+	{ }
 	
-	ItemDescription(Type t, int c, ResourceDescription* r) : type(t), count(c), res(r) { }
+	ItemDescription(Type t, int c, ResourceDescription* r) : type(t), count(c), res(r)
+	{ }
 };
 
 struct OperationDescription
@@ -26,7 +29,13 @@ struct OperationDescription
 	int stagecount;
 	int duration;
 	
-	OperationDescription(std::string n) : name(n)
+	BWAPI::Race race;
+	BWAPI::UnitType ut;
+	BWAPI::TechType tt;
+	BWAPI::UpgradeType gt;
+	
+	OperationDescription(std::string n)
+		: name(n), race(BWAPI::Races::None), ut(BWAPI::UnitTypes::None), tt(BWAPI::TechTypes::None), gt(BWAPI::UgradeTypes::None)
 	{
 		operationDescriptions.push_back(this);
 	}
