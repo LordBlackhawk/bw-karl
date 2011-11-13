@@ -15,7 +15,7 @@ namespace Plan {
 #else
 #define DEF_ASSOCIATION(Name, Type, Value)		 										\
 	struct Name;																		\
-	template <> static Type Plan::Associations<Name, Type>::value = Value;
+	template <> Type Plan::Associations<Name, Type>::value = Value;
 #endif
 
 template <class OT, class T>

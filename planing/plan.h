@@ -1,8 +1,10 @@
 #pragma once
 
+#include "timetype.h"
 #include "resources.h"
 #include "operations.h"
 #include "fallbackbehaviour.h"
+#include "linear-correction.h"
 #include "utils/fileutils.h"
 
 #include <boost/regex.hpp>
@@ -19,6 +21,7 @@ class PlanContainer
 		typedef PlanContainer<Traits>			ThisType;
 		typedef ResourceIndex<Traits>			ResIndexType;
 		typedef OperationIndex<Traits>			OpIndexType;
+		typedef LinearCorrection<Traits>		CorrectionType;
 		
 	public:
 		class Situation
@@ -46,27 +49,27 @@ class PlanContainer
 					return !(*this == arg);
 				}
 				
-				int getNextTime() const
+				TimeType getNextTime() const
 				{
-					std::set<int>::const_iterator it = parent.changetimes.lower_bound(currenttime+1);
-					return (it == parent.changetimes.end()) ? std::numeric_limits<int>::max() : *it;
+					std::set<TimeType>::const_iterator it = parent.changetimes.lower_bound(currenttime+1);
+					return (it == parent.changetimes.end()) ? std::numeric_limits<TimeType>::max() : *it;
 				}
 				
 				Situation& operator ++ ()
 				{
-					std::set<int>::const_iterator it = parent.changetimes.lower_bound(currenttime+1);
-					int newtime = (it == parent.changetimes.end()) ? parent.endtime+1 : *it;
+					std::set<TimeType>::const_iterator it = parent.changetimes.lower_bound(currenttime+1);
+					TimeType newtime = (it == parent.changetimes.end()) ? parent.endtime+1 : *it;
 					advance(newtime);
 					return *this;
 				}
 				
-				Situation& inc(int dt)
+				Situation& inc(TimeType dt)
 				{
 					advance(currenttime + dt);
  					return *this;
 				}
 				
-				int time() const
+				TimeType time() const
 				{
 					return currenttime;
 				}
@@ -81,16 +84,16 @@ class PlanContainer
 					return op.isApplyable(current, stage);
 				}
 				
-				int firstApplyableAt(const OperationType& op, int stage, ResIndexType& blocking) const
+				TimeType firstApplyableAt(const OperationType& op, int stage, ResIndexType& blocking) const
 				{
-					int value = currenttime + op.firstApplyableAt(current, stage, blocking);
-					if (value < 0) value = std::numeric_limits<int>::max();
+					TimeType value = currenttime + op.firstApplyableAt(current, stage, blocking);
+					if (value < 0) value = std::numeric_limits<TimeType>::max();
 					return value;
 				}
 				
-				Situation& applyOperation(const OperationType& op, int btime, int etime)
+				Situation& applyOperation(const OperationType& op, const TimeInterval& interval)
 				{
-					op.apply(current, btime, etime);
+					op.apply(current, interval);
 					return *this;
 				}
 				
@@ -103,32 +106,42 @@ class PlanContainer
 				{
 					return (currenttime > parent.endtime);
 				}
+				
+				void update()
+				{
+					TimeType old = currenttime;
+					current      = parent.startres;
+					currenttime  = parent.starttime-1;
+					advance(old);
+				}
 			
 			protected:
 				const ThisType&	parent;
-				int 	     	currenttime;
+				TimeType     	currenttime;
 				ResourcesType	current;
 				
-				Situation(const ThisType& p, int time = -1) : parent(p), currenttime(parent.starttime-1), current(parent.startres)
+				Situation(const ThisType& p, TimeType time = -1) : parent(p), currenttime(parent.starttime-1), current(parent.startres)
 				{
 					if (time < 0)
 						time = parent.starttime;
 					advance(time);
 				}
             
-				void advance(int newtime)
+				void advance(TimeType newtime)
 				{
 					current.advance(newtime-currenttime);
-					parent.evalOperations(current, currenttime+1, newtime);
+					TimeInterval interval(currenttime+1, newtime);
+					parent.evalOperations(current, interval);
 					currenttime = newtime;
 				}
 		};
 
 	public:
-		PlanContainer(ResourcesType sr, int st=0)
+		PlanContainer(ResourcesType sr, TimeType st=0)
 			: startres(sr), starttime(st), opendtime(st), endtime(st)
 		{
 			startres.setTime(starttime);
+			Traits::CorrectionTraits::addCorrections(*this, at(starttime));
 		}
 		
 		bool empty() const
@@ -136,7 +149,7 @@ class PlanContainer
 			return scheduled_operations.empty() && active_operations.empty();
 		}
 		
-		Situation at(int time) const
+		Situation at(TimeType time) const
 		{
 			return Situation(*this, time);
 		}
@@ -162,12 +175,12 @@ class PlanContainer
 			Situation it = opend();
 			for (int k=0; k<op.stageCount(); ++k)
 			{
-				int firstapplyable;
+				TimeType firstapplyable;
 				ResIndexType blocking;
 				while ((firstapplyable = it.firstApplyableAt(op, k, blocking)) > it.getNextTime())
 					++it;
 			
-				if (firstapplyable == std::numeric_limits<int>::max())
+				if (firstapplyable == std::numeric_limits<TimeType>::max())
 					return fbb(*this, op, blocking);
 				
 				it.inc(op.stageDuration(k) + firstapplyable - it.time());
@@ -190,7 +203,7 @@ class PlanContainer
 		}
       
 		template <class FallbackBehaviour>
-		bool rebase(int timeinc, const ResourcesType& newres, FallbackBehaviour& fbb)
+		bool rebase(TimeType timeinc, const ResourcesType& newres, FallbackBehaviour& fbb)
 		{
 			ThisType newplan(newres, starttime+timeinc);
 			
@@ -219,14 +232,14 @@ class PlanContainer
 			return true;
 		}
 		
-		bool rebase_sr(int timeinc, const ResourcesType& newres)
+		bool rebase_sr(TimeType timeinc, const ResourcesType& newres)
 		{
 			DefaultFallbackBehaviour<Traits> dfbb;
 			SimpleFallbackBehaviour< Traits, DefaultFallbackBehaviour<Traits> > sfbb(dfbb);
 			return rebase(timeinc, newres, sfbb);
 		}
 		
-		bool rebase_df(int timeinc, const ResourcesType& newres)
+		bool rebase_df(TimeType timeinc, const ResourcesType& newres)
 		{
 			DefaultFallbackBehaviour<Traits> dfbb;
 			return rebase(timeinc, newres, dfbb);
@@ -246,12 +259,12 @@ class PlanContainer
 			return startres;
 		}
 		
-		int getStartTime() const
+		TimeType getStartTime() const
 		{
 			return starttime;
 		}
     
-		int endTime() const
+		TimeType endTime() const
 		{
 			return endtime;
 		}
@@ -280,12 +293,13 @@ class PlanContainer
 			if (!readFileToString(filename, content))
 				return false;
 			
-			static boost::regex expression("^[[:space:]]*(\\*([[:digit:]]*))?[[:space:]]*([[:word:]])");
+			static boost::regex expression("^[[:space:]]*(\\*([[:digit:]]*))?[[:space:]]*([[:word:]]+)$");
 			std::string::const_iterator start = content.begin(), end = content.end();
 			boost::match_results<std::string::const_iterator> what;
 			boost::match_flag_type flags = boost::match_default;
-			while(regex_search(start, end, what, expression, flags))
+			while ((start != end) && regex_search(start, end, what, expression, flags))
 			{
+				start = what[0].second;
 				// what[0] whole string.
 				// what[2] Anzahl.
 				// what[3] Operationsname.
@@ -296,6 +310,8 @@ class PlanContainer
 				for (int k=0; k<count; ++k)
 					push_back_df(OperationType(index));
 			}
+			
+			return true;
 		}
 		
 		bool saveToFile(const char* filename) const
@@ -308,26 +324,40 @@ class PlanContainer
 			fclose(file);
 			return true;
 		}
+		
+		void addCorrection(const CorrectionType& c)
+		{
+			corrections.push_back(c);
+		}
+		
+		std::vector<CorrectionType> getCorrections() const
+		{
+			return corrections;
+		}
 
 	protected:
 		ResourcesType				startres;
 		std::vector<OperationType>	active_operations;
 		std::vector<OperationType>	scheduled_operations;
-		std::set<int>				changetimes;
-		int              			starttime;
-		int							opendtime;
-		int							endtime;
+		std::set<TimeType>			changetimes;
+		std::vector<CorrectionType>	corrections;
+		TimeType              		starttime;
+		TimeType					opendtime;
+		TimeType					endtime;
 
-		void evalOperations(ResourcesType& res, int btime, int etime) const
+		void evalOperations(ResourcesType& res, const TimeInterval& interval) const
 		{
 			for (auto it : active_operations)
-				it.apply(res, btime, etime);
+				it.apply(res, interval);
 				
 			for (auto it : scheduled_operations)
-				it.apply(res, btime, etime);
+				it.apply(res, interval);
+				
+			for (auto it : corrections)
+				it.apply(res, interval);
 		}
 		
-		void add(const OperationType& op, int time)
+		void add(const OperationType& op, TimeType time)
 		{
 			OperationType newop(op, time);
 			newop.changeTimes(changetimes);
@@ -335,6 +365,8 @@ class PlanContainer
 			opendtime = std::max(opendtime, time);
 			if (!changetimes.empty())
 				endtime = *changetimes.rbegin();
+			TimeType mintime = removeCorrections(time);
+			Traits::CorrectionTraits::addCorrections(*this, at(mintime));
 		}
 		
 		void addActive(const OperationType& op)
@@ -342,5 +374,20 @@ class PlanContainer
 			active_operations.push_back(op);
 			op.changeTimes(changetimes);
 			endtime = *changetimes.rbegin();
+		}
+		
+		TimeType removeCorrections(const TimeType& time)
+		{
+			TimeType mintime = time;
+			auto func = [time, &mintime] (const CorrectionType& c)
+				{ 
+					bool res = c.isLaterAs(time);
+					if (res)
+						mintime = std::min(mintime, c.interval.lower);
+					return res;
+				};
+			auto end = std::remove_if(corrections.begin(), corrections.end(), func);
+			corrections.resize(end-corrections.begin());
+			return mintime;
 		}
 };

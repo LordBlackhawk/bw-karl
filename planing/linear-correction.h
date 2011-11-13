@@ -13,14 +13,17 @@ struct LinearCorrection
 	TimeInterval interval;
 	int          value;
 
+	LinearCorrection() : value(0)
+	{ }
+	
 	LinearCorrection(const ResIndexType& ri_, const TimeInterval& i_, const int& v_) : ri(ri_), interval(i_), value(v_)
 	{ }
 
-	void applyCorrection(ResourcesType& res, const TimeInterval& range) const
+	void apply(ResourcesType& res, const TimeInterval& range) const
 	{
 		TimeInterval local = interval ^ range;
 		if (!local.empty())
-			res.inc(ri, local.lower, value * local.length());
+			res.incInternal(ri, value * local.length());
 	}
 
 	bool isLaterAs(const TimeType& time) const

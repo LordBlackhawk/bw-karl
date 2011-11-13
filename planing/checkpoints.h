@@ -19,7 +19,7 @@ namespace Plan {
 	template <class CP, class OT>
 	struct CheckPointCode
 	{
-		static CheckPointResult::type call(OperationStatus::type /*s*/, int& /*scheduledtime*/, int* /*d*/)
+		static CheckPointResult::type call(OperationStatus::type /*s*/, TimeType& /*scheduledtime*/, const DetailPointerType& /*d*/)
 		{ return CheckPointResult::completed; }
 	};
 }
@@ -32,15 +32,15 @@ namespace Plan {
 	struct Name;																						\
 	namespace Plan { template <class OT> struct CheckPointCode<Name, OT> {								\
 		typedef OT OperationType;																		\
-		typedef boost::shared_ptr<typename Plan::OperationDetailType<OT>::type> Details;									\
+		typedef boost::shared_ptr<typename Plan::OperationDetailType<OT>::type> Details;				\
 		const OperationStatus::type status;																\
-		TimeType& scheduledtime;																				\
-		Details& details;																			\
-		CheckPointCode(OperationStatus::type s, TimeType& st, Details& d)									\
+		TimeType& scheduledtime;																		\
+		Details details;																				\
+		CheckPointCode(OperationStatus::type s, TimeType& st, const Details& d)							\
 			: status(s), scheduledtime(st), details(d) { }												\
 		CheckPointResult::type callInternal();															\
-		static CheckPointResult::type call(OperationStatus::type s, TimeType& st, Details& d)					\
-		{ return CheckPointCode<Name, OT>(s, st, d).callInternal(); }						\
+		static CheckPointResult::type call(OperationStatus::type s, TimeType& st, const DetailPointerType& d)	\
+		{ return CheckPointCode<Name, OT>(s, st, convertDetails<Name>(d)).callInternal(); }				\
 	}; }																								\
 	template <class OT> CheckPointResult::type Plan::CheckPointCode<Name, OT>::callInternal()
 
@@ -49,14 +49,14 @@ namespace Plan {
 	struct OT;																							\
 	namespace Plan { template <> struct CheckPointCode<Name, OT> {										\
 		typedef OT OperationType;																		\
-		typedef boost::shared_ptr<typename Plan::OperationDetailType<OT>::type> Details;											\
+		typedef boost::shared_ptr<typename Plan::OperationDetailType<OT>::type> Details;				\
 		const OperationStatus::type status;																\
-		TimeType& scheduledtime;																				\
-		Details& details;																			\
-		CheckPointCode(OperationStatus::type s, TimeType& st, Details& d)									\
+		TimeType& scheduledtime;																		\
+		Details details;																				\
+		CheckPointCode(OperationStatus::type s, TimeType& st, const Details& d)							\
 			: status(s), scheduledtime(st), details(d) { }												\
 		CheckPointResult::type callInternal();															\
-		static CheckPointResult::type call(OperationStatus::type s, TimeType& st, Details& d)					\
-		{ return CheckPointCode<Name, OT>(s, st, d).callInternal(); }						\
+		static CheckPointResult::type call(OperationStatus::type s, TimeType& st, const DetailPointerType& d)	\
+		{ return CheckPointCode<Name, OT>(s, st, convertDetails<Name>(d)).callInternal(); }				\
 	}; }																								\
 	CheckPointResult::type Plan::CheckPointCode<Name, OT>::callInternal()

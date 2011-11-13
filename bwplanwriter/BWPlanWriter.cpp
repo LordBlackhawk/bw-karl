@@ -1,11 +1,11 @@
+#include "resourcedescription.h"
+#include "operationdescription.h"
+
 #include <BWAPI.h>
 #include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>
-
-std::vector<std::string> resnames;
-std::vector<std::string> opnames;
 
 void writeHeader()
 {
@@ -30,34 +30,35 @@ std::string toCName(const std::string text)
 
 std::string getResourceName(const BWAPI::UnitType& ut)
 {
-	return removeSpaces("R" + ut.getName());
+	return removeSpaces(ut.getName());
 }
 
 std::string getOperationName(const BWAPI::UnitType& ut)
 {
-	return removeSpaces("OBuild" + ut.getName());
+	return removeSpaces("Build" + ut.getName());
 }
 
 std::string getTechName(const BWAPI::TechType& tt)
 {
-	return removeSpaces("OTech" + tt.getName());
+	return removeSpaces("Tech" + tt.getName());
 }
 
-std::string getTechResourceName(const BWAPI::TechType& tt)
+template <class T>
+void writeStringList(const std::vector<T*>& list, const std::string addIndex = "")
 {
-	return removeSpaces("RTech" + tt.getName());
-}
-
-void writeStringList(const std::vector<std::string>& list)
-{
+	writeHeader();
+	std::cout << "enum Type {\n";
 	bool first = true;
 	for (auto it : list) {
 		if (!first)
 			std::cout << ",\n";
-		std::cout << "\t\t" << it;
+		std::cout << "\t\t" << it->name;
 		first = false;
 	}
-	std::cout << "\n";
+	std::cout << ",\n\n\t\tIndexEnd,\n\t\tIndexBegin = " << (*list.begin())->name;
+	if (addIndex != "")
+		std::cout << ",\n\t\tIndexLockedEnd = " << addIndex;
+	std::cout << "\n\t};\n";
 }
 
 bool isResource(const BWAPI::UnitType& ut)
@@ -102,13 +103,8 @@ void writeResForUnitType(const BWAPI::UnitType& ut)
 	if (!isResource(ut))
 		return;
 
-	std::string resName = getResourceName(ut);
-
-	std::cout << "DEF_RESTYPE(" << resName << ")\n";
-	std::cout << "DEF_RESLOCKABLE(" << resName << ")\n";
-	std::cout << "\n";
-
-	resnames.push_back(resName);
+	ResourceDescription* res = new ResourceDescription(getResourceName(ut), true);
+	unitMap[ut] = res;
 }
 
 bool isTechResource(const BWAPI::TechType& tt)
@@ -124,24 +120,8 @@ void writeResForTechType(const BWAPI::TechType& tt)
 	if (!isTechResource(tt))
 		return;
 
-	std::string resName = getTechResourceName(tt);
-
-	std::cout << "DEF_RESTYPE(" << resName << ")\n";
-	std::cout << "\n";
-
-	resnames.push_back(resName);
-}
-
-void writeResFile()
-{
-	writeHeader();
-	for (auto it : BWAPI::UnitTypes::allUnitTypes())
-		writeResForUnitType(it);
-	for (auto it : BWAPI::TechTypes::allTechTypes())
-		writeResForTechType(it);
-	std::cout << "typedef TL::type_list<\n";
-	writeStringList(resnames);
-	std::cout << "\t> AutoResourceTypeList;\n";
+	ResourceDescription* res = new ResourceDescription(getTechName(tt), true);
+	techMap[tt] = res;
 }
 
 bool isOperation(const BWAPI::UnitType& ut)
@@ -181,88 +161,85 @@ void writeOpForUnitType(const BWAPI::UnitType& ut)
 {
 	if (!isOperation(ut))
 		return;
+		
+	OperationDescription* op = new OperationDescription(getOperationName(ut));
 
-	std::string opName  = getOperationName(ut);
-	std::string resName = getResourceName(ut);
-	std::string race    = ut.getRace().getName();
-
-	std::cout << "BEGIN_DEF_OPTYPE(" << opName << ")\n";
 	if (ut.isBuilding()) {
 		if (ut.isAddon()) {
 			auto what = ut.whatBuilds();
-			std::cout << "\tLocks<1, " << getResourceName(what.first) << ">,\n";
+			op->locks(1, unitMap[what.first]);
 		} else {
-			std::cout << "\tLocks<1, R" << race << "Worker>,\n";
-			std::cout << "\t\tCheckPoint<CSendWorkerToBuildingPlace, 45>,\n";
+			op->locks(1, workerMap[ut.getRace()]);
+			op->checkpoint("CSendWorkerToBuildingPlace", 45);
 			if (ut.getRace() == BWAPI::Races::Zerg) {
-				std::cout << "\tUnlocks<1, RZergWorker>,\n";
-				std::cout << "\tConsums<1, RZergWorker>,\n";
-				std::cout << "\tUnlocks<2, RZergSupply>,\n";
+				op->unlocks(1, workerMap[ut.getRace()]);
+				op->consums(1, workerMap[ut.getRace()]);
+				op->unlocks(2, supplyMap[ut.getRace()]);
 			}
 		}
 	}
 	for (auto it : ut.requiredUnits())
 		if (isResource(it.first)) {
-			std::cout << "\tNeeds<" << it.second << ", " << getResourceName(it.first) << ">,\n";
+			op->needs(it.second, unitMap[it.first]);
 		} else if ((it.first != BWAPI::UnitTypes::Zerg_Larva) && !it.first.isWorker()) {
-			std::cout << "\t// " << it.second << " " << it.first.getName() << "\n";
+			// TODO: Morph...
 		}
 	if (ut.mineralPrice() > 0)
-		std::cout << "\tConsums<" << ut.mineralPrice() << ", RMinerals>,\n";
+		op->consums(ut.mineralPrice(), minerals);
 	if (ut.gasPrice() > 0)
-		std::cout << "\tConsums<" << ut.gasPrice() << ", RGas>,\n";
+		op->consums(ut.gasPrice(), gas);
 	if (ut.supplyRequired() > 0)
-		std::cout << "\tLocks<" << (ut.isTwoUnitsInOneEgg() ? 2 : 1) * ut.supplyRequired() << ", R" << race << "Supply>,\n";
+		op->locks((ut.isTwoUnitsInOneEgg() ? 2 : 1) * ut.supplyRequired(), supplyMap[ut.getRace()]);
 	if (ut.requiredTech() != BWAPI::TechTypes::None)
-		std::cout << "\tNeeds<1, " << getTechResourceName(ut.requiredTech()) << ">,\n";
+		op->needs(1, techMap[ut.requiredTech()]);
 	if (ut.isBuilding()) {
 		if (ut.isAddon()) {
 			auto what = ut.whatBuilds();
-			std::cout << "\t\tCheckPoint<CBuildAddon, " << ut.buildTime() << ">,\n";
-			std::cout << "\tUnlocks<1, " << getResourceName(what.first) << ">,\n";
-			std::cout << "\t\tCheckPoint<CBuildAddonFinished, 1>,\n";
+			op->checkpoint("CBuildAddon", ut.buildTime());
+			op->unlocks(1, unitMap[what.first]);
+			op->checkpoint("CBuildAddonFinished", 1);
 		} else {
 			if (ut.getRace() == BWAPI::Races::Protoss)
-				std::cout << "\tUnlocks<1, RProtossWorker>,\n";
-			std::cout << "\t\tCheckPoint<CBuildBuilding, " << ut.buildTime() << ">,\n";
+				op->unlocks(1, workerMap[BWAPI::Races::Protoss]);
+			op->checkpoint("CBuildBuilding", ut.buildTime());
 			if (isResource(ut))
-				std::cout << "\tProds<1, " << resName << ">,\n";
+				op->prods(1, unitMap[ut]);
 			if (ut.getRace() == BWAPI::Races::Terran)
-				std::cout << "\tUnlocks<1, RTerranWorker>,\n";
+				op->unlocks(1, workerMap[BWAPI::Races::Terran]);
 			if (ut.supplyProvided() > 0)
-				std::cout << "\tProds<" << ut.supplyProvided() << ", R" << race << "Supply>,\n";
+				op->prods(ut.supplyProvided(), supplyMap[ut.getRace()]);
 			if (ut.isRefinery())
-				std::cout << "\tProds<3, RGeyserWorkingPlace>,\n";
-			std::cout << "\t\tCheckPoint<CBuildingFinished, 1>,\n";
+				op->prods(3, workingplaces);
+			op->checkpoint("CBuildingFinished", 1);
 		}
 	} else {
 		bool writeUnitFinished = false;
 		auto what = ut.whatBuilds();
 		if (what.first == BWAPI::UnitTypes::Zerg_Larva) {
-			std::cout << "\tConsums<1, RLarva>,\n";
-			std::cout << "\t\tCheckPoint<CMorphUnit, " << ut.buildTime() << ">,\n";
+			op->consums(1, larva);
+			op->checkpoint("CMorphUnit", ut.buildTime());
 		} else if (ut.getRace() == BWAPI::Races::Zerg) {
-			std::cout << "\t\tCheckPoint<CMorphUnit, " << ut.buildTime() << ">,\n";
+			op->checkpoint("CMorphUnit", ut.buildTime());
 		} else if (what.second != 1) {
-			std::cout << "\tConsums<" << what.second << ", " << getResourceName(what.first) << ">,\n";
-			std::cout << "\t\tCheckPoint<CCombineUnit, " << ut.buildTime() << ">,\n";
+			op->consums(what.second, unitMap[what.first]);
 		} else {
-			std::cout << "\tLocks<1, " << getResourceName(what.first) << ">,\n";
-			std::cout << "\t\tCheckPoint<CTrainUnit, " << ut.buildTime() << ">,\n";
-			std::cout << "\tUnlocks<1, " << getResourceName(what.first) << ">,\n";
+			op->locks(1, unitMap[what.first]);
+			op->checkpoint("CTrainUnit", ut.buildTime());
+			op->unlocks(1, unitMap[what.first]);
 			writeUnitFinished = true;
 		}
 		if (ut.isWorker()) {
-			std::cout << "\tProds<1, R" << race << "Worker>,\n";
+			op->prods(1, workerMap[ut.getRace()]);
 			writeUnitFinished = true;
 		}
 		if (ut.supplyProvided() > 0) {
-			std::cout << "\tProds<" << ut.supplyProvided() << ", R" << race << "Supply>,\n";
+			op->prods(ut.supplyProvided(), supplyMap[ut.getRace()]);
 			writeUnitFinished = true;
 		}
 		if (writeUnitFinished)
-			std::cout << "\t\tCheckPoint<CUnitFinished, 1>,\n";
+			op->checkpoint("CUnitFinished", 1);
 	}
+	/*
 	std::cout << "END_DEF_OPTYPE\n";
 	if (ut.isBuilding())
 		std::cout << "DEF_OPDETAILS(" << opName << ", BuildBuildingDetails)\n";
@@ -273,8 +250,7 @@ void writeOpForUnitType(const BWAPI::UnitType& ut)
 	if (isResource(ut))
 		std::cout << "DEF_SIMPLEREQUIREMENT(" << resName << ", " << opName << ")\n";
 	std::cout << "\n";
-
-	opnames.push_back(opName);
+	*/
 }
 
 void writeOpForTechType(const BWAPI::TechType& tt)
@@ -282,42 +258,291 @@ void writeOpForTechType(const BWAPI::TechType& tt)
 	BWAPI::UnitType what = tt.whatResearches();
 	if (what == BWAPI::UnitTypes::None)
 		return;
-		
-	std::string opName = getTechName(tt);
-	std::string resName = getTechResourceName(tt);
-
-	std::cout << "BEGIN_DEF_OPTYPE(" << opName << ")\n";
+	
+	OperationDescription* op = new OperationDescription(getTechName(tt));
+	
 	if (tt.mineralPrice() > 0)
-		std::cout << "\tConsums<" << tt.mineralPrice() << ", RMinerals>,\n";
+		op->consums(tt.mineralPrice(), minerals);
 	if (tt.gasPrice() > 0)
-		std::cout << "\tConsums<" << tt.gasPrice() << ", RGas>,\n";
-	std::cout << "\tLocks<1, " << getResourceName(what) << ">,\n";
-	std::cout << "\t\tCheckPoint<CTechStart, " << tt.researchTime() << ">,\n";
+		op->consums(tt.gasPrice(), gas);
+	op->locks(1, unitMap[what]);
+	op->checkpoint("CTechStart", tt.researchTime());
 	if (isTechResource(tt))
-		std::cout << "\tProds<1, " << getTechResourceName(tt) << ">,\n";
-	std::cout << "\tUnlocks<1, " << getResourceName(what) << ">,\n";
-	std::cout << "\t\tCheckPoint<CTechFinished, 1>,\n";
+		op->prods(1, techMap[tt]);
+	op->unlocks(1, unitMap[what]);
+	op->checkpoint("CTechFinished", 1);
+	/*
 	std::cout << "END_DEF_OPTYPE\n";
 	std::cout << "DEF_OPDETAILS(" << opName << ", TechDetails)\n";
 	std::cout << "DEF_ASSOCIATION(" << opName << ", BWAPI::TechType, BWAPI::TechTypes::" << toCName(tt.getName()) << ")\n";
 	if (isTechResource(tt))
 		std::cout << "DEF_SIMPLEREQUIREMENT(" << resName << ", " << opName << ")\n";
 	std::cout << "\n";
-	
-	opnames.push_back(opName);
+	*/
 }
 
-void writeOpFile()
+void init()
 {
-	writeHeader();
+	workerMap[BWAPI::Races::Terran]  = new ResourceDescription("TerranWorker", true);
+	workerMap[BWAPI::Races::Protoss] = new ResourceDescription("ProtossWorker", true);
+	workerMap[BWAPI::Races::Zerg]    = new ResourceDescription("ZergWorker", true);
+	
+	gasworkerMap[BWAPI::Races::Terran]  = new ResourceDescription("TerranGasWorker", true);
+	gasworkerMap[BWAPI::Races::Protoss] = new ResourceDescription("ProtossGasWorker", true);
+	gasworkerMap[BWAPI::Races::Zerg]    = new ResourceDescription("ZergGasWorker", true);
+	
+	supplyMap[BWAPI::Races::Terran]  = new ResourceDescription("TerranSupply", true);
+	supplyMap[BWAPI::Races::Protoss] = new ResourceDescription("ProtossSupply", true);
+	supplyMap[BWAPI::Races::Zerg]    = new ResourceDescription("ZergSupply", true);
+	
+	workingplaces = new ResourceDescription("GasWorkingPlaces", true);
+	larva = new ResourceDescription("Larva", false, 240);
+
+	minerals = new ResourceDescription("Minerals", false, 1000);
+	minerals->addGrowth(45, workerMap[BWAPI::Races::Terran]);
+	minerals->addGrowth(45, workerMap[BWAPI::Races::Protoss]);
+	minerals->addGrowth(45, workerMap[BWAPI::Races::Zerg]);
+	
+	gas      = new ResourceDescription("Gas", false, 1000);
+	gas->addGrowth(45, gasworkerMap[BWAPI::Races::Terran]);
+	gas->addGrowth(45, gasworkerMap[BWAPI::Races::Protoss]);
+	gas->addGrowth(45, gasworkerMap[BWAPI::Races::Zerg]);
+	
+	for (auto it : BWAPI::UnitTypes::allUnitTypes())
+		writeResForUnitType(it);
+	for (auto it : BWAPI::TechTypes::allTechTypes())
+		writeResForTechType(it);
 	for (auto it : BWAPI::UnitTypes::allUnitTypes())
 		writeOpForUnitType(it);
 	for (auto it : BWAPI::TechTypes::allTechTypes())
 		writeOpForTechType(it);
-	std::cout << "typedef TL::type_list<\n";
-	writeStringList(opnames);
-	std::cout << "\t> AutoOperationTypeList;\n";
+		
+	larva->addGrowth(1, unitMap[BWAPI::UnitTypes::Zerg_Hatchery]);
+	larva->addGrowth(1, unitMap[BWAPI::UnitTypes::Zerg_Lair]);
+	larva->addGrowth(1, unitMap[BWAPI::UnitTypes::Zerg_Hive]);
 }
+
+void writeBWPlan()
+{
+	std::cout << "#include \"bwplan-internal.h\"\n\n";
+	std::cout << "std::string ResourceIndex::getName() const\n{\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : resourceDescriptions)
+		std::cout << "\t\tcase " << it->name << ":\n\t\t\treturn \"" << it->name << "\";\n";
+	std::cout << "\t\tdefault:\n"
+				<< "\t\t\treturn \"[UNKNOWN]\";\n";
+	std::cout << "\t}\n}\n\n";
+	
+	std::cout << "bool ResourceIndex::isLockable() const\n{\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : resourceDescriptions)
+		if (!it->lockable)
+			std::cout << "\t\tcase " << it->name << ":\n";
+	std::cout << "\t\t\treturn false;\n";
+	std::cout << "\t\tdefault:\n" << "\t\t\treturn true;\n";
+	std::cout << "\t}\n}\n\n";
+	
+	std::cout << "bool ResourceIndex::isGrowthing() const\n{\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : resourceDescriptions)
+		if (!it->growth.empty())
+			std::cout << "\t\tcase " << it->name << ":\n";
+	std::cout << "\t\t\treturn true;\n";
+	std::cout << "\t\tdefault:\n" << "\t\t\treturn false;\n";
+	std::cout << "\t}\n}\n\n";
+	
+	std::cout << "int ResourceIndex::getScaling() const\n{\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : resourceDescriptions)
+		if (it->scaling != 1)
+			std::cout << "\t\tcase " << it->name << ":\n"
+					<< "\t\t\treturn " << it->scaling << ";\n";
+	std::cout << "\t\tdefault:\n" << "\t\t\treturn 1;\n";
+	std::cout << "\t}\n}\n\n";
+	
+	std::cout << "typedef ResourceIndex RI;\n\n";
+	
+	std::cout << "int Resources::getGrowth(const ResourceIndex& ri) const\n{\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : resourceDescriptions)
+		if (!it->growth.empty()) {
+			std::cout << "\t\tcase " << it->name << ":\n"
+					<< "\t\t\treturn ";
+			for (auto git : it->growth) {
+				if (git != *it->growth.begin()) std::cout << " + ";
+				std::cout << git.first << " * amount[RI::" << git.second->name << "]";
+			}
+			std::cout << ";\n";
+		}
+	std::cout << "\t\tdefault:\n" << "\t\t\treturn 0;\n";
+	std::cout << "\t}\n}\n\n";
+	
+	std::cout << "void Resources::advance(int dt)\n{\n";
+	for (auto it : resourceDescriptions)
+		if (!it->growth.empty())
+			std::cout << "\tamount[RI::" << it->name << "] += dt * getGrowth(RI::" << it->name << ");\n";
+	std::cout << "}\n\n";
+	
+	std::cout << "void Resources::inc(const ResourceIndex& ri, int optime, int value)\n{\n"
+				<< "\tswitch(index_)\n\t{\n";
+	for (auto it : resourceDescriptions)
+		if (!it->influence.empty()) {
+			std::cout << "\t\tcase " << it->name << ":\n";
+			for (auto iit : it->influence)
+				std::cout << "\t\t\tamount[RI::" << iit.second->name << "] += " << iit.first << " * (optime - time);\n";
+			std::cout << "\t\t\tbreak;\n";
+		}
+	std::cout << "\t\tdefault:\n"
+				<< "\t\t\tbreak;\n";
+	std::cout << "\t}\n";
+	std::cout << "\tamount[ri.getIndex()] += value;\n";
+	std::cout << "}\n\n";
+	
+	std::cout << "std::string OperationIndex::getName() const\n{\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : operationDescriptions)
+		std::cout << "\t\tcase " << it->name << ":\n\t\t\treturn \"" << it->name << "\";\n";
+	std::cout << "\t\tdefault:\n"
+				<< "\t\t\treturn \"[UNKNOWN]\";\n";
+	std::cout << "\t}\n}\n\n";
+	
+	for (auto it : operationDescriptions)
+		it->calculate();
+	
+	std::cout << "TimeType Operation::duration() const\n{\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : operationDescriptions)
+		std::cout << "\t\tcase " << it->name << ":\n\t\t\treturn " << it->duration << ";\n";
+	std::cout << "\t\tdefault:\n"
+				<< "\t\t\treturn 0;\n";
+	std::cout << "\t}\n}\n\n";
+	
+	std::cout << "int Operation::stageCount() const\n{\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : operationDescriptions)
+		std::cout << "\t\tcase " << it->name << ":\n\t\t\treturn " << it->stagecount << ";\n";
+	std::cout << "\t\tdefault:\n"
+				<< "\t\t\treturn 0;\n";
+	std::cout << "\t}\n}\n\n";
+	
+	std::cout << "TimeType Operations::stageDuration(int stage) const\n{\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : operationDescriptions) {
+		std::cout << "\t\tcase " << it->name << ":\n";
+		std::cout << "\t\t\tswitch(stage)\n\t\t\t{\n";
+		int counter = 0;
+		for (auto iit : it->items)
+			if (iit.type == ItemDescription::CheckPoint)
+		{
+			std::cout << "\t\t\t\tcase " << counter << ":\n"
+					<< "\t\t\t\t\treturn " << iit.count << ";\n";
+			++counter;
+		}
+		std::cout << "\t\t\t\tdefault:\n"
+					<< "\t\t\t\t\treturn 0;\n"
+					<< "\t\t\t}\n";
+	}
+	std::cout << "\t\tdefault:\n"
+				<< "\t\t\treturn 0;\n";
+	std::cout << "\t}\n}\n\n";
+	
+	std::cout << "void Operations::execute(bool justactived)\n{\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : operationDescriptions) {
+		std::cout << "\t\tcase " << it->name << ":\n";
+		std::cout << "\t\t\tswitch(stage)\n\t\t\t{\n";
+		int counter = 0;
+		for (auto iit : it->items)
+			if (iit.type == ItemDescription::CheckPoint)
+		{
+			std::cout << "\t\t\t\tcase " << counter << ":\n"
+					<< "\t\t\t\t\tCall(" << iit.name << ", this); break;\n";
+			++counter;
+		}
+		std::cout << "\t\t\t}\n";
+	}
+	std::cout << "\t}\n}\n\n";
+	
+	std::cout << "TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResIndexType& blocking) const\n{\n"
+			<< "\tTimeType result = 0;\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : operationDescriptions) {
+		std::cout << "\t\tcase " << it->name << ":\n";
+		std::cout << "\t\t\tswitch(stage)\n\t\t\t{\n";
+		std::cout << "\t\t\t\tcase 0:\n";
+		int counter = 0;
+		for (auto iit : it->items) {
+			switch (iit.type)
+			{
+				case ItemDescription::CheckPoint:
+					++counter;
+					std::cout << "\t\t\t\t\treturn result;\n"
+							<< "\t\t\t\tcase " << counter << ":\n";
+					break;
+				case ItemDescription::Needs:
+					std::cout << "\t\t\t\t\tNeeds(res, " << iit.count << ", RI::" << iit.res->name << ", result, blocking);\n";
+					break;
+				case ItemDescription::Locks:
+					std::cout << "\t\t\t\t\tLocks(res, " << iit.count << ", RI::" << iit.res->name << ", result, blocking);\n";
+					break;
+				case ItemDescription::Consums:
+					std::cout << "\t\t\t\t\tConsums(res, " << iit.count << ", RI::" << iit.res->name << ", result, blocking);\n";
+					break;
+				default:
+					break;
+			}
+		}
+		std::cout << "\t\t\t\t\treturn result;\n";
+		std::cout << "\t\t\t}\n";
+	}
+	std::cout << "\t}\n\treturn result;\n}\n\n";
+	
+	std::cout << "void Operation::apply(ResourcesType& res, const TimeInterval& interval, bool pushdecs = false) const\n{\n"
+			<< "\tTimeType applytime = scheduledtime_;\n"
+			<< "\tswitch(index_)\n\t{\n";
+	for (auto it : operationDescriptions) {
+		std::cout << "\t\tcase " << it->name << ":\n";
+		for (auto iit : it->items) {
+			switch (iit.type)
+			{
+				case ItemDescription::CheckPoint:
+					std::cout << "\t\t\tapplytime += " << iit.count << ";\n";
+					break;
+				case ItemDescription::Needs:
+					std::cout << "\t\t\tNeeds(res, " << iit.count << ", RI::" << iit.res->name << ", interval, applytime, pushdecs);\n";
+					break;
+				case ItemDescription::Locks:
+					std::cout << "\t\t\tLocks(res, " << iit.count << ", RI::" << iit.res->name << ", interval, applytime, pushdecs);\n";
+					break;
+				case ItemDescription::Unlocks:
+					std::cout << "\t\t\tUnlocks(res, " << iit.count << ", RI::" << iit.res->name << ", interval, applytime, pushdecs);\n";
+					break;
+				case ItemDescription::Consums:
+					std::cout << "\t\t\tConsums(res, " << iit.count << ", RI::" << iit.res->name << ", interval, applytime, pushdecs);\n";
+					break;
+				case ItemDescription::Prods:
+					std::cout << "\t\t\tProds(res, " << iit.count << ", RI::" << iit.res->name << ", interval, applytime, pushdecs);\n";
+					break;
+				default:
+					break;
+			}
+		}
+		std::cout << "\t\t\tbreak;\n";
+	}
+	std::cout << "\t}\n}\n\n";
+}
+
+struct CompareByLockable
+{
+	bool operator () (ResourceDescription* a, ResourceDescription* b) const
+	{
+		if (a->lockable && !b->lockable)
+			return true;
+		if (b->lockable && !a->lockable)
+			return false;
+		return a->name < b->name;
+	}
+};
 
 int main(int argc, char *argv[])
 {
@@ -327,16 +552,22 @@ int main(int argc, char *argv[])
 	}
 	
 	BWAPI::BWAPI_init();
+	init();
 
 	std::string filename(argv[1]);
-	if (filename == "auto-res-types.h") {
-		writeResFile();
-	} else if (filename == "auto-op-types.h") {
-		writeOpFile();
+	if (filename == "resourceenum.h") {
+		std::sort(resourceDescriptions.begin(), resourceDescriptions.end(), CompareByLockable());
+		auto it = resourceDescriptions.begin();
+		while ((*it)->lockable) ++it;
+		writeStringList(resourceDescriptions, (*it)->name);
+	} else if (filename == "operationenum.h") {
+		writeStringList(operationDescriptions);
+	} else if (filename == "bwplan.cpp") {
+		writeHeader();
+		writeBWPlan();
 	} else {
 		std::cerr << "Unknown filename.\n";
 		return 1;
 	}
 	return 0;
 }
-

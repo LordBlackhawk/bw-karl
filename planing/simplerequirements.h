@@ -25,3 +25,13 @@ struct SimpleRequirementList
 
 	typedef typename TL::sublist< Predicate, OLIST >::type type;
 };
+
+/*
+#define DEF_SIMPLEREQUIREMENT(RName, OName)
+
+template <class OLIST, class RT>
+struct SimpleRequirementList
+{
+	typedef TL::type_list< > type;
+};
+*/

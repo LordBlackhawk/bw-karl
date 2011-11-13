@@ -34,10 +34,49 @@ BEGIN_DEF_OPTYPE(BuildTerranWorker)
 		CheckPoint<BuildFinished, 0>,
 END_DEF_OPTYPE
 
+template <class Traits>
+struct UserNames
+{
+	typedef ResourceIndex<Traits>	ResIndexType;
+	typedef OperationIndex<Traits>	OpIndexType;
+	
+	static ResIndexType getResourceIndexByName(const std::string& name)
+	{
+		return ResIndexType::byName(name);
+	}
+	
+	static std::string getResourceName(const ResIndexType& i)
+	{
+		return i.getName();
+	}
+	
+	static OpIndexType getOperationIndexByName(const std::string& name)
+	{
+		return OpIndexType::byName(name);
+	}
+	
+	static std::string getOperationName(const OpIndexType& i)
+	{
+		return i.getName();
+	}
+};
+
+template <class Traits>
+struct UserCorrection
+{
+	typedef PlanContainer<Traits>			PlanType;
+	typedef typename PlanType::Situation	SituationType;
+
+	static void addCorrections(PlanType& /*plan*/, const SituationType& /*it*/)
+	{ }
+};
+
 struct Traits
 {
 	typedef TL::type_list< Minerals, CommandCenter, TerranSupply, TerranWorker > 	ResourceList;
 	typedef TL::type_list< BuildTerranWorker > 										OperationList;
+	typedef UserNames<Traits>														NameTraits;
+	typedef UserCorrection<Traits>													CorrectionTraits;
 };
 
 typedef PlanContainer<Traits>				TestPlan;

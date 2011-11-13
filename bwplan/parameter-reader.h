@@ -3,6 +3,7 @@
 #include "bwplan.h"
 #include <boost/program_options.hpp>
 #include <vector>
+#include <string>
 
 using namespace boost;
 namespace po = boost::program_options;
@@ -30,17 +31,17 @@ struct BWParameterReader
 				;
 
 		hidden.add_options()
-				("input-op",	po::value< std::vector<string> >(&inputops),		"Input operations.")
+				("input-op",	po::value< std::vector<std::string> >(&inputops),		"Input operations.")
 				;
-
-		all.add(general).add(hidden);
-		visible.add(general);
 
 		p.add("input-op", -1);
 	}
 
-	void run(int argc, char *argv[])
+	void run(int argc, const char *argv[])
 	{
+		all.add(general).add(hidden);
+		visible.add(general);
+
 		po::store(po::command_line_parser(argc, argv).options(all).positional(p).run(), vm);
 		po::notify(vm);
 	}
@@ -72,7 +73,7 @@ struct BWParameterReader
 
 		BWPlan plan(res, 0);
 		if (loadfilename != "")
-			plan.loadFromFile(loadfilename);
+			plan.loadFromFile(loadfilename.c_str());
 
 		for (auto it : inputops) {
 			BWOperationIndex index = BWOperationIndex::byUserName(it);
@@ -94,6 +95,7 @@ struct BWParameterReader
 	friend Stream& operator << (Stream& stream, const BWParameterReader& o)
 	{
 		stream << o.visible;
+		return stream;
 	}
 };
 

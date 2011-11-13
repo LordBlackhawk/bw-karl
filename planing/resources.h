@@ -57,6 +57,12 @@ class Resources
 		return get(ri) + getLocked(ri);
 	}
 	
+	int getInternalValue(const IndexType& ri) const
+	{
+		assert(ri.valid());
+		return amount[ri.getIndex()];
+	}
+	
 	void set(const IndexType& ri, int value)
 	{
 		assert(ri.valid());
@@ -74,6 +80,12 @@ class Resources
 		assert(ri.valid());
 		TL::dispatch<RLIST>::template call<IncInternal, AmountType&, int> (ri.getIndex(), amount, value * (time - optime));
 		amount[ri.getIndex()] += value * ri.getScaling();
+	}
+	
+	void incInternal(const IndexType& ri, int value)
+	{
+		assert(ri.valid());
+		amount[ri.getIndex()] += value;
 	}
 	
 	void dec(const IndexType& ri, int optime, int value)
@@ -133,6 +145,12 @@ class Resources
     int getExisting() const
 	{
        return getExisting(IndexType::template byClass<RT>());
+    }
+	
+	template <class RT>
+    int getInternalValue() const
+	{
+       return getInternalValue(IndexType::template byClass<RT>());
     }
      
     template <class RT>

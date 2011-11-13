@@ -6,14 +6,10 @@
 #include "operationstatus.h"
 #include "checkpoints.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include <set>
 #include <string>
 #include <stdexcept>
 #include <limits>
-
-typedef boost::shared_ptr<void> DetailPointerType;
 
 template <class Traits>
 class Operation
@@ -28,7 +24,7 @@ class Operation
 
 	public:
 		explicit Operation(const IndexType& i, const TimeType& st = 0)
-			: index_(i), status_(OperationStatus::scheduled), stage_(0), scheduledtime_(st), details_(NULL)
+			: index_(i), status_(OperationStatus::scheduled), stage_(0), scheduledtime_(st)
 		{ }
 		
 		explicit Operation(const ThisType& o, const TimeType& st)
@@ -124,7 +120,8 @@ class Operation
 		template <class OT>
 		boost::shared_ptr< typename Plan::OperationDetailType<OT>::type> getDetails() const
 		{
-			return boost::static_pointer_cast<typename Plan::OperationDetailType<OT>::type>(details_);
+			return convertDetails<OT>(details_);
+			//return boost::static_pointer_cast<typename Plan::OperationDetailType<OT>::type>(details_);
 		}
 		 
 		void setDetails(const DetailPointerType& ptr)
@@ -367,7 +364,7 @@ class Operation
 		struct mydispatch2
 		{
 			template <template<class, class> class DISPATCHER, class... ARGS>
-			static void call(TimeType& /*time*/, const DetailPointerType& /*details*/, ARGS... /*args*/)
+			static void call(const TimeType& /*time*/, const DetailPointerType& /*details*/, ARGS... /*args*/)
 			{ }
 		};
 		
@@ -375,7 +372,7 @@ class Operation
 		struct mydispatch2< OT, TL::type_list<FIRST, TAIL...> >
 		{
 			template <template<class, class> class DISPATCHER, class... ARGS>
-			static void call(TimeType& time, const DetailPointerType& details, ARGS... args)
+			static void call(TimeType time, const DetailPointerType& details, ARGS... args)
 			{
 				docall<OT, FIRST>::template call<DISPATCHER, ARGS...>(time, details, args...);
 				DISPATCHER<OT, FIRST>::call(time, details, args...);
@@ -387,7 +384,7 @@ class Operation
 		struct mydispatch
 		{
 			template <template<class, class> class DISPATCHER, class ... ARGS>
-			static void call(int /*index*/, TimeType& /*time*/, const DetailPointerType& /*details*/, ARGS... /*args*/)
+			static void call(int /*index*/, const TimeType& /*time*/, const DetailPointerType& /*details*/, ARGS... /*args*/)
 			{
 				throw std::runtime_error("mydispatch<>::call() is called, but should not!");
 			}
@@ -397,7 +394,7 @@ class Operation
 		struct mydispatch< TL::type_list<FIRST, TAIL...> >
 		{
 			template <template<class, class> class DISPATCHER, class ... ARGS>
-			static void call(int index, TimeType& time, const DetailPointerType& details, ARGS... args)
+			static void call(int index, const TimeType& time, const DetailPointerType& details, ARGS... args)
 			{
 				if (index == 0)
 					mydispatch2< FIRST, typename Plan::OperationList<FIRST>::type >::template call<DISPATCHER, ARGS...>(time, details, args...);
@@ -417,5 +414,5 @@ class Operation
 		OperationStatus::type 	status_;
 		int						stage_;
 		TimeType  				scheduledtime_;
-		DetailPointerType	details_;
+		DetailPointerType		details_;
 };

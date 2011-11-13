@@ -2,6 +2,10 @@
 
 #include "typelists.h"
 
+#include <boost/shared_ptr.hpp>
+
+typedef boost::shared_ptr<void> DetailPointerType;
+
 template <int, class RT>
 struct Needs
 { };
@@ -54,7 +58,7 @@ namespace Plan
 	template <class OT, class HT, int num>
 	struct OperationDynamic<OT, CheckPoint<HT, num> >
 	{
-		static int getValue(int* /*details*/) { return num; }
+		static int getValue(const DetailPointerType& /*details*/) { return num; }
 	};
 }
 
@@ -73,15 +77,21 @@ namespace Plan
   namespace Plan { template <> struct OperationDetailType<Name>        				\
   { typedef Type type; }; }
   
+template <class OT>
+boost::shared_ptr<typename Plan::OperationDetailType<OT>::type> convertDetails(const DetailPointerType & details_)
+{
+	return boost::static_pointer_cast<typename Plan::OperationDetailType<OT>::type>(details_);
+}
+  
 #define DEF_OPDYNDURATION(Name, Num)                                               						\
   struct Name;																							\
   namespace Plan { template <class HT> struct OperationDynamic<Name, CheckPoint<HT, Num> >				\
   {                                                                               						\
     enum { defaultValue = Num };                                                   						\
-    typedef OperationDetailType<Name>::type Details;                   									\
+    typedef boost::static_pointer_cast<OperationDetailType<Name>::type> Details;   						\
     static int getValueInternal(const Details& details);                           						\
-    static inline int getValue(int* d)                                             						\
-    { Details* details = (Details*) d; return getValueInternal(*details); }        						\
+    static inline int getValue(const DetailPointerType& d)                        						\
+    { return getValueInternal(convertDetails<Name>(details)); }        									\
   };  }                                                                            						\
   template <class HT> int Plan::OperationDynamic<Name, CheckPoint<HT, Num> >							\
 	::getValueInternal(const Details& details)

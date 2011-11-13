@@ -46,6 +46,8 @@ struct BWUserNames
 			index = OpIndexType::byName("OBuildTerran" + name);
 		if (!index.valid())
 			index = OpIndexType::byName("OBuild" + name);
+		if (!index.valid())
+			index = OpIndexType::byName("O" + name);
 		return index;
 	}
 	

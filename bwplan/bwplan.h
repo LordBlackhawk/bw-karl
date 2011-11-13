@@ -14,6 +14,7 @@
 #include "auto-op-types.h"
 #include "user-op-types.h"
 #include "user-names.h"
+#include "user-linear-correction.h"
 
 struct BWTraits
 {
@@ -21,6 +22,7 @@ struct BWTraits
 	typedef TL::combine< UserResourceTypeList, AutoResourceTypeList >::type		ResourceList;
 	typedef TL::combine< UserOperationTypeList, AutoOperationTypeList >::type	OperationList;
 	typedef BWUserNames<Traits>													NameTraits;
+	typedef UserLinearCorrectionHandler<Traits>									CorrectionTraits;
 };
 
 typedef PlanContainer<BWTraits>              		BWPlan;
