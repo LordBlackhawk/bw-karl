@@ -1,7 +1,7 @@
 #pragma once
 
 #include "variables.h"
-
+#include <BWAPI.h>
 #include <string>
 #include <vector>
 #include <utility>
@@ -20,7 +20,7 @@ struct ResourceDescription
 	BWAPI::UpgradeType gt;
 	
 	ResourceDescription(std::string n, bool l = false, int s = 1)
-		: name(n), lockable(l), scaling(s), race(BWAPI::Races::None), ut(BWAPI::UnitTypes::None), tt(BWAPI::TechTypes::None), gt(BWAPI::UgradeTypes::None)
+		: name(n), lockable(l), scaling(s), race(BWAPI::Races::None), ut(BWAPI::UnitTypes::None), tt(BWAPI::TechTypes::None), gt(BWAPI::UpgradeTypes::None)
 	{
 		resourceDescriptions.push_back(this);
 	}

@@ -3,13 +3,15 @@
 #include "resources.h"
 #include "operations.h"
 #include "checkpoints.h"
-#include "add-linearcorrection.h"
+#include "plan.h"
+#include "add-linear-correction.h"
+#include "fallbackbehaviour.h"
 
 namespace {
 
 /* for Operation::execute(): */
 template <class FUNC>
-void Call(const FUNC& f, Operation& op)
+void Call(const FUNC& f, bool /*justactived*/, Operation& op)
 {
 	CheckPointResult::type res = f(op);
 	switch (res)
@@ -18,15 +20,15 @@ void Call(const FUNC& f, Operation& op)
 		break;
 		
 	case CheckPointResult::running:
-		op.status = OperationStatus::running;
+		op.status() = OperationStatus::running;
 		break;
 		
 	case CheckPointResult::completed:
-		op.status = OperationStatus::completed;
+		op.status() = OperationStatus::completed;
 		break;
 	
 	case CheckPointResult::failed:
-		op.status = OperationStatus::failed;
+		op.status() = OperationStatus::failed;
 		break;
 	}
 }
@@ -57,10 +59,12 @@ void Consums(const Resources& res, int num, const ResourceIndex& ri, TimeType& r
 			case ResourceIndex::Minerals:
 			case ResourceIndex::Gas:
 			case ResourceIndex::Larva:
+			{
 				int growth = res.getGrowth(ri);
-				int value  = res.getInternalValue(ri);
+				int value  = res.getInternal(ri);
 				result = (num - value + growth-1)/growth;
 				break;
+			}
 			default:
 				result = std::numeric_limits<TimeType>::max();
 				break;
@@ -75,7 +79,7 @@ void Locks(Resources& res, int num, const ResourceIndex& ri, const TimeInterval&
 		res.incLocked(ri, applytime, num);
 }
 
-void Unlocks(Resources& res, int num, const ResourceIndex& ri, const TimeInterval& interval, const TimeType& applytime, bool pushdecs)
+void Unlocks(Resources& res, int num, const ResourceIndex& ri, const TimeInterval& interval, const TimeType& applytime, bool /*pushdecs*/)
 {
 	if (interval.contains(applytime))
 		res.decLocked(ri, applytime, num);
@@ -87,7 +91,7 @@ void Consums(Resources& res, int num, const ResourceIndex& ri, const TimeInterva
 		res.dec(ri, applytime, num);
 }
 
-void Prods(Resources& res, int num, const ResourceIndex& ri, const TimeInterval& interval, const TimeType& applytime, bool pushdecs)
+void Prods(Resources& res, int num, const ResourceIndex& ri, const TimeInterval& interval, const TimeType& applytime, bool /*pushdecs*/)
 {
 	if (interval.contains(applytime))
 		res.inc(ri, applytime, num);
@@ -100,7 +104,7 @@ bool ResourceIndex::isLockable() const
 	return (index_ < IndexLockedEnd);
 }
 
-static ResourceIndex ResourceIndex::byName(const std::string& name)
+ResourceIndex ResourceIndex::byName(const std::string& name)
 {
 	typedef std::map<std::string, ResourceIndex> MapType;
 	static MapType fast = []
@@ -109,15 +113,75 @@ static ResourceIndex ResourceIndex::byName(const std::string& name)
 			for (auto it : AllResourceIndices())
 				result[it.getName()] = it;
 			return result;
-		};
+		}();
 
 	auto it = fast.find(name);
 	if (it == fast.end())
 		return ResourceIndex::None;
-	return *it;
+	return it->second;
 }
 
-static OperationIndex OperationIndex::byName(const std::string& name)
+ResourceIndex ResourceIndex::byUnitType(const BWAPI::UnitType& ut)
+{
+	typedef std::map<BWAPI::UnitType, ResourceIndex> MapType;
+	static MapType fast = []
+		{
+			MapType result;
+			for (auto it : AllResourceIndices()) {
+				BWAPI::UnitType t = it.associatedUnitType();
+				if (t != BWAPI::UnitTypes::None)
+					result[t] = it;
+			}
+			return result;
+		}();
+
+	auto it = fast.find(ut);
+	if (it == fast.end())
+		return ResourceIndex::None;
+	return it->second;
+}
+
+ResourceIndex ResourceIndex::byTechType(const BWAPI::TechType& tt)
+{
+	typedef std::map<BWAPI::TechType, ResourceIndex> MapType;
+	static MapType fast = []
+		{
+			MapType result;
+			for (auto it : AllResourceIndices()) {
+				BWAPI::TechType t = it.associatedTechType();
+				if (t != BWAPI::TechTypes::None)
+					result[t] = it;
+			}
+			return result;
+		}();
+
+	auto it = fast.find(tt);
+	if (it == fast.end())
+		return ResourceIndex::None;
+	return it->second;
+}
+
+ResourceIndex ResourceIndex::byUpgradeType(const BWAPI::UpgradeType& gt)
+{
+	typedef std::map<BWAPI::UpgradeType, ResourceIndex> MapType;
+	static MapType fast = []
+		{
+			MapType result;
+			for (auto it : AllResourceIndices()) {
+				BWAPI::UpgradeType t = it.associatedUpgradeType();
+				if (t != BWAPI::UpgradeTypes::None)
+					result[t] = it;
+			}
+			return result;
+		}();
+
+	auto it = fast.find(gt);
+	if (it == fast.end())
+		return ResourceIndex::None;
+	return it->second;
+}
+
+OperationIndex OperationIndex::byName(const std::string& name)
 {
 	typedef std::map<std::string, OperationIndex> MapType;
 	static MapType fast = []
@@ -126,12 +190,96 @@ static OperationIndex OperationIndex::byName(const std::string& name)
 			for (auto it : AllOperationIndices())
 				result[it.getName()] = it;
 			return result;
-		};
+		}();
 
 	auto it = fast.find(name);
 	if (it == fast.end())
 		return OperationIndex::None;
-	return *it;
+	return it->second;
 }
 
-// TODO: by...
+OperationIndex OperationIndex::byUnitType(const BWAPI::UnitType& ut)
+{
+	typedef std::map<BWAPI::UnitType, OperationIndex> MapType;
+	static MapType fast = []
+		{
+			MapType result;
+			for (auto it : AllOperationIndices()) {
+				BWAPI::UnitType t = it.associatedUnitType();
+				if (t != BWAPI::UnitTypes::None)
+					result[t] = it;
+			}
+			return result;
+		}();
+
+	auto it = fast.find(ut);
+	if (it == fast.end())
+		return OperationIndex::None;
+	return it->second;
+}
+
+OperationIndex OperationIndex::byTechType(const BWAPI::TechType& tt)
+{
+	typedef std::map<BWAPI::TechType, OperationIndex> MapType;
+	static MapType fast = []
+		{
+			MapType result;
+			for (auto it : AllOperationIndices()) {
+				BWAPI::TechType t = it.associatedTechType();
+				if (t != BWAPI::TechTypes::None)
+					result[t] = it;
+			}
+			return result;
+		}();
+
+	auto it = fast.find(tt);
+	if (it == fast.end())
+		return OperationIndex::None;
+	return it->second;
+}
+
+OperationIndex OperationIndex::byUpgradeType(const BWAPI::UpgradeType& gt)
+{
+	typedef std::map<BWAPI::UpgradeType, OperationIndex> MapType;
+	static MapType fast = []
+		{
+			MapType result;
+			for (auto it : AllOperationIndices()) {
+				BWAPI::UpgradeType t = it.associatedUpgradeType();
+				if (t != BWAPI::UpgradeTypes::None)
+					result[t] = it;
+			}
+			return result;
+		}();
+
+	auto it = fast.find(gt);
+	if (it == fast.end())
+		return OperationIndex::None;
+	return it->second;
+}
+
+FallbackBehaviourType::type PlanContainer::push_back_sr(const Operation& op)
+{
+	DefaultFallbackBehaviour dfbb;
+	SimpleFallbackBehaviour<DefaultFallbackBehaviour> sfbb(dfbb);
+	return push_back(op, sfbb);
+}
+
+FallbackBehaviourType::type PlanContainer::push_back_df(const Operation& op)
+{
+	DefaultFallbackBehaviour dfbb;
+	return push_back(op, dfbb);
+}
+
+bool PlanContainer::rebase_sr(TimeType timeinc, const Resources& newres)
+{
+	DefaultFallbackBehaviour dfbb;
+	SimpleFallbackBehaviour<DefaultFallbackBehaviour> sfbb(dfbb);
+	return rebase(timeinc, newres, sfbb);
+}
+
+bool PlanContainer::rebase_df(TimeType timeinc, const Resources& newres)
+{
+	DefaultFallbackBehaviour dfbb;
+	return rebase(timeinc, newres, dfbb);
+}

@@ -9,7 +9,7 @@
 class OperationIndex;
 class AllOperationIndices;
 
-class OperationIndex : boost::totally_ordered<ResourceIndex>, boost::incrementable<ResourceIndex>
+class OperationIndex : boost::totally_ordered<OperationIndex>, boost::incrementable<OperationIndex>
 {
 	typedef OperationIndex ThisType;
 	
@@ -20,7 +20,7 @@ class OperationIndex : boost::totally_ordered<ResourceIndex>, boost::incrementab
 		OperationIndex() : index_(None)
 		{ }
 		
-		OperationIndex(type i) : index_(i)
+		OperationIndex(Type i) : index_(i)
 		{ }
 		
 		// Auto-generated functions see bwplan.cpp
@@ -48,14 +48,24 @@ class OperationIndex : boost::totally_ordered<ResourceIndex>, boost::incrementab
 			return index_;
 		}
 		
-		type getType() const
+		Type getType() const
 		{
 			return index_;
+		}
+		
+		ThisType& operator * ()
+		{
+			return *this;
+		}
+		
+		const ThisType& operator * () const
+		{
+			return *this;
 		}
 
 		ThisType& operator ++ ()
 		{
-			++index_;
+			index_ = Type(int(index_)+1);
 			return *this;
 		}
 		
@@ -70,7 +80,7 @@ class OperationIndex : boost::totally_ordered<ResourceIndex>, boost::incrementab
 		}
 
 	protected:
-		type index_;
+		Type index_;
 };
 
 class AllOperationIndices
@@ -81,12 +91,12 @@ class AllOperationIndices
 			return OperationIndex::IndexEnd;
 		}
 
-		IndexType begin() const
+		OperationIndex begin() const
 		{
-			return OperationIndex(OperationIndex::IndexFirst);
+			return OperationIndex(OperationIndex::IndexBegin);
 		}
 
-		IndexType end() const
+		OperationIndex end() const
 		{
 			return OperationIndex(OperationIndex::IndexEnd);
 		}

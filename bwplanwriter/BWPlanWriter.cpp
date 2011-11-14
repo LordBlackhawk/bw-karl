@@ -2,6 +2,7 @@
 #include "operationdescription.h"
 
 #include <BWAPI.h>
+#include <boost/format.hpp>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -18,6 +19,7 @@ std::string removeSpaces(const std::string text)
 	int c = std::count(result.begin(), result.end(), ' ');
 	std::remove(result.begin(), result.end(), ' ');
 	result.resize(result.size()-c);
+	std::replace(result.begin(), result.end(), '-', '_');
 	return result;
 }
 
@@ -25,6 +27,7 @@ std::string toCName(const std::string text)
 {
 	std::string result = text;
 	std::replace(result.begin(), result.end(), ' ', '_');
+	std::replace(result.begin(), result.end(), '-', '_');
 	return result;
 }
 
@@ -35,22 +38,22 @@ std::string getResourceName(const BWAPI::UnitType& ut)
 
 std::string getOperationName(const BWAPI::UnitType& ut)
 {
-	return removeSpaces("Build" + ut.getName());
+	return removeSpaces(ut.getName());
 }
 
 std::string getTechName(const BWAPI::TechType& tt)
 {
-	return removeSpaces("Tech" + tt.getName());
+	return removeSpaces(tt.getName());
 }
 
 std::string getUpgradeResName(const BWAPI::UpgradeType& gt)
 {
-	return removeSpaces("Upgrade" + gt.getName());
+	return removeSpaces(gt.getName());
 }
 
 std::string getUpgradeName(const BWAPI::UpgradeType& gt, int level)
 {
-	return str( format("Upgrade%s%d") % removeSpaces(gt.getName()) % level ); ;
+	return str( boost::format("%s%d") % removeSpaces(gt.getName()) % level ); ;
 }
 
 template <class T>
@@ -68,6 +71,7 @@ void writeStringList(const std::vector<T*>& list, const std::string addIndex = "
 	std::cout << ",\n\n\t\tIndexEnd,\n\t\tIndexBegin = " << (*list.begin())->name;
 	if (addIndex != "")
 		std::cout << ",\n\t\tIndexLockedEnd = " << addIndex;
+	std::cout << ",\n\t\tNone = -1";
 	std::cout << "\n\t};\n";
 }
 
@@ -186,23 +190,23 @@ void writeOpForUnitType(const BWAPI::UnitType& ut, OperationDescription* op = NU
 		op->race = ut.getRace();
 		
 		if (isResource(ut))
-			unitMap[ut].associated.push_back(op);
+			unitMap[ut]->associated.push_back(op);
 		if (ut == BWAPI::UnitTypes::Zerg_Hatchery)
-			larva.associated.push_back(op);
+			larva->associated.push_back(op);
 		if (ut == BWAPI::UnitTypes::Zerg_Overlord)
-			supplyMap[BWAPI::Races::Zerg].associated.push_back(op);
+			supplyMap[BWAPI::Races::Zerg]->associated.push_back(op);
 		if (ut == BWAPI::UnitTypes::Protoss_Pylon)
-			supplyMap[BWAPI::Races::Protoss].associated.push_back(op);
+			supplyMap[BWAPI::Races::Protoss]->associated.push_back(op);
 		if (ut == BWAPI::UnitTypes::Terran_Supply_Depot)
-			supplyMap[BWAPI::Races::Terran].associated.push_back(op);
+			supplyMap[BWAPI::Races::Terran]->associated.push_back(op);
 		if (ut.isWorker())
-			minerals.associated.push_back(op);
+			minerals->associated.push_back(op);
 	}
 	
 	// Morph required units before morphing this unit.
-	if ((ut != BWAPI::UnitTypes::Zerg_Lair) && (ut != BWAPI::Zerg_Hive))
+	if ((ut != BWAPI::UnitTypes::Zerg_Lair) && (ut != BWAPI::UnitTypes::Zerg_Hive))
 		for (auto it : ut.requiredUnits())
-			if (!isResource(it.first) && (it.first != BWAPI::UnitTypes::Zerg_Larva) && (!it.first.isWorker))
+			if (!isResource(it.first) && (it.first != BWAPI::UnitTypes::Zerg_Larva) && (!it.first.isWorker()))
 				writeOpForUnitType(it.first, op);
 
 	if (ut.isBuilding()) {
@@ -253,7 +257,7 @@ void writeOpForUnitType(const BWAPI::UnitType& ut, OperationDescription* op = NU
 				op->prods(ut.supplyProvided(), supplyMap[ut.getRace()]);
 			if (ut.isRefinery()) {
 				op->prods(3, workingplaces);
-				workingplaces.associated.push_back(op);
+				workingplaces->associated.push_back(op);
 			}
 			if (ut == BWAPI::UnitTypes::Zerg_Hive)
 				op->unlocks(1, unitMap[BWAPI::UnitTypes::Zerg_Lair]);
@@ -299,7 +303,7 @@ void writeOpForTechType(const BWAPI::TechType& tt)
 	op->tt = tt;
 	
 	if (isTechResource(tt))
-		techMap[tt].associated.insert(op);
+		techMap[tt]->associated.push_back(op);
 	
 	if (tt.mineralPrice() > 0)
 		op->consums(tt.mineralPrice(), minerals);
@@ -332,14 +336,14 @@ void writeOpForUpgradeType(const BWAPI::UpgradeType& gt)
 		BWAPI::UnitType ut = gt.whatsRequired(k);
 		if (ut != BWAPI::UnitTypes::None)
 			op->needs(1, unitMap[ut]);
-		if (tt.mineralPrice(k) > 0)
-			op->consums(tt.mineralPrice(k), minerals);
-		if (tt.gasPrice(k) > 0)
-			op->consums(tt.gasPrice(k), gas);
+		if (gt.mineralPrice(k) > 0)
+			op->consums(gt.mineralPrice(k), minerals);
+		if (gt.gasPrice(k) > 0)
+			op->consums(gt.gasPrice(k), gas);
 		op->locks(1, unitMap[what]);
 		if (k > 1)
 			op->needs(k-1, res);
-		op->checkpoint("CUpgradeStart", tt.researchTime());
+		op->checkpoint("CUpgradeStart", gt.upgradeTime(k));
 		op->unlocks(1, unitMap[what]);
 		op->prods(1, res);
 		op->checkpoint("CUpgradeFinished", 1);
@@ -378,6 +382,7 @@ void init()
 	op->locks(1, workerMap[BWAPI::Races::Terran]);
 	op->locks(1, workingplaces);
 	op->prods(1, gasworkerMap[BWAPI::Races::Terran]);
+	op->checkpoint("CSendGasWorker", 1);
 	gas->associated.push_back(op);
 	
 	op = new OperationDescription("ReturnTerranGasWorker");
@@ -385,12 +390,14 @@ void init()
 	op->consums(1, gasworkerMap[BWAPI::Races::Terran]);
 	op->unlocks(1, workerMap[BWAPI::Races::Terran]);
 	op->unlocks(1, workingplaces);
+	op->checkpoint("CReturnGasWorker", 1);
 	
 	op = new OperationDescription("SendProtossGasWorker");
 	op->race = BWAPI::Races::Protoss;
 	op->locks(1, workerMap[BWAPI::Races::Protoss]);
 	op->locks(1, workingplaces);
 	op->prods(1, gasworkerMap[BWAPI::Races::Protoss]);
+	op->checkpoint("CSendGasWorker", 1);
 	gas->associated.push_back(op);
 	
 	op = new OperationDescription("ReturnProtossGasWorker");
@@ -398,12 +405,14 @@ void init()
 	op->consums(1, gasworkerMap[BWAPI::Races::Protoss]);
 	op->unlocks(1, workerMap[BWAPI::Races::Protoss]);
 	op->unlocks(1, workingplaces);
+	op->checkpoint("CReturnGasWorker", 1);
 	
 	op = new OperationDescription("SendZergGasWorker");
 	op->race = BWAPI::Races::Zerg;
 	op->locks(1, workerMap[BWAPI::Races::Zerg]);
 	op->locks(1, workingplaces);
 	op->prods(1, gasworkerMap[BWAPI::Races::Zerg]);
+	op->checkpoint("CSendGasWorker", 1);
 	gas->associated.push_back(op);
 	
 	op = new OperationDescription("ReturnZergGasWorker");
@@ -411,6 +420,7 @@ void init()
 	op->consums(1, gasworkerMap[BWAPI::Races::Zerg]);
 	op->unlocks(1, workerMap[BWAPI::Races::Zerg]);
 	op->unlocks(1, workingplaces);
+	op->checkpoint("CReturnGasWorker", 1);
 	
 	for (auto it : BWAPI::UnitTypes::allUnitTypes())
 		writeResForUnitType(it);
@@ -476,12 +486,12 @@ void writeBWPlan()
 	for (auto it : resourceDescriptions)
 		if (!it->associated.empty()) {
 			std::cout << "\t\tcase " << it->name << ":\n";
-			for (ait : it->associated)
-				std::cout << "\t\t\tresult.insert(OI::" << ait->name << ")\n";
+			for (auto ait : it->associated)
+				std::cout << "\t\t\tresult.insert(OI::" << ait->name << ");\n";
 			std::cout << "\t\t\tbreak;\n";
 		}
 	std::cout << "\t\tdefault:\n" << "\t\t\tbreak;\n";
-	std::cout << "\t}\n}\n\n";
+	std::cout << "\t}\n\treturn result;\n}\n\n";
 	
 	std::cout << "BWAPI::Race ResourceIndex::associatedRace() const\n{\n"
 			<< "\tswitch(index_)\n\t{\n";
@@ -505,7 +515,7 @@ void writeBWPlan()
 			<< "\tswitch(index_)\n\t{\n";
 	for (auto it : resourceDescriptions)
 		if (it->tt != BWAPI::TechTypes::None)
-			std::cout << "\t\tcase " << it->name << ":\n\t\t\treturn BWAPI::UnitTypes::" << toCName(it->tt.getName()) << ";\n";
+			std::cout << "\t\tcase " << it->name << ":\n\t\t\treturn BWAPI::TechTypes::" << toCName(it->tt.getName()) << ";\n";
 	std::cout << "\t\tdefault:\n"
 				<< "\t\t\treturn BWAPI::TechTypes::None;\n";
 	std::cout << "\t}\n}\n\n";
@@ -520,7 +530,7 @@ void writeBWPlan()
 	std::cout << "\t}\n}\n\n";
 	
 	std::cout << "int Resources::getGrowth(const ResourceIndex& ri) const\n{\n"
-			<< "\tswitch(index_.getType())\n\t{\n";
+			<< "\tswitch(ri.getType())\n\t{\n";
 	for (auto it : resourceDescriptions)
 		if (!it->growth.empty()) {
 			std::cout << "\t\tcase RI::" << it->name << ":\n"
@@ -541,10 +551,10 @@ void writeBWPlan()
 	std::cout << "}\n\n";
 	
 	std::cout << "void Resources::inc(const ResourceIndex& ri, int optime, int value)\n{\n"
-				<< "\tswitch(index_.getType())\n\t{\n";
+				<< "\tswitch(ri.getType())\n\t{\n";
 	for (auto it : resourceDescriptions)
 		if (!it->influence.empty()) {
-			std::cout << "\t\tcase " << it->name << ":\n";
+			std::cout << "\t\tcase RI::" << it->name << ":\n";
 			for (auto iit : it->influence)
 				std::cout << "\t\t\tamount[RI::" << iit.second->name << "] += " << iit.first << " * (optime - time);\n";
 			std::cout << "\t\t\tbreak;\n";
@@ -585,7 +595,7 @@ void writeBWPlan()
 			<< "\tswitch(index_)\n\t{\n";
 	for (auto it : operationDescriptions)
 		if (it->tt != BWAPI::TechTypes::None)
-			std::cout << "\t\tcase " << it->name << ":\n\t\t\treturn BWAPI::UnitTypes::" << toCName(it->tt.getName()) << ";\n";
+			std::cout << "\t\tcase " << it->name << ":\n\t\t\treturn BWAPI::TechTypes::" << toCName(it->tt.getName()) << ";\n";
 	std::cout << "\t\tdefault:\n"
 				<< "\t\t\treturn BWAPI::TechTypes::None;\n";
 	std::cout << "\t}\n}\n\n";
@@ -618,7 +628,7 @@ void writeBWPlan()
 				<< "\t\t\treturn 0;\n";
 	std::cout << "\t}\n}\n\n";
 	
-	std::cout << "TimeType Operations::stageDuration(int stage) const\n{\n"
+	std::cout << "TimeType Operation::stageDuration(int stage) const\n{\n"
 			<< "\tswitch(index_.getType())\n\t{\n";
 	for (auto it : operationDescriptions) {
 		std::cout << "\t\tcase OI::" << it->name << ":\n";
@@ -639,24 +649,25 @@ void writeBWPlan()
 				<< "\t\t\treturn 0;\n";
 	std::cout << "\t}\n}\n\n";
 	
-	std::cout << "void Operations::execute(bool justactived)\n{\n"
+	std::cout << "void Operation::execute(bool justactived)\n{\n"
 			<< "\tswitch(index_.getType())\n\t{\n";
 	for (auto it : operationDescriptions) {
 		std::cout << "\t\tcase OI::" << it->name << ":\n";
-		std::cout << "\t\t\tswitch(stage)\n\t\t\t{\n";
+		std::cout << "\t\t\tswitch(stage_)\n\t\t\t{\n";
 		int counter = 0;
 		for (auto iit : it->items)
 			if (iit.type == ItemDescription::CheckPoint)
 		{
 			std::cout << "\t\t\t\tcase " << counter << ":\n"
-					<< "\t\t\t\t\tCall(" << iit.name << ", this); break;\n";
+					<< "\t\t\t\t\tCall(" << iit.name << ", justactived, *this); break;\n";
 			++counter;
 		}
 		std::cout << "\t\t\t}\n";
 	}
+	std::cout << "\t\tdefault:\n\t\t\tbreak;\n";
 	std::cout << "\t}\n}\n\n";
 	
-	std::cout << "TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResIndexType& blocking) const\n{\n"
+	std::cout << "TimeType Operation::firstApplyableAt(const Resources& res, int stage, ResourceIndex& blocking) const\n{\n"
 			<< "\tTimeType result = 0;\n"
 			<< "\tswitch(index_.getType())\n\t{\n";
 	for (auto it : operationDescriptions) {
@@ -688,13 +699,14 @@ void writeBWPlan()
 		std::cout << "\t\t\t\t\treturn result;\n";
 		std::cout << "\t\t\t}\n";
 	}
+	std::cout << "\t\tdefault:\n\t\t\tbreak;\n";
 	std::cout << "\t}\n\treturn result;\n}\n\n";
 	
-	std::cout << "void Operation::apply(ResourcesType& res, const TimeInterval& interval, bool pushdecs = false) const\n{\n"
+	std::cout << "void Operation::apply(Resources& res, const TimeInterval& interval, bool pushdecs) const\n{\n"
 			<< "\tTimeType applytime = scheduledtime_;\n"
 			<< "\tswitch(index_.getType())\n\t{\n";
 	for (auto it : operationDescriptions) {
-		std::cout << "\t\tcase " << it->name << ":\n"
+		std::cout << "\t\tcase OI::" << it->name << ":\n"
 				<< "\t\t\tswitch(stage_)\n\t\t\t{\n"
 				<< "\t\t\t\tcase 0:\n";
 		int counter = 0;
@@ -725,10 +737,11 @@ void writeBWPlan()
 					break;
 			}
 		}
-		std::cout << "\t\t\t\tdefault:\n"
+		std::cout << "\t\t\t\tdefault:\n\t\t\t\t\tbreak;\n"
 				<< "\t\t\t}\n";
 		std::cout << "\t\t\tbreak;\n";
 	}
+	std::cout << "\t\tdefault:\n\t\t\tbreak;\n";
 	std::cout << "\t}\n}\n\n";
 }
 

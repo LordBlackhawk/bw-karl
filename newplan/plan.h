@@ -3,7 +3,7 @@
 #include "timetype.h"
 #include "resources.h"
 #include "operations.h"
-#include "fallbackbehaviour.h"
+#include "fallbackbehaviourtype.h"
 #include "linear-correction.h"
 #include "utils/fileutils.h"
 
@@ -12,6 +12,7 @@
 
 class PlanContainer
 {
+	typedef PlanContainer ThisType;
 	public:
 		class Situation
 		{
@@ -111,7 +112,7 @@ class PlanContainer
 				bool 			pushdecs;
 				
 				Situation(const ThisType& p, TimeType time = -1, bool pd = false)
-					: parent(p), currenttime(parent.starttime-1), current(parent.startres), pushdesc(pd)
+					: parent(p), currenttime(parent.starttime-1), current(parent.startres), pushdecs(pd)
 				{
 					if (time < 0)
 						time = parent.starttime;
@@ -132,7 +133,7 @@ class PlanContainer
 			: startres(sr), starttime(st), opendtime(st), endtime(st)
 		{
 			startres.setTime(starttime);
-			Traits::CorrectionTraits::addCorrections(*this, at(starttime));
+			addCorrections(starttime);
 		}
 		
 		bool empty() const
@@ -180,18 +181,8 @@ class PlanContainer
 			return FallbackBehaviourType::Success;
 		}
 		
-		FallbackBehaviourType::type push_back_sr(const Operation& op)
-		{
-			DefaultFallbackBehaviour dfbb;
-			SimpleFallbackBehaviour<DefaultFallbackBehaviour> sfbb(dfbb);
-			return push_back(op, sfbb);
-		}
-		
-		FallbackBehaviourType::type push_back_df(const Operation& op)
-		{
-			DefaultFallbackBehaviour dfbb;
-			return push_back(op, dfbb);
-		}
+		FallbackBehaviourType::type push_back_sr(const Operation& op);
+		FallbackBehaviourType::type push_back_df(const Operation& op);
       
 		template <class FallbackBehaviour>
 		bool rebase(TimeType timeinc, const Resources& newres, FallbackBehaviour& fbb)
@@ -223,18 +214,8 @@ class PlanContainer
 			return true;
 		}
 		
-		bool rebase_sr(TimeType timeinc, const Resources& newres)
-		{
-			DefaultFallbackBehaviour<Traits> dfbb;
-			SimpleFallbackBehaviour< Traits, DefaultFallbackBehaviour<Traits> > sfbb(dfbb);
-			return rebase(timeinc, newres, sfbb);
-		}
-		
-		bool rebase_df(TimeType timeinc, const Resources& newres)
-		{
-			DefaultFallbackBehaviour<Traits> dfbb;
-			return rebase(timeinc, newres, dfbb);
-		}
+		bool rebase_sr(TimeType timeinc, const Resources& newres);
+		bool rebase_df(TimeType timeinc, const Resources& newres);
 		
 		void execute()
 		{
@@ -316,12 +297,12 @@ class PlanContainer
 			return true;
 		}
 		
-		void addCorrection(const CorrectionType& c)
+		void addCorrection(const LinearCorrection& c)
 		{
 			corrections.push_back(c);
 		}
 		
-		std::vector<CorrectionType> getCorrections() const
+		std::vector<LinearCorrection> getCorrections() const
 		{
 			return corrections;
 		}
@@ -373,7 +354,7 @@ class PlanContainer
 		TimeType removeCorrections(const TimeType& time)
 		{
 			TimeType mintime = time;
-			auto func = [time, &mintime] (const CorrectionType& c)
+			auto func = [time, &mintime] (const LinearCorrection& c)
 				{ 
 					bool res = c.isLaterAs(time);
 					if (res)

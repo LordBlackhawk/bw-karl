@@ -6,11 +6,6 @@
 #include <set>
 #include <iostream>
 
-struct FallbackBehaviourType
-{
-  enum type { Continue, Abort, Fail, Success };
-};
-
 class PlanContainer;
 
 struct DefaultFallbackBehaviour

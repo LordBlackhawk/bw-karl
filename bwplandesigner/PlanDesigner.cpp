@@ -1,7 +1,8 @@
 #define  NO_ASSOCIATIONS
-#include "bwplan/bwplan.h"
-#include "bwplan/stream-output.h"
-#include "bwplan/parameter-reader.h"
+#include "newplan/bwplan.h"
+#include "newplan/nocheckpoints.h"
+#include "newplan/stream-output.h"
+#include "newplan/parameter-reader.h"
 
 #include <iostream>
 
@@ -28,7 +29,7 @@ int main(int argc, const char* argv[])
 
 	std::cout << "Planed Operations:\n";
 	for (auto it : plan.scheduledOperations())
-		std::cout << "planed(" << it.scheduledTime() << "): " << it.getUserName() << "\n";
+		std::cout << "planed(" << it.scheduledTime() << "): " << it.getName() << "\n";
 	std::cout << "\n";
 
 	std::cout << "Planed Resources:\n";

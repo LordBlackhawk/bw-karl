@@ -12,7 +12,7 @@ struct LinearCorrection
 	LinearCorrection() : value(0)
 	{ }
 	
-	LinearCorrection(const ResIndexType& ri_, const TimeInterval& i_, const int& v_) : ri(ri_), interval(i_), value(v_)
+	LinearCorrection(const ResourceIndex& ri_, const TimeInterval& i_, const int& v_) : ri(ri_), interval(i_), value(v_)
 	{ }
 
 	void apply(Resources& res, const TimeInterval& range) const

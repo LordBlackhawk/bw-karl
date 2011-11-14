@@ -14,7 +14,7 @@ void larvaCorrections(PlanContainer& plan, SituationType it)
 	TimeType starttime = -1;
 	int growth = 0;
 	while (!it.beyond()) {
-		const ResourcesType& res = it.getResources();
+		const Resources& res = it.getResources();
 		int value     = res.getInternal(ri);
 		int maxvalue  = 3 * (res.get(ResourceIndex::ZergHatchery) + res.get(ResourceIndex::ZergLair) + res.get(ResourceIndex::ZergHive)) * ri.getScaling();
 		int curgrowth = res.getGrowth(ri);
@@ -25,7 +25,7 @@ void larvaCorrections(PlanContainer& plan, SituationType it)
 				starttime = it.time();
 				growth    = curgrowth;
 			} else if (growth != curgrowth) {
-				plan.addCorrection(CorrectionType(ri, TimeInterval(starttime, it.time()), -growth));
+				plan.addCorrection(LinearCorrection(ri, TimeInterval(starttime, it.time()), -growth));
 				starttime = it.time();
 				growth    = curgrowth;
 				it.update();
@@ -33,7 +33,7 @@ void larvaCorrections(PlanContainer& plan, SituationType it)
 		} else {
 			std::cout << "\tvalue changed at: " << it.time() << "\n";
 			if (starttime >= 0) {
-				plan.addCorrection(CorrectionType(ri, TimeInterval(starttime, it.time()), -growth));
+				plan.addCorrection(LinearCorrection(ri, TimeInterval(starttime, it.time()), -growth));
 				starttime = -1;
 				it.update();
 			}
@@ -46,7 +46,7 @@ void larvaCorrections(PlanContainer& plan, SituationType it)
 	}
 	if (starttime >= 0) {
 		std::cout << "\t" << TimeInterval(starttime, std::numeric_limits<TimeType>::max()) << " added.\n";
-		plan.addCorrection(CorrectionType(ri, TimeInterval(starttime, std::numeric_limits<TimeType>::max()), -growth));
+		plan.addCorrection(LinearCorrection(ri, TimeInterval(starttime, std::numeric_limits<TimeType>::max()), -growth));
 	}
 }
 
@@ -56,7 +56,7 @@ void supplyCorrections(PlanContainer& plan, SituationType it, const ResourceInde
 	while (!it.beyond()) {
 		int value = it.getResources().getExisting(ri);
 		if (value > maxSupply) {
-			plan.addCorrection(CorrectionType(ri, TimeInterval(it.time()-1, it.time()), maxSupply-value));
+			plan.addCorrection(LinearCorrection(ri, TimeInterval(it.time()-1, it.time()), maxSupply-value));
 			it.update();
 			assert(it.getResources().getExisting(ri) == maxSupply);
 		}

@@ -6,6 +6,7 @@
 
 #include <boost/operators.hpp>
 #include <string>
+#include <set>
 
 class ResourceIndex;
 class AllResourceIndices;
@@ -24,7 +25,7 @@ class ResourceIndex : boost::totally_ordered<ResourceIndex>, boost::incrementabl
 		ResourceIndex() : index_(None)
 		{ }
 		
-		ResourceIndex(type i) : index_(i)
+		ResourceIndex(Type i) : index_(i)
 		{ }
 
 		// Auto-generated functions see bwplan.cpp
@@ -58,14 +59,24 @@ class ResourceIndex : boost::totally_ordered<ResourceIndex>, boost::incrementabl
 			return index_;
 		}
 		
-		type getType() const
+		Type getType() const
 		{
 			return index_;
+		}
+		
+		ThisType& operator * ()
+		{
+			return *this;
+		}
+		
+		const ThisType& operator * () const
+		{
+			return *this;
 		}
 
 		ThisType& operator ++ ()
 		{
-			++index_;
+			index_ = Type(int(index_)+1);
 			return *this;
 		}
 		
@@ -80,7 +91,7 @@ class ResourceIndex : boost::totally_ordered<ResourceIndex>, boost::incrementabl
 		}
 
 	protected:
-		type index_;
+		Type index_;
 };
 
 class AllResourceIndices
@@ -91,12 +102,12 @@ class AllResourceIndices
 			return ResourceIndex::IndexEnd;
 		}
 
-		IndexType begin() const
+		ResourceIndex begin() const
 		{
 			return ResourceIndex(ResourceIndex::IndexBegin);
 		}
 
-		IndexType end() const
+		ResourceIndex end() const
 		{
 			return ResourceIndex(ResourceIndex::IndexEnd);
 		}
@@ -110,12 +121,12 @@ class LockedResourceIndices
 			return ResourceIndex::IndexLockedEnd;
 		}
 
-		IndexType begin() const
+		ResourceIndex begin() const
 		{
 			return ResourceIndex(ResourceIndex::IndexBegin);
 		}
 
-		IndexType end() const
+		ResourceIndex end() const
 		{
 			return ResourceIndex(ResourceIndex::IndexLockedEnd);
 		}

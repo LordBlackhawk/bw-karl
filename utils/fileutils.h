@@ -2,6 +2,8 @@
 
 #include <cstdio>
 
+namespace {
+
 bool readFileToString(const char* filename, std::string& result)
 {
 	FILE* file = fopen(filename, "r");
@@ -16,4 +18,6 @@ bool readFileToString(const char* filename, std::string& result)
 	fread(&result[0], sizeof(char), filesize, file);
 	fclose(file);
 	return true;
+}
+
 }

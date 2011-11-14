@@ -6,15 +6,21 @@
 #include "operationstatus.h"
 #include "checkpoints.h"
 
+#include <boost/shared_ptr.hpp>
+
 #include <set>
 #include <string>
 #include <stdexcept>
 #include <limits>
 
+typedef boost::shared_ptr<void> DetailPointerType;
+
 class Operation
 {
+	typedef Operation ThisType;
+	
 	public:
-		explicit Operation(const IndexType& i, const TimeType& st = 0)
+		explicit Operation(const OperationIndex& i, const TimeType& st = 0)
 			: index_(i), status_(OperationStatus::scheduled), stage_(0), scheduledtime_(st)
 		{ }
 		
@@ -26,8 +32,8 @@ class Operation
 		TimeType duration() const;
 		int stageCount() const;
 		TimeType stageDuration(int stage) const;
-		TimeType firstApplyableAt(const ResourcesType& res, int stage, ResIndexType& blocking) const;
-		void apply(ResourcesType& res, const TimeInterval& interval, bool pushdecs = false) const;
+		TimeType firstApplyableAt(const Resources& res, int stage, ResourceIndex& blocking) const;
+		void apply(Resources& res, const TimeInterval& interval, bool pushdecs = false) const;
 		void execute(bool justactived);
 
 		TimeType scheduledTime() const
@@ -42,7 +48,7 @@ class Operation
 		
 		void changeTimes(std::set<TimeType>& result) const
 		{
-			TimeType curtime = time;
+			TimeType curtime = scheduledtime_;
 			result.insert(curtime);
 			for (int k=0, size=stageCount(); k<size; ++k) {
 				curtime += stageDuration(k);
@@ -57,9 +63,9 @@ class Operation
 			return result;
 		}
 		
-		bool isApplyable(const ResourcesType& res, int stage) const
+		bool isApplyable(const Resources& res, int stage) const
 		{
-			ResIndexType blocking;
+			ResourceIndex blocking;
 			return (firstApplyableAt(res, stage, blocking) == 0);
 		}
       
@@ -77,9 +83,14 @@ class Operation
 		{
 			return status_;
 		}
+		
+		OperationStatus::type& status()
+		{
+			return status_;
+		}
 
 	protected:
-		IndexType				index_;
+		OperationIndex			index_;
 		OperationStatus::type 	status_;
 		int						stage_;
 		TimeType  				scheduledtime_;

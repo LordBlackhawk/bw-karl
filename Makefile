@@ -12,17 +12,25 @@ ifdef DEBUG
 CXX         += -ggdb
 endif
 
-SOURCES      = $(wildcard */*.cpp)
+REALSOURCES  = newplan/bwplan.cpp
+OBJECTS		 = $(addprefix $(OBJECTPATH), $(notdir $(REALSOURCES:.cpp=.o)))
+SOURCES      = $(filter-out $(REALSOURCES),$(wildcard */*.cpp))
 EXECUTEABLES = $(notdir $(SOURCES:.cpp=.exe))
 DEPS         = $(addprefix $(OBJECTPATH), $(notdir $(SOURCES:.cpp=.d)))
 
 all: $(EXECUTEABLES) $(DEPS)
 
 echo:
+	@echo "Sources:"
 	@echo $(SOURCES)
+	@echo "Objects:"
+	@echo $(OBJECTS)
 
 %.exe: $(OBJECTPATH)%.o
 	$(CXX) $(CXXFLAGS) $< $(CXXLIBS) -o $@
+	
+PlanDesigner.exe: $(OBJECTPATH)PlanDesigner.o $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $(OBJECTS) $< $(CXXLIBS) -o $@
 	
 newplan/resourceenum.h: BWPlanWriter.exe
 	$< resourceenum.h > $@
@@ -32,15 +40,6 @@ newplan/operationenum.h: BWPlanWriter.exe
 
 newplan/bwplan.cpp: BWPlanWriter.exe
 	$< bwplan.cpp > $@
-	
-#bwplan/auto-res-types.h: BWPlanWriter.exe
-#	$< auto-res-types.h > $@
-
-#bwplan/auto-op-types.h: BWPlanWriter.exe
-#	$< auto-op-types.h > $@
-
-bwplan/bwplan.h.gch: bwplan/bwplan.h
-	$(CXX) $(CXXFLAGS) $< -o $@
 	
 $(OBJECTPATH)%.o: */%.cpp $(OBJECTPATH)%.d
 	$(CXX) $(CXXFLAGS) -c $< -o $@

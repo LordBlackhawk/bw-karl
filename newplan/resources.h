@@ -125,8 +125,8 @@ class Resources
 		}
 
 	protected:
-		typedef std::array<int, ResourceIndex::IndexLast>       AmountType;
-		typedef std::array<int, ResourceIndex::IndexLockedLast> LockedType;
+		typedef std::array<int, ResourceIndex::IndexEnd>       AmountType;
+		typedef std::array<int, ResourceIndex::IndexLockedEnd> LockedType;
 		TimeType        time;
 		AmountType		amount;
 		LockedType		locked;

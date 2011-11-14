@@ -2,6 +2,9 @@
 
 #include "bwplan-internal.h"
 
+typedef ResourceIndex RI;
+typedef OperationIndex OI;
+
 std::string ResourceIndex::getName() const
 {
 	switch(index_)
@@ -108,69 +111,110 @@ std::string ResourceIndex::getName() const
 			return "ProtossArbiterTribunal";
 		case ProtossRoboticsSupportBay:
 			return "ProtossRoboticsSupportBay";
-		case TechStimPacks:
-			return "TechStimPacks";
-		case TechLockdown:
-			return "TechLockdown";
-		case TechEMPShockwave:
-			return "TechEMPShockwave";
-		case TechSpiderMines:
-			return "TechSpiderMines";
-		case TechTankSiegeMode:
-			return "TechTankSiegeMode";
-		case TechIrradiate:
-			return "TechIrradiate";
-		case TechYamatoGun:
-			return "TechYamatoGun";
-		case TechCloakingField:
-			return "TechCloakingField";
-		case TechPersonnelCloaking:
-			return "TechPersonnelCloaking";
-		case TechBurrowing:
-			return "TechBurrowing";
-		case TechSpawnBroodlings:
-			return "TechSpawnBroodlings";
-		case TechPlague:
-			return "TechPlague";
-		case TechConsume:
-			return "TechConsume";
-		case TechEnsnare:
-			return "TechEnsnare";
-		case TechPsionicStorm:
-			return "TechPsionicStorm";
-		case TechHallucination:
-			return "TechHallucination";
-		case TechRecall:
-			return "TechRecall";
-		case TechStasisField:
-			return "TechStasisField";
-		case TechRestoration:
-			return "TechRestoration";
-		case TechDisruptionWeb:
-			return "TechDisruptionWeb";
-		case TechMindControl:
-			return "TechMindControl";
-		case TechOpticalFlare:
-			return "TechOpticalFlare";
-		case TechMaelstrom:
-			return "TechMaelstrom";
-		case TechLurkerAspect:
-			return "TechLurkerAspect";
+		case LurkerAspect:
+			return "LurkerAspect";
+		case TerranInfantryArmor:
+			return "TerranInfantryArmor";
+		case TerranVehiclePlating:
+			return "TerranVehiclePlating";
+		case TerranShipPlating:
+			return "TerranShipPlating";
+		case ZergCarapace:
+			return "ZergCarapace";
+		case ZergFlyerCarapace:
+			return "ZergFlyerCarapace";
+		case ProtossGroundArmor:
+			return "ProtossGroundArmor";
+		case ProtossAirArmor:
+			return "ProtossAirArmor";
+		case TerranInfantryWeapons:
+			return "TerranInfantryWeapons";
+		case TerranVehicleWeapons:
+			return "TerranVehicleWeapons";
+		case TerranShipWeapons:
+			return "TerranShipWeapons";
+		case ZergMeleeAttacks:
+			return "ZergMeleeAttacks";
+		case ZergMissileAttacks:
+			return "ZergMissileAttacks";
+		case ZergFlyerAttacks:
+			return "ZergFlyerAttacks";
+		case ProtossGroundWeapons:
+			return "ProtossGroundWeapons";
+		case ProtossAirWeapons:
+			return "ProtossAirWeapons";
+		case ProtossPlasmaShields:
+			return "ProtossPlasmaShields";
+		case U_238Shells:
+			return "U_238Shells";
+		case IonThrusters:
+			return "IonThrusters";
+		case TitanReactor:
+			return "TitanReactor";
+		case OcularImplants:
+			return "OcularImplants";
+		case MoebiusReactor:
+			return "MoebiusReactor";
+		case ApolloReactor:
+			return "ApolloReactor";
+		case ColossusReactor:
+			return "ColossusReactor";
+		case VentralSacs:
+			return "VentralSacs";
+		case Antennae:
+			return "Antennae";
+		case PneumatizedCarapace:
+			return "PneumatizedCarapace";
+		case MetabolicBoost:
+			return "MetabolicBoost";
+		case AdrenalGlands:
+			return "AdrenalGlands";
+		case MuscularAugments:
+			return "MuscularAugments";
+		case GroovedSpines:
+			return "GroovedSpines";
+		case GameteMeiosis:
+			return "GameteMeiosis";
+		case MetasynapticNode:
+			return "MetasynapticNode";
+		case SingularityCharge:
+			return "SingularityCharge";
+		case LegEnhancements:
+			return "LegEnhancements";
+		case ScarabDamage:
+			return "ScarabDamage";
+		case ReaverCapacity:
+			return "ReaverCapacity";
+		case GraviticDrive:
+			return "GraviticDrive";
+		case SensorArray:
+			return "SensorArray";
+		case GraviticBoosters:
+			return "GraviticBoosters";
+		case KhaydarinAmulet:
+			return "KhaydarinAmulet";
+		case ApialSensors:
+			return "ApialSensors";
+		case GraviticThrusters:
+			return "GraviticThrusters";
+		case CarrierCapacity:
+			return "CarrierCapacity";
+		case KhaydarinCore:
+			return "KhaydarinCore";
+		case ArgusJewel:
+			return "ArgusJewel";
+		case ArgusTalisman:
+			return "ArgusTalisman";
+		case CaduceusReactor:
+			return "CaduceusReactor";
+		case ChitinousPlating:
+			return "ChitinousPlating";
+		case AnabolicSynthesis:
+			return "AnabolicSynthesis";
+		case CharonBoosters:
+			return "CharonBoosters";
 		default:
 			return "[UNKNOWN]";
-	}
-}
-
-bool ResourceIndex::isLockable() const
-{
-	switch(index_)
-	{
-		case Larva:
-		case Minerals:
-		case Gas:
-			return false;
-		default:
-			return true;
 	}
 }
 
@@ -202,17 +246,559 @@ int ResourceIndex::getScaling() const
 	}
 }
 
-typedef ResourceIndex RI;
+std::set<OperationIndex> ResourceIndex::getAssociatedOperations() const
+{
+	std::set<OperationIndex> result;
+	switch(index_)
+	{
+		case TerranSupply:
+			result.insert(OI::TerranSupplyDepot);
+			break;
+		case ProtossSupply:
+			result.insert(OI::ProtossPylon);
+			break;
+		case ZergSupply:
+			result.insert(OI::ZergOverlord);
+			break;
+		case GasWorkingPlaces:
+			result.insert(OI::TerranRefinery);
+			result.insert(OI::ZergExtractor);
+			result.insert(OI::ProtossAssimilator);
+			break;
+		case Larva:
+			result.insert(OI::ZergHatchery);
+			break;
+		case Minerals:
+			result.insert(OI::TerranSCV);
+			result.insert(OI::ZergDrone);
+			result.insert(OI::ProtossProbe);
+			break;
+		case Gas:
+			result.insert(OI::SendTerranGasWorker);
+			result.insert(OI::SendProtossGasWorker);
+			result.insert(OI::SendZergGasWorker);
+			break;
+		case TerranCommandCenter:
+			result.insert(OI::TerranCommandCenter);
+			break;
+		case TerranComsatStation:
+			result.insert(OI::TerranComsatStation);
+			break;
+		case TerranNuclearSilo:
+			result.insert(OI::TerranNuclearSilo);
+			break;
+		case TerranBarracks:
+			result.insert(OI::TerranBarracks);
+			break;
+		case TerranAcademy:
+			result.insert(OI::TerranAcademy);
+			break;
+		case TerranFactory:
+			result.insert(OI::TerranFactory);
+			break;
+		case TerranStarport:
+			result.insert(OI::TerranStarport);
+			break;
+		case TerranControlTower:
+			result.insert(OI::TerranControlTower);
+			break;
+		case TerranScienceFacility:
+			result.insert(OI::TerranScienceFacility);
+			break;
+		case TerranCovertOps:
+			result.insert(OI::TerranCovertOps);
+			break;
+		case TerranPhysicsLab:
+			result.insert(OI::TerranPhysicsLab);
+			break;
+		case TerranMachineShop:
+			result.insert(OI::TerranMachineShop);
+			break;
+		case TerranEngineeringBay:
+			result.insert(OI::TerranEngineeringBay);
+			break;
+		case TerranArmory:
+			result.insert(OI::TerranArmory);
+			break;
+		case ZergHatchery:
+			result.insert(OI::ZergHatchery);
+			break;
+		case ZergLair:
+			result.insert(OI::ZergLair);
+			break;
+		case ZergHive:
+			result.insert(OI::ZergHive);
+			break;
+		case ZergHydraliskDen:
+			result.insert(OI::ZergHydraliskDen);
+			break;
+		case ZergDefilerMound:
+			result.insert(OI::ZergDefilerMound);
+			break;
+		case ZergGreaterSpire:
+			result.insert(OI::ZergGreaterSpire);
+			break;
+		case ZergQueensNest:
+			result.insert(OI::ZergQueensNest);
+			break;
+		case ZergEvolutionChamber:
+			result.insert(OI::ZergEvolutionChamber);
+			break;
+		case ZergUltraliskCavern:
+			result.insert(OI::ZergUltraliskCavern);
+			break;
+		case ZergSpire:
+			result.insert(OI::ZergSpire);
+			break;
+		case ZergSpawningPool:
+			result.insert(OI::ZergSpawningPool);
+			break;
+		case ProtossNexus:
+			result.insert(OI::ProtossNexus);
+			break;
+		case ProtossRoboticsFacility:
+			result.insert(OI::ProtossRoboticsFacility);
+			break;
+		case ProtossObservatory:
+			result.insert(OI::ProtossObservatory);
+			break;
+		case ProtossGateway:
+			result.insert(OI::ProtossGateway);
+			break;
+		case ProtossCitadelofAdun:
+			result.insert(OI::ProtossCitadelofAdun);
+			break;
+		case ProtossCyberneticsCore:
+			result.insert(OI::ProtossCyberneticsCore);
+			break;
+		case ProtossTemplarArchives:
+			result.insert(OI::ProtossTemplarArchives);
+			break;
+		case ProtossForge:
+			result.insert(OI::ProtossForge);
+			break;
+		case ProtossStargate:
+			result.insert(OI::ProtossStargate);
+			break;
+		case ProtossFleetBeacon:
+			result.insert(OI::ProtossFleetBeacon);
+			break;
+		case ProtossArbiterTribunal:
+			result.insert(OI::ProtossArbiterTribunal);
+			break;
+		case ProtossRoboticsSupportBay:
+			result.insert(OI::ProtossRoboticsSupportBay);
+			break;
+		case LurkerAspect:
+			result.insert(OI::LurkerAspect);
+			break;
+		default:
+			break;
+	}
+	return result;
+}
 
-int Resources::getGrowth(const ResourceIndex& ri) const
+BWAPI::Race ResourceIndex::associatedRace() const
 {
 	switch(index_)
 	{
-		case Larva:
+		case TerranCommandCenter:
+			return BWAPI::Races::Terran;
+		case TerranComsatStation:
+			return BWAPI::Races::Terran;
+		case TerranNuclearSilo:
+			return BWAPI::Races::Terran;
+		case TerranBarracks:
+			return BWAPI::Races::Terran;
+		case TerranAcademy:
+			return BWAPI::Races::Terran;
+		case TerranFactory:
+			return BWAPI::Races::Terran;
+		case TerranStarport:
+			return BWAPI::Races::Terran;
+		case TerranControlTower:
+			return BWAPI::Races::Terran;
+		case TerranScienceFacility:
+			return BWAPI::Races::Terran;
+		case TerranCovertOps:
+			return BWAPI::Races::Terran;
+		case TerranPhysicsLab:
+			return BWAPI::Races::Terran;
+		case TerranMachineShop:
+			return BWAPI::Races::Terran;
+		case TerranEngineeringBay:
+			return BWAPI::Races::Terran;
+		case TerranArmory:
+			return BWAPI::Races::Terran;
+		case ZergInfestedCommandCenter:
+			return BWAPI::Races::Zerg;
+		case ZergHatchery:
+			return BWAPI::Races::Zerg;
+		case ZergLair:
+			return BWAPI::Races::Zerg;
+		case ZergHive:
+			return BWAPI::Races::Zerg;
+		case ZergHydraliskDen:
+			return BWAPI::Races::Zerg;
+		case ZergDefilerMound:
+			return BWAPI::Races::Zerg;
+		case ZergGreaterSpire:
+			return BWAPI::Races::Zerg;
+		case ZergQueensNest:
+			return BWAPI::Races::Zerg;
+		case ZergEvolutionChamber:
+			return BWAPI::Races::Zerg;
+		case ZergUltraliskCavern:
+			return BWAPI::Races::Zerg;
+		case ZergSpire:
+			return BWAPI::Races::Zerg;
+		case ZergSpawningPool:
+			return BWAPI::Races::Zerg;
+		case ProtossNexus:
+			return BWAPI::Races::Protoss;
+		case ProtossRoboticsFacility:
+			return BWAPI::Races::Protoss;
+		case ProtossObservatory:
+			return BWAPI::Races::Protoss;
+		case ProtossGateway:
+			return BWAPI::Races::Protoss;
+		case ProtossCitadelofAdun:
+			return BWAPI::Races::Protoss;
+		case ProtossCyberneticsCore:
+			return BWAPI::Races::Protoss;
+		case ProtossTemplarArchives:
+			return BWAPI::Races::Protoss;
+		case ProtossForge:
+			return BWAPI::Races::Protoss;
+		case ProtossStargate:
+			return BWAPI::Races::Protoss;
+		case ProtossFleetBeacon:
+			return BWAPI::Races::Protoss;
+		case ProtossArbiterTribunal:
+			return BWAPI::Races::Protoss;
+		case ProtossRoboticsSupportBay:
+			return BWAPI::Races::Protoss;
+		case LurkerAspect:
+			return BWAPI::Races::Zerg;
+		case TerranInfantryArmor:
+			return BWAPI::Races::Terran;
+		case TerranVehiclePlating:
+			return BWAPI::Races::Terran;
+		case TerranShipPlating:
+			return BWAPI::Races::Terran;
+		case ZergCarapace:
+			return BWAPI::Races::Zerg;
+		case ZergFlyerCarapace:
+			return BWAPI::Races::Zerg;
+		case ProtossGroundArmor:
+			return BWAPI::Races::Protoss;
+		case ProtossAirArmor:
+			return BWAPI::Races::Protoss;
+		case TerranInfantryWeapons:
+			return BWAPI::Races::Terran;
+		case TerranVehicleWeapons:
+			return BWAPI::Races::Terran;
+		case TerranShipWeapons:
+			return BWAPI::Races::Terran;
+		case ZergMeleeAttacks:
+			return BWAPI::Races::Zerg;
+		case ZergMissileAttacks:
+			return BWAPI::Races::Zerg;
+		case ZergFlyerAttacks:
+			return BWAPI::Races::Zerg;
+		case ProtossGroundWeapons:
+			return BWAPI::Races::Protoss;
+		case ProtossAirWeapons:
+			return BWAPI::Races::Protoss;
+		case ProtossPlasmaShields:
+			return BWAPI::Races::Protoss;
+		case U_238Shells:
+			return BWAPI::Races::Terran;
+		case IonThrusters:
+			return BWAPI::Races::Terran;
+		case TitanReactor:
+			return BWAPI::Races::Terran;
+		case OcularImplants:
+			return BWAPI::Races::Terran;
+		case MoebiusReactor:
+			return BWAPI::Races::Terran;
+		case ApolloReactor:
+			return BWAPI::Races::Terran;
+		case ColossusReactor:
+			return BWAPI::Races::Terran;
+		case VentralSacs:
+			return BWAPI::Races::Zerg;
+		case Antennae:
+			return BWAPI::Races::Zerg;
+		case PneumatizedCarapace:
+			return BWAPI::Races::Zerg;
+		case MetabolicBoost:
+			return BWAPI::Races::Zerg;
+		case AdrenalGlands:
+			return BWAPI::Races::Zerg;
+		case MuscularAugments:
+			return BWAPI::Races::Zerg;
+		case GroovedSpines:
+			return BWAPI::Races::Zerg;
+		case GameteMeiosis:
+			return BWAPI::Races::Zerg;
+		case MetasynapticNode:
+			return BWAPI::Races::Zerg;
+		case SingularityCharge:
+			return BWAPI::Races::Protoss;
+		case LegEnhancements:
+			return BWAPI::Races::Protoss;
+		case ScarabDamage:
+			return BWAPI::Races::Protoss;
+		case ReaverCapacity:
+			return BWAPI::Races::Protoss;
+		case GraviticDrive:
+			return BWAPI::Races::Protoss;
+		case SensorArray:
+			return BWAPI::Races::Protoss;
+		case GraviticBoosters:
+			return BWAPI::Races::Protoss;
+		case KhaydarinAmulet:
+			return BWAPI::Races::Protoss;
+		case ApialSensors:
+			return BWAPI::Races::Protoss;
+		case GraviticThrusters:
+			return BWAPI::Races::Protoss;
+		case CarrierCapacity:
+			return BWAPI::Races::Protoss;
+		case KhaydarinCore:
+			return BWAPI::Races::Protoss;
+		case ArgusJewel:
+			return BWAPI::Races::Protoss;
+		case ArgusTalisman:
+			return BWAPI::Races::Protoss;
+		case CaduceusReactor:
+			return BWAPI::Races::Terran;
+		case ChitinousPlating:
+			return BWAPI::Races::Zerg;
+		case AnabolicSynthesis:
+			return BWAPI::Races::Zerg;
+		case CharonBoosters:
+			return BWAPI::Races::Terran;
+		default:
+			return BWAPI::Races::None;
+	}
+}
+
+BWAPI::UnitType ResourceIndex::associatedUnitType() const
+{
+	switch(index_)
+	{
+		case TerranCommandCenter:
+			return BWAPI::UnitTypes::Terran_Command_Center;
+		case TerranComsatStation:
+			return BWAPI::UnitTypes::Terran_Comsat_Station;
+		case TerranNuclearSilo:
+			return BWAPI::UnitTypes::Terran_Nuclear_Silo;
+		case TerranBarracks:
+			return BWAPI::UnitTypes::Terran_Barracks;
+		case TerranAcademy:
+			return BWAPI::UnitTypes::Terran_Academy;
+		case TerranFactory:
+			return BWAPI::UnitTypes::Terran_Factory;
+		case TerranStarport:
+			return BWAPI::UnitTypes::Terran_Starport;
+		case TerranControlTower:
+			return BWAPI::UnitTypes::Terran_Control_Tower;
+		case TerranScienceFacility:
+			return BWAPI::UnitTypes::Terran_Science_Facility;
+		case TerranCovertOps:
+			return BWAPI::UnitTypes::Terran_Covert_Ops;
+		case TerranPhysicsLab:
+			return BWAPI::UnitTypes::Terran_Physics_Lab;
+		case TerranMachineShop:
+			return BWAPI::UnitTypes::Terran_Machine_Shop;
+		case TerranEngineeringBay:
+			return BWAPI::UnitTypes::Terran_Engineering_Bay;
+		case TerranArmory:
+			return BWAPI::UnitTypes::Terran_Armory;
+		case ZergInfestedCommandCenter:
+			return BWAPI::UnitTypes::Zerg_Infested_Command_Center;
+		case ZergHatchery:
+			return BWAPI::UnitTypes::Zerg_Hatchery;
+		case ZergLair:
+			return BWAPI::UnitTypes::Zerg_Lair;
+		case ZergHive:
+			return BWAPI::UnitTypes::Zerg_Hive;
+		case ZergHydraliskDen:
+			return BWAPI::UnitTypes::Zerg_Hydralisk_Den;
+		case ZergDefilerMound:
+			return BWAPI::UnitTypes::Zerg_Defiler_Mound;
+		case ZergGreaterSpire:
+			return BWAPI::UnitTypes::Zerg_Greater_Spire;
+		case ZergQueensNest:
+			return BWAPI::UnitTypes::Zerg_Queens_Nest;
+		case ZergEvolutionChamber:
+			return BWAPI::UnitTypes::Zerg_Evolution_Chamber;
+		case ZergUltraliskCavern:
+			return BWAPI::UnitTypes::Zerg_Ultralisk_Cavern;
+		case ZergSpire:
+			return BWAPI::UnitTypes::Zerg_Spire;
+		case ZergSpawningPool:
+			return BWAPI::UnitTypes::Zerg_Spawning_Pool;
+		case ProtossNexus:
+			return BWAPI::UnitTypes::Protoss_Nexus;
+		case ProtossRoboticsFacility:
+			return BWAPI::UnitTypes::Protoss_Robotics_Facility;
+		case ProtossObservatory:
+			return BWAPI::UnitTypes::Protoss_Observatory;
+		case ProtossGateway:
+			return BWAPI::UnitTypes::Protoss_Gateway;
+		case ProtossCitadelofAdun:
+			return BWAPI::UnitTypes::Protoss_Citadel_of_Adun;
+		case ProtossCyberneticsCore:
+			return BWAPI::UnitTypes::Protoss_Cybernetics_Core;
+		case ProtossTemplarArchives:
+			return BWAPI::UnitTypes::Protoss_Templar_Archives;
+		case ProtossForge:
+			return BWAPI::UnitTypes::Protoss_Forge;
+		case ProtossStargate:
+			return BWAPI::UnitTypes::Protoss_Stargate;
+		case ProtossFleetBeacon:
+			return BWAPI::UnitTypes::Protoss_Fleet_Beacon;
+		case ProtossArbiterTribunal:
+			return BWAPI::UnitTypes::Protoss_Arbiter_Tribunal;
+		case ProtossRoboticsSupportBay:
+			return BWAPI::UnitTypes::Protoss_Robotics_Support_Bay;
+		default:
+			return BWAPI::UnitTypes::None;
+	}
+}
+
+BWAPI::TechType ResourceIndex::associatedTechType() const
+{
+	switch(index_)
+	{
+		case LurkerAspect:
+			return BWAPI::TechTypes::Lurker_Aspect;
+		default:
+			return BWAPI::TechTypes::None;
+	}
+}
+
+BWAPI::UpgradeType ResourceIndex::associatedUpgradeType() const
+{
+	switch(index_)
+	{
+		case TerranInfantryArmor:
+			return BWAPI::UpgradeTypes::Terran_Infantry_Armor;
+		case TerranVehiclePlating:
+			return BWAPI::UpgradeTypes::Terran_Vehicle_Plating;
+		case TerranShipPlating:
+			return BWAPI::UpgradeTypes::Terran_Ship_Plating;
+		case ZergCarapace:
+			return BWAPI::UpgradeTypes::Zerg_Carapace;
+		case ZergFlyerCarapace:
+			return BWAPI::UpgradeTypes::Zerg_Flyer_Carapace;
+		case ProtossGroundArmor:
+			return BWAPI::UpgradeTypes::Protoss_Ground_Armor;
+		case ProtossAirArmor:
+			return BWAPI::UpgradeTypes::Protoss_Air_Armor;
+		case TerranInfantryWeapons:
+			return BWAPI::UpgradeTypes::Terran_Infantry_Weapons;
+		case TerranVehicleWeapons:
+			return BWAPI::UpgradeTypes::Terran_Vehicle_Weapons;
+		case TerranShipWeapons:
+			return BWAPI::UpgradeTypes::Terran_Ship_Weapons;
+		case ZergMeleeAttacks:
+			return BWAPI::UpgradeTypes::Zerg_Melee_Attacks;
+		case ZergMissileAttacks:
+			return BWAPI::UpgradeTypes::Zerg_Missile_Attacks;
+		case ZergFlyerAttacks:
+			return BWAPI::UpgradeTypes::Zerg_Flyer_Attacks;
+		case ProtossGroundWeapons:
+			return BWAPI::UpgradeTypes::Protoss_Ground_Weapons;
+		case ProtossAirWeapons:
+			return BWAPI::UpgradeTypes::Protoss_Air_Weapons;
+		case ProtossPlasmaShields:
+			return BWAPI::UpgradeTypes::Protoss_Plasma_Shields;
+		case U_238Shells:
+			return BWAPI::UpgradeTypes::U_238_Shells;
+		case IonThrusters:
+			return BWAPI::UpgradeTypes::Ion_Thrusters;
+		case TitanReactor:
+			return BWAPI::UpgradeTypes::Titan_Reactor;
+		case OcularImplants:
+			return BWAPI::UpgradeTypes::Ocular_Implants;
+		case MoebiusReactor:
+			return BWAPI::UpgradeTypes::Moebius_Reactor;
+		case ApolloReactor:
+			return BWAPI::UpgradeTypes::Apollo_Reactor;
+		case ColossusReactor:
+			return BWAPI::UpgradeTypes::Colossus_Reactor;
+		case VentralSacs:
+			return BWAPI::UpgradeTypes::Ventral_Sacs;
+		case Antennae:
+			return BWAPI::UpgradeTypes::Antennae;
+		case PneumatizedCarapace:
+			return BWAPI::UpgradeTypes::Pneumatized_Carapace;
+		case MetabolicBoost:
+			return BWAPI::UpgradeTypes::Metabolic_Boost;
+		case AdrenalGlands:
+			return BWAPI::UpgradeTypes::Adrenal_Glands;
+		case MuscularAugments:
+			return BWAPI::UpgradeTypes::Muscular_Augments;
+		case GroovedSpines:
+			return BWAPI::UpgradeTypes::Grooved_Spines;
+		case GameteMeiosis:
+			return BWAPI::UpgradeTypes::Gamete_Meiosis;
+		case MetasynapticNode:
+			return BWAPI::UpgradeTypes::Metasynaptic_Node;
+		case SingularityCharge:
+			return BWAPI::UpgradeTypes::Singularity_Charge;
+		case LegEnhancements:
+			return BWAPI::UpgradeTypes::Leg_Enhancements;
+		case ScarabDamage:
+			return BWAPI::UpgradeTypes::Scarab_Damage;
+		case ReaverCapacity:
+			return BWAPI::UpgradeTypes::Reaver_Capacity;
+		case GraviticDrive:
+			return BWAPI::UpgradeTypes::Gravitic_Drive;
+		case SensorArray:
+			return BWAPI::UpgradeTypes::Sensor_Array;
+		case GraviticBoosters:
+			return BWAPI::UpgradeTypes::Gravitic_Boosters;
+		case KhaydarinAmulet:
+			return BWAPI::UpgradeTypes::Khaydarin_Amulet;
+		case ApialSensors:
+			return BWAPI::UpgradeTypes::Apial_Sensors;
+		case GraviticThrusters:
+			return BWAPI::UpgradeTypes::Gravitic_Thrusters;
+		case CarrierCapacity:
+			return BWAPI::UpgradeTypes::Carrier_Capacity;
+		case KhaydarinCore:
+			return BWAPI::UpgradeTypes::Khaydarin_Core;
+		case ArgusJewel:
+			return BWAPI::UpgradeTypes::Argus_Jewel;
+		case ArgusTalisman:
+			return BWAPI::UpgradeTypes::Argus_Talisman;
+		case CaduceusReactor:
+			return BWAPI::UpgradeTypes::Caduceus_Reactor;
+		case ChitinousPlating:
+			return BWAPI::UpgradeTypes::Chitinous_Plating;
+		case AnabolicSynthesis:
+			return BWAPI::UpgradeTypes::Anabolic_Synthesis;
+		case CharonBoosters:
+			return BWAPI::UpgradeTypes::Charon_Boosters;
+		default:
+			return BWAPI::UpgradeTypes::None;
+	}
+}
+
+int Resources::getGrowth(const ResourceIndex& ri) const
+{
+	switch(ri.getType())
+	{
+		case RI::Larva:
 			return 1 * amount[RI::ZergHatchery] + 1 * amount[RI::ZergLair] + 1 * amount[RI::ZergHive];
-		case Minerals:
+		case RI::Minerals:
 			return 45 * amount[RI::TerranWorker] + 45 * amount[RI::ProtossWorker] + 45 * amount[RI::ZergWorker];
-		case Gas:
+		case RI::Gas:
 			return 45 * amount[RI::TerranGasWorker] + 45 * amount[RI::ProtossGasWorker] + 45 * amount[RI::ZergGasWorker];
 		default:
 			return 0;
@@ -228,33 +814,33 @@ void Resources::advance(int dt)
 
 void Resources::inc(const ResourceIndex& ri, int optime, int value)
 {
-	switch(index_)
+	switch(ri.getType())
 	{
-		case TerranWorker:
+		case RI::TerranWorker:
 			amount[RI::Minerals] += 45 * (optime - time);
 			break;
-		case ProtossWorker:
+		case RI::ProtossWorker:
 			amount[RI::Minerals] += 45 * (optime - time);
 			break;
-		case ZergWorker:
+		case RI::ZergWorker:
 			amount[RI::Minerals] += 45 * (optime - time);
 			break;
-		case TerranGasWorker:
+		case RI::TerranGasWorker:
 			amount[RI::Gas] += 45 * (optime - time);
 			break;
-		case ProtossGasWorker:
+		case RI::ProtossGasWorker:
 			amount[RI::Gas] += 45 * (optime - time);
 			break;
-		case ZergGasWorker:
+		case RI::ZergGasWorker:
 			amount[RI::Gas] += 45 * (optime - time);
 			break;
-		case ZergHatchery:
+		case RI::ZergHatchery:
 			amount[RI::Larva] += 1 * (optime - time);
 			break;
-		case ZergLair:
+		case RI::ZergLair:
 			amount[RI::Larva] += 1 * (optime - time);
 			break;
-		case ZergHive:
+		case RI::ZergHive:
 			amount[RI::Larva] += 1 * (optime - time);
 			break;
 		default:
@@ -267,467 +853,1647 @@ std::string OperationIndex::getName() const
 {
 	switch(index_)
 	{
-		case BuildTerranMarine:
-			return "BuildTerranMarine";
-		case BuildTerranGhost:
-			return "BuildTerranGhost";
-		case BuildTerranVulture:
-			return "BuildTerranVulture";
-		case BuildTerranGoliath:
-			return "BuildTerranGoliath";
-		case BuildTerranSiegeTankTankMode:
-			return "BuildTerranSiegeTankTankMode";
-		case BuildTerranSCV:
-			return "BuildTerranSCV";
-		case BuildTerranWraith:
-			return "BuildTerranWraith";
-		case BuildTerranScienceVessel:
-			return "BuildTerranScienceVessel";
-		case BuildTerranDropship:
-			return "BuildTerranDropship";
-		case BuildTerranBattlecruiser:
-			return "BuildTerranBattlecruiser";
-		case BuildTerranNuclearMissile:
-			return "BuildTerranNuclearMissile";
-		case BuildTerranFirebat:
-			return "BuildTerranFirebat";
-		case BuildTerranMedic:
-			return "BuildTerranMedic";
-		case BuildZergZergling:
-			return "BuildZergZergling";
-		case BuildZergHydralisk:
-			return "BuildZergHydralisk";
-		case BuildZergUltralisk:
-			return "BuildZergUltralisk";
-		case BuildZergDrone:
-			return "BuildZergDrone";
-		case BuildZergOverlord:
-			return "BuildZergOverlord";
-		case BuildZergMutalisk:
-			return "BuildZergMutalisk";
-		case BuildZergGuardian:
-			return "BuildZergGuardian";
-		case BuildZergQueen:
-			return "BuildZergQueen";
-		case BuildZergDefiler:
-			return "BuildZergDefiler";
-		case BuildZergScourge:
-			return "BuildZergScourge";
-		case BuildZergInfestedTerran:
-			return "BuildZergInfestedTerran";
-		case BuildTerranValkyrie:
-			return "BuildTerranValkyrie";
-		case BuildProtossCorsair:
-			return "BuildProtossCorsair";
-		case BuildProtossDarkTemplar:
-			return "BuildProtossDarkTemplar";
-		case BuildZergDevourer:
-			return "BuildZergDevourer";
-		case BuildProtossProbe:
-			return "BuildProtossProbe";
-		case BuildProtossZealot:
-			return "BuildProtossZealot";
-		case BuildProtossDragoon:
-			return "BuildProtossDragoon";
-		case BuildProtossHighTemplar:
-			return "BuildProtossHighTemplar";
-		case BuildProtossShuttle:
-			return "BuildProtossShuttle";
-		case BuildProtossScout:
-			return "BuildProtossScout";
-		case BuildProtossArbiter:
-			return "BuildProtossArbiter";
-		case BuildProtossCarrier:
-			return "BuildProtossCarrier";
-		case BuildProtossReaver:
-			return "BuildProtossReaver";
-		case BuildProtossObserver:
-			return "BuildProtossObserver";
-		case BuildZergLurker:
-			return "BuildZergLurker";
-		case BuildTerranCommandCenter:
-			return "BuildTerranCommandCenter";
-		case BuildTerranComsatStation:
-			return "BuildTerranComsatStation";
-		case BuildTerranNuclearSilo:
-			return "BuildTerranNuclearSilo";
-		case BuildTerranSupplyDepot:
-			return "BuildTerranSupplyDepot";
-		case BuildTerranRefinery:
-			return "BuildTerranRefinery";
-		case BuildTerranBarracks:
-			return "BuildTerranBarracks";
-		case BuildTerranAcademy:
-			return "BuildTerranAcademy";
-		case BuildTerranFactory:
-			return "BuildTerranFactory";
-		case BuildTerranStarport:
-			return "BuildTerranStarport";
-		case BuildTerranControlTower:
-			return "BuildTerranControlTower";
-		case BuildTerranScienceFacility:
-			return "BuildTerranScienceFacility";
-		case BuildTerranCovertOps:
-			return "BuildTerranCovertOps";
-		case BuildTerranPhysicsLab:
-			return "BuildTerranPhysicsLab";
-		case BuildTerranMachineShop:
-			return "BuildTerranMachineShop";
-		case BuildTerranEngineeringBay:
-			return "BuildTerranEngineeringBay";
-		case BuildTerranArmory:
-			return "BuildTerranArmory";
-		case BuildTerranMissileTurret:
-			return "BuildTerranMissileTurret";
-		case BuildTerranBunker:
-			return "BuildTerranBunker";
-		case BuildZergHatchery:
-			return "BuildZergHatchery";
-		case BuildZergLair:
-			return "BuildZergLair";
-		case BuildZergHive:
-			return "BuildZergHive";
-		case BuildZergNydusCanal:
-			return "BuildZergNydusCanal";
-		case BuildZergHydraliskDen:
-			return "BuildZergHydraliskDen";
-		case BuildZergDefilerMound:
-			return "BuildZergDefilerMound";
-		case BuildZergGreaterSpire:
-			return "BuildZergGreaterSpire";
-		case BuildZergQueensNest:
-			return "BuildZergQueensNest";
-		case BuildZergEvolutionChamber:
-			return "BuildZergEvolutionChamber";
-		case BuildZergUltraliskCavern:
-			return "BuildZergUltraliskCavern";
-		case BuildZergSpire:
-			return "BuildZergSpire";
-		case BuildZergSpawningPool:
-			return "BuildZergSpawningPool";
-		case BuildZergCreepColony:
-			return "BuildZergCreepColony";
-		case BuildZergSporeColony:
-			return "BuildZergSporeColony";
-		case BuildZergSunkenColony:
-			return "BuildZergSunkenColony";
-		case BuildZergExtractor:
-			return "BuildZergExtractor";
-		case BuildProtossNexus:
-			return "BuildProtossNexus";
-		case BuildProtossRoboticsFacility:
-			return "BuildProtossRoboticsFacility";
-		case BuildProtossPylon:
-			return "BuildProtossPylon";
-		case BuildProtossAssimilator:
-			return "BuildProtossAssimilator";
-		case BuildProtossObservatory:
-			return "BuildProtossObservatory";
-		case BuildProtossGateway:
-			return "BuildProtossGateway";
-		case BuildProtossPhotonCannon:
-			return "BuildProtossPhotonCannon";
-		case BuildProtossCitadelofAdun:
-			return "BuildProtossCitadelofAdun";
-		case BuildProtossCyberneticsCore:
-			return "BuildProtossCyberneticsCore";
-		case BuildProtossTemplarArchives:
-			return "BuildProtossTemplarArchives";
-		case BuildProtossForge:
-			return "BuildProtossForge";
-		case BuildProtossStargate:
-			return "BuildProtossStargate";
-		case BuildProtossFleetBeacon:
-			return "BuildProtossFleetBeacon";
-		case BuildProtossArbiterTribunal:
-			return "BuildProtossArbiterTribunal";
-		case BuildProtossRoboticsSupportBay:
-			return "BuildProtossRoboticsSupportBay";
-		case BuildProtossShieldBattery:
-			return "BuildProtossShieldBattery";
-		case TechStimPacks:
-			return "TechStimPacks";
-		case TechLockdown:
-			return "TechLockdown";
-		case TechEMPShockwave:
-			return "TechEMPShockwave";
-		case TechSpiderMines:
-			return "TechSpiderMines";
-		case TechTankSiegeMode:
-			return "TechTankSiegeMode";
-		case TechIrradiate:
-			return "TechIrradiate";
-		case TechYamatoGun:
-			return "TechYamatoGun";
-		case TechCloakingField:
-			return "TechCloakingField";
-		case TechPersonnelCloaking:
-			return "TechPersonnelCloaking";
-		case TechBurrowing:
-			return "TechBurrowing";
-		case TechSpawnBroodlings:
-			return "TechSpawnBroodlings";
-		case TechPlague:
-			return "TechPlague";
-		case TechConsume:
-			return "TechConsume";
-		case TechEnsnare:
-			return "TechEnsnare";
-		case TechPsionicStorm:
-			return "TechPsionicStorm";
-		case TechHallucination:
-			return "TechHallucination";
-		case TechRecall:
-			return "TechRecall";
-		case TechStasisField:
-			return "TechStasisField";
-		case TechRestoration:
-			return "TechRestoration";
-		case TechDisruptionWeb:
-			return "TechDisruptionWeb";
-		case TechMindControl:
-			return "TechMindControl";
-		case TechOpticalFlare:
-			return "TechOpticalFlare";
-		case TechMaelstrom:
-			return "TechMaelstrom";
-		case TechLurkerAspect:
-			return "TechLurkerAspect";
+		case SendTerranGasWorker:
+			return "SendTerranGasWorker";
+		case ReturnTerranGasWorker:
+			return "ReturnTerranGasWorker";
+		case SendProtossGasWorker:
+			return "SendProtossGasWorker";
+		case ReturnProtossGasWorker:
+			return "ReturnProtossGasWorker";
+		case SendZergGasWorker:
+			return "SendZergGasWorker";
+		case ReturnZergGasWorker:
+			return "ReturnZergGasWorker";
+		case TerranMarine:
+			return "TerranMarine";
+		case TerranGhost:
+			return "TerranGhost";
+		case TerranVulture:
+			return "TerranVulture";
+		case TerranGoliath:
+			return "TerranGoliath";
+		case TerranSiegeTankTankMode:
+			return "TerranSiegeTankTankMode";
+		case TerranSCV:
+			return "TerranSCV";
+		case TerranWraith:
+			return "TerranWraith";
+		case TerranScienceVessel:
+			return "TerranScienceVessel";
+		case TerranDropship:
+			return "TerranDropship";
+		case TerranBattlecruiser:
+			return "TerranBattlecruiser";
+		case TerranNuclearMissile:
+			return "TerranNuclearMissile";
+		case TerranFirebat:
+			return "TerranFirebat";
+		case TerranMedic:
+			return "TerranMedic";
+		case ZergZergling:
+			return "ZergZergling";
+		case ZergHydralisk:
+			return "ZergHydralisk";
+		case ZergUltralisk:
+			return "ZergUltralisk";
+		case ZergDrone:
+			return "ZergDrone";
+		case ZergOverlord:
+			return "ZergOverlord";
+		case ZergMutalisk:
+			return "ZergMutalisk";
+		case ZergGuardian:
+			return "ZergGuardian";
+		case ZergQueen:
+			return "ZergQueen";
+		case ZergDefiler:
+			return "ZergDefiler";
+		case ZergScourge:
+			return "ZergScourge";
+		case ZergInfestedTerran:
+			return "ZergInfestedTerran";
+		case TerranValkyrie:
+			return "TerranValkyrie";
+		case ProtossCorsair:
+			return "ProtossCorsair";
+		case ProtossDarkTemplar:
+			return "ProtossDarkTemplar";
+		case ZergDevourer:
+			return "ZergDevourer";
+		case ProtossProbe:
+			return "ProtossProbe";
+		case ProtossZealot:
+			return "ProtossZealot";
+		case ProtossDragoon:
+			return "ProtossDragoon";
+		case ProtossHighTemplar:
+			return "ProtossHighTemplar";
+		case ProtossShuttle:
+			return "ProtossShuttle";
+		case ProtossScout:
+			return "ProtossScout";
+		case ProtossArbiter:
+			return "ProtossArbiter";
+		case ProtossCarrier:
+			return "ProtossCarrier";
+		case ProtossReaver:
+			return "ProtossReaver";
+		case ProtossObserver:
+			return "ProtossObserver";
+		case ZergLurker:
+			return "ZergLurker";
+		case TerranCommandCenter:
+			return "TerranCommandCenter";
+		case TerranComsatStation:
+			return "TerranComsatStation";
+		case TerranNuclearSilo:
+			return "TerranNuclearSilo";
+		case TerranSupplyDepot:
+			return "TerranSupplyDepot";
+		case TerranRefinery:
+			return "TerranRefinery";
+		case TerranBarracks:
+			return "TerranBarracks";
+		case TerranAcademy:
+			return "TerranAcademy";
+		case TerranFactory:
+			return "TerranFactory";
+		case TerranStarport:
+			return "TerranStarport";
+		case TerranControlTower:
+			return "TerranControlTower";
+		case TerranScienceFacility:
+			return "TerranScienceFacility";
+		case TerranCovertOps:
+			return "TerranCovertOps";
+		case TerranPhysicsLab:
+			return "TerranPhysicsLab";
+		case TerranMachineShop:
+			return "TerranMachineShop";
+		case TerranEngineeringBay:
+			return "TerranEngineeringBay";
+		case TerranArmory:
+			return "TerranArmory";
+		case TerranMissileTurret:
+			return "TerranMissileTurret";
+		case TerranBunker:
+			return "TerranBunker";
+		case ZergHatchery:
+			return "ZergHatchery";
+		case ZergLair:
+			return "ZergLair";
+		case ZergHive:
+			return "ZergHive";
+		case ZergNydusCanal:
+			return "ZergNydusCanal";
+		case ZergHydraliskDen:
+			return "ZergHydraliskDen";
+		case ZergDefilerMound:
+			return "ZergDefilerMound";
+		case ZergGreaterSpire:
+			return "ZergGreaterSpire";
+		case ZergQueensNest:
+			return "ZergQueensNest";
+		case ZergEvolutionChamber:
+			return "ZergEvolutionChamber";
+		case ZergUltraliskCavern:
+			return "ZergUltraliskCavern";
+		case ZergSpire:
+			return "ZergSpire";
+		case ZergSpawningPool:
+			return "ZergSpawningPool";
+		case ZergCreepColony:
+			return "ZergCreepColony";
+		case ZergSporeColony:
+			return "ZergSporeColony";
+		case ZergSunkenColony:
+			return "ZergSunkenColony";
+		case ZergExtractor:
+			return "ZergExtractor";
+		case ProtossNexus:
+			return "ProtossNexus";
+		case ProtossRoboticsFacility:
+			return "ProtossRoboticsFacility";
+		case ProtossPylon:
+			return "ProtossPylon";
+		case ProtossAssimilator:
+			return "ProtossAssimilator";
+		case ProtossObservatory:
+			return "ProtossObservatory";
+		case ProtossGateway:
+			return "ProtossGateway";
+		case ProtossPhotonCannon:
+			return "ProtossPhotonCannon";
+		case ProtossCitadelofAdun:
+			return "ProtossCitadelofAdun";
+		case ProtossCyberneticsCore:
+			return "ProtossCyberneticsCore";
+		case ProtossTemplarArchives:
+			return "ProtossTemplarArchives";
+		case ProtossForge:
+			return "ProtossForge";
+		case ProtossStargate:
+			return "ProtossStargate";
+		case ProtossFleetBeacon:
+			return "ProtossFleetBeacon";
+		case ProtossArbiterTribunal:
+			return "ProtossArbiterTribunal";
+		case ProtossRoboticsSupportBay:
+			return "ProtossRoboticsSupportBay";
+		case ProtossShieldBattery:
+			return "ProtossShieldBattery";
+		case StimPacks:
+			return "StimPacks";
+		case Lockdown:
+			return "Lockdown";
+		case EMPShockwave:
+			return "EMPShockwave";
+		case SpiderMines:
+			return "SpiderMines";
+		case TankSiegeMode:
+			return "TankSiegeMode";
+		case Irradiate:
+			return "Irradiate";
+		case YamatoGun:
+			return "YamatoGun";
+		case CloakingField:
+			return "CloakingField";
+		case PersonnelCloaking:
+			return "PersonnelCloaking";
+		case Burrowing:
+			return "Burrowing";
+		case SpawnBroodlings:
+			return "SpawnBroodlings";
+		case Plague:
+			return "Plague";
+		case Consume:
+			return "Consume";
+		case Ensnare:
+			return "Ensnare";
+		case PsionicStorm:
+			return "PsionicStorm";
+		case Hallucination:
+			return "Hallucination";
+		case Recall:
+			return "Recall";
+		case StasisField:
+			return "StasisField";
+		case Restoration:
+			return "Restoration";
+		case DisruptionWeb:
+			return "DisruptionWeb";
+		case MindControl:
+			return "MindControl";
+		case OpticalFlare:
+			return "OpticalFlare";
+		case Maelstrom:
+			return "Maelstrom";
+		case LurkerAspect:
+			return "LurkerAspect";
+		case TerranInfantryArmor1:
+			return "TerranInfantryArmor1";
+		case TerranInfantryArmor2:
+			return "TerranInfantryArmor2";
+		case TerranInfantryArmor3:
+			return "TerranInfantryArmor3";
+		case TerranVehiclePlating1:
+			return "TerranVehiclePlating1";
+		case TerranVehiclePlating2:
+			return "TerranVehiclePlating2";
+		case TerranVehiclePlating3:
+			return "TerranVehiclePlating3";
+		case TerranShipPlating1:
+			return "TerranShipPlating1";
+		case TerranShipPlating2:
+			return "TerranShipPlating2";
+		case TerranShipPlating3:
+			return "TerranShipPlating3";
+		case ZergCarapace1:
+			return "ZergCarapace1";
+		case ZergCarapace2:
+			return "ZergCarapace2";
+		case ZergCarapace3:
+			return "ZergCarapace3";
+		case ZergFlyerCarapace1:
+			return "ZergFlyerCarapace1";
+		case ZergFlyerCarapace2:
+			return "ZergFlyerCarapace2";
+		case ZergFlyerCarapace3:
+			return "ZergFlyerCarapace3";
+		case ProtossGroundArmor1:
+			return "ProtossGroundArmor1";
+		case ProtossGroundArmor2:
+			return "ProtossGroundArmor2";
+		case ProtossGroundArmor3:
+			return "ProtossGroundArmor3";
+		case ProtossAirArmor1:
+			return "ProtossAirArmor1";
+		case ProtossAirArmor2:
+			return "ProtossAirArmor2";
+		case ProtossAirArmor3:
+			return "ProtossAirArmor3";
+		case TerranInfantryWeapons1:
+			return "TerranInfantryWeapons1";
+		case TerranInfantryWeapons2:
+			return "TerranInfantryWeapons2";
+		case TerranInfantryWeapons3:
+			return "TerranInfantryWeapons3";
+		case TerranVehicleWeapons1:
+			return "TerranVehicleWeapons1";
+		case TerranVehicleWeapons2:
+			return "TerranVehicleWeapons2";
+		case TerranVehicleWeapons3:
+			return "TerranVehicleWeapons3";
+		case TerranShipWeapons1:
+			return "TerranShipWeapons1";
+		case TerranShipWeapons2:
+			return "TerranShipWeapons2";
+		case TerranShipWeapons3:
+			return "TerranShipWeapons3";
+		case ZergMeleeAttacks1:
+			return "ZergMeleeAttacks1";
+		case ZergMeleeAttacks2:
+			return "ZergMeleeAttacks2";
+		case ZergMeleeAttacks3:
+			return "ZergMeleeAttacks3";
+		case ZergMissileAttacks1:
+			return "ZergMissileAttacks1";
+		case ZergMissileAttacks2:
+			return "ZergMissileAttacks2";
+		case ZergMissileAttacks3:
+			return "ZergMissileAttacks3";
+		case ZergFlyerAttacks1:
+			return "ZergFlyerAttacks1";
+		case ZergFlyerAttacks2:
+			return "ZergFlyerAttacks2";
+		case ZergFlyerAttacks3:
+			return "ZergFlyerAttacks3";
+		case ProtossGroundWeapons1:
+			return "ProtossGroundWeapons1";
+		case ProtossGroundWeapons2:
+			return "ProtossGroundWeapons2";
+		case ProtossGroundWeapons3:
+			return "ProtossGroundWeapons3";
+		case ProtossAirWeapons1:
+			return "ProtossAirWeapons1";
+		case ProtossAirWeapons2:
+			return "ProtossAirWeapons2";
+		case ProtossAirWeapons3:
+			return "ProtossAirWeapons3";
+		case ProtossPlasmaShields1:
+			return "ProtossPlasmaShields1";
+		case ProtossPlasmaShields2:
+			return "ProtossPlasmaShields2";
+		case ProtossPlasmaShields3:
+			return "ProtossPlasmaShields3";
+		case U_238Shells1:
+			return "U_238Shells1";
+		case IonThrusters1:
+			return "IonThrusters1";
+		case TitanReactor1:
+			return "TitanReactor1";
+		case OcularImplants1:
+			return "OcularImplants1";
+		case MoebiusReactor1:
+			return "MoebiusReactor1";
+		case ApolloReactor1:
+			return "ApolloReactor1";
+		case ColossusReactor1:
+			return "ColossusReactor1";
+		case VentralSacs1:
+			return "VentralSacs1";
+		case Antennae1:
+			return "Antennae1";
+		case PneumatizedCarapace1:
+			return "PneumatizedCarapace1";
+		case MetabolicBoost1:
+			return "MetabolicBoost1";
+		case AdrenalGlands1:
+			return "AdrenalGlands1";
+		case MuscularAugments1:
+			return "MuscularAugments1";
+		case GroovedSpines1:
+			return "GroovedSpines1";
+		case GameteMeiosis1:
+			return "GameteMeiosis1";
+		case MetasynapticNode1:
+			return "MetasynapticNode1";
+		case SingularityCharge1:
+			return "SingularityCharge1";
+		case LegEnhancements1:
+			return "LegEnhancements1";
+		case ScarabDamage1:
+			return "ScarabDamage1";
+		case ReaverCapacity1:
+			return "ReaverCapacity1";
+		case GraviticDrive1:
+			return "GraviticDrive1";
+		case SensorArray1:
+			return "SensorArray1";
+		case GraviticBoosters1:
+			return "GraviticBoosters1";
+		case KhaydarinAmulet1:
+			return "KhaydarinAmulet1";
+		case ApialSensors1:
+			return "ApialSensors1";
+		case GraviticThrusters1:
+			return "GraviticThrusters1";
+		case CarrierCapacity1:
+			return "CarrierCapacity1";
+		case KhaydarinCore1:
+			return "KhaydarinCore1";
+		case ArgusJewel1:
+			return "ArgusJewel1";
+		case ArgusTalisman1:
+			return "ArgusTalisman1";
+		case CaduceusReactor1:
+			return "CaduceusReactor1";
+		case ChitinousPlating1:
+			return "ChitinousPlating1";
+		case AnabolicSynthesis1:
+			return "AnabolicSynthesis1";
+		case CharonBoosters1:
+			return "CharonBoosters1";
 		default:
 			return "[UNKNOWN]";
 	}
 }
 
-TimeType Operation::duration() const
+BWAPI::Race OperationIndex::associatedRace() const
 {
 	switch(index_)
 	{
-		case BuildTerranMarine:
+		case SendTerranGasWorker:
+			return BWAPI::Races::Terran;
+		case ReturnTerranGasWorker:
+			return BWAPI::Races::Terran;
+		case SendProtossGasWorker:
+			return BWAPI::Races::Protoss;
+		case ReturnProtossGasWorker:
+			return BWAPI::Races::Protoss;
+		case SendZergGasWorker:
+			return BWAPI::Races::Zerg;
+		case ReturnZergGasWorker:
+			return BWAPI::Races::Zerg;
+		case TerranMarine:
+			return BWAPI::Races::Terran;
+		case TerranGhost:
+			return BWAPI::Races::Terran;
+		case TerranVulture:
+			return BWAPI::Races::Terran;
+		case TerranGoliath:
+			return BWAPI::Races::Terran;
+		case TerranSiegeTankTankMode:
+			return BWAPI::Races::Terran;
+		case TerranSCV:
+			return BWAPI::Races::Terran;
+		case TerranWraith:
+			return BWAPI::Races::Terran;
+		case TerranScienceVessel:
+			return BWAPI::Races::Terran;
+		case TerranDropship:
+			return BWAPI::Races::Terran;
+		case TerranBattlecruiser:
+			return BWAPI::Races::Terran;
+		case TerranNuclearMissile:
+			return BWAPI::Races::Terran;
+		case TerranFirebat:
+			return BWAPI::Races::Terran;
+		case TerranMedic:
+			return BWAPI::Races::Terran;
+		case ZergZergling:
+			return BWAPI::Races::Zerg;
+		case ZergHydralisk:
+			return BWAPI::Races::Zerg;
+		case ZergUltralisk:
+			return BWAPI::Races::Zerg;
+		case ZergDrone:
+			return BWAPI::Races::Zerg;
+		case ZergOverlord:
+			return BWAPI::Races::Zerg;
+		case ZergMutalisk:
+			return BWAPI::Races::Zerg;
+		case ZergGuardian:
+			return BWAPI::Races::Zerg;
+		case ZergQueen:
+			return BWAPI::Races::Zerg;
+		case ZergDefiler:
+			return BWAPI::Races::Zerg;
+		case ZergScourge:
+			return BWAPI::Races::Zerg;
+		case ZergInfestedTerran:
+			return BWAPI::Races::Zerg;
+		case TerranValkyrie:
+			return BWAPI::Races::Terran;
+		case ProtossCorsair:
+			return BWAPI::Races::Protoss;
+		case ProtossDarkTemplar:
+			return BWAPI::Races::Protoss;
+		case ZergDevourer:
+			return BWAPI::Races::Zerg;
+		case ProtossProbe:
+			return BWAPI::Races::Protoss;
+		case ProtossZealot:
+			return BWAPI::Races::Protoss;
+		case ProtossDragoon:
+			return BWAPI::Races::Protoss;
+		case ProtossHighTemplar:
+			return BWAPI::Races::Protoss;
+		case ProtossShuttle:
+			return BWAPI::Races::Protoss;
+		case ProtossScout:
+			return BWAPI::Races::Protoss;
+		case ProtossArbiter:
+			return BWAPI::Races::Protoss;
+		case ProtossCarrier:
+			return BWAPI::Races::Protoss;
+		case ProtossReaver:
+			return BWAPI::Races::Protoss;
+		case ProtossObserver:
+			return BWAPI::Races::Protoss;
+		case ZergLurker:
+			return BWAPI::Races::Zerg;
+		case TerranCommandCenter:
+			return BWAPI::Races::Terran;
+		case TerranComsatStation:
+			return BWAPI::Races::Terran;
+		case TerranNuclearSilo:
+			return BWAPI::Races::Terran;
+		case TerranSupplyDepot:
+			return BWAPI::Races::Terran;
+		case TerranRefinery:
+			return BWAPI::Races::Terran;
+		case TerranBarracks:
+			return BWAPI::Races::Terran;
+		case TerranAcademy:
+			return BWAPI::Races::Terran;
+		case TerranFactory:
+			return BWAPI::Races::Terran;
+		case TerranStarport:
+			return BWAPI::Races::Terran;
+		case TerranControlTower:
+			return BWAPI::Races::Terran;
+		case TerranScienceFacility:
+			return BWAPI::Races::Terran;
+		case TerranCovertOps:
+			return BWAPI::Races::Terran;
+		case TerranPhysicsLab:
+			return BWAPI::Races::Terran;
+		case TerranMachineShop:
+			return BWAPI::Races::Terran;
+		case TerranEngineeringBay:
+			return BWAPI::Races::Terran;
+		case TerranArmory:
+			return BWAPI::Races::Terran;
+		case TerranMissileTurret:
+			return BWAPI::Races::Terran;
+		case TerranBunker:
+			return BWAPI::Races::Terran;
+		case ZergHatchery:
+			return BWAPI::Races::Zerg;
+		case ZergLair:
+			return BWAPI::Races::Zerg;
+		case ZergHive:
+			return BWAPI::Races::Zerg;
+		case ZergNydusCanal:
+			return BWAPI::Races::Zerg;
+		case ZergHydraliskDen:
+			return BWAPI::Races::Zerg;
+		case ZergDefilerMound:
+			return BWAPI::Races::Zerg;
+		case ZergGreaterSpire:
+			return BWAPI::Races::Zerg;
+		case ZergQueensNest:
+			return BWAPI::Races::Zerg;
+		case ZergEvolutionChamber:
+			return BWAPI::Races::Zerg;
+		case ZergUltraliskCavern:
+			return BWAPI::Races::Zerg;
+		case ZergSpire:
+			return BWAPI::Races::Zerg;
+		case ZergSpawningPool:
+			return BWAPI::Races::Zerg;
+		case ZergCreepColony:
+			return BWAPI::Races::Zerg;
+		case ZergSporeColony:
+			return BWAPI::Races::Zerg;
+		case ZergSunkenColony:
+			return BWAPI::Races::Zerg;
+		case ZergExtractor:
+			return BWAPI::Races::Zerg;
+		case ProtossNexus:
+			return BWAPI::Races::Protoss;
+		case ProtossRoboticsFacility:
+			return BWAPI::Races::Protoss;
+		case ProtossPylon:
+			return BWAPI::Races::Protoss;
+		case ProtossAssimilator:
+			return BWAPI::Races::Protoss;
+		case ProtossObservatory:
+			return BWAPI::Races::Protoss;
+		case ProtossGateway:
+			return BWAPI::Races::Protoss;
+		case ProtossPhotonCannon:
+			return BWAPI::Races::Protoss;
+		case ProtossCitadelofAdun:
+			return BWAPI::Races::Protoss;
+		case ProtossCyberneticsCore:
+			return BWAPI::Races::Protoss;
+		case ProtossTemplarArchives:
+			return BWAPI::Races::Protoss;
+		case ProtossForge:
+			return BWAPI::Races::Protoss;
+		case ProtossStargate:
+			return BWAPI::Races::Protoss;
+		case ProtossFleetBeacon:
+			return BWAPI::Races::Protoss;
+		case ProtossArbiterTribunal:
+			return BWAPI::Races::Protoss;
+		case ProtossRoboticsSupportBay:
+			return BWAPI::Races::Protoss;
+		case ProtossShieldBattery:
+			return BWAPI::Races::Protoss;
+		case StimPacks:
+			return BWAPI::Races::Terran;
+		case Lockdown:
+			return BWAPI::Races::Terran;
+		case EMPShockwave:
+			return BWAPI::Races::Terran;
+		case SpiderMines:
+			return BWAPI::Races::Terran;
+		case TankSiegeMode:
+			return BWAPI::Races::Terran;
+		case Irradiate:
+			return BWAPI::Races::Terran;
+		case YamatoGun:
+			return BWAPI::Races::Terran;
+		case CloakingField:
+			return BWAPI::Races::Terran;
+		case PersonnelCloaking:
+			return BWAPI::Races::Terran;
+		case Burrowing:
+			return BWAPI::Races::Zerg;
+		case SpawnBroodlings:
+			return BWAPI::Races::Zerg;
+		case Plague:
+			return BWAPI::Races::Zerg;
+		case Consume:
+			return BWAPI::Races::Zerg;
+		case Ensnare:
+			return BWAPI::Races::Zerg;
+		case PsionicStorm:
+			return BWAPI::Races::Protoss;
+		case Hallucination:
+			return BWAPI::Races::Protoss;
+		case Recall:
+			return BWAPI::Races::Protoss;
+		case StasisField:
+			return BWAPI::Races::Protoss;
+		case Restoration:
+			return BWAPI::Races::Terran;
+		case DisruptionWeb:
+			return BWAPI::Races::Protoss;
+		case MindControl:
+			return BWAPI::Races::Protoss;
+		case OpticalFlare:
+			return BWAPI::Races::Terran;
+		case Maelstrom:
+			return BWAPI::Races::Protoss;
+		case LurkerAspect:
+			return BWAPI::Races::Zerg;
+		case TerranInfantryArmor1:
+			return BWAPI::Races::Terran;
+		case TerranInfantryArmor2:
+			return BWAPI::Races::Terran;
+		case TerranInfantryArmor3:
+			return BWAPI::Races::Terran;
+		case TerranVehiclePlating1:
+			return BWAPI::Races::Terran;
+		case TerranVehiclePlating2:
+			return BWAPI::Races::Terran;
+		case TerranVehiclePlating3:
+			return BWAPI::Races::Terran;
+		case TerranShipPlating1:
+			return BWAPI::Races::Terran;
+		case TerranShipPlating2:
+			return BWAPI::Races::Terran;
+		case TerranShipPlating3:
+			return BWAPI::Races::Terran;
+		case ZergCarapace1:
+			return BWAPI::Races::Zerg;
+		case ZergCarapace2:
+			return BWAPI::Races::Zerg;
+		case ZergCarapace3:
+			return BWAPI::Races::Zerg;
+		case ZergFlyerCarapace1:
+			return BWAPI::Races::Zerg;
+		case ZergFlyerCarapace2:
+			return BWAPI::Races::Zerg;
+		case ZergFlyerCarapace3:
+			return BWAPI::Races::Zerg;
+		case ProtossGroundArmor1:
+			return BWAPI::Races::Protoss;
+		case ProtossGroundArmor2:
+			return BWAPI::Races::Protoss;
+		case ProtossGroundArmor3:
+			return BWAPI::Races::Protoss;
+		case ProtossAirArmor1:
+			return BWAPI::Races::Protoss;
+		case ProtossAirArmor2:
+			return BWAPI::Races::Protoss;
+		case ProtossAirArmor3:
+			return BWAPI::Races::Protoss;
+		case TerranInfantryWeapons1:
+			return BWAPI::Races::Terran;
+		case TerranInfantryWeapons2:
+			return BWAPI::Races::Terran;
+		case TerranInfantryWeapons3:
+			return BWAPI::Races::Terran;
+		case TerranVehicleWeapons1:
+			return BWAPI::Races::Terran;
+		case TerranVehicleWeapons2:
+			return BWAPI::Races::Terran;
+		case TerranVehicleWeapons3:
+			return BWAPI::Races::Terran;
+		case TerranShipWeapons1:
+			return BWAPI::Races::Terran;
+		case TerranShipWeapons2:
+			return BWAPI::Races::Terran;
+		case TerranShipWeapons3:
+			return BWAPI::Races::Terran;
+		case ZergMeleeAttacks1:
+			return BWAPI::Races::Zerg;
+		case ZergMeleeAttacks2:
+			return BWAPI::Races::Zerg;
+		case ZergMeleeAttacks3:
+			return BWAPI::Races::Zerg;
+		case ZergMissileAttacks1:
+			return BWAPI::Races::Zerg;
+		case ZergMissileAttacks2:
+			return BWAPI::Races::Zerg;
+		case ZergMissileAttacks3:
+			return BWAPI::Races::Zerg;
+		case ZergFlyerAttacks1:
+			return BWAPI::Races::Zerg;
+		case ZergFlyerAttacks2:
+			return BWAPI::Races::Zerg;
+		case ZergFlyerAttacks3:
+			return BWAPI::Races::Zerg;
+		case ProtossGroundWeapons1:
+			return BWAPI::Races::Protoss;
+		case ProtossGroundWeapons2:
+			return BWAPI::Races::Protoss;
+		case ProtossGroundWeapons3:
+			return BWAPI::Races::Protoss;
+		case ProtossAirWeapons1:
+			return BWAPI::Races::Protoss;
+		case ProtossAirWeapons2:
+			return BWAPI::Races::Protoss;
+		case ProtossAirWeapons3:
+			return BWAPI::Races::Protoss;
+		case ProtossPlasmaShields1:
+			return BWAPI::Races::Protoss;
+		case ProtossPlasmaShields2:
+			return BWAPI::Races::Protoss;
+		case ProtossPlasmaShields3:
+			return BWAPI::Races::Protoss;
+		case U_238Shells1:
+			return BWAPI::Races::Terran;
+		case IonThrusters1:
+			return BWAPI::Races::Terran;
+		case TitanReactor1:
+			return BWAPI::Races::Terran;
+		case OcularImplants1:
+			return BWAPI::Races::Terran;
+		case MoebiusReactor1:
+			return BWAPI::Races::Terran;
+		case ApolloReactor1:
+			return BWAPI::Races::Terran;
+		case ColossusReactor1:
+			return BWAPI::Races::Terran;
+		case VentralSacs1:
+			return BWAPI::Races::Zerg;
+		case Antennae1:
+			return BWAPI::Races::Zerg;
+		case PneumatizedCarapace1:
+			return BWAPI::Races::Zerg;
+		case MetabolicBoost1:
+			return BWAPI::Races::Zerg;
+		case AdrenalGlands1:
+			return BWAPI::Races::Zerg;
+		case MuscularAugments1:
+			return BWAPI::Races::Zerg;
+		case GroovedSpines1:
+			return BWAPI::Races::Zerg;
+		case GameteMeiosis1:
+			return BWAPI::Races::Zerg;
+		case MetasynapticNode1:
+			return BWAPI::Races::Zerg;
+		case SingularityCharge1:
+			return BWAPI::Races::Protoss;
+		case LegEnhancements1:
+			return BWAPI::Races::Protoss;
+		case ScarabDamage1:
+			return BWAPI::Races::Protoss;
+		case ReaverCapacity1:
+			return BWAPI::Races::Protoss;
+		case GraviticDrive1:
+			return BWAPI::Races::Protoss;
+		case SensorArray1:
+			return BWAPI::Races::Protoss;
+		case GraviticBoosters1:
+			return BWAPI::Races::Protoss;
+		case KhaydarinAmulet1:
+			return BWAPI::Races::Protoss;
+		case ApialSensors1:
+			return BWAPI::Races::Protoss;
+		case GraviticThrusters1:
+			return BWAPI::Races::Protoss;
+		case CarrierCapacity1:
+			return BWAPI::Races::Protoss;
+		case KhaydarinCore1:
+			return BWAPI::Races::Protoss;
+		case ArgusJewel1:
+			return BWAPI::Races::Protoss;
+		case ArgusTalisman1:
+			return BWAPI::Races::Protoss;
+		case CaduceusReactor1:
+			return BWAPI::Races::Terran;
+		case ChitinousPlating1:
+			return BWAPI::Races::Zerg;
+		case AnabolicSynthesis1:
+			return BWAPI::Races::Zerg;
+		case CharonBoosters1:
+			return BWAPI::Races::Terran;
+		default:
+			return BWAPI::Races::None;
+	}
+}
+
+BWAPI::UnitType OperationIndex::associatedUnitType() const
+{
+	switch(index_)
+	{
+		case TerranMarine:
+			return BWAPI::UnitTypes::Terran_Marine;
+		case TerranGhost:
+			return BWAPI::UnitTypes::Terran_Ghost;
+		case TerranVulture:
+			return BWAPI::UnitTypes::Terran_Vulture;
+		case TerranGoliath:
+			return BWAPI::UnitTypes::Terran_Goliath;
+		case TerranSiegeTankTankMode:
+			return BWAPI::UnitTypes::Terran_Siege_Tank_Tank_Mode;
+		case TerranSCV:
+			return BWAPI::UnitTypes::Terran_SCV;
+		case TerranWraith:
+			return BWAPI::UnitTypes::Terran_Wraith;
+		case TerranScienceVessel:
+			return BWAPI::UnitTypes::Terran_Science_Vessel;
+		case TerranDropship:
+			return BWAPI::UnitTypes::Terran_Dropship;
+		case TerranBattlecruiser:
+			return BWAPI::UnitTypes::Terran_Battlecruiser;
+		case TerranNuclearMissile:
+			return BWAPI::UnitTypes::Terran_Nuclear_Missile;
+		case TerranFirebat:
+			return BWAPI::UnitTypes::Terran_Firebat;
+		case TerranMedic:
+			return BWAPI::UnitTypes::Terran_Medic;
+		case ZergZergling:
+			return BWAPI::UnitTypes::Zerg_Zergling;
+		case ZergHydralisk:
+			return BWAPI::UnitTypes::Zerg_Hydralisk;
+		case ZergUltralisk:
+			return BWAPI::UnitTypes::Zerg_Ultralisk;
+		case ZergDrone:
+			return BWAPI::UnitTypes::Zerg_Drone;
+		case ZergOverlord:
+			return BWAPI::UnitTypes::Zerg_Overlord;
+		case ZergMutalisk:
+			return BWAPI::UnitTypes::Zerg_Mutalisk;
+		case ZergGuardian:
+			return BWAPI::UnitTypes::Zerg_Guardian;
+		case ZergQueen:
+			return BWAPI::UnitTypes::Zerg_Queen;
+		case ZergDefiler:
+			return BWAPI::UnitTypes::Zerg_Defiler;
+		case ZergScourge:
+			return BWAPI::UnitTypes::Zerg_Scourge;
+		case ZergInfestedTerran:
+			return BWAPI::UnitTypes::Zerg_Infested_Terran;
+		case TerranValkyrie:
+			return BWAPI::UnitTypes::Terran_Valkyrie;
+		case ProtossCorsair:
+			return BWAPI::UnitTypes::Protoss_Corsair;
+		case ProtossDarkTemplar:
+			return BWAPI::UnitTypes::Protoss_Dark_Templar;
+		case ZergDevourer:
+			return BWAPI::UnitTypes::Zerg_Devourer;
+		case ProtossProbe:
+			return BWAPI::UnitTypes::Protoss_Probe;
+		case ProtossZealot:
+			return BWAPI::UnitTypes::Protoss_Zealot;
+		case ProtossDragoon:
+			return BWAPI::UnitTypes::Protoss_Dragoon;
+		case ProtossHighTemplar:
+			return BWAPI::UnitTypes::Protoss_High_Templar;
+		case ProtossShuttle:
+			return BWAPI::UnitTypes::Protoss_Shuttle;
+		case ProtossScout:
+			return BWAPI::UnitTypes::Protoss_Scout;
+		case ProtossArbiter:
+			return BWAPI::UnitTypes::Protoss_Arbiter;
+		case ProtossCarrier:
+			return BWAPI::UnitTypes::Protoss_Carrier;
+		case ProtossReaver:
+			return BWAPI::UnitTypes::Protoss_Reaver;
+		case ProtossObserver:
+			return BWAPI::UnitTypes::Protoss_Observer;
+		case ZergLurker:
+			return BWAPI::UnitTypes::Zerg_Lurker;
+		case TerranCommandCenter:
+			return BWAPI::UnitTypes::Terran_Command_Center;
+		case TerranComsatStation:
+			return BWAPI::UnitTypes::Terran_Comsat_Station;
+		case TerranNuclearSilo:
+			return BWAPI::UnitTypes::Terran_Nuclear_Silo;
+		case TerranSupplyDepot:
+			return BWAPI::UnitTypes::Terran_Supply_Depot;
+		case TerranRefinery:
+			return BWAPI::UnitTypes::Terran_Refinery;
+		case TerranBarracks:
+			return BWAPI::UnitTypes::Terran_Barracks;
+		case TerranAcademy:
+			return BWAPI::UnitTypes::Terran_Academy;
+		case TerranFactory:
+			return BWAPI::UnitTypes::Terran_Factory;
+		case TerranStarport:
+			return BWAPI::UnitTypes::Terran_Starport;
+		case TerranControlTower:
+			return BWAPI::UnitTypes::Terran_Control_Tower;
+		case TerranScienceFacility:
+			return BWAPI::UnitTypes::Terran_Science_Facility;
+		case TerranCovertOps:
+			return BWAPI::UnitTypes::Terran_Covert_Ops;
+		case TerranPhysicsLab:
+			return BWAPI::UnitTypes::Terran_Physics_Lab;
+		case TerranMachineShop:
+			return BWAPI::UnitTypes::Terran_Machine_Shop;
+		case TerranEngineeringBay:
+			return BWAPI::UnitTypes::Terran_Engineering_Bay;
+		case TerranArmory:
+			return BWAPI::UnitTypes::Terran_Armory;
+		case TerranMissileTurret:
+			return BWAPI::UnitTypes::Terran_Missile_Turret;
+		case TerranBunker:
+			return BWAPI::UnitTypes::Terran_Bunker;
+		case ZergHatchery:
+			return BWAPI::UnitTypes::Zerg_Hatchery;
+		case ZergLair:
+			return BWAPI::UnitTypes::Zerg_Lair;
+		case ZergHive:
+			return BWAPI::UnitTypes::Zerg_Hive;
+		case ZergNydusCanal:
+			return BWAPI::UnitTypes::Zerg_Nydus_Canal;
+		case ZergHydraliskDen:
+			return BWAPI::UnitTypes::Zerg_Hydralisk_Den;
+		case ZergDefilerMound:
+			return BWAPI::UnitTypes::Zerg_Defiler_Mound;
+		case ZergGreaterSpire:
+			return BWAPI::UnitTypes::Zerg_Greater_Spire;
+		case ZergQueensNest:
+			return BWAPI::UnitTypes::Zerg_Queens_Nest;
+		case ZergEvolutionChamber:
+			return BWAPI::UnitTypes::Zerg_Evolution_Chamber;
+		case ZergUltraliskCavern:
+			return BWAPI::UnitTypes::Zerg_Ultralisk_Cavern;
+		case ZergSpire:
+			return BWAPI::UnitTypes::Zerg_Spire;
+		case ZergSpawningPool:
+			return BWAPI::UnitTypes::Zerg_Spawning_Pool;
+		case ZergCreepColony:
+			return BWAPI::UnitTypes::Zerg_Creep_Colony;
+		case ZergSporeColony:
+			return BWAPI::UnitTypes::Zerg_Spore_Colony;
+		case ZergSunkenColony:
+			return BWAPI::UnitTypes::Zerg_Sunken_Colony;
+		case ZergExtractor:
+			return BWAPI::UnitTypes::Zerg_Extractor;
+		case ProtossNexus:
+			return BWAPI::UnitTypes::Protoss_Nexus;
+		case ProtossRoboticsFacility:
+			return BWAPI::UnitTypes::Protoss_Robotics_Facility;
+		case ProtossPylon:
+			return BWAPI::UnitTypes::Protoss_Pylon;
+		case ProtossAssimilator:
+			return BWAPI::UnitTypes::Protoss_Assimilator;
+		case ProtossObservatory:
+			return BWAPI::UnitTypes::Protoss_Observatory;
+		case ProtossGateway:
+			return BWAPI::UnitTypes::Protoss_Gateway;
+		case ProtossPhotonCannon:
+			return BWAPI::UnitTypes::Protoss_Photon_Cannon;
+		case ProtossCitadelofAdun:
+			return BWAPI::UnitTypes::Protoss_Citadel_of_Adun;
+		case ProtossCyberneticsCore:
+			return BWAPI::UnitTypes::Protoss_Cybernetics_Core;
+		case ProtossTemplarArchives:
+			return BWAPI::UnitTypes::Protoss_Templar_Archives;
+		case ProtossForge:
+			return BWAPI::UnitTypes::Protoss_Forge;
+		case ProtossStargate:
+			return BWAPI::UnitTypes::Protoss_Stargate;
+		case ProtossFleetBeacon:
+			return BWAPI::UnitTypes::Protoss_Fleet_Beacon;
+		case ProtossArbiterTribunal:
+			return BWAPI::UnitTypes::Protoss_Arbiter_Tribunal;
+		case ProtossRoboticsSupportBay:
+			return BWAPI::UnitTypes::Protoss_Robotics_Support_Bay;
+		case ProtossShieldBattery:
+			return BWAPI::UnitTypes::Protoss_Shield_Battery;
+		default:
+			return BWAPI::UnitTypes::None;
+	}
+}
+
+BWAPI::TechType OperationIndex::associatedTechType() const
+{
+	switch(index_)
+	{
+		case StimPacks:
+			return BWAPI::TechTypes::Stim_Packs;
+		case Lockdown:
+			return BWAPI::TechTypes::Lockdown;
+		case EMPShockwave:
+			return BWAPI::TechTypes::EMP_Shockwave;
+		case SpiderMines:
+			return BWAPI::TechTypes::Spider_Mines;
+		case TankSiegeMode:
+			return BWAPI::TechTypes::Tank_Siege_Mode;
+		case Irradiate:
+			return BWAPI::TechTypes::Irradiate;
+		case YamatoGun:
+			return BWAPI::TechTypes::Yamato_Gun;
+		case CloakingField:
+			return BWAPI::TechTypes::Cloaking_Field;
+		case PersonnelCloaking:
+			return BWAPI::TechTypes::Personnel_Cloaking;
+		case Burrowing:
+			return BWAPI::TechTypes::Burrowing;
+		case SpawnBroodlings:
+			return BWAPI::TechTypes::Spawn_Broodlings;
+		case Plague:
+			return BWAPI::TechTypes::Plague;
+		case Consume:
+			return BWAPI::TechTypes::Consume;
+		case Ensnare:
+			return BWAPI::TechTypes::Ensnare;
+		case PsionicStorm:
+			return BWAPI::TechTypes::Psionic_Storm;
+		case Hallucination:
+			return BWAPI::TechTypes::Hallucination;
+		case Recall:
+			return BWAPI::TechTypes::Recall;
+		case StasisField:
+			return BWAPI::TechTypes::Stasis_Field;
+		case Restoration:
+			return BWAPI::TechTypes::Restoration;
+		case DisruptionWeb:
+			return BWAPI::TechTypes::Disruption_Web;
+		case MindControl:
+			return BWAPI::TechTypes::Mind_Control;
+		case OpticalFlare:
+			return BWAPI::TechTypes::Optical_Flare;
+		case Maelstrom:
+			return BWAPI::TechTypes::Maelstrom;
+		case LurkerAspect:
+			return BWAPI::TechTypes::Lurker_Aspect;
+		default:
+			return BWAPI::TechTypes::None;
+	}
+}
+
+BWAPI::UpgradeType OperationIndex::associatedUpgradeType() const
+{
+	switch(index_)
+	{
+		case TerranInfantryArmor1:
+			return BWAPI::UpgradeTypes::Terran_Infantry_Armor;
+		case TerranInfantryArmor2:
+			return BWAPI::UpgradeTypes::Terran_Infantry_Armor;
+		case TerranInfantryArmor3:
+			return BWAPI::UpgradeTypes::Terran_Infantry_Armor;
+		case TerranVehiclePlating1:
+			return BWAPI::UpgradeTypes::Terran_Vehicle_Plating;
+		case TerranVehiclePlating2:
+			return BWAPI::UpgradeTypes::Terran_Vehicle_Plating;
+		case TerranVehiclePlating3:
+			return BWAPI::UpgradeTypes::Terran_Vehicle_Plating;
+		case TerranShipPlating1:
+			return BWAPI::UpgradeTypes::Terran_Ship_Plating;
+		case TerranShipPlating2:
+			return BWAPI::UpgradeTypes::Terran_Ship_Plating;
+		case TerranShipPlating3:
+			return BWAPI::UpgradeTypes::Terran_Ship_Plating;
+		case ZergCarapace1:
+			return BWAPI::UpgradeTypes::Zerg_Carapace;
+		case ZergCarapace2:
+			return BWAPI::UpgradeTypes::Zerg_Carapace;
+		case ZergCarapace3:
+			return BWAPI::UpgradeTypes::Zerg_Carapace;
+		case ZergFlyerCarapace1:
+			return BWAPI::UpgradeTypes::Zerg_Flyer_Carapace;
+		case ZergFlyerCarapace2:
+			return BWAPI::UpgradeTypes::Zerg_Flyer_Carapace;
+		case ZergFlyerCarapace3:
+			return BWAPI::UpgradeTypes::Zerg_Flyer_Carapace;
+		case ProtossGroundArmor1:
+			return BWAPI::UpgradeTypes::Protoss_Ground_Armor;
+		case ProtossGroundArmor2:
+			return BWAPI::UpgradeTypes::Protoss_Ground_Armor;
+		case ProtossGroundArmor3:
+			return BWAPI::UpgradeTypes::Protoss_Ground_Armor;
+		case ProtossAirArmor1:
+			return BWAPI::UpgradeTypes::Protoss_Air_Armor;
+		case ProtossAirArmor2:
+			return BWAPI::UpgradeTypes::Protoss_Air_Armor;
+		case ProtossAirArmor3:
+			return BWAPI::UpgradeTypes::Protoss_Air_Armor;
+		case TerranInfantryWeapons1:
+			return BWAPI::UpgradeTypes::Terran_Infantry_Weapons;
+		case TerranInfantryWeapons2:
+			return BWAPI::UpgradeTypes::Terran_Infantry_Weapons;
+		case TerranInfantryWeapons3:
+			return BWAPI::UpgradeTypes::Terran_Infantry_Weapons;
+		case TerranVehicleWeapons1:
+			return BWAPI::UpgradeTypes::Terran_Vehicle_Weapons;
+		case TerranVehicleWeapons2:
+			return BWAPI::UpgradeTypes::Terran_Vehicle_Weapons;
+		case TerranVehicleWeapons3:
+			return BWAPI::UpgradeTypes::Terran_Vehicle_Weapons;
+		case TerranShipWeapons1:
+			return BWAPI::UpgradeTypes::Terran_Ship_Weapons;
+		case TerranShipWeapons2:
+			return BWAPI::UpgradeTypes::Terran_Ship_Weapons;
+		case TerranShipWeapons3:
+			return BWAPI::UpgradeTypes::Terran_Ship_Weapons;
+		case ZergMeleeAttacks1:
+			return BWAPI::UpgradeTypes::Zerg_Melee_Attacks;
+		case ZergMeleeAttacks2:
+			return BWAPI::UpgradeTypes::Zerg_Melee_Attacks;
+		case ZergMeleeAttacks3:
+			return BWAPI::UpgradeTypes::Zerg_Melee_Attacks;
+		case ZergMissileAttacks1:
+			return BWAPI::UpgradeTypes::Zerg_Missile_Attacks;
+		case ZergMissileAttacks2:
+			return BWAPI::UpgradeTypes::Zerg_Missile_Attacks;
+		case ZergMissileAttacks3:
+			return BWAPI::UpgradeTypes::Zerg_Missile_Attacks;
+		case ZergFlyerAttacks1:
+			return BWAPI::UpgradeTypes::Zerg_Flyer_Attacks;
+		case ZergFlyerAttacks2:
+			return BWAPI::UpgradeTypes::Zerg_Flyer_Attacks;
+		case ZergFlyerAttacks3:
+			return BWAPI::UpgradeTypes::Zerg_Flyer_Attacks;
+		case ProtossGroundWeapons1:
+			return BWAPI::UpgradeTypes::Protoss_Ground_Weapons;
+		case ProtossGroundWeapons2:
+			return BWAPI::UpgradeTypes::Protoss_Ground_Weapons;
+		case ProtossGroundWeapons3:
+			return BWAPI::UpgradeTypes::Protoss_Ground_Weapons;
+		case ProtossAirWeapons1:
+			return BWAPI::UpgradeTypes::Protoss_Air_Weapons;
+		case ProtossAirWeapons2:
+			return BWAPI::UpgradeTypes::Protoss_Air_Weapons;
+		case ProtossAirWeapons3:
+			return BWAPI::UpgradeTypes::Protoss_Air_Weapons;
+		case ProtossPlasmaShields1:
+			return BWAPI::UpgradeTypes::Protoss_Plasma_Shields;
+		case ProtossPlasmaShields2:
+			return BWAPI::UpgradeTypes::Protoss_Plasma_Shields;
+		case ProtossPlasmaShields3:
+			return BWAPI::UpgradeTypes::Protoss_Plasma_Shields;
+		case U_238Shells1:
+			return BWAPI::UpgradeTypes::U_238_Shells;
+		case IonThrusters1:
+			return BWAPI::UpgradeTypes::Ion_Thrusters;
+		case TitanReactor1:
+			return BWAPI::UpgradeTypes::Titan_Reactor;
+		case OcularImplants1:
+			return BWAPI::UpgradeTypes::Ocular_Implants;
+		case MoebiusReactor1:
+			return BWAPI::UpgradeTypes::Moebius_Reactor;
+		case ApolloReactor1:
+			return BWAPI::UpgradeTypes::Apollo_Reactor;
+		case ColossusReactor1:
+			return BWAPI::UpgradeTypes::Colossus_Reactor;
+		case VentralSacs1:
+			return BWAPI::UpgradeTypes::Ventral_Sacs;
+		case Antennae1:
+			return BWAPI::UpgradeTypes::Antennae;
+		case PneumatizedCarapace1:
+			return BWAPI::UpgradeTypes::Pneumatized_Carapace;
+		case MetabolicBoost1:
+			return BWAPI::UpgradeTypes::Metabolic_Boost;
+		case AdrenalGlands1:
+			return BWAPI::UpgradeTypes::Adrenal_Glands;
+		case MuscularAugments1:
+			return BWAPI::UpgradeTypes::Muscular_Augments;
+		case GroovedSpines1:
+			return BWAPI::UpgradeTypes::Grooved_Spines;
+		case GameteMeiosis1:
+			return BWAPI::UpgradeTypes::Gamete_Meiosis;
+		case MetasynapticNode1:
+			return BWAPI::UpgradeTypes::Metasynaptic_Node;
+		case SingularityCharge1:
+			return BWAPI::UpgradeTypes::Singularity_Charge;
+		case LegEnhancements1:
+			return BWAPI::UpgradeTypes::Leg_Enhancements;
+		case ScarabDamage1:
+			return BWAPI::UpgradeTypes::Scarab_Damage;
+		case ReaverCapacity1:
+			return BWAPI::UpgradeTypes::Reaver_Capacity;
+		case GraviticDrive1:
+			return BWAPI::UpgradeTypes::Gravitic_Drive;
+		case SensorArray1:
+			return BWAPI::UpgradeTypes::Sensor_Array;
+		case GraviticBoosters1:
+			return BWAPI::UpgradeTypes::Gravitic_Boosters;
+		case KhaydarinAmulet1:
+			return BWAPI::UpgradeTypes::Khaydarin_Amulet;
+		case ApialSensors1:
+			return BWAPI::UpgradeTypes::Apial_Sensors;
+		case GraviticThrusters1:
+			return BWAPI::UpgradeTypes::Gravitic_Thrusters;
+		case CarrierCapacity1:
+			return BWAPI::UpgradeTypes::Carrier_Capacity;
+		case KhaydarinCore1:
+			return BWAPI::UpgradeTypes::Khaydarin_Core;
+		case ArgusJewel1:
+			return BWAPI::UpgradeTypes::Argus_Jewel;
+		case ArgusTalisman1:
+			return BWAPI::UpgradeTypes::Argus_Talisman;
+		case CaduceusReactor1:
+			return BWAPI::UpgradeTypes::Caduceus_Reactor;
+		case ChitinousPlating1:
+			return BWAPI::UpgradeTypes::Chitinous_Plating;
+		case AnabolicSynthesis1:
+			return BWAPI::UpgradeTypes::Anabolic_Synthesis;
+		case CharonBoosters1:
+			return BWAPI::UpgradeTypes::Charon_Boosters;
+		default:
+			return BWAPI::UpgradeTypes::None;
+	}
+}
+
+TimeType Operation::duration() const
+{
+	switch(index_.getType())
+	{
+		case OI::SendTerranGasWorker:
+			return 1;
+		case OI::ReturnTerranGasWorker:
+			return 1;
+		case OI::SendProtossGasWorker:
+			return 1;
+		case OI::ReturnProtossGasWorker:
+			return 1;
+		case OI::SendZergGasWorker:
+			return 1;
+		case OI::ReturnZergGasWorker:
+			return 1;
+		case OI::TerranMarine:
 			return 361;
-		case BuildTerranGhost:
+		case OI::TerranGhost:
 			return 751;
-		case BuildTerranVulture:
+		case OI::TerranVulture:
 			return 451;
-		case BuildTerranGoliath:
+		case OI::TerranGoliath:
 			return 601;
-		case BuildTerranSiegeTankTankMode:
+		case OI::TerranSiegeTankTankMode:
 			return 751;
-		case BuildTerranSCV:
+		case OI::TerranSCV:
 			return 301;
-		case BuildTerranWraith:
+		case OI::TerranWraith:
 			return 901;
-		case BuildTerranScienceVessel:
+		case OI::TerranScienceVessel:
 			return 1201;
-		case BuildTerranDropship:
+		case OI::TerranDropship:
 			return 751;
-		case BuildTerranBattlecruiser:
+		case OI::TerranBattlecruiser:
 			return 2001;
-		case BuildTerranNuclearMissile:
+		case OI::TerranNuclearMissile:
 			return 1501;
-		case BuildTerranFirebat:
+		case OI::TerranFirebat:
 			return 361;
-		case BuildTerranMedic:
+		case OI::TerranMedic:
 			return 451;
-		case BuildZergZergling:
+		case OI::ZergZergling:
 			return 420;
-		case BuildZergHydralisk:
+		case OI::ZergHydralisk:
 			return 420;
-		case BuildZergUltralisk:
+		case OI::ZergUltralisk:
 			return 900;
-		case BuildZergDrone:
+		case OI::ZergDrone:
 			return 301;
-		case BuildZergOverlord:
+		case OI::ZergOverlord:
 			return 601;
-		case BuildZergMutalisk:
+		case OI::ZergMutalisk:
 			return 600;
-		case BuildZergGuardian:
-			return 600;
-		case BuildZergQueen:
+		case OI::ZergGuardian:
+			return 1200;
+		case OI::ZergQueen:
 			return 750;
-		case BuildZergDefiler:
+		case OI::ZergDefiler:
 			return 750;
-		case BuildZergScourge:
+		case OI::ZergScourge:
 			return 450;
-		case BuildZergInfestedTerran:
+		case OI::ZergInfestedTerran:
 			return 600;
-		case BuildTerranValkyrie:
+		case OI::TerranValkyrie:
 			return 751;
-		case BuildProtossCorsair:
+		case OI::ProtossCorsair:
 			return 601;
-		case BuildProtossDarkTemplar:
+		case OI::ProtossDarkTemplar:
 			return 751;
-		case BuildZergDevourer:
-			return 600;
-		case BuildProtossProbe:
+		case OI::ZergDevourer:
+			return 1200;
+		case OI::ProtossProbe:
 			return 301;
-		case BuildProtossZealot:
+		case OI::ProtossZealot:
 			return 601;
-		case BuildProtossDragoon:
+		case OI::ProtossDragoon:
 			return 751;
-		case BuildProtossHighTemplar:
+		case OI::ProtossHighTemplar:
 			return 751;
-		case BuildProtossShuttle:
+		case OI::ProtossShuttle:
 			return 901;
-		case BuildProtossScout:
+		case OI::ProtossScout:
 			return 1201;
-		case BuildProtossArbiter:
+		case OI::ProtossArbiter:
 			return 2401;
-		case BuildProtossCarrier:
+		case OI::ProtossCarrier:
 			return 2101;
-		case BuildProtossReaver:
+		case OI::ProtossReaver:
 			return 1051;
-		case BuildProtossObserver:
+		case OI::ProtossObserver:
 			return 601;
-		case BuildZergLurker:
-			return 600;
-		case BuildTerranCommandCenter:
+		case OI::ZergLurker:
+			return 1020;
+		case OI::TerranCommandCenter:
 			return 1846;
-		case BuildTerranComsatStation:
+		case OI::TerranComsatStation:
 			return 601;
-		case BuildTerranNuclearSilo:
+		case OI::TerranNuclearSilo:
 			return 1201;
-		case BuildTerranSupplyDepot:
+		case OI::TerranSupplyDepot:
 			return 646;
-		case BuildTerranRefinery:
+		case OI::TerranRefinery:
 			return 646;
-		case BuildTerranBarracks:
+		case OI::TerranBarracks:
 			return 1246;
-		case BuildTerranAcademy:
+		case OI::TerranAcademy:
 			return 1246;
-		case BuildTerranFactory:
+		case OI::TerranFactory:
 			return 1246;
-		case BuildTerranStarport:
+		case OI::TerranStarport:
 			return 1096;
-		case BuildTerranControlTower:
+		case OI::TerranControlTower:
 			return 601;
-		case BuildTerranScienceFacility:
+		case OI::TerranScienceFacility:
 			return 946;
-		case BuildTerranCovertOps:
+		case OI::TerranCovertOps:
 			return 601;
-		case BuildTerranPhysicsLab:
+		case OI::TerranPhysicsLab:
 			return 601;
-		case BuildTerranMachineShop:
+		case OI::TerranMachineShop:
 			return 601;
-		case BuildTerranEngineeringBay:
+		case OI::TerranEngineeringBay:
 			return 946;
-		case BuildTerranArmory:
+		case OI::TerranArmory:
 			return 1246;
-		case BuildTerranMissileTurret:
+		case OI::TerranMissileTurret:
 			return 496;
-		case BuildTerranBunker:
+		case OI::TerranBunker:
 			return 496;
-		case BuildZergHatchery:
+		case OI::ZergHatchery:
 			return 1846;
-		case BuildZergLair:
-			return 1546;
-		case BuildZergHive:
-			return 1846;
-		case BuildZergNydusCanal:
+		case OI::ZergLair:
+			return 1501;
+		case OI::ZergHive:
+			return 1801;
+		case OI::ZergNydusCanal:
 			return 646;
-		case BuildZergHydraliskDen:
+		case OI::ZergHydraliskDen:
 			return 646;
-		case BuildZergDefilerMound:
+		case OI::ZergDefilerMound:
 			return 946;
-		case BuildZergGreaterSpire:
+		case OI::ZergGreaterSpire:
 			return 1846;
-		case BuildZergQueensNest:
+		case OI::ZergQueensNest:
 			return 946;
-		case BuildZergEvolutionChamber:
+		case OI::ZergEvolutionChamber:
 			return 646;
-		case BuildZergUltraliskCavern:
+		case OI::ZergUltraliskCavern:
 			return 1246;
-		case BuildZergSpire:
+		case OI::ZergSpire:
 			return 1846;
-		case BuildZergSpawningPool:
+		case OI::ZergSpawningPool:
 			return 1246;
-		case BuildZergCreepColony:
+		case OI::ZergCreepColony:
 			return 346;
-		case BuildZergSporeColony:
-			return 346;
-		case BuildZergSunkenColony:
-			return 346;
-		case BuildZergExtractor:
+		case OI::ZergSporeColony:
+			return 647;
+		case OI::ZergSunkenColony:
+			return 647;
+		case OI::ZergExtractor:
 			return 646;
-		case BuildProtossNexus:
+		case OI::ProtossNexus:
 			return 1846;
-		case BuildProtossRoboticsFacility:
+		case OI::ProtossRoboticsFacility:
 			return 1246;
-		case BuildProtossPylon:
+		case OI::ProtossPylon:
 			return 496;
-		case BuildProtossAssimilator:
+		case OI::ProtossAssimilator:
 			return 646;
-		case BuildProtossObservatory:
+		case OI::ProtossObservatory:
 			return 496;
-		case BuildProtossGateway:
+		case OI::ProtossGateway:
 			return 946;
-		case BuildProtossPhotonCannon:
+		case OI::ProtossPhotonCannon:
 			return 796;
-		case BuildProtossCitadelofAdun:
+		case OI::ProtossCitadelofAdun:
 			return 946;
-		case BuildProtossCyberneticsCore:
+		case OI::ProtossCyberneticsCore:
 			return 946;
-		case BuildProtossTemplarArchives:
+		case OI::ProtossTemplarArchives:
 			return 946;
-		case BuildProtossForge:
+		case OI::ProtossForge:
 			return 646;
-		case BuildProtossStargate:
+		case OI::ProtossStargate:
 			return 1096;
-		case BuildProtossFleetBeacon:
+		case OI::ProtossFleetBeacon:
 			return 946;
-		case BuildProtossArbiterTribunal:
+		case OI::ProtossArbiterTribunal:
 			return 946;
-		case BuildProtossRoboticsSupportBay:
+		case OI::ProtossRoboticsSupportBay:
 			return 496;
-		case BuildProtossShieldBattery:
+		case OI::ProtossShieldBattery:
 			return 496;
-		case TechStimPacks:
+		case OI::StimPacks:
 			return 1201;
-		case TechLockdown:
+		case OI::Lockdown:
 			return 1501;
-		case TechEMPShockwave:
+		case OI::EMPShockwave:
 			return 1801;
-		case TechSpiderMines:
+		case OI::SpiderMines:
 			return 1201;
-		case TechTankSiegeMode:
+		case OI::TankSiegeMode:
 			return 1201;
-		case TechIrradiate:
+		case OI::Irradiate:
 			return 1201;
-		case TechYamatoGun:
+		case OI::YamatoGun:
 			return 1801;
-		case TechCloakingField:
+		case OI::CloakingField:
 			return 1501;
-		case TechPersonnelCloaking:
+		case OI::PersonnelCloaking:
 			return 1201;
-		case TechBurrowing:
+		case OI::Burrowing:
 			return 1201;
-		case TechSpawnBroodlings:
+		case OI::SpawnBroodlings:
 			return 1201;
-		case TechPlague:
+		case OI::Plague:
 			return 1501;
-		case TechConsume:
+		case OI::Consume:
 			return 1501;
-		case TechEnsnare:
+		case OI::Ensnare:
 			return 1201;
-		case TechPsionicStorm:
+		case OI::PsionicStorm:
 			return 1801;
-		case TechHallucination:
+		case OI::Hallucination:
 			return 1201;
-		case TechRecall:
+		case OI::Recall:
 			return 1801;
-		case TechStasisField:
+		case OI::StasisField:
 			return 1501;
-		case TechRestoration:
+		case OI::Restoration:
 			return 1201;
-		case TechDisruptionWeb:
+		case OI::DisruptionWeb:
 			return 1201;
-		case TechMindControl:
+		case OI::MindControl:
 			return 1801;
-		case TechOpticalFlare:
+		case OI::OpticalFlare:
 			return 1801;
-		case TechMaelstrom:
+		case OI::Maelstrom:
 			return 1501;
-		case TechLurkerAspect:
+		case OI::LurkerAspect:
 			return 1801;
+		case OI::TerranInfantryArmor1:
+			return 4001;
+		case OI::TerranInfantryArmor2:
+			return 4481;
+		case OI::TerranInfantryArmor3:
+			return 4961;
+		case OI::TerranVehiclePlating1:
+			return 4001;
+		case OI::TerranVehiclePlating2:
+			return 4481;
+		case OI::TerranVehiclePlating3:
+			return 4961;
+		case OI::TerranShipPlating1:
+			return 4001;
+		case OI::TerranShipPlating2:
+			return 4481;
+		case OI::TerranShipPlating3:
+			return 4961;
+		case OI::ZergCarapace1:
+			return 4001;
+		case OI::ZergCarapace2:
+			return 4481;
+		case OI::ZergCarapace3:
+			return 4961;
+		case OI::ZergFlyerCarapace1:
+			return 4001;
+		case OI::ZergFlyerCarapace2:
+			return 4481;
+		case OI::ZergFlyerCarapace3:
+			return 4961;
+		case OI::ProtossGroundArmor1:
+			return 4001;
+		case OI::ProtossGroundArmor2:
+			return 4481;
+		case OI::ProtossGroundArmor3:
+			return 4961;
+		case OI::ProtossAirArmor1:
+			return 4001;
+		case OI::ProtossAirArmor2:
+			return 4481;
+		case OI::ProtossAirArmor3:
+			return 4961;
+		case OI::TerranInfantryWeapons1:
+			return 4001;
+		case OI::TerranInfantryWeapons2:
+			return 4481;
+		case OI::TerranInfantryWeapons3:
+			return 4961;
+		case OI::TerranVehicleWeapons1:
+			return 4001;
+		case OI::TerranVehicleWeapons2:
+			return 4481;
+		case OI::TerranVehicleWeapons3:
+			return 4961;
+		case OI::TerranShipWeapons1:
+			return 4001;
+		case OI::TerranShipWeapons2:
+			return 4481;
+		case OI::TerranShipWeapons3:
+			return 4961;
+		case OI::ZergMeleeAttacks1:
+			return 4001;
+		case OI::ZergMeleeAttacks2:
+			return 4481;
+		case OI::ZergMeleeAttacks3:
+			return 4961;
+		case OI::ZergMissileAttacks1:
+			return 4001;
+		case OI::ZergMissileAttacks2:
+			return 4481;
+		case OI::ZergMissileAttacks3:
+			return 4961;
+		case OI::ZergFlyerAttacks1:
+			return 4001;
+		case OI::ZergFlyerAttacks2:
+			return 4481;
+		case OI::ZergFlyerAttacks3:
+			return 4961;
+		case OI::ProtossGroundWeapons1:
+			return 4001;
+		case OI::ProtossGroundWeapons2:
+			return 4481;
+		case OI::ProtossGroundWeapons3:
+			return 4961;
+		case OI::ProtossAirWeapons1:
+			return 4001;
+		case OI::ProtossAirWeapons2:
+			return 4481;
+		case OI::ProtossAirWeapons3:
+			return 4961;
+		case OI::ProtossPlasmaShields1:
+			return 4001;
+		case OI::ProtossPlasmaShields2:
+			return 4481;
+		case OI::ProtossPlasmaShields3:
+			return 4961;
+		case OI::U_238Shells1:
+			return 1501;
+		case OI::IonThrusters1:
+			return 1501;
+		case OI::TitanReactor1:
+			return 2501;
+		case OI::OcularImplants1:
+			return 2501;
+		case OI::MoebiusReactor1:
+			return 2501;
+		case OI::ApolloReactor1:
+			return 2501;
+		case OI::ColossusReactor1:
+			return 2501;
+		case OI::VentralSacs1:
+			return 2401;
+		case OI::Antennae1:
+			return 2001;
+		case OI::PneumatizedCarapace1:
+			return 2001;
+		case OI::MetabolicBoost1:
+			return 1501;
+		case OI::AdrenalGlands1:
+			return 1501;
+		case OI::MuscularAugments1:
+			return 1501;
+		case OI::GroovedSpines1:
+			return 1501;
+		case OI::GameteMeiosis1:
+			return 2501;
+		case OI::MetasynapticNode1:
+			return 2501;
+		case OI::SingularityCharge1:
+			return 2501;
+		case OI::LegEnhancements1:
+			return 2001;
+		case OI::ScarabDamage1:
+			return 2501;
+		case OI::ReaverCapacity1:
+			return 2501;
+		case OI::GraviticDrive1:
+			return 2501;
+		case OI::SensorArray1:
+			return 2001;
+		case OI::GraviticBoosters1:
+			return 2001;
+		case OI::KhaydarinAmulet1:
+			return 2501;
+		case OI::ApialSensors1:
+			return 2501;
+		case OI::GraviticThrusters1:
+			return 2501;
+		case OI::CarrierCapacity1:
+			return 1501;
+		case OI::KhaydarinCore1:
+			return 2501;
+		case OI::ArgusJewel1:
+			return 2501;
+		case OI::ArgusTalisman1:
+			return 2501;
+		case OI::CaduceusReactor1:
+			return 2501;
+		case OI::ChitinousPlating1:
+			return 2001;
+		case OI::AnabolicSynthesis1:
+			return 2001;
+		case OI::CharonBoosters1:
+			return 2001;
 		default:
 			return 0;
 	}
@@ -735,244 +2501,468 @@ TimeType Operation::duration() const
 
 int Operation::stageCount() const
 {
-	switch(index_)
+	switch(index_.getType())
 	{
-		case BuildTerranMarine:
-			return 2;
-		case BuildTerranGhost:
-			return 2;
-		case BuildTerranVulture:
-			return 2;
-		case BuildTerranGoliath:
-			return 2;
-		case BuildTerranSiegeTankTankMode:
-			return 2;
-		case BuildTerranSCV:
-			return 2;
-		case BuildTerranWraith:
-			return 2;
-		case BuildTerranScienceVessel:
-			return 2;
-		case BuildTerranDropship:
-			return 2;
-		case BuildTerranBattlecruiser:
-			return 2;
-		case BuildTerranNuclearMissile:
-			return 2;
-		case BuildTerranFirebat:
-			return 2;
-		case BuildTerranMedic:
-			return 2;
-		case BuildZergZergling:
+		case OI::SendTerranGasWorker:
 			return 1;
-		case BuildZergHydralisk:
+		case OI::ReturnTerranGasWorker:
 			return 1;
-		case BuildZergUltralisk:
+		case OI::SendProtossGasWorker:
 			return 1;
-		case BuildZergDrone:
-			return 2;
-		case BuildZergOverlord:
-			return 2;
-		case BuildZergMutalisk:
+		case OI::ReturnProtossGasWorker:
 			return 1;
-		case BuildZergGuardian:
+		case OI::SendZergGasWorker:
 			return 1;
-		case BuildZergQueen:
+		case OI::ReturnZergGasWorker:
 			return 1;
-		case BuildZergDefiler:
+		case OI::TerranMarine:
+			return 2;
+		case OI::TerranGhost:
+			return 2;
+		case OI::TerranVulture:
+			return 2;
+		case OI::TerranGoliath:
+			return 2;
+		case OI::TerranSiegeTankTankMode:
+			return 2;
+		case OI::TerranSCV:
+			return 2;
+		case OI::TerranWraith:
+			return 2;
+		case OI::TerranScienceVessel:
+			return 2;
+		case OI::TerranDropship:
+			return 2;
+		case OI::TerranBattlecruiser:
+			return 2;
+		case OI::TerranNuclearMissile:
+			return 2;
+		case OI::TerranFirebat:
+			return 2;
+		case OI::TerranMedic:
+			return 2;
+		case OI::ZergZergling:
 			return 1;
-		case BuildZergScourge:
+		case OI::ZergHydralisk:
 			return 1;
-		case BuildZergInfestedTerran:
+		case OI::ZergUltralisk:
 			return 1;
-		case BuildTerranValkyrie:
+		case OI::ZergDrone:
 			return 2;
-		case BuildProtossCorsair:
+		case OI::ZergOverlord:
 			return 2;
-		case BuildProtossDarkTemplar:
-			return 2;
-		case BuildZergDevourer:
+		case OI::ZergMutalisk:
 			return 1;
-		case BuildProtossProbe:
+		case OI::ZergGuardian:
 			return 2;
-		case BuildProtossZealot:
-			return 2;
-		case BuildProtossDragoon:
-			return 2;
-		case BuildProtossHighTemplar:
-			return 2;
-		case BuildProtossShuttle:
-			return 2;
-		case BuildProtossScout:
-			return 2;
-		case BuildProtossArbiter:
-			return 2;
-		case BuildProtossCarrier:
-			return 2;
-		case BuildProtossReaver:
-			return 2;
-		case BuildProtossObserver:
-			return 2;
-		case BuildZergLurker:
+		case OI::ZergQueen:
 			return 1;
-		case BuildTerranCommandCenter:
-			return 3;
-		case BuildTerranComsatStation:
+		case OI::ZergDefiler:
+			return 1;
+		case OI::ZergScourge:
+			return 1;
+		case OI::ZergInfestedTerran:
+			return 1;
+		case OI::TerranValkyrie:
 			return 2;
-		case BuildTerranNuclearSilo:
+		case OI::ProtossCorsair:
 			return 2;
-		case BuildTerranSupplyDepot:
-			return 3;
-		case BuildTerranRefinery:
-			return 3;
-		case BuildTerranBarracks:
-			return 3;
-		case BuildTerranAcademy:
-			return 3;
-		case BuildTerranFactory:
-			return 3;
-		case BuildTerranStarport:
-			return 3;
-		case BuildTerranControlTower:
+		case OI::ProtossDarkTemplar:
 			return 2;
-		case BuildTerranScienceFacility:
-			return 3;
-		case BuildTerranCovertOps:
+		case OI::ZergDevourer:
 			return 2;
-		case BuildTerranPhysicsLab:
+		case OI::ProtossProbe:
 			return 2;
-		case BuildTerranMachineShop:
+		case OI::ProtossZealot:
 			return 2;
-		case BuildTerranEngineeringBay:
-			return 3;
-		case BuildTerranArmory:
-			return 3;
-		case BuildTerranMissileTurret:
-			return 3;
-		case BuildTerranBunker:
-			return 3;
-		case BuildZergHatchery:
-			return 3;
-		case BuildZergLair:
-			return 3;
-		case BuildZergHive:
-			return 3;
-		case BuildZergNydusCanal:
-			return 3;
-		case BuildZergHydraliskDen:
-			return 3;
-		case BuildZergDefilerMound:
-			return 3;
-		case BuildZergGreaterSpire:
-			return 3;
-		case BuildZergQueensNest:
-			return 3;
-		case BuildZergEvolutionChamber:
-			return 3;
-		case BuildZergUltraliskCavern:
-			return 3;
-		case BuildZergSpire:
-			return 3;
-		case BuildZergSpawningPool:
-			return 3;
-		case BuildZergCreepColony:
-			return 3;
-		case BuildZergSporeColony:
-			return 3;
-		case BuildZergSunkenColony:
-			return 3;
-		case BuildZergExtractor:
-			return 3;
-		case BuildProtossNexus:
-			return 3;
-		case BuildProtossRoboticsFacility:
-			return 3;
-		case BuildProtossPylon:
-			return 3;
-		case BuildProtossAssimilator:
-			return 3;
-		case BuildProtossObservatory:
-			return 3;
-		case BuildProtossGateway:
-			return 3;
-		case BuildProtossPhotonCannon:
-			return 3;
-		case BuildProtossCitadelofAdun:
-			return 3;
-		case BuildProtossCyberneticsCore:
-			return 3;
-		case BuildProtossTemplarArchives:
-			return 3;
-		case BuildProtossForge:
-			return 3;
-		case BuildProtossStargate:
-			return 3;
-		case BuildProtossFleetBeacon:
-			return 3;
-		case BuildProtossArbiterTribunal:
-			return 3;
-		case BuildProtossRoboticsSupportBay:
-			return 3;
-		case BuildProtossShieldBattery:
-			return 3;
-		case TechStimPacks:
+		case OI::ProtossDragoon:
 			return 2;
-		case TechLockdown:
+		case OI::ProtossHighTemplar:
 			return 2;
-		case TechEMPShockwave:
+		case OI::ProtossShuttle:
 			return 2;
-		case TechSpiderMines:
+		case OI::ProtossScout:
 			return 2;
-		case TechTankSiegeMode:
+		case OI::ProtossArbiter:
 			return 2;
-		case TechIrradiate:
+		case OI::ProtossCarrier:
 			return 2;
-		case TechYamatoGun:
+		case OI::ProtossReaver:
 			return 2;
-		case TechCloakingField:
+		case OI::ProtossObserver:
 			return 2;
-		case TechPersonnelCloaking:
+		case OI::ZergLurker:
 			return 2;
-		case TechBurrowing:
+		case OI::TerranCommandCenter:
+			return 3;
+		case OI::TerranComsatStation:
 			return 2;
-		case TechSpawnBroodlings:
+		case OI::TerranNuclearSilo:
 			return 2;
-		case TechPlague:
+		case OI::TerranSupplyDepot:
+			return 3;
+		case OI::TerranRefinery:
+			return 3;
+		case OI::TerranBarracks:
+			return 3;
+		case OI::TerranAcademy:
+			return 3;
+		case OI::TerranFactory:
+			return 3;
+		case OI::TerranStarport:
+			return 3;
+		case OI::TerranControlTower:
 			return 2;
-		case TechConsume:
+		case OI::TerranScienceFacility:
+			return 3;
+		case OI::TerranCovertOps:
 			return 2;
-		case TechEnsnare:
+		case OI::TerranPhysicsLab:
 			return 2;
-		case TechPsionicStorm:
+		case OI::TerranMachineShop:
 			return 2;
-		case TechHallucination:
+		case OI::TerranEngineeringBay:
+			return 3;
+		case OI::TerranArmory:
+			return 3;
+		case OI::TerranMissileTurret:
+			return 3;
+		case OI::TerranBunker:
+			return 3;
+		case OI::ZergHatchery:
+			return 3;
+		case OI::ZergLair:
 			return 2;
-		case TechRecall:
+		case OI::ZergHive:
 			return 2;
-		case TechStasisField:
+		case OI::ZergNydusCanal:
+			return 3;
+		case OI::ZergHydraliskDen:
+			return 3;
+		case OI::ZergDefilerMound:
+			return 3;
+		case OI::ZergGreaterSpire:
+			return 3;
+		case OI::ZergQueensNest:
+			return 3;
+		case OI::ZergEvolutionChamber:
+			return 3;
+		case OI::ZergUltraliskCavern:
+			return 3;
+		case OI::ZergSpire:
+			return 3;
+		case OI::ZergSpawningPool:
+			return 3;
+		case OI::ZergCreepColony:
+			return 3;
+		case OI::ZergSporeColony:
+			return 5;
+		case OI::ZergSunkenColony:
+			return 5;
+		case OI::ZergExtractor:
+			return 3;
+		case OI::ProtossNexus:
+			return 3;
+		case OI::ProtossRoboticsFacility:
+			return 3;
+		case OI::ProtossPylon:
+			return 3;
+		case OI::ProtossAssimilator:
+			return 3;
+		case OI::ProtossObservatory:
+			return 3;
+		case OI::ProtossGateway:
+			return 3;
+		case OI::ProtossPhotonCannon:
+			return 3;
+		case OI::ProtossCitadelofAdun:
+			return 3;
+		case OI::ProtossCyberneticsCore:
+			return 3;
+		case OI::ProtossTemplarArchives:
+			return 3;
+		case OI::ProtossForge:
+			return 3;
+		case OI::ProtossStargate:
+			return 3;
+		case OI::ProtossFleetBeacon:
+			return 3;
+		case OI::ProtossArbiterTribunal:
+			return 3;
+		case OI::ProtossRoboticsSupportBay:
+			return 3;
+		case OI::ProtossShieldBattery:
+			return 3;
+		case OI::StimPacks:
 			return 2;
-		case TechRestoration:
+		case OI::Lockdown:
 			return 2;
-		case TechDisruptionWeb:
+		case OI::EMPShockwave:
 			return 2;
-		case TechMindControl:
+		case OI::SpiderMines:
 			return 2;
-		case TechOpticalFlare:
+		case OI::TankSiegeMode:
 			return 2;
-		case TechMaelstrom:
+		case OI::Irradiate:
 			return 2;
-		case TechLurkerAspect:
+		case OI::YamatoGun:
+			return 2;
+		case OI::CloakingField:
+			return 2;
+		case OI::PersonnelCloaking:
+			return 2;
+		case OI::Burrowing:
+			return 2;
+		case OI::SpawnBroodlings:
+			return 2;
+		case OI::Plague:
+			return 2;
+		case OI::Consume:
+			return 2;
+		case OI::Ensnare:
+			return 2;
+		case OI::PsionicStorm:
+			return 2;
+		case OI::Hallucination:
+			return 2;
+		case OI::Recall:
+			return 2;
+		case OI::StasisField:
+			return 2;
+		case OI::Restoration:
+			return 2;
+		case OI::DisruptionWeb:
+			return 2;
+		case OI::MindControl:
+			return 2;
+		case OI::OpticalFlare:
+			return 2;
+		case OI::Maelstrom:
+			return 2;
+		case OI::LurkerAspect:
+			return 2;
+		case OI::TerranInfantryArmor1:
+			return 2;
+		case OI::TerranInfantryArmor2:
+			return 2;
+		case OI::TerranInfantryArmor3:
+			return 2;
+		case OI::TerranVehiclePlating1:
+			return 2;
+		case OI::TerranVehiclePlating2:
+			return 2;
+		case OI::TerranVehiclePlating3:
+			return 2;
+		case OI::TerranShipPlating1:
+			return 2;
+		case OI::TerranShipPlating2:
+			return 2;
+		case OI::TerranShipPlating3:
+			return 2;
+		case OI::ZergCarapace1:
+			return 2;
+		case OI::ZergCarapace2:
+			return 2;
+		case OI::ZergCarapace3:
+			return 2;
+		case OI::ZergFlyerCarapace1:
+			return 2;
+		case OI::ZergFlyerCarapace2:
+			return 2;
+		case OI::ZergFlyerCarapace3:
+			return 2;
+		case OI::ProtossGroundArmor1:
+			return 2;
+		case OI::ProtossGroundArmor2:
+			return 2;
+		case OI::ProtossGroundArmor3:
+			return 2;
+		case OI::ProtossAirArmor1:
+			return 2;
+		case OI::ProtossAirArmor2:
+			return 2;
+		case OI::ProtossAirArmor3:
+			return 2;
+		case OI::TerranInfantryWeapons1:
+			return 2;
+		case OI::TerranInfantryWeapons2:
+			return 2;
+		case OI::TerranInfantryWeapons3:
+			return 2;
+		case OI::TerranVehicleWeapons1:
+			return 2;
+		case OI::TerranVehicleWeapons2:
+			return 2;
+		case OI::TerranVehicleWeapons3:
+			return 2;
+		case OI::TerranShipWeapons1:
+			return 2;
+		case OI::TerranShipWeapons2:
+			return 2;
+		case OI::TerranShipWeapons3:
+			return 2;
+		case OI::ZergMeleeAttacks1:
+			return 2;
+		case OI::ZergMeleeAttacks2:
+			return 2;
+		case OI::ZergMeleeAttacks3:
+			return 2;
+		case OI::ZergMissileAttacks1:
+			return 2;
+		case OI::ZergMissileAttacks2:
+			return 2;
+		case OI::ZergMissileAttacks3:
+			return 2;
+		case OI::ZergFlyerAttacks1:
+			return 2;
+		case OI::ZergFlyerAttacks2:
+			return 2;
+		case OI::ZergFlyerAttacks3:
+			return 2;
+		case OI::ProtossGroundWeapons1:
+			return 2;
+		case OI::ProtossGroundWeapons2:
+			return 2;
+		case OI::ProtossGroundWeapons3:
+			return 2;
+		case OI::ProtossAirWeapons1:
+			return 2;
+		case OI::ProtossAirWeapons2:
+			return 2;
+		case OI::ProtossAirWeapons3:
+			return 2;
+		case OI::ProtossPlasmaShields1:
+			return 2;
+		case OI::ProtossPlasmaShields2:
+			return 2;
+		case OI::ProtossPlasmaShields3:
+			return 2;
+		case OI::U_238Shells1:
+			return 2;
+		case OI::IonThrusters1:
+			return 2;
+		case OI::TitanReactor1:
+			return 2;
+		case OI::OcularImplants1:
+			return 2;
+		case OI::MoebiusReactor1:
+			return 2;
+		case OI::ApolloReactor1:
+			return 2;
+		case OI::ColossusReactor1:
+			return 2;
+		case OI::VentralSacs1:
+			return 2;
+		case OI::Antennae1:
+			return 2;
+		case OI::PneumatizedCarapace1:
+			return 2;
+		case OI::MetabolicBoost1:
+			return 2;
+		case OI::AdrenalGlands1:
+			return 2;
+		case OI::MuscularAugments1:
+			return 2;
+		case OI::GroovedSpines1:
+			return 2;
+		case OI::GameteMeiosis1:
+			return 2;
+		case OI::MetasynapticNode1:
+			return 2;
+		case OI::SingularityCharge1:
+			return 2;
+		case OI::LegEnhancements1:
+			return 2;
+		case OI::ScarabDamage1:
+			return 2;
+		case OI::ReaverCapacity1:
+			return 2;
+		case OI::GraviticDrive1:
+			return 2;
+		case OI::SensorArray1:
+			return 2;
+		case OI::GraviticBoosters1:
+			return 2;
+		case OI::KhaydarinAmulet1:
+			return 2;
+		case OI::ApialSensors1:
+			return 2;
+		case OI::GraviticThrusters1:
+			return 2;
+		case OI::CarrierCapacity1:
+			return 2;
+		case OI::KhaydarinCore1:
+			return 2;
+		case OI::ArgusJewel1:
+			return 2;
+		case OI::ArgusTalisman1:
+			return 2;
+		case OI::CaduceusReactor1:
+			return 2;
+		case OI::ChitinousPlating1:
+			return 2;
+		case OI::AnabolicSynthesis1:
+			return 2;
+		case OI::CharonBoosters1:
 			return 2;
 		default:
 			return 0;
 	}
 }
 
-TimeType Operations::stageDuration(int stage) const
+TimeType Operation::stageDuration(int stage) const
 {
-	switch(index_)
+	switch(index_.getType())
 	{
-		case BuildTerranMarine:
+		case OI::SendTerranGasWorker:
+			switch(stage)
+			{
+				case 0:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ReturnTerranGasWorker:
+			switch(stage)
+			{
+				case 0:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::SendProtossGasWorker:
+			switch(stage)
+			{
+				case 0:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ReturnProtossGasWorker:
+			switch(stage)
+			{
+				case 0:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::SendZergGasWorker:
+			switch(stage)
+			{
+				case 0:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ReturnZergGasWorker:
+			switch(stage)
+			{
+				case 0:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranMarine:
 			switch(stage)
 			{
 				case 0:
@@ -982,7 +2972,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranGhost:
+		case OI::TerranGhost:
 			switch(stage)
 			{
 				case 0:
@@ -992,7 +2982,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranVulture:
+		case OI::TerranVulture:
 			switch(stage)
 			{
 				case 0:
@@ -1002,7 +2992,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranGoliath:
+		case OI::TerranGoliath:
 			switch(stage)
 			{
 				case 0:
@@ -1012,7 +3002,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranSiegeTankTankMode:
+		case OI::TerranSiegeTankTankMode:
 			switch(stage)
 			{
 				case 0:
@@ -1022,7 +3012,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranSCV:
+		case OI::TerranSCV:
 			switch(stage)
 			{
 				case 0:
@@ -1032,7 +3022,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranWraith:
+		case OI::TerranWraith:
 			switch(stage)
 			{
 				case 0:
@@ -1042,7 +3032,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranScienceVessel:
+		case OI::TerranScienceVessel:
 			switch(stage)
 			{
 				case 0:
@@ -1052,7 +3042,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranDropship:
+		case OI::TerranDropship:
 			switch(stage)
 			{
 				case 0:
@@ -1062,7 +3052,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranBattlecruiser:
+		case OI::TerranBattlecruiser:
 			switch(stage)
 			{
 				case 0:
@@ -1072,7 +3062,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranNuclearMissile:
+		case OI::TerranNuclearMissile:
 			switch(stage)
 			{
 				case 0:
@@ -1082,7 +3072,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranFirebat:
+		case OI::TerranFirebat:
 			switch(stage)
 			{
 				case 0:
@@ -1092,7 +3082,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranMedic:
+		case OI::TerranMedic:
 			switch(stage)
 			{
 				case 0:
@@ -1102,7 +3092,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergZergling:
+		case OI::ZergZergling:
 			switch(stage)
 			{
 				case 0:
@@ -1110,7 +3100,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergHydralisk:
+		case OI::ZergHydralisk:
 			switch(stage)
 			{
 				case 0:
@@ -1118,7 +3108,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergUltralisk:
+		case OI::ZergUltralisk:
 			switch(stage)
 			{
 				case 0:
@@ -1126,7 +3116,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergDrone:
+		case OI::ZergDrone:
 			switch(stage)
 			{
 				case 0:
@@ -1136,7 +3126,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergOverlord:
+		case OI::ZergOverlord:
 			switch(stage)
 			{
 				case 0:
@@ -1146,7 +3136,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergMutalisk:
+		case OI::ZergMutalisk:
 			switch(stage)
 			{
 				case 0:
@@ -1154,15 +3144,17 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergGuardian:
+		case OI::ZergGuardian:
 			switch(stage)
 			{
 				case 0:
 					return 600;
+				case 1:
+					return 600;
 				default:
 					return 0;
 			}
-		case BuildZergQueen:
+		case OI::ZergQueen:
 			switch(stage)
 			{
 				case 0:
@@ -1170,7 +3162,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergDefiler:
+		case OI::ZergDefiler:
 			switch(stage)
 			{
 				case 0:
@@ -1178,7 +3170,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergScourge:
+		case OI::ZergScourge:
 			switch(stage)
 			{
 				case 0:
@@ -1186,7 +3178,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergInfestedTerran:
+		case OI::ZergInfestedTerran:
 			switch(stage)
 			{
 				case 0:
@@ -1194,7 +3186,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranValkyrie:
+		case OI::TerranValkyrie:
 			switch(stage)
 			{
 				case 0:
@@ -1204,7 +3196,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossCorsair:
+		case OI::ProtossCorsair:
 			switch(stage)
 			{
 				case 0:
@@ -1214,7 +3206,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossDarkTemplar:
+		case OI::ProtossDarkTemplar:
 			switch(stage)
 			{
 				case 0:
@@ -1224,15 +3216,17 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergDevourer:
+		case OI::ZergDevourer:
 			switch(stage)
 			{
 				case 0:
 					return 600;
+				case 1:
+					return 600;
 				default:
 					return 0;
 			}
-		case BuildProtossProbe:
+		case OI::ProtossProbe:
 			switch(stage)
 			{
 				case 0:
@@ -1242,7 +3236,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossZealot:
+		case OI::ProtossZealot:
 			switch(stage)
 			{
 				case 0:
@@ -1252,7 +3246,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossDragoon:
+		case OI::ProtossDragoon:
 			switch(stage)
 			{
 				case 0:
@@ -1262,7 +3256,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossHighTemplar:
+		case OI::ProtossHighTemplar:
 			switch(stage)
 			{
 				case 0:
@@ -1272,7 +3266,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossShuttle:
+		case OI::ProtossShuttle:
 			switch(stage)
 			{
 				case 0:
@@ -1282,7 +3276,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossScout:
+		case OI::ProtossScout:
 			switch(stage)
 			{
 				case 0:
@@ -1292,7 +3286,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossArbiter:
+		case OI::ProtossArbiter:
 			switch(stage)
 			{
 				case 0:
@@ -1302,7 +3296,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossCarrier:
+		case OI::ProtossCarrier:
 			switch(stage)
 			{
 				case 0:
@@ -1312,7 +3306,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossReaver:
+		case OI::ProtossReaver:
 			switch(stage)
 			{
 				case 0:
@@ -1322,7 +3316,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossObserver:
+		case OI::ProtossObserver:
 			switch(stage)
 			{
 				case 0:
@@ -1332,15 +3326,17 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergLurker:
+		case OI::ZergLurker:
 			switch(stage)
 			{
 				case 0:
+					return 420;
+				case 1:
 					return 600;
 				default:
 					return 0;
 			}
-		case BuildTerranCommandCenter:
+		case OI::TerranCommandCenter:
 			switch(stage)
 			{
 				case 0:
@@ -1352,7 +3348,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranComsatStation:
+		case OI::TerranComsatStation:
 			switch(stage)
 			{
 				case 0:
@@ -1362,7 +3358,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranNuclearSilo:
+		case OI::TerranNuclearSilo:
 			switch(stage)
 			{
 				case 0:
@@ -1372,19 +3368,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranSupplyDepot:
-			switch(stage)
-			{
-				case 0:
-					return 45;
-				case 1:
-					return 600;
-				case 2:
-					return 1;
-				default:
-					return 0;
-			}
-		case BuildTerranRefinery:
+		case OI::TerranSupplyDepot:
 			switch(stage)
 			{
 				case 0:
@@ -1396,7 +3380,19 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranBarracks:
+		case OI::TerranRefinery:
+			switch(stage)
+			{
+				case 0:
+					return 45;
+				case 1:
+					return 600;
+				case 2:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranBarracks:
 			switch(stage)
 			{
 				case 0:
@@ -1408,7 +3404,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranAcademy:
+		case OI::TerranAcademy:
 			switch(stage)
 			{
 				case 0:
@@ -1420,7 +3416,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranFactory:
+		case OI::TerranFactory:
 			switch(stage)
 			{
 				case 0:
@@ -1432,7 +3428,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranStarport:
+		case OI::TerranStarport:
 			switch(stage)
 			{
 				case 0:
@@ -1444,7 +3440,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranControlTower:
+		case OI::TerranControlTower:
 			switch(stage)
 			{
 				case 0:
@@ -1454,7 +3450,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranScienceFacility:
+		case OI::TerranScienceFacility:
 			switch(stage)
 			{
 				case 0:
@@ -1466,7 +3462,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranCovertOps:
+		case OI::TerranCovertOps:
 			switch(stage)
 			{
 				case 0:
@@ -1476,7 +3472,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranPhysicsLab:
+		case OI::TerranPhysicsLab:
 			switch(stage)
 			{
 				case 0:
@@ -1486,7 +3482,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranMachineShop:
+		case OI::TerranMachineShop:
 			switch(stage)
 			{
 				case 0:
@@ -1496,7 +3492,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranEngineeringBay:
+		case OI::TerranEngineeringBay:
 			switch(stage)
 			{
 				case 0:
@@ -1508,7 +3504,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranArmory:
+		case OI::TerranArmory:
 			switch(stage)
 			{
 				case 0:
@@ -1520,7 +3516,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranMissileTurret:
+		case OI::TerranMissileTurret:
 			switch(stage)
 			{
 				case 0:
@@ -1532,7 +3528,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildTerranBunker:
+		case OI::TerranBunker:
 			switch(stage)
 			{
 				case 0:
@@ -1544,7 +3540,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergHatchery:
+		case OI::ZergHatchery:
 			switch(stage)
 			{
 				case 0:
@@ -1556,31 +3552,27 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergLair:
+		case OI::ZergLair:
 			switch(stage)
 			{
 				case 0:
-					return 45;
-				case 1:
 					return 1500;
-				case 2:
+				case 1:
 					return 1;
 				default:
 					return 0;
 			}
-		case BuildZergHive:
+		case OI::ZergHive:
 			switch(stage)
 			{
 				case 0:
-					return 45;
-				case 1:
 					return 1800;
-				case 2:
+				case 1:
 					return 1;
 				default:
 					return 0;
 			}
-		case BuildZergNydusCanal:
+		case OI::ZergNydusCanal:
 			switch(stage)
 			{
 				case 0:
@@ -1592,7 +3584,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergHydraliskDen:
+		case OI::ZergHydraliskDen:
 			switch(stage)
 			{
 				case 0:
@@ -1604,7 +3596,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergDefilerMound:
+		case OI::ZergDefilerMound:
 			switch(stage)
 			{
 				case 0:
@@ -1616,7 +3608,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergGreaterSpire:
+		case OI::ZergGreaterSpire:
 			switch(stage)
 			{
 				case 0:
@@ -1628,7 +3620,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergQueensNest:
+		case OI::ZergQueensNest:
 			switch(stage)
 			{
 				case 0:
@@ -1640,7 +3632,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergEvolutionChamber:
+		case OI::ZergEvolutionChamber:
 			switch(stage)
 			{
 				case 0:
@@ -1652,7 +3644,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergUltraliskCavern:
+		case OI::ZergUltraliskCavern:
 			switch(stage)
 			{
 				case 0:
@@ -1664,7 +3656,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergSpire:
+		case OI::ZergSpire:
 			switch(stage)
 			{
 				case 0:
@@ -1676,7 +3668,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergSpawningPool:
+		case OI::ZergSpawningPool:
 			switch(stage)
 			{
 				case 0:
@@ -1688,7 +3680,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergCreepColony:
+		case OI::ZergCreepColony:
 			switch(stage)
 			{
 				case 0:
@@ -1700,7 +3692,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildZergSporeColony:
+		case OI::ZergSporeColony:
 			switch(stage)
 			{
 				case 0:
@@ -1709,10 +3701,14 @@ TimeType Operations::stageDuration(int stage) const
 					return 300;
 				case 2:
 					return 1;
+				case 3:
+					return 300;
+				case 4:
+					return 1;
 				default:
 					return 0;
 			}
-		case BuildZergSunkenColony:
+		case OI::ZergSunkenColony:
 			switch(stage)
 			{
 				case 0:
@@ -1721,10 +3717,14 @@ TimeType Operations::stageDuration(int stage) const
 					return 300;
 				case 2:
 					return 1;
+				case 3:
+					return 300;
+				case 4:
+					return 1;
 				default:
 					return 0;
 			}
-		case BuildZergExtractor:
+		case OI::ZergExtractor:
 			switch(stage)
 			{
 				case 0:
@@ -1736,7 +3736,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossNexus:
+		case OI::ProtossNexus:
 			switch(stage)
 			{
 				case 0:
@@ -1748,7 +3748,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossRoboticsFacility:
+		case OI::ProtossRoboticsFacility:
 			switch(stage)
 			{
 				case 0:
@@ -1760,7 +3760,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossPylon:
+		case OI::ProtossPylon:
 			switch(stage)
 			{
 				case 0:
@@ -1772,7 +3772,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossAssimilator:
+		case OI::ProtossAssimilator:
 			switch(stage)
 			{
 				case 0:
@@ -1784,7 +3784,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossObservatory:
+		case OI::ProtossObservatory:
 			switch(stage)
 			{
 				case 0:
@@ -1796,7 +3796,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossGateway:
+		case OI::ProtossGateway:
 			switch(stage)
 			{
 				case 0:
@@ -1808,7 +3808,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossPhotonCannon:
+		case OI::ProtossPhotonCannon:
 			switch(stage)
 			{
 				case 0:
@@ -1820,7 +3820,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossCitadelofAdun:
+		case OI::ProtossCitadelofAdun:
 			switch(stage)
 			{
 				case 0:
@@ -1832,7 +3832,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossCyberneticsCore:
+		case OI::ProtossCyberneticsCore:
 			switch(stage)
 			{
 				case 0:
@@ -1844,7 +3844,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossTemplarArchives:
+		case OI::ProtossTemplarArchives:
 			switch(stage)
 			{
 				case 0:
@@ -1856,7 +3856,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossForge:
+		case OI::ProtossForge:
 			switch(stage)
 			{
 				case 0:
@@ -1868,7 +3868,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossStargate:
+		case OI::ProtossStargate:
 			switch(stage)
 			{
 				case 0:
@@ -1880,7 +3880,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossFleetBeacon:
+		case OI::ProtossFleetBeacon:
 			switch(stage)
 			{
 				case 0:
@@ -1892,7 +3892,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossArbiterTribunal:
+		case OI::ProtossArbiterTribunal:
 			switch(stage)
 			{
 				case 0:
@@ -1904,7 +3904,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossRoboticsSupportBay:
+		case OI::ProtossRoboticsSupportBay:
 			switch(stage)
 			{
 				case 0:
@@ -1916,7 +3916,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case BuildProtossShieldBattery:
+		case OI::ProtossShieldBattery:
 			switch(stage)
 			{
 				case 0:
@@ -1928,7 +3928,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechStimPacks:
+		case OI::StimPacks:
 			switch(stage)
 			{
 				case 0:
@@ -1938,7 +3938,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechLockdown:
+		case OI::Lockdown:
 			switch(stage)
 			{
 				case 0:
@@ -1948,7 +3948,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechEMPShockwave:
+		case OI::EMPShockwave:
 			switch(stage)
 			{
 				case 0:
@@ -1958,7 +3958,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechSpiderMines:
+		case OI::SpiderMines:
 			switch(stage)
 			{
 				case 0:
@@ -1968,7 +3968,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechTankSiegeMode:
+		case OI::TankSiegeMode:
 			switch(stage)
 			{
 				case 0:
@@ -1978,7 +3978,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechIrradiate:
+		case OI::Irradiate:
 			switch(stage)
 			{
 				case 0:
@@ -1988,7 +3988,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechYamatoGun:
+		case OI::YamatoGun:
 			switch(stage)
 			{
 				case 0:
@@ -1998,7 +3998,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechCloakingField:
+		case OI::CloakingField:
 			switch(stage)
 			{
 				case 0:
@@ -2008,7 +4008,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechPersonnelCloaking:
+		case OI::PersonnelCloaking:
 			switch(stage)
 			{
 				case 0:
@@ -2018,7 +4018,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechBurrowing:
+		case OI::Burrowing:
 			switch(stage)
 			{
 				case 0:
@@ -2028,7 +4028,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechSpawnBroodlings:
+		case OI::SpawnBroodlings:
 			switch(stage)
 			{
 				case 0:
@@ -2038,7 +4038,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechPlague:
+		case OI::Plague:
 			switch(stage)
 			{
 				case 0:
@@ -2048,7 +4048,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechConsume:
+		case OI::Consume:
 			switch(stage)
 			{
 				case 0:
@@ -2058,7 +4058,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechEnsnare:
+		case OI::Ensnare:
 			switch(stage)
 			{
 				case 0:
@@ -2068,7 +4068,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechPsionicStorm:
+		case OI::PsionicStorm:
 			switch(stage)
 			{
 				case 0:
@@ -2078,7 +4078,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechHallucination:
+		case OI::Hallucination:
 			switch(stage)
 			{
 				case 0:
@@ -2088,7 +4088,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechRecall:
+		case OI::Recall:
 			switch(stage)
 			{
 				case 0:
@@ -2098,7 +4098,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechStasisField:
+		case OI::StasisField:
 			switch(stage)
 			{
 				case 0:
@@ -2108,7 +4108,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechRestoration:
+		case OI::Restoration:
 			switch(stage)
 			{
 				case 0:
@@ -2118,7 +4118,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechDisruptionWeb:
+		case OI::DisruptionWeb:
 			switch(stage)
 			{
 				case 0:
@@ -2128,7 +4128,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechMindControl:
+		case OI::MindControl:
 			switch(stage)
 			{
 				case 0:
@@ -2138,7 +4138,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechOpticalFlare:
+		case OI::OpticalFlare:
 			switch(stage)
 			{
 				case 0:
@@ -2148,7 +4148,7 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechMaelstrom:
+		case OI::Maelstrom:
 			switch(stage)
 			{
 				case 0:
@@ -2158,11 +4158,831 @@ TimeType Operations::stageDuration(int stage) const
 				default:
 					return 0;
 			}
-		case TechLurkerAspect:
+		case OI::LurkerAspect:
 			switch(stage)
 			{
 				case 0:
 					return 1800;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranInfantryArmor1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranInfantryArmor2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranInfantryArmor3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranVehiclePlating1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranVehiclePlating2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranVehiclePlating3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranShipPlating1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranShipPlating2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranShipPlating3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergCarapace1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergCarapace2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergCarapace3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergFlyerCarapace1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergFlyerCarapace2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergFlyerCarapace3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossGroundArmor1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossGroundArmor2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossGroundArmor3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossAirArmor1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossAirArmor2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossAirArmor3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranInfantryWeapons1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranInfantryWeapons2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranInfantryWeapons3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranVehicleWeapons1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranVehicleWeapons2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranVehicleWeapons3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranShipWeapons1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranShipWeapons2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TerranShipWeapons3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergMeleeAttacks1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergMeleeAttacks2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergMeleeAttacks3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergMissileAttacks1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergMissileAttacks2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergMissileAttacks3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergFlyerAttacks1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergFlyerAttacks2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ZergFlyerAttacks3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossGroundWeapons1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossGroundWeapons2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossGroundWeapons3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossAirWeapons1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossAirWeapons2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossAirWeapons3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossPlasmaShields1:
+			switch(stage)
+			{
+				case 0:
+					return 4000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossPlasmaShields2:
+			switch(stage)
+			{
+				case 0:
+					return 4480;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ProtossPlasmaShields3:
+			switch(stage)
+			{
+				case 0:
+					return 4960;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::U_238Shells1:
+			switch(stage)
+			{
+				case 0:
+					return 1500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::IonThrusters1:
+			switch(stage)
+			{
+				case 0:
+					return 1500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::TitanReactor1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::OcularImplants1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::MoebiusReactor1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ApolloReactor1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ColossusReactor1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::VentralSacs1:
+			switch(stage)
+			{
+				case 0:
+					return 2400;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::Antennae1:
+			switch(stage)
+			{
+				case 0:
+					return 2000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::PneumatizedCarapace1:
+			switch(stage)
+			{
+				case 0:
+					return 2000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::MetabolicBoost1:
+			switch(stage)
+			{
+				case 0:
+					return 1500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::AdrenalGlands1:
+			switch(stage)
+			{
+				case 0:
+					return 1500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::MuscularAugments1:
+			switch(stage)
+			{
+				case 0:
+					return 1500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::GroovedSpines1:
+			switch(stage)
+			{
+				case 0:
+					return 1500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::GameteMeiosis1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::MetasynapticNode1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::SingularityCharge1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::LegEnhancements1:
+			switch(stage)
+			{
+				case 0:
+					return 2000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ScarabDamage1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ReaverCapacity1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::GraviticDrive1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::SensorArray1:
+			switch(stage)
+			{
+				case 0:
+					return 2000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::GraviticBoosters1:
+			switch(stage)
+			{
+				case 0:
+					return 2000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::KhaydarinAmulet1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ApialSensors1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::GraviticThrusters1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::CarrierCapacity1:
+			switch(stage)
+			{
+				case 0:
+					return 1500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::KhaydarinCore1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ArgusJewel1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ArgusTalisman1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::CaduceusReactor1:
+			switch(stage)
+			{
+				case 0:
+					return 2500;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::ChitinousPlating1:
+			switch(stage)
+			{
+				case 0:
+					return 2000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::AnabolicSynthesis1:
+			switch(stage)
+			{
+				case 0:
+					return 2000;
+				case 1:
+					return 1;
+				default:
+					return 0;
+			}
+		case OI::CharonBoosters1:
+			switch(stage)
+			{
+				case 0:
+					return 2000;
 				case 1:
 					return 1;
 				default:
@@ -2173,989 +4993,1750 @@ TimeType Operations::stageDuration(int stage) const
 	}
 }
 
-void Operations::execute(bool justactived)
+void Operation::execute(bool justactived)
 {
-	switch(index_)
+	switch(index_.getType())
 	{
-		case BuildTerranMarine:
-			switch(stage)
+		case OI::SendTerranGasWorker:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CSendGasWorker, justactived, *this); break;
+			}
+		case OI::ReturnTerranGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Call(CReturnGasWorker, justactived, *this); break;
+			}
+		case OI::SendProtossGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Call(CSendGasWorker, justactived, *this); break;
+			}
+		case OI::ReturnProtossGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Call(CReturnGasWorker, justactived, *this); break;
+			}
+		case OI::SendZergGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Call(CSendGasWorker, justactived, *this); break;
+			}
+		case OI::ReturnZergGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Call(CReturnGasWorker, justactived, *this); break;
+			}
+		case OI::TerranMarine:
+			switch(stage_)
+			{
+				case 0:
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranGhost:
-			switch(stage)
+		case OI::TerranGhost:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranVulture:
-			switch(stage)
+		case OI::TerranVulture:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranGoliath:
-			switch(stage)
+		case OI::TerranGoliath:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranSiegeTankTankMode:
-			switch(stage)
+		case OI::TerranSiegeTankTankMode:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranSCV:
-			switch(stage)
+		case OI::TerranSCV:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranWraith:
-			switch(stage)
+		case OI::TerranWraith:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranScienceVessel:
-			switch(stage)
+		case OI::TerranScienceVessel:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranDropship:
-			switch(stage)
+		case OI::TerranDropship:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranBattlecruiser:
-			switch(stage)
+		case OI::TerranBattlecruiser:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranNuclearMissile:
-			switch(stage)
+		case OI::TerranNuclearMissile:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranFirebat:
-			switch(stage)
+		case OI::TerranFirebat:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildTerranMedic:
-			switch(stage)
+		case OI::TerranMedic:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildZergZergling:
-			switch(stage)
+		case OI::ZergZergling:
+			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, this); break;
+					Call(CMorphUnit, justactived, *this); break;
 			}
-		case BuildZergHydralisk:
-			switch(stage)
+		case OI::ZergHydralisk:
+			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, this); break;
+					Call(CMorphUnit, justactived, *this); break;
 			}
-		case BuildZergUltralisk:
-			switch(stage)
+		case OI::ZergUltralisk:
+			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, this); break;
+					Call(CMorphUnit, justactived, *this); break;
 			}
-		case BuildZergDrone:
-			switch(stage)
+		case OI::ZergDrone:
+			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, this); break;
+					Call(CMorphUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildZergOverlord:
-			switch(stage)
+		case OI::ZergOverlord:
+			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, this); break;
+					Call(CMorphUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildZergMutalisk:
-			switch(stage)
+		case OI::ZergMutalisk:
+			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, this); break;
+					Call(CMorphUnit, justactived, *this); break;
 			}
-		case BuildZergGuardian:
-			switch(stage)
+		case OI::ZergGuardian:
+			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, this); break;
-			}
-		case BuildZergQueen:
-			switch(stage)
-			{
-				case 0:
-					Call(CMorphUnit, this); break;
-			}
-		case BuildZergDefiler:
-			switch(stage)
-			{
-				case 0:
-					Call(CMorphUnit, this); break;
-			}
-		case BuildZergScourge:
-			switch(stage)
-			{
-				case 0:
-					Call(CMorphUnit, this); break;
-			}
-		case BuildZergInfestedTerran:
-			switch(stage)
-			{
-				case 0:
-					Call(CMorphUnit, this); break;
-			}
-		case BuildTerranValkyrie:
-			switch(stage)
-			{
-				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CMorphUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CMorphUnit, justactived, *this); break;
 			}
-		case BuildProtossCorsair:
-			switch(stage)
+		case OI::ZergQueen:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CMorphUnit, justactived, *this); break;
+			}
+		case OI::ZergDefiler:
+			switch(stage_)
+			{
+				case 0:
+					Call(CMorphUnit, justactived, *this); break;
+			}
+		case OI::ZergScourge:
+			switch(stage_)
+			{
+				case 0:
+					Call(CMorphUnit, justactived, *this); break;
+			}
+		case OI::ZergInfestedTerran:
+			switch(stage_)
+			{
+				case 0:
+					Call(CMorphUnit, justactived, *this); break;
+			}
+		case OI::TerranValkyrie:
+			switch(stage_)
+			{
+				case 0:
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildProtossDarkTemplar:
-			switch(stage)
+		case OI::ProtossCorsair:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildZergDevourer:
-			switch(stage)
+		case OI::ProtossDarkTemplar:
+			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, this); break;
-			}
-		case BuildProtossProbe:
-			switch(stage)
-			{
-				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildProtossZealot:
-			switch(stage)
+		case OI::ZergDevourer:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CMorphUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CMorphUnit, justactived, *this); break;
 			}
-		case BuildProtossDragoon:
-			switch(stage)
+		case OI::ProtossProbe:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildProtossHighTemplar:
-			switch(stage)
+		case OI::ProtossZealot:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildProtossShuttle:
-			switch(stage)
+		case OI::ProtossDragoon:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildProtossScout:
-			switch(stage)
+		case OI::ProtossHighTemplar:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildProtossArbiter:
-			switch(stage)
+		case OI::ProtossShuttle:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildProtossCarrier:
-			switch(stage)
+		case OI::ProtossScout:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildProtossReaver:
-			switch(stage)
+		case OI::ProtossArbiter:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildProtossObserver:
-			switch(stage)
+		case OI::ProtossCarrier:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CUnitFinished, this); break;
+					Call(CUnitFinished, justactived, *this); break;
 			}
-		case BuildZergLurker:
-			switch(stage)
+		case OI::ProtossReaver:
+			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, this); break;
-			}
-		case BuildTerranCommandCenter:
-			switch(stage)
-			{
-				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CTrainUnit, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CUnitFinished, justactived, *this); break;
+			}
+		case OI::ProtossObserver:
+			switch(stage_)
+			{
+				case 0:
+					Call(CTrainUnit, justactived, *this); break;
+				case 1:
+					Call(CUnitFinished, justactived, *this); break;
+			}
+		case OI::ZergLurker:
+			switch(stage_)
+			{
+				case 0:
+					Call(CMorphUnit, justactived, *this); break;
+				case 1:
+					Call(CMorphUnit, justactived, *this); break;
+			}
+		case OI::TerranCommandCenter:
+			switch(stage_)
+			{
+				case 0:
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+				case 1:
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranComsatStation:
-			switch(stage)
+		case OI::TerranComsatStation:
+			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, this); break;
+					Call(CBuildAddon, justactived, *this); break;
 				case 1:
-					Call(CBuildAddonFinished, this); break;
+					Call(CBuildAddonFinished, justactived, *this); break;
 			}
-		case BuildTerranNuclearSilo:
-			switch(stage)
+		case OI::TerranNuclearSilo:
+			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, this); break;
+					Call(CBuildAddon, justactived, *this); break;
 				case 1:
-					Call(CBuildAddonFinished, this); break;
+					Call(CBuildAddonFinished, justactived, *this); break;
 			}
-		case BuildTerranSupplyDepot:
-			switch(stage)
+		case OI::TerranSupplyDepot:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranRefinery:
-			switch(stage)
+		case OI::TerranRefinery:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranBarracks:
-			switch(stage)
+		case OI::TerranBarracks:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranAcademy:
-			switch(stage)
+		case OI::TerranAcademy:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranFactory:
-			switch(stage)
+		case OI::TerranFactory:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranStarport:
-			switch(stage)
+		case OI::TerranStarport:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranControlTower:
-			switch(stage)
+		case OI::TerranControlTower:
+			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, this); break;
+					Call(CBuildAddon, justactived, *this); break;
 				case 1:
-					Call(CBuildAddonFinished, this); break;
+					Call(CBuildAddonFinished, justactived, *this); break;
 			}
-		case BuildTerranScienceFacility:
-			switch(stage)
+		case OI::TerranScienceFacility:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranCovertOps:
-			switch(stage)
+		case OI::TerranCovertOps:
+			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, this); break;
+					Call(CBuildAddon, justactived, *this); break;
 				case 1:
-					Call(CBuildAddonFinished, this); break;
+					Call(CBuildAddonFinished, justactived, *this); break;
 			}
-		case BuildTerranPhysicsLab:
-			switch(stage)
+		case OI::TerranPhysicsLab:
+			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, this); break;
+					Call(CBuildAddon, justactived, *this); break;
 				case 1:
-					Call(CBuildAddonFinished, this); break;
+					Call(CBuildAddonFinished, justactived, *this); break;
 			}
-		case BuildTerranMachineShop:
-			switch(stage)
+		case OI::TerranMachineShop:
+			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, this); break;
+					Call(CBuildAddon, justactived, *this); break;
 				case 1:
-					Call(CBuildAddonFinished, this); break;
+					Call(CBuildAddonFinished, justactived, *this); break;
 			}
-		case BuildTerranEngineeringBay:
-			switch(stage)
+		case OI::TerranEngineeringBay:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranArmory:
-			switch(stage)
+		case OI::TerranArmory:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranMissileTurret:
-			switch(stage)
+		case OI::TerranMissileTurret:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildTerranBunker:
-			switch(stage)
+		case OI::TerranBunker:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergHatchery:
-			switch(stage)
+		case OI::ZergHatchery:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergLair:
-			switch(stage)
+		case OI::ZergLair:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
+			}
+		case OI::ZergHive:
+			switch(stage_)
+			{
+				case 0:
+					Call(CBuildBuilding, justactived, *this); break;
+				case 1:
+					Call(CBuildingFinished, justactived, *this); break;
+			}
+		case OI::ZergNydusCanal:
+			switch(stage_)
+			{
+				case 0:
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+				case 1:
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergHive:
-			switch(stage)
+		case OI::ZergHydraliskDen:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergNydusCanal:
-			switch(stage)
+		case OI::ZergDefilerMound:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergHydraliskDen:
-			switch(stage)
+		case OI::ZergGreaterSpire:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergDefilerMound:
-			switch(stage)
+		case OI::ZergQueensNest:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergGreaterSpire:
-			switch(stage)
+		case OI::ZergEvolutionChamber:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergQueensNest:
-			switch(stage)
+		case OI::ZergUltraliskCavern:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergEvolutionChamber:
-			switch(stage)
+		case OI::ZergSpire:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergUltraliskCavern:
-			switch(stage)
+		case OI::ZergSpawningPool:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergSpire:
-			switch(stage)
+		case OI::ZergCreepColony:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergSpawningPool:
-			switch(stage)
+		case OI::ZergSporeColony:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
+				case 3:
+					Call(CBuildBuilding, justactived, *this); break;
+				case 4:
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergCreepColony:
-			switch(stage)
+		case OI::ZergSunkenColony:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
+				case 3:
+					Call(CBuildBuilding, justactived, *this); break;
+				case 4:
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergSporeColony:
-			switch(stage)
+		case OI::ZergExtractor:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergSunkenColony:
-			switch(stage)
+		case OI::ProtossNexus:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildZergExtractor:
-			switch(stage)
+		case OI::ProtossRoboticsFacility:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossNexus:
-			switch(stage)
+		case OI::ProtossPylon:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossRoboticsFacility:
-			switch(stage)
+		case OI::ProtossAssimilator:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossPylon:
-			switch(stage)
+		case OI::ProtossObservatory:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossAssimilator:
-			switch(stage)
+		case OI::ProtossGateway:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossObservatory:
-			switch(stage)
+		case OI::ProtossPhotonCannon:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossGateway:
-			switch(stage)
+		case OI::ProtossCitadelofAdun:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossPhotonCannon:
-			switch(stage)
+		case OI::ProtossCyberneticsCore:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossCitadelofAdun:
-			switch(stage)
+		case OI::ProtossTemplarArchives:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossCyberneticsCore:
-			switch(stage)
+		case OI::ProtossForge:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossTemplarArchives:
-			switch(stage)
+		case OI::ProtossStargate:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossForge:
-			switch(stage)
+		case OI::ProtossFleetBeacon:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossStargate:
-			switch(stage)
+		case OI::ProtossArbiterTribunal:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossFleetBeacon:
-			switch(stage)
+		case OI::ProtossRoboticsSupportBay:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossArbiterTribunal:
-			switch(stage)
+		case OI::ProtossShieldBattery:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
+					Call(CBuildBuilding, justactived, *this); break;
 				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CBuildingFinished, justactived, *this); break;
 			}
-		case BuildProtossRoboticsSupportBay:
-			switch(stage)
+		case OI::StimPacks:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
-				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case BuildProtossShieldBattery:
-			switch(stage)
+		case OI::Lockdown:
+			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CBuildBuilding, this); break;
-				case 2:
-					Call(CBuildingFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechStimPacks:
-			switch(stage)
+		case OI::EMPShockwave:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechLockdown:
-			switch(stage)
+		case OI::SpiderMines:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechEMPShockwave:
-			switch(stage)
+		case OI::TankSiegeMode:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechSpiderMines:
-			switch(stage)
+		case OI::Irradiate:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechTankSiegeMode:
-			switch(stage)
+		case OI::YamatoGun:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechIrradiate:
-			switch(stage)
+		case OI::CloakingField:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechYamatoGun:
-			switch(stage)
+		case OI::PersonnelCloaking:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechCloakingField:
-			switch(stage)
+		case OI::Burrowing:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechPersonnelCloaking:
-			switch(stage)
+		case OI::SpawnBroodlings:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechBurrowing:
-			switch(stage)
+		case OI::Plague:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechSpawnBroodlings:
-			switch(stage)
+		case OI::Consume:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechPlague:
-			switch(stage)
+		case OI::Ensnare:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechConsume:
-			switch(stage)
+		case OI::PsionicStorm:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechEnsnare:
-			switch(stage)
+		case OI::Hallucination:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechPsionicStorm:
-			switch(stage)
+		case OI::Recall:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechHallucination:
-			switch(stage)
+		case OI::StasisField:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechRecall:
-			switch(stage)
+		case OI::Restoration:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechStasisField:
-			switch(stage)
+		case OI::DisruptionWeb:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechRestoration:
-			switch(stage)
+		case OI::MindControl:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechDisruptionWeb:
-			switch(stage)
+		case OI::OpticalFlare:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechMindControl:
-			switch(stage)
+		case OI::Maelstrom:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechOpticalFlare:
-			switch(stage)
+		case OI::LurkerAspect:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CTechStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CTechFinished, justactived, *this); break;
 			}
-		case TechMaelstrom:
-			switch(stage)
+		case OI::TerranInfantryArmor1:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CUpgradeStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CUpgradeFinished, justactived, *this); break;
 			}
-		case TechLurkerAspect:
-			switch(stage)
+		case OI::TerranInfantryArmor2:
+			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, this); break;
+					Call(CUpgradeStart, justactived, *this); break;
 				case 1:
-					Call(CTechFinished, this); break;
+					Call(CUpgradeFinished, justactived, *this); break;
 			}
+		case OI::TerranInfantryArmor3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranVehiclePlating1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranVehiclePlating2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranVehiclePlating3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranShipPlating1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranShipPlating2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranShipPlating3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergCarapace1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergCarapace2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergCarapace3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergFlyerCarapace1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergFlyerCarapace2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergFlyerCarapace3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossGroundArmor1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossGroundArmor2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossGroundArmor3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossAirArmor1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossAirArmor2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossAirArmor3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranInfantryWeapons1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranInfantryWeapons2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranInfantryWeapons3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranVehicleWeapons1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranVehicleWeapons2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranVehicleWeapons3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranShipWeapons1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranShipWeapons2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TerranShipWeapons3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergMeleeAttacks1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergMeleeAttacks2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergMeleeAttacks3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergMissileAttacks1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergMissileAttacks2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergMissileAttacks3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergFlyerAttacks1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergFlyerAttacks2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ZergFlyerAttacks3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossGroundWeapons1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossGroundWeapons2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossGroundWeapons3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossAirWeapons1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossAirWeapons2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossAirWeapons3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossPlasmaShields1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossPlasmaShields2:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ProtossPlasmaShields3:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::U_238Shells1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::IonThrusters1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::TitanReactor1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::OcularImplants1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::MoebiusReactor1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ApolloReactor1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ColossusReactor1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::VentralSacs1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::Antennae1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::PneumatizedCarapace1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::MetabolicBoost1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::AdrenalGlands1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::MuscularAugments1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::GroovedSpines1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::GameteMeiosis1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::MetasynapticNode1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::SingularityCharge1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::LegEnhancements1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ScarabDamage1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ReaverCapacity1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::GraviticDrive1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::SensorArray1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::GraviticBoosters1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::KhaydarinAmulet1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ApialSensors1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::GraviticThrusters1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::CarrierCapacity1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::KhaydarinCore1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ArgusJewel1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ArgusTalisman1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::CaduceusReactor1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::ChitinousPlating1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::AnabolicSynthesis1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		case OI::CharonBoosters1:
+			switch(stage_)
+			{
+				case 0:
+					Call(CUpgradeStart, justactived, *this); break;
+				case 1:
+					Call(CUpgradeFinished, justactived, *this); break;
+			}
+		default:
+			break;
 	}
 }
 
-TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResIndexType& blocking) const
+TimeType Operation::firstApplyableAt(const Resources& res, int stage, ResourceIndex& blocking) const
 {
 	TimeType result = 0;
-	switch(index_)
+	switch(index_.getType())
 	{
-		case BuildTerranMarine:
+		case OI::SendTerranGasWorker:
+			switch(stage)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, result, blocking);
+					Locks(res, 1, RI::GasWorkingPlaces, result, blocking);
+					return result;
+				case 1:
+					return result;
+			}
+		case OI::ReturnTerranGasWorker:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 1, RI::TerranGasWorker, result, blocking);
+					return result;
+				case 1:
+					return result;
+			}
+		case OI::SendProtossGasWorker:
+			switch(stage)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, result, blocking);
+					Locks(res, 1, RI::GasWorkingPlaces, result, blocking);
+					return result;
+				case 1:
+					return result;
+			}
+		case OI::ReturnProtossGasWorker:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 1, RI::ProtossGasWorker, result, blocking);
+					return result;
+				case 1:
+					return result;
+			}
+		case OI::SendZergGasWorker:
+			switch(stage)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, result, blocking);
+					Locks(res, 1, RI::GasWorkingPlaces, result, blocking);
+					return result;
+				case 1:
+					return result;
+			}
+		case OI::ReturnZergGasWorker:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 1, RI::ZergGasWorker, result, blocking);
+					return result;
+				case 1:
+					return result;
+			}
+		case OI::TerranMarine:
 			switch(stage)
 			{
 				case 0:
@@ -3169,7 +6750,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranGhost:
+		case OI::TerranGhost:
 			switch(stage)
 			{
 				case 0:
@@ -3186,7 +6767,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranVulture:
+		case OI::TerranVulture:
 			switch(stage)
 			{
 				case 0:
@@ -3200,7 +6781,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranGoliath:
+		case OI::TerranGoliath:
 			switch(stage)
 			{
 				case 0:
@@ -3216,7 +6797,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranSiegeTankTankMode:
+		case OI::TerranSiegeTankTankMode:
 			switch(stage)
 			{
 				case 0:
@@ -3232,7 +6813,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranSCV:
+		case OI::TerranSCV:
 			switch(stage)
 			{
 				case 0:
@@ -3246,7 +6827,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranWraith:
+		case OI::TerranWraith:
 			switch(stage)
 			{
 				case 0:
@@ -3261,7 +6842,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranScienceVessel:
+		case OI::TerranScienceVessel:
 			switch(stage)
 			{
 				case 0:
@@ -3278,7 +6859,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranDropship:
+		case OI::TerranDropship:
 			switch(stage)
 			{
 				case 0:
@@ -3294,7 +6875,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranBattlecruiser:
+		case OI::TerranBattlecruiser:
 			switch(stage)
 			{
 				case 0:
@@ -3311,7 +6892,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranNuclearMissile:
+		case OI::TerranNuclearMissile:
 			switch(stage)
 			{
 				case 0:
@@ -3327,7 +6908,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranFirebat:
+		case OI::TerranFirebat:
 			switch(stage)
 			{
 				case 0:
@@ -3343,7 +6924,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranMedic:
+		case OI::TerranMedic:
 			switch(stage)
 			{
 				case 0:
@@ -3359,7 +6940,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildZergZergling:
+		case OI::ZergZergling:
 			switch(stage)
 			{
 				case 0:
@@ -3371,7 +6952,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 1:
 					return result;
 			}
-		case BuildZergHydralisk:
+		case OI::ZergHydralisk:
 			switch(stage)
 			{
 				case 0:
@@ -3384,7 +6965,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 1:
 					return result;
 			}
-		case BuildZergUltralisk:
+		case OI::ZergUltralisk:
 			switch(stage)
 			{
 				case 0:
@@ -3397,7 +6978,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 1:
 					return result;
 			}
-		case BuildZergDrone:
+		case OI::ZergDrone:
 			switch(stage)
 			{
 				case 0:
@@ -3410,7 +6991,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildZergOverlord:
+		case OI::ZergOverlord:
 			switch(stage)
 			{
 				case 0:
@@ -3422,7 +7003,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildZergMutalisk:
+		case OI::ZergMutalisk:
 			switch(stage)
 			{
 				case 0:
@@ -3435,19 +7016,26 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 1:
 					return result;
 			}
-		case BuildZergGuardian:
+		case OI::ZergGuardian:
 			switch(stage)
 			{
 				case 0:
+					Needs(res, 1, RI::ZergSpire, result, blocking);
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 4, RI::ZergSupply, result, blocking);
+					Consums(res, 1, RI::Larva, result, blocking);
+					return result;
+				case 1:
 					Needs(res, 1, RI::ZergGreaterSpire, result, blocking);
 					Consums(res, 50, RI::Minerals, result, blocking);
 					Consums(res, 100, RI::Gas, result, blocking);
 					Locks(res, 4, RI::ZergSupply, result, blocking);
 					return result;
-				case 1:
+				case 2:
 					return result;
 			}
-		case BuildZergQueen:
+		case OI::ZergQueen:
 			switch(stage)
 			{
 				case 0:
@@ -3460,7 +7048,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 1:
 					return result;
 			}
-		case BuildZergDefiler:
+		case OI::ZergDefiler:
 			switch(stage)
 			{
 				case 0:
@@ -3473,7 +7061,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 1:
 					return result;
 			}
-		case BuildZergScourge:
+		case OI::ZergScourge:
 			switch(stage)
 			{
 				case 0:
@@ -3486,7 +7074,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 1:
 					return result;
 			}
-		case BuildZergInfestedTerran:
+		case OI::ZergInfestedTerran:
 			switch(stage)
 			{
 				case 0:
@@ -3498,7 +7086,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 1:
 					return result;
 			}
-		case BuildTerranValkyrie:
+		case OI::TerranValkyrie:
 			switch(stage)
 			{
 				case 0:
@@ -3515,7 +7103,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossCorsair:
+		case OI::ProtossCorsair:
 			switch(stage)
 			{
 				case 0:
@@ -3530,7 +7118,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossDarkTemplar:
+		case OI::ProtossDarkTemplar:
 			switch(stage)
 			{
 				case 0:
@@ -3546,19 +7134,26 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildZergDevourer:
+		case OI::ZergDevourer:
 			switch(stage)
 			{
 				case 0:
+					Needs(res, 1, RI::ZergSpire, result, blocking);
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 4, RI::ZergSupply, result, blocking);
+					Consums(res, 1, RI::Larva, result, blocking);
+					return result;
+				case 1:
 					Needs(res, 1, RI::ZergGreaterSpire, result, blocking);
 					Consums(res, 150, RI::Minerals, result, blocking);
 					Consums(res, 50, RI::Gas, result, blocking);
 					Locks(res, 4, RI::ZergSupply, result, blocking);
 					return result;
-				case 1:
+				case 2:
 					return result;
 			}
-		case BuildProtossProbe:
+		case OI::ProtossProbe:
 			switch(stage)
 			{
 				case 0:
@@ -3572,7 +7167,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossZealot:
+		case OI::ProtossZealot:
 			switch(stage)
 			{
 				case 0:
@@ -3586,7 +7181,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossDragoon:
+		case OI::ProtossDragoon:
 			switch(stage)
 			{
 				case 0:
@@ -3602,7 +7197,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossHighTemplar:
+		case OI::ProtossHighTemplar:
 			switch(stage)
 			{
 				case 0:
@@ -3618,7 +7213,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossShuttle:
+		case OI::ProtossShuttle:
 			switch(stage)
 			{
 				case 0:
@@ -3632,7 +7227,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossScout:
+		case OI::ProtossScout:
 			switch(stage)
 			{
 				case 0:
@@ -3647,7 +7242,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossArbiter:
+		case OI::ProtossArbiter:
 			switch(stage)
 			{
 				case 0:
@@ -3663,7 +7258,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossCarrier:
+		case OI::ProtossCarrier:
 			switch(stage)
 			{
 				case 0:
@@ -3679,7 +7274,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossReaver:
+		case OI::ProtossReaver:
 			switch(stage)
 			{
 				case 0:
@@ -3695,7 +7290,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildProtossObserver:
+		case OI::ProtossObserver:
 			switch(stage)
 			{
 				case 0:
@@ -3711,19 +7306,26 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildZergLurker:
+		case OI::ZergLurker:
 			switch(stage)
 			{
 				case 0:
+					Needs(res, 1, RI::ZergHydraliskDen, result, blocking);
+					Consums(res, 75, RI::Minerals, result, blocking);
+					Consums(res, 25, RI::Gas, result, blocking);
+					Locks(res, 2, RI::ZergSupply, result, blocking);
+					Consums(res, 1, RI::Larva, result, blocking);
+					return result;
+				case 1:
 					Consums(res, 50, RI::Minerals, result, blocking);
 					Consums(res, 100, RI::Gas, result, blocking);
 					Locks(res, 4, RI::ZergSupply, result, blocking);
-					Needs(res, 1, RI::TechLurkerAspect, result, blocking);
+					Needs(res, 1, RI::LurkerAspect, result, blocking);
 					return result;
-				case 1:
+				case 2:
 					return result;
 			}
-		case BuildTerranCommandCenter:
+		case OI::TerranCommandCenter:
 			switch(stage)
 			{
 				case 0:
@@ -3737,7 +7339,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranComsatStation:
+		case OI::TerranComsatStation:
 			switch(stage)
 			{
 				case 0:
@@ -3752,7 +7354,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranNuclearSilo:
+		case OI::TerranNuclearSilo:
 			switch(stage)
 			{
 				case 0:
@@ -3768,7 +7370,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranSupplyDepot:
+		case OI::TerranSupplyDepot:
 			switch(stage)
 			{
 				case 0:
@@ -3782,7 +7384,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranRefinery:
+		case OI::TerranRefinery:
 			switch(stage)
 			{
 				case 0:
@@ -3796,7 +7398,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranBarracks:
+		case OI::TerranBarracks:
 			switch(stage)
 			{
 				case 0:
@@ -3811,7 +7413,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranAcademy:
+		case OI::TerranAcademy:
 			switch(stage)
 			{
 				case 0:
@@ -3826,7 +7428,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranFactory:
+		case OI::TerranFactory:
 			switch(stage)
 			{
 				case 0:
@@ -3842,7 +7444,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranStarport:
+		case OI::TerranStarport:
 			switch(stage)
 			{
 				case 0:
@@ -3858,7 +7460,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranControlTower:
+		case OI::TerranControlTower:
 			switch(stage)
 			{
 				case 0:
@@ -3872,7 +7474,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranScienceFacility:
+		case OI::TerranScienceFacility:
 			switch(stage)
 			{
 				case 0:
@@ -3888,7 +7490,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranCovertOps:
+		case OI::TerranCovertOps:
 			switch(stage)
 			{
 				case 0:
@@ -3902,7 +7504,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranPhysicsLab:
+		case OI::TerranPhysicsLab:
 			switch(stage)
 			{
 				case 0:
@@ -3916,7 +7518,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranMachineShop:
+		case OI::TerranMachineShop:
 			switch(stage)
 			{
 				case 0:
@@ -3930,7 +7532,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case BuildTerranEngineeringBay:
+		case OI::TerranEngineeringBay:
 			switch(stage)
 			{
 				case 0:
@@ -3945,7 +7547,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranArmory:
+		case OI::TerranArmory:
 			switch(stage)
 			{
 				case 0:
@@ -3961,7 +7563,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranMissileTurret:
+		case OI::TerranMissileTurret:
 			switch(stage)
 			{
 				case 0:
@@ -3976,7 +7578,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildTerranBunker:
+		case OI::TerranBunker:
 			switch(stage)
 			{
 				case 0:
@@ -3991,7 +7593,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergHatchery:
+		case OI::ZergHatchery:
 			switch(stage)
 			{
 				case 0:
@@ -4006,43 +7608,37 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergLair:
+		case OI::ZergLair:
 			switch(stage)
 			{
 				case 0:
-					Locks(res, 1, RI::ZergWorker, result, blocking);
-					return result;
-				case 1:
-					Consums(res, 1, RI::ZergWorker, result, blocking);
+					Consums(res, 1, RI::ZergHatchery, result, blocking);
 					Needs(res, 1, RI::ZergHatchery, result, blocking);
 					Needs(res, 1, RI::ZergSpawningPool, result, blocking);
 					Consums(res, 150, RI::Minerals, result, blocking);
 					Consums(res, 100, RI::Gas, result, blocking);
 					return result;
+				case 1:
+					return result;
 				case 2:
 					return result;
-				case 3:
-					return result;
 			}
-		case BuildZergHive:
+		case OI::ZergHive:
 			switch(stage)
 			{
 				case 0:
-					Locks(res, 1, RI::ZergWorker, result, blocking);
-					return result;
-				case 1:
-					Consums(res, 1, RI::ZergWorker, result, blocking);
+					Locks(res, 1, RI::ZergLair, result, blocking);
 					Needs(res, 1, RI::ZergLair, result, blocking);
 					Needs(res, 1, RI::ZergQueensNest, result, blocking);
 					Consums(res, 200, RI::Minerals, result, blocking);
 					Consums(res, 150, RI::Gas, result, blocking);
 					return result;
+				case 1:
+					return result;
 				case 2:
 					return result;
-				case 3:
-					return result;
 			}
-		case BuildZergNydusCanal:
+		case OI::ZergNydusCanal:
 			switch(stage)
 			{
 				case 0:
@@ -4058,7 +7654,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergHydraliskDen:
+		case OI::ZergHydraliskDen:
 			switch(stage)
 			{
 				case 0:
@@ -4075,7 +7671,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergDefilerMound:
+		case OI::ZergDefilerMound:
 			switch(stage)
 			{
 				case 0:
@@ -4092,7 +7688,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergGreaterSpire:
+		case OI::ZergGreaterSpire:
 			switch(stage)
 			{
 				case 0:
@@ -4109,7 +7705,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergQueensNest:
+		case OI::ZergQueensNest:
 			switch(stage)
 			{
 				case 0:
@@ -4126,7 +7722,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergEvolutionChamber:
+		case OI::ZergEvolutionChamber:
 			switch(stage)
 			{
 				case 0:
@@ -4142,7 +7738,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergUltraliskCavern:
+		case OI::ZergUltraliskCavern:
 			switch(stage)
 			{
 				case 0:
@@ -4159,7 +7755,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergSpire:
+		case OI::ZergSpire:
 			switch(stage)
 			{
 				case 0:
@@ -4176,7 +7772,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergSpawningPool:
+		case OI::ZergSpawningPool:
 			switch(stage)
 			{
 				case 0:
@@ -4192,7 +7788,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergCreepColony:
+		case OI::ZergCreepColony:
 			switch(stage)
 			{
 				case 0:
@@ -4207,7 +7803,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildZergSporeColony:
+		case OI::ZergSporeColony:
 			switch(stage)
 			{
 				case 0:
@@ -4215,15 +7811,20 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 					return result;
 				case 1:
 					Consums(res, 1, RI::ZergWorker, result, blocking);
+					Consums(res, 75, RI::Minerals, result, blocking);
+					return result;
+				case 2:
+					return result;
+				case 3:
 					Needs(res, 1, RI::ZergEvolutionChamber, result, blocking);
 					Consums(res, 50, RI::Minerals, result, blocking);
 					return result;
-				case 2:
+				case 4:
 					return result;
-				case 3:
+				case 5:
 					return result;
 			}
-		case BuildZergSunkenColony:
+		case OI::ZergSunkenColony:
 			switch(stage)
 			{
 				case 0:
@@ -4231,15 +7832,20 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 					return result;
 				case 1:
 					Consums(res, 1, RI::ZergWorker, result, blocking);
+					Consums(res, 75, RI::Minerals, result, blocking);
+					return result;
+				case 2:
+					return result;
+				case 3:
 					Needs(res, 1, RI::ZergSpawningPool, result, blocking);
 					Consums(res, 50, RI::Minerals, result, blocking);
 					return result;
-				case 2:
+				case 4:
 					return result;
-				case 3:
+				case 5:
 					return result;
 			}
-		case BuildZergExtractor:
+		case OI::ZergExtractor:
 			switch(stage)
 			{
 				case 0:
@@ -4254,7 +7860,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossNexus:
+		case OI::ProtossNexus:
 			switch(stage)
 			{
 				case 0:
@@ -4268,7 +7874,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossRoboticsFacility:
+		case OI::ProtossRoboticsFacility:
 			switch(stage)
 			{
 				case 0:
@@ -4284,7 +7890,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossPylon:
+		case OI::ProtossPylon:
 			switch(stage)
 			{
 				case 0:
@@ -4298,7 +7904,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossAssimilator:
+		case OI::ProtossAssimilator:
 			switch(stage)
 			{
 				case 0:
@@ -4312,7 +7918,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossObservatory:
+		case OI::ProtossObservatory:
 			switch(stage)
 			{
 				case 0:
@@ -4328,7 +7934,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossGateway:
+		case OI::ProtossGateway:
 			switch(stage)
 			{
 				case 0:
@@ -4343,7 +7949,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossPhotonCannon:
+		case OI::ProtossPhotonCannon:
 			switch(stage)
 			{
 				case 0:
@@ -4358,7 +7964,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossCitadelofAdun:
+		case OI::ProtossCitadelofAdun:
 			switch(stage)
 			{
 				case 0:
@@ -4374,7 +7980,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossCyberneticsCore:
+		case OI::ProtossCyberneticsCore:
 			switch(stage)
 			{
 				case 0:
@@ -4389,7 +7995,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossTemplarArchives:
+		case OI::ProtossTemplarArchives:
 			switch(stage)
 			{
 				case 0:
@@ -4405,7 +8011,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossForge:
+		case OI::ProtossForge:
 			switch(stage)
 			{
 				case 0:
@@ -4420,7 +8026,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossStargate:
+		case OI::ProtossStargate:
 			switch(stage)
 			{
 				case 0:
@@ -4436,7 +8042,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossFleetBeacon:
+		case OI::ProtossFleetBeacon:
 			switch(stage)
 			{
 				case 0:
@@ -4452,7 +8058,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossArbiterTribunal:
+		case OI::ProtossArbiterTribunal:
 			switch(stage)
 			{
 				case 0:
@@ -4468,7 +8074,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossRoboticsSupportBay:
+		case OI::ProtossRoboticsSupportBay:
 			switch(stage)
 			{
 				case 0:
@@ -4484,7 +8090,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case BuildProtossShieldBattery:
+		case OI::ProtossShieldBattery:
 			switch(stage)
 			{
 				case 0:
@@ -4499,7 +8105,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 3:
 					return result;
 			}
-		case TechStimPacks:
+		case OI::StimPacks:
 			switch(stage)
 			{
 				case 0:
@@ -4512,7 +8118,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechLockdown:
+		case OI::Lockdown:
 			switch(stage)
 			{
 				case 0:
@@ -4525,7 +8131,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechEMPShockwave:
+		case OI::EMPShockwave:
 			switch(stage)
 			{
 				case 0:
@@ -4538,7 +8144,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechSpiderMines:
+		case OI::SpiderMines:
 			switch(stage)
 			{
 				case 0:
@@ -4551,7 +8157,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechTankSiegeMode:
+		case OI::TankSiegeMode:
 			switch(stage)
 			{
 				case 0:
@@ -4564,7 +8170,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechIrradiate:
+		case OI::Irradiate:
 			switch(stage)
 			{
 				case 0:
@@ -4577,7 +8183,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechYamatoGun:
+		case OI::YamatoGun:
 			switch(stage)
 			{
 				case 0:
@@ -4590,7 +8196,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechCloakingField:
+		case OI::CloakingField:
 			switch(stage)
 			{
 				case 0:
@@ -4603,7 +8209,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechPersonnelCloaking:
+		case OI::PersonnelCloaking:
 			switch(stage)
 			{
 				case 0:
@@ -4616,7 +8222,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechBurrowing:
+		case OI::Burrowing:
 			switch(stage)
 			{
 				case 0:
@@ -4629,7 +8235,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechSpawnBroodlings:
+		case OI::SpawnBroodlings:
 			switch(stage)
 			{
 				case 0:
@@ -4642,7 +8248,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechPlague:
+		case OI::Plague:
 			switch(stage)
 			{
 				case 0:
@@ -4655,7 +8261,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechConsume:
+		case OI::Consume:
 			switch(stage)
 			{
 				case 0:
@@ -4668,7 +8274,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechEnsnare:
+		case OI::Ensnare:
 			switch(stage)
 			{
 				case 0:
@@ -4681,7 +8287,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechPsionicStorm:
+		case OI::PsionicStorm:
 			switch(stage)
 			{
 				case 0:
@@ -4694,7 +8300,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechHallucination:
+		case OI::Hallucination:
 			switch(stage)
 			{
 				case 0:
@@ -4707,7 +8313,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechRecall:
+		case OI::Recall:
 			switch(stage)
 			{
 				case 0:
@@ -4720,7 +8326,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechStasisField:
+		case OI::StasisField:
 			switch(stage)
 			{
 				case 0:
@@ -4733,7 +8339,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechRestoration:
+		case OI::Restoration:
 			switch(stage)
 			{
 				case 0:
@@ -4746,7 +8352,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechDisruptionWeb:
+		case OI::DisruptionWeb:
 			switch(stage)
 			{
 				case 0:
@@ -4759,7 +8365,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechMindControl:
+		case OI::MindControl:
 			switch(stage)
 			{
 				case 0:
@@ -4772,7 +8378,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechOpticalFlare:
+		case OI::OpticalFlare:
 			switch(stage)
 			{
 				case 0:
@@ -4785,7 +8391,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechMaelstrom:
+		case OI::Maelstrom:
 			switch(stage)
 			{
 				case 0:
@@ -4798,7 +8404,7 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
-		case TechLurkerAspect:
+		case OI::LurkerAspect:
 			switch(stage)
 			{
 				case 0:
@@ -4811,1144 +8417,4580 @@ TimeType Operation::firstApplyableAt(const ResourcesType& res, int stage, ResInd
 				case 2:
 					return result;
 			}
+		case OI::TerranInfantryArmor1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranEngineeringBay, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranInfantryArmor2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 175, RI::Minerals, result, blocking);
+					Consums(res, 175, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranEngineeringBay, result, blocking);
+					Needs(res, 1, RI::TerranInfantryArmor, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranInfantryArmor3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 250, RI::Minerals, result, blocking);
+					Consums(res, 250, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranEngineeringBay, result, blocking);
+					Needs(res, 2, RI::TerranInfantryArmor, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranVehiclePlating1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranVehiclePlating2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 175, RI::Minerals, result, blocking);
+					Consums(res, 175, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					Needs(res, 1, RI::TerranVehiclePlating, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranVehiclePlating3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 250, RI::Minerals, result, blocking);
+					Consums(res, 250, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					Needs(res, 2, RI::TerranVehiclePlating, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranShipPlating1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranShipPlating2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 225, RI::Minerals, result, blocking);
+					Consums(res, 225, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					Needs(res, 1, RI::TerranShipPlating, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranShipPlating3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 300, RI::Minerals, result, blocking);
+					Consums(res, 300, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					Needs(res, 2, RI::TerranShipPlating, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergCarapace1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergEvolutionChamber, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergCarapace2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ZergLair, result, blocking);
+					Consums(res, 225, RI::Minerals, result, blocking);
+					Consums(res, 225, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergEvolutionChamber, result, blocking);
+					Needs(res, 1, RI::ZergCarapace, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergCarapace3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ZergHive, result, blocking);
+					Consums(res, 300, RI::Minerals, result, blocking);
+					Consums(res, 300, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergEvolutionChamber, result, blocking);
+					Needs(res, 2, RI::ZergCarapace, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergFlyerCarapace1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergSpire, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergFlyerCarapace2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ZergLair, result, blocking);
+					Consums(res, 225, RI::Minerals, result, blocking);
+					Consums(res, 225, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergSpire, result, blocking);
+					Needs(res, 1, RI::ZergFlyerCarapace, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergFlyerCarapace3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ZergHive, result, blocking);
+					Consums(res, 300, RI::Minerals, result, blocking);
+					Consums(res, 300, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergSpire, result, blocking);
+					Needs(res, 2, RI::ZergFlyerCarapace, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossGroundArmor1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossForge, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossGroundArmor2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ProtossTemplarArchives, result, blocking);
+					Consums(res, 175, RI::Minerals, result, blocking);
+					Consums(res, 175, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossForge, result, blocking);
+					Needs(res, 1, RI::ProtossGroundArmor, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossGroundArmor3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ProtossTemplarArchives, result, blocking);
+					Consums(res, 250, RI::Minerals, result, blocking);
+					Consums(res, 250, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossForge, result, blocking);
+					Needs(res, 2, RI::ProtossGroundArmor, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossAirArmor1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossCyberneticsCore, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossAirArmor2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ProtossFleetBeacon, result, blocking);
+					Consums(res, 225, RI::Minerals, result, blocking);
+					Consums(res, 225, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossCyberneticsCore, result, blocking);
+					Needs(res, 1, RI::ProtossAirArmor, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossAirArmor3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ProtossFleetBeacon, result, blocking);
+					Consums(res, 300, RI::Minerals, result, blocking);
+					Consums(res, 300, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossCyberneticsCore, result, blocking);
+					Needs(res, 2, RI::ProtossAirArmor, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranInfantryWeapons1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranEngineeringBay, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranInfantryWeapons2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 175, RI::Minerals, result, blocking);
+					Consums(res, 175, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranEngineeringBay, result, blocking);
+					Needs(res, 1, RI::TerranInfantryWeapons, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranInfantryWeapons3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 250, RI::Minerals, result, blocking);
+					Consums(res, 250, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranEngineeringBay, result, blocking);
+					Needs(res, 2, RI::TerranInfantryWeapons, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranVehicleWeapons1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranVehicleWeapons2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 175, RI::Minerals, result, blocking);
+					Consums(res, 175, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					Needs(res, 1, RI::TerranVehicleWeapons, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranVehicleWeapons3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 250, RI::Minerals, result, blocking);
+					Consums(res, 250, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					Needs(res, 2, RI::TerranVehicleWeapons, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranShipWeapons1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranShipWeapons2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					Needs(res, 1, RI::TerranShipWeapons, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TerranShipWeapons3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranScienceFacility, result, blocking);
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranArmory, result, blocking);
+					Needs(res, 2, RI::TerranShipWeapons, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergMeleeAttacks1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergEvolutionChamber, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergMeleeAttacks2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ZergLair, result, blocking);
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergEvolutionChamber, result, blocking);
+					Needs(res, 1, RI::ZergMeleeAttacks, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergMeleeAttacks3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ZergHive, result, blocking);
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergEvolutionChamber, result, blocking);
+					Needs(res, 2, RI::ZergMeleeAttacks, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergMissileAttacks1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergEvolutionChamber, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergMissileAttacks2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ZergLair, result, blocking);
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergEvolutionChamber, result, blocking);
+					Needs(res, 1, RI::ZergMissileAttacks, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergMissileAttacks3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ZergHive, result, blocking);
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergEvolutionChamber, result, blocking);
+					Needs(res, 2, RI::ZergMissileAttacks, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergFlyerAttacks1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergSpire, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergFlyerAttacks2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ZergLair, result, blocking);
+					Consums(res, 175, RI::Minerals, result, blocking);
+					Consums(res, 175, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergSpire, result, blocking);
+					Needs(res, 1, RI::ZergFlyerAttacks, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ZergFlyerAttacks3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ZergHive, result, blocking);
+					Consums(res, 250, RI::Minerals, result, blocking);
+					Consums(res, 250, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergSpire, result, blocking);
+					Needs(res, 2, RI::ZergFlyerAttacks, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossGroundWeapons1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossForge, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossGroundWeapons2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ProtossTemplarArchives, result, blocking);
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossForge, result, blocking);
+					Needs(res, 1, RI::ProtossGroundWeapons, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossGroundWeapons3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ProtossTemplarArchives, result, blocking);
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossForge, result, blocking);
+					Needs(res, 2, RI::ProtossGroundWeapons, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossAirWeapons1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossCyberneticsCore, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossAirWeapons2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ProtossFleetBeacon, result, blocking);
+					Consums(res, 175, RI::Minerals, result, blocking);
+					Consums(res, 175, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossCyberneticsCore, result, blocking);
+					Needs(res, 1, RI::ProtossAirWeapons, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossAirWeapons3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ProtossFleetBeacon, result, blocking);
+					Consums(res, 250, RI::Minerals, result, blocking);
+					Consums(res, 250, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossCyberneticsCore, result, blocking);
+					Needs(res, 2, RI::ProtossAirWeapons, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossPlasmaShields1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossForge, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossPlasmaShields2:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ProtossCyberneticsCore, result, blocking);
+					Consums(res, 300, RI::Minerals, result, blocking);
+					Consums(res, 300, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossForge, result, blocking);
+					Needs(res, 1, RI::ProtossPlasmaShields, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ProtossPlasmaShields3:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::ProtossCyberneticsCore, result, blocking);
+					Consums(res, 400, RI::Minerals, result, blocking);
+					Consums(res, 400, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossForge, result, blocking);
+					Needs(res, 2, RI::ProtossPlasmaShields, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::U_238Shells1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranAcademy, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::IonThrusters1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranMachineShop, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::TitanReactor1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranScienceFacility, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::OcularImplants1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranCovertOps, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::MoebiusReactor1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranCovertOps, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ApolloReactor1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranControlTower, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ColossusReactor1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranPhysicsLab, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::VentralSacs1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergLair, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::Antennae1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergLair, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::PneumatizedCarapace1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergLair, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::MetabolicBoost1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergSpawningPool, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::AdrenalGlands1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergSpawningPool, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::MuscularAugments1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergHydraliskDen, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::GroovedSpines1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergHydraliskDen, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::GameteMeiosis1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergQueensNest, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::MetasynapticNode1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergDefilerMound, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::SingularityCharge1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossCyberneticsCore, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::LegEnhancements1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossCitadelofAdun, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ScarabDamage1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossRoboticsSupportBay, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ReaverCapacity1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossRoboticsSupportBay, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::GraviticDrive1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossRoboticsSupportBay, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::SensorArray1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossObservatory, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::GraviticBoosters1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossObservatory, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::KhaydarinAmulet1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossTemplarArchives, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ApialSensors1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossFleetBeacon, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::GraviticThrusters1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossFleetBeacon, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::CarrierCapacity1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossFleetBeacon, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::KhaydarinCore1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossArbiterTribunal, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ArgusJewel1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossFleetBeacon, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ArgusTalisman1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ProtossTemplarArchives, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::CaduceusReactor1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranAcademy, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::ChitinousPlating1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, result, blocking);
+					Consums(res, 150, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergUltraliskCavern, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::AnabolicSynthesis1:
+			switch(stage)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, result, blocking);
+					Consums(res, 200, RI::Gas, result, blocking);
+					Locks(res, 1, RI::ZergUltraliskCavern, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		case OI::CharonBoosters1:
+			switch(stage)
+			{
+				case 0:
+					Needs(res, 1, RI::TerranArmory, result, blocking);
+					Consums(res, 100, RI::Minerals, result, blocking);
+					Consums(res, 100, RI::Gas, result, blocking);
+					Locks(res, 1, RI::TerranMachineShop, result, blocking);
+					return result;
+				case 1:
+					return result;
+				case 2:
+					return result;
+			}
+		default:
+			break;
 	}
 	return result;
 }
 
-void Operation::apply(ResourcesType& res, const TimeInterval& interval, bool pushdecs = false) const
+void Operation::apply(Resources& res, const TimeInterval& interval, bool pushdecs) const
 {
 	TimeType applytime = scheduledtime_;
-	switch(index_)
+	switch(index_.getType())
 	{
-		case BuildTerranMarine:
-			Needs(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Locks(res, 2, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			applytime += 360;
-			Unlocks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranGhost:
-			Needs(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
-			Consums(res, 25, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 75, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 2, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			applytime += 750;
-			Unlocks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranVulture:
-			Needs(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
-			Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			applytime += 450;
-			Unlocks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranGoliath:
-			Needs(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranSiegeTankTankMode:
-			Needs(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			applytime += 750;
-			Unlocks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranSCV:
-			Needs(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Locks(res, 2, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			applytime += 300;
-			Unlocks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			Prods(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranWraith:
-			Needs(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 900;
-			Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranScienceVessel:
-			Needs(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranControlTower, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 225, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 1200;
-			Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranDropship:
-			Needs(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranControlTower, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 750;
-			Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranBattlecruiser:
-			Needs(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranControlTower, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranPhysicsLab, interval, applytime, pushdecs);
-			Consums(res, 400, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 300, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 12, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 2000;
-			Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranNuclearMissile:
-			Needs(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranNuclearSilo, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 16, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranNuclearSilo, interval, applytime, pushdecs);
-			applytime += 1500;
-			Unlocks(res, 1, RI::TerranNuclearSilo, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranFirebat:
-			Needs(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 25, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 2, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			applytime += 360;
-			Unlocks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranMedic:
-			Needs(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 25, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 2, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			applytime += 450;
-			Unlocks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergZergling:
-			Needs(res, 1, RI::ZergSpawningPool, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
-			applytime += 420;
-			break;
-		case BuildZergHydralisk:
-			Needs(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
-			Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 25, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
-			applytime += 420;
-			break;
-		case BuildZergUltralisk:
-			Needs(res, 1, RI::ZergUltraliskCavern, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 8, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
-			applytime += 900;
-			break;
-		case BuildZergDrone:
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
-			applytime += 300;
-			Prods(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergOverlord:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
-			applytime += 600;
-			Prods(res, 16, RI::ZergSupply, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergMutalisk:
-			Needs(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
-			applytime += 600;
-			break;
-		case BuildZergGuardian:
-			Needs(res, 1, RI::ZergGreaterSpire, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
-			applytime += 600;
-			break;
-		case BuildZergQueen:
-			Needs(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
-			applytime += 750;
-			break;
-		case BuildZergDefiler:
-			Needs(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
-			applytime += 750;
-			break;
-		case BuildZergScourge:
-			Needs(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
-			Consums(res, 25, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 75, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
-			applytime += 450;
-			break;
-		case BuildZergInfestedTerran:
-			Needs(res, 1, RI::ZergInfestedCommandCenter, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			applytime += 600;
-			break;
-		case BuildTerranValkyrie:
-			Needs(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranControlTower, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
-			Consums(res, 250, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 125, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 6, RI::TerranSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 750;
-			Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossCorsair:
-			Needs(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossDarkTemplar:
-			Needs(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			Consums(res, 125, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			applytime += 750;
-			Unlocks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergDevourer:
-			Needs(res, 1, RI::ZergGreaterSpire, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
-			applytime += 600;
-			break;
-		case BuildProtossProbe:
-			Needs(res, 1, RI::ProtossNexus, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Locks(res, 2, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossNexus, interval, applytime, pushdecs);
-			applytime += 300;
-			Unlocks(res, 1, RI::ProtossNexus, interval, applytime, pushdecs);
-			Prods(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossZealot:
-			Needs(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossDragoon:
-			Needs(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
-			Consums(res, 125, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			applytime += 750;
-			Unlocks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossHighTemplar:
-			Needs(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			applytime += 750;
-			Unlocks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossShuttle:
-			Needs(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			applytime += 900;
-			Unlocks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossScout:
-			Needs(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			Consums(res, 275, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 125, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 6, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			applytime += 1200;
-			Unlocks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossArbiter:
-			Needs(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 350, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 8, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			applytime += 2400;
-			Unlocks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossCarrier:
-			Needs(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
-			Consums(res, 350, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 250, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 12, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			applytime += 2100;
-			Unlocks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossReaver:
-			Needs(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ProtossRoboticsSupportBay, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 8, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			applytime += 1050;
-			Unlocks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossObserver:
-			Needs(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ProtossObservatory, interval, applytime, pushdecs);
-			Consums(res, 25, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 75, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 2, RI::ProtossSupply, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergLurker:
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TechLurkerAspect, interval, applytime, pushdecs);
-			applytime += 600;
-			break;
-		case BuildTerranCommandCenter:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Consums(res, 400, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			Prods(res, 20, RI::TerranSupply, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranComsatStation:
-			Locks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranNuclearSilo:
-			Locks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			applytime += 1200;
-			Unlocks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranSupplyDepot:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			Prods(res, 16, RI::TerranSupply, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranRefinery:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			Prods(res, 3, RI::GasWorkingPlaces, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranBarracks:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranAcademy:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranFactory:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranStarport:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			applytime += 1050;
-			Prods(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranControlTower:
-			Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranScienceFacility:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			applytime += 900;
-			Prods(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranCovertOps:
-			Locks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranPhysicsLab:
-			Locks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranMachineShop:
-			Locks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			Needs(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			applytime += 600;
-			Unlocks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranEngineeringBay:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
-			Consums(res, 125, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 900;
-			Prods(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranArmory:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranMissileTurret:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
-			Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 450;
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildTerranBunker:
-			Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 450;
-			Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergHatchery:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 300, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::ZergHatchery, interval, applytime, pushdecs);
-			Prods(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergLair:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergHatchery, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergSpawningPool, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			applytime += 1500;
-			Prods(res, 1, RI::ZergLair, interval, applytime, pushdecs);
-			Prods(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergHive:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergLair, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::ZergHive, interval, applytime, pushdecs);
-			Prods(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergNydusCanal:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergHive, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 600;
-			applytime += 1;
-			break;
-		case BuildZergHydraliskDen:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergSpawningPool, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
-			applytime += 600;
-			Prods(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergDefilerMound:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergHive, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			applytime += 900;
-			Prods(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergGreaterSpire:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::ZergGreaterSpire, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergQueensNest:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergLair, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			applytime += 900;
-			Prods(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergEvolutionChamber:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergHatchery, interval, applytime, pushdecs);
-			Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 600;
-			Prods(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergUltraliskCavern:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergHive, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::ZergUltraliskCavern, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergSpire:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergLair, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergSpawningPool:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergHatchery, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::ZergSpawningPool, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildZergCreepColony:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 300;
-			applytime += 1;
-			break;
-		case BuildZergSporeColony:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 300;
-			applytime += 1;
-			break;
-		case BuildZergSunkenColony:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Needs(res, 1, RI::ZergSpawningPool, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 300;
-			applytime += 1;
-			break;
-		case BuildZergExtractor:
-			Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
-			Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			applytime += 600;
-			Prods(res, 3, RI::GasWorkingPlaces, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossNexus:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Consums(res, 400, RI::Minerals, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::ProtossNexus, interval, applytime, pushdecs);
-			Prods(res, 18, RI::ProtossSupply, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossRoboticsFacility:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossPylon:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 450;
-			Prods(res, 16, RI::ProtossSupply, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossAssimilator:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 600;
-			Prods(res, 3, RI::GasWorkingPlaces, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossObservatory:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 450;
-			Prods(res, 1, RI::ProtossObservatory, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossGateway:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossNexus, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 900;
-			Prods(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossPhotonCannon:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 750;
-			applytime += 1;
-			break;
-		case BuildProtossCitadelofAdun:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 900;
-			Prods(res, 1, RI::ProtossCitadelofAdun, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossCyberneticsCore:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 900;
-			Prods(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossTemplarArchives:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossCitadelofAdun, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 900;
-			Prods(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossForge:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossNexus, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 600;
-			Prods(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossStargate:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 1050;
-			Prods(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossFleetBeacon:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
-			Consums(res, 300, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 900;
-			Prods(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossArbiterTribunal:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 900;
-			Prods(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossRoboticsSupportBay:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 450;
-			Prods(res, 1, RI::ProtossRoboticsSupportBay, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case BuildProtossShieldBattery:
-			Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 45;
-			Needs(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
-			applytime += 450;
-			applytime += 1;
-			break;
-		case TechStimPacks:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechStimPacks, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechLockdown:
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
-			applytime += 1500;
-			Prods(res, 1, RI::TechLockdown, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechEMPShockwave:
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::TechEMPShockwave, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechSpiderMines:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechSpiderMines, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechTankSiegeMode:
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechTankSiegeMode, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechIrradiate:
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechIrradiate, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechYamatoGun:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranPhysicsLab, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::TechYamatoGun, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranPhysicsLab, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechCloakingField:
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranControlTower, interval, applytime, pushdecs);
-			applytime += 1500;
-			Prods(res, 1, RI::TechCloakingField, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranControlTower, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechPersonnelCloaking:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechPersonnelCloaking, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechBurrowing:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ZergHatchery, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechBurrowing, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ZergHatchery, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechSpawnBroodlings:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechSpawnBroodlings, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechPlague:
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
-			applytime += 1500;
-			Prods(res, 1, RI::TechPlague, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechConsume:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
-			applytime += 1500;
-			Prods(res, 1, RI::TechConsume, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechEnsnare:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechEnsnare, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechPsionicStorm:
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::TechPsionicStorm, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechHallucination:
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechHallucination, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechRecall:
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::TechRecall, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechStasisField:
-			Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
-			applytime += 1500;
-			Prods(res, 1, RI::TechStasisField, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechRestoration:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechRestoration, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechDisruptionWeb:
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
-			applytime += 1200;
-			Prods(res, 1, RI::TechDisruptionWeb, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechMindControl:
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::TechMindControl, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechOpticalFlare:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::TechOpticalFlare, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechMaelstrom:
-			Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			applytime += 1500;
-			Prods(res, 1, RI::TechMaelstrom, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
-			applytime += 1;
-			break;
-		case TechLurkerAspect:
-			Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
-			Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
-			Locks(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
-			applytime += 1800;
-			Prods(res, 1, RI::TechLurkerAspect, interval, applytime, pushdecs);
-			Unlocks(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
-			applytime += 1;
+		case OI::SendTerranGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					Locks(res, 1, RI::GasWorkingPlaces, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranGasWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::ReturnTerranGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 1, RI::TerranGasWorker, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::GasWorkingPlaces, interval, applytime, pushdecs);
+					applytime += 1;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::SendProtossGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					Locks(res, 1, RI::GasWorkingPlaces, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossGasWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::ReturnProtossGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 1, RI::ProtossGasWorker, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::GasWorkingPlaces, interval, applytime, pushdecs);
+					applytime += 1;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::SendZergGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Locks(res, 1, RI::GasWorkingPlaces, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergGasWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::ReturnZergGasWorker:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 1, RI::ZergGasWorker, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::GasWorkingPlaces, interval, applytime, pushdecs);
+					applytime += 1;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranMarine:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Locks(res, 2, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
+					applytime += 360;
+				case 1:
+					Unlocks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranGhost:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 25, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 75, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 2, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
+					applytime += 750;
+				case 1:
+					Unlocks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranVulture:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
+					Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
+					applytime += 450;
+				case 1:
+					Unlocks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranGoliath:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Unlocks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranSiegeTankTankMode:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
+					applytime += 750;
+				case 1:
+					Unlocks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranSCV:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Locks(res, 2, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
+					applytime += 300;
+				case 1:
+					Unlocks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranWraith:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 900;
+				case 1:
+					Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranScienceVessel:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 225, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranDropship:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 750;
+				case 1:
+					Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranBattlecruiser:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 400, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 300, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 12, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 2000;
+				case 1:
+					Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranNuclearMissile:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 16, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranNuclearSilo, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::TerranNuclearSilo, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranFirebat:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 25, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 2, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
+					applytime += 360;
+				case 1:
+					Unlocks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranMedic:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 25, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 2, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
+					applytime += 450;
+				case 1:
+					Unlocks(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergZergling:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 420;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergHydralisk:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 25, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 420;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergUltralisk:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 8, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 900;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergDrone:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 300;
+				case 1:
+					Prods(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergOverlord:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Prods(res, 16, RI::ZergSupply, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergMutalisk:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergGuardian:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergQueen:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 750;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergDefiler:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 750;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergScourge:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 25, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 75, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 450;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergInfestedTerran:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranValkyrie:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 250, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 125, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 6, RI::TerranSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 750;
+				case 1:
+					Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossCorsair:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Unlocks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossDarkTemplar:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 125, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
+					applytime += 750;
+				case 1:
+					Unlocks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergDevourer:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossProbe:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Locks(res, 2, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossNexus, interval, applytime, pushdecs);
+					applytime += 300;
+				case 1:
+					Unlocks(res, 1, RI::ProtossNexus, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossZealot:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Unlocks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossDragoon:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 125, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
+					applytime += 750;
+				case 1:
+					Unlocks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossHighTemplar:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
+					applytime += 750;
+				case 1:
+					Unlocks(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossShuttle:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
+					applytime += 900;
+				case 1:
+					Unlocks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossScout:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 275, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 125, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 6, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossArbiter:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 350, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 8, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
+					applytime += 2400;
+				case 1:
+					Unlocks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossCarrier:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 350, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 250, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 12, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
+					applytime += 2100;
+				case 1:
+					Unlocks(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossReaver:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 8, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
+					applytime += 1050;
+				case 1:
+					Unlocks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossObserver:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 25, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 75, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 2, RI::ProtossSupply, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Unlocks(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergLurker:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 25, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
+					applytime += 420;
+				case 1:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranCommandCenter:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 400, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 2:
+					Prods(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					Prods(res, 20, RI::TerranSupply, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranComsatStation:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Unlocks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranNuclearSilo:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::TerranCommandCenter, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranSupplyDepot:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					Prods(res, 16, RI::TerranSupply, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranRefinery:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					Prods(res, 3, RI::GasWorkingPlaces, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranBarracks:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 2:
+					Prods(res, 1, RI::TerranBarracks, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranAcademy:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 2:
+					Prods(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranFactory:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 2:
+					Prods(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranStarport:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					applytime += 1050;
+				case 2:
+					Prods(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranControlTower:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Unlocks(res, 1, RI::TerranStarport, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranScienceFacility:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					applytime += 900;
+				case 2:
+					Prods(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranCovertOps:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Unlocks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranPhysicsLab:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Unlocks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranMachineShop:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					applytime += 600;
+				case 1:
+					Unlocks(res, 1, RI::TerranFactory, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranEngineeringBay:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 125, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 900;
+				case 2:
+					Prods(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranArmory:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 2:
+					Prods(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranMissileTurret:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 450;
+				case 2:
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranBunker:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 450;
+				case 2:
+					Unlocks(res, 1, RI::TerranWorker, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergHatchery:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 300, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 2:
+					Prods(res, 1, RI::ZergHatchery, interval, applytime, pushdecs);
+					Prods(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergLair:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 1, RI::ZergHatchery, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Prods(res, 1, RI::ZergLair, interval, applytime, pushdecs);
+					Prods(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergHive:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergLair, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 1:
+					Prods(res, 1, RI::ZergHive, interval, applytime, pushdecs);
+					Prods(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ZergLair, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergNydusCanal:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergHydraliskDen:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+					Prods(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergDefilerMound:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					applytime += 900;
+				case 2:
+					Prods(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergGreaterSpire:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 2:
+					Prods(res, 1, RI::ZergGreaterSpire, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergQueensNest:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					applytime += 900;
+				case 2:
+					Prods(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergEvolutionChamber:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+					Prods(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergUltraliskCavern:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 2:
+					Prods(res, 1, RI::ZergUltraliskCavern, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergSpire:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 2:
+					Prods(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergSpawningPool:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 2:
+					Prods(res, 1, RI::ZergSpawningPool, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergCreepColony:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 300;
+				case 2:
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergSporeColony:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 300;
+				case 2:
+					applytime += 1;
+				case 3:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 300;
+				case 4:
+					applytime += 1;
+				case 5:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergSunkenColony:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 75, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 300;
+				case 2:
+					applytime += 1;
+				case 3:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 300;
+				case 4:
+					applytime += 1;
+				case 5:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergExtractor:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Unlocks(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Consums(res, 1, RI::ZergWorker, interval, applytime, pushdecs);
+					Unlocks(res, 2, RI::ZergSupply, interval, applytime, pushdecs);
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+					Prods(res, 3, RI::GasWorkingPlaces, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossNexus:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 400, RI::Minerals, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 2:
+					Prods(res, 1, RI::ProtossNexus, interval, applytime, pushdecs);
+					Prods(res, 18, RI::ProtossSupply, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossRoboticsFacility:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 2:
+					Prods(res, 1, RI::ProtossRoboticsFacility, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossPylon:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 450;
+				case 2:
+					Prods(res, 16, RI::ProtossSupply, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossAssimilator:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+					Prods(res, 3, RI::GasWorkingPlaces, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossObservatory:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 450;
+				case 2:
+					Prods(res, 1, RI::ProtossObservatory, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossGateway:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 900;
+				case 2:
+					Prods(res, 1, RI::ProtossGateway, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossPhotonCannon:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 750;
+				case 2:
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossCitadelofAdun:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 900;
+				case 2:
+					Prods(res, 1, RI::ProtossCitadelofAdun, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossCyberneticsCore:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 900;
+				case 2:
+					Prods(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossTemplarArchives:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 900;
+				case 2:
+					Prods(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossForge:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 600;
+				case 2:
+					Prods(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossStargate:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 1050;
+				case 2:
+					Prods(res, 1, RI::ProtossStargate, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossFleetBeacon:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 300, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 900;
+				case 2:
+					Prods(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossArbiterTribunal:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 900;
+				case 2:
+					Prods(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossRoboticsSupportBay:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 450;
+				case 2:
+					Prods(res, 1, RI::ProtossRoboticsSupportBay, interval, applytime, pushdecs);
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossShieldBattery:
+			switch(stage_)
+			{
+				case 0:
+					Locks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 45;
+				case 1:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ProtossWorker, interval, applytime, pushdecs);
+					applytime += 450;
+				case 2:
+					applytime += 1;
+				case 3:
+				default:
+					break;
+			}
+			break;
+		case OI::StimPacks:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Lockdown:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::EMPShockwave:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 1:
+					Unlocks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::SpiderMines:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TankSiegeMode:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Irradiate:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::YamatoGun:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranPhysicsLab, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 1:
+					Unlocks(res, 1, RI::TerranPhysicsLab, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::CloakingField:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranControlTower, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::TerranControlTower, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::PersonnelCloaking:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Burrowing:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergHatchery, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::ZergHatchery, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::SpawnBroodlings:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Plague:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Consume:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Ensnare:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::PsionicStorm:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 1:
+					Unlocks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Hallucination:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Recall:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 1:
+					Unlocks(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::StasisField:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Restoration:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::DisruptionWeb:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					applytime += 1200;
+				case 1:
+					Unlocks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::MindControl:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 1:
+					Unlocks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::OpticalFlare:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 1:
+					Unlocks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Maelstrom:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::LurkerAspect:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
+					applytime += 1800;
+				case 1:
+					Prods(res, 1, RI::LurkerAspect, interval, applytime, pushdecs);
+					Unlocks(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranInfantryArmor1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranInfantryArmor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranInfantryArmor2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 175, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 175, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranInfantryArmor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranInfantryArmor3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 250, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 250, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranInfantryArmor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranVehiclePlating1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranVehiclePlating, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranVehiclePlating2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 175, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 175, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranVehiclePlating, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranVehiclePlating3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 250, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 250, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranVehiclePlating, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranShipPlating1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranShipPlating, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranShipPlating2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 225, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 225, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranShipPlating, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranShipPlating3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 300, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 300, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranShipPlating, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergCarapace1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergCarapace, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergCarapace2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 225, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 225, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergCarapace, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergCarapace3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 300, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 300, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergCarapace, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergFlyerCarapace1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergFlyerCarapace, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergFlyerCarapace2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 225, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 225, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergFlyerCarapace, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergFlyerCarapace3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 300, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 300, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergFlyerCarapace, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossGroundArmor1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossGroundArmor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossGroundArmor2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 175, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 175, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossGroundArmor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossGroundArmor3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 250, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 250, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossGroundArmor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossAirArmor1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossAirArmor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossAirArmor2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 225, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 225, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossAirArmor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossAirArmor3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 300, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 300, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossAirArmor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranInfantryWeapons1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranInfantryWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranInfantryWeapons2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 175, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 175, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranInfantryWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranInfantryWeapons3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 250, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 250, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::TerranEngineeringBay, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranInfantryWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranVehicleWeapons1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranVehicleWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranVehicleWeapons2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 175, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 175, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranVehicleWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranVehicleWeapons3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 250, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 250, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranVehicleWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranShipWeapons1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranShipWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranShipWeapons2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranShipWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TerranShipWeapons3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::TerranArmory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TerranShipWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergMeleeAttacks1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergMeleeAttacks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergMeleeAttacks2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergMeleeAttacks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergMeleeAttacks3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergMeleeAttacks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergMissileAttacks1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergMissileAttacks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergMissileAttacks2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergMissileAttacks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergMissileAttacks3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::ZergEvolutionChamber, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergMissileAttacks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergFlyerAttacks1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergFlyerAttacks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergFlyerAttacks2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 175, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 175, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergFlyerAttacks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ZergFlyerAttacks3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 250, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 250, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::ZergSpire, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ZergFlyerAttacks, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossGroundWeapons1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossGroundWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossGroundWeapons2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossGroundWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossGroundWeapons3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossGroundWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossAirWeapons1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossAirWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossAirWeapons2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 175, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 175, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossAirWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossAirWeapons3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 250, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 250, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossAirWeapons, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossPlasmaShields1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					applytime += 4000;
+				case 1:
+					Unlocks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossPlasmaShields, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossPlasmaShields2:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 300, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 300, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					applytime += 4480;
+				case 1:
+					Unlocks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossPlasmaShields, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ProtossPlasmaShields3:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 400, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 400, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					applytime += 4960;
+				case 1:
+					Unlocks(res, 1, RI::ProtossForge, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ProtossPlasmaShields, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::U_238Shells1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					Prods(res, 1, RI::U_238Shells, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::IonThrusters1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
+					Prods(res, 1, RI::IonThrusters, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::TitanReactor1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::TerranScienceFacility, interval, applytime, pushdecs);
+					Prods(res, 1, RI::TitanReactor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::OcularImplants1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
+					Prods(res, 1, RI::OcularImplants, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::MoebiusReactor1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::TerranCovertOps, interval, applytime, pushdecs);
+					Prods(res, 1, RI::MoebiusReactor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ApolloReactor1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranControlTower, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::TerranControlTower, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ApolloReactor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ColossusReactor1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranPhysicsLab, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::TerranPhysicsLab, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ColossusReactor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::VentralSacs1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergLair, interval, applytime, pushdecs);
+					applytime += 2400;
+				case 1:
+					Unlocks(res, 1, RI::ZergLair, interval, applytime, pushdecs);
+					Prods(res, 1, RI::VentralSacs, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::Antennae1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergLair, interval, applytime, pushdecs);
+					applytime += 2000;
+				case 1:
+					Unlocks(res, 1, RI::ZergLair, interval, applytime, pushdecs);
+					Prods(res, 1, RI::Antennae, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::PneumatizedCarapace1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergLair, interval, applytime, pushdecs);
+					applytime += 2000;
+				case 1:
+					Unlocks(res, 1, RI::ZergLair, interval, applytime, pushdecs);
+					Prods(res, 1, RI::PneumatizedCarapace, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::MetabolicBoost1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergSpawningPool, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::ZergSpawningPool, interval, applytime, pushdecs);
+					Prods(res, 1, RI::MetabolicBoost, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::AdrenalGlands1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergSpawningPool, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::ZergSpawningPool, interval, applytime, pushdecs);
+					Prods(res, 1, RI::AdrenalGlands, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::MuscularAugments1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
+					Prods(res, 1, RI::MuscularAugments, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::GroovedSpines1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::ZergHydraliskDen, interval, applytime, pushdecs);
+					Prods(res, 1, RI::GroovedSpines, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::GameteMeiosis1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ZergQueensNest, interval, applytime, pushdecs);
+					Prods(res, 1, RI::GameteMeiosis, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::MetasynapticNode1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ZergDefilerMound, interval, applytime, pushdecs);
+					Prods(res, 1, RI::MetasynapticNode, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::SingularityCharge1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossCyberneticsCore, interval, applytime, pushdecs);
+					Prods(res, 1, RI::SingularityCharge, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::LegEnhancements1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossCitadelofAdun, interval, applytime, pushdecs);
+					applytime += 2000;
+				case 1:
+					Unlocks(res, 1, RI::ProtossCitadelofAdun, interval, applytime, pushdecs);
+					Prods(res, 1, RI::LegEnhancements, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ScarabDamage1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossRoboticsSupportBay, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossRoboticsSupportBay, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ScarabDamage, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ReaverCapacity1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossRoboticsSupportBay, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossRoboticsSupportBay, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ReaverCapacity, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::GraviticDrive1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossRoboticsSupportBay, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossRoboticsSupportBay, interval, applytime, pushdecs);
+					Prods(res, 1, RI::GraviticDrive, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::SensorArray1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossObservatory, interval, applytime, pushdecs);
+					applytime += 2000;
+				case 1:
+					Unlocks(res, 1, RI::ProtossObservatory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::SensorArray, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::GraviticBoosters1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossObservatory, interval, applytime, pushdecs);
+					applytime += 2000;
+				case 1:
+					Unlocks(res, 1, RI::ProtossObservatory, interval, applytime, pushdecs);
+					Prods(res, 1, RI::GraviticBoosters, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::KhaydarinAmulet1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					Prods(res, 1, RI::KhaydarinAmulet, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ApialSensors1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ApialSensors, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::GraviticThrusters1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					Prods(res, 1, RI::GraviticThrusters, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::CarrierCapacity1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					applytime += 1500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					Prods(res, 1, RI::CarrierCapacity, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::KhaydarinCore1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossArbiterTribunal, interval, applytime, pushdecs);
+					Prods(res, 1, RI::KhaydarinCore, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ArgusJewel1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossFleetBeacon, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ArgusJewel, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ArgusTalisman1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::ProtossTemplarArchives, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ArgusTalisman, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::CaduceusReactor1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					applytime += 2500;
+				case 1:
+					Unlocks(res, 1, RI::TerranAcademy, interval, applytime, pushdecs);
+					Prods(res, 1, RI::CaduceusReactor, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::ChitinousPlating1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 150, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergUltraliskCavern, interval, applytime, pushdecs);
+					applytime += 2000;
+				case 1:
+					Unlocks(res, 1, RI::ZergUltraliskCavern, interval, applytime, pushdecs);
+					Prods(res, 1, RI::ChitinousPlating, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::AnabolicSynthesis1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 200, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 200, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::ZergUltraliskCavern, interval, applytime, pushdecs);
+					applytime += 2000;
+				case 1:
+					Unlocks(res, 1, RI::ZergUltraliskCavern, interval, applytime, pushdecs);
+					Prods(res, 1, RI::AnabolicSynthesis, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		case OI::CharonBoosters1:
+			switch(stage_)
+			{
+				case 0:
+					Consums(res, 100, RI::Minerals, interval, applytime, pushdecs);
+					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
+					Locks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
+					applytime += 2000;
+				case 1:
+					Unlocks(res, 1, RI::TerranMachineShop, interval, applytime, pushdecs);
+					Prods(res, 1, RI::CharonBoosters, interval, applytime, pushdecs);
+					applytime += 1;
+				case 2:
+				default:
+					break;
+			}
+			break;
+		default:
 			break;
 	}
 }

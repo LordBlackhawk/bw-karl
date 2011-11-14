@@ -2,8 +2,10 @@
 
 #include "variables.h"
 #include "resourcedescription.h"
+#include <BWAPI.h>
 #include <string>
 #include <vector>
+
 
 struct ItemDescription
 {
@@ -35,7 +37,7 @@ struct OperationDescription
 	BWAPI::UpgradeType gt;
 	
 	OperationDescription(std::string n)
-		: name(n), race(BWAPI::Races::None), ut(BWAPI::UnitTypes::None), tt(BWAPI::TechTypes::None), gt(BWAPI::UgradeTypes::None)
+		: name(n), race(BWAPI::Races::None), ut(BWAPI::UnitTypes::None), tt(BWAPI::TechTypes::None), gt(BWAPI::UpgradeTypes::None)
 	{
 		operationDescriptions.push_back(this);
 	}
