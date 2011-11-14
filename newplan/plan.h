@@ -112,7 +112,7 @@ class PlanContainer
 				bool 			pushdecs;
 				
 				Situation(const ThisType& p, TimeType time = -1, bool pd = false)
-					: parent(p), currenttime(parent.starttime-1), current(parent.startres), pushdecs(pd)
+					: parent(p), currenttime(parent.starttime), current(parent.startres), pushdecs(pd)
 				{
 					if (time < 0)
 						time = parent.starttime;
@@ -122,7 +122,7 @@ class PlanContainer
 				void advance(TimeType newtime)
 				{
 					current.advance(newtime-currenttime);
-					TimeInterval interval(currenttime+1, newtime);
+					TimeInterval interval(currenttime, newtime);
 					parent.evalOperations(current, interval, pushdecs);
 					currenttime = newtime;
 				}

@@ -548,6 +548,7 @@ void writeBWPlan()
 	for (auto it : resourceDescriptions)
 		if (!it->growth.empty())
 			std::cout << "\tamount[RI::" << it->name << "] += dt * getGrowth(RI::" << it->name << ");\n";
+	std::cout << "\ttime += dt;\n";
 	std::cout << "}\n\n";
 	
 	std::cout << "void Resources::inc(const ResourceIndex& ri, int optime, int value)\n{\n"
@@ -562,7 +563,7 @@ void writeBWPlan()
 	std::cout << "\t\tdefault:\n"
 				<< "\t\t\tbreak;\n";
 	std::cout << "\t}\n";
-	std::cout << "\tamount[ri.getIndex()] += value;\n";
+	std::cout << "\tamount[ri.getIndex()] += value * ri.getScaling();\n";
 	std::cout << "}\n\n";
 	
 	std::cout << "std::string OperationIndex::getName() const\n{\n"

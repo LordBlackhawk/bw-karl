@@ -8,7 +8,7 @@ typedef PlanContainer::Situation SituationType;
 
 void larvaCorrections(PlanContainer& plan, SituationType it)
 {
-	std::cout << "Starting Time: " << it.time() << "\n";
+	//std::cout << "Starting Time: " << it.time() << "\n";
 
 	ResourceIndex ri(ResourceIndex::Larva);
 	TimeType starttime = -1;
@@ -31,7 +31,7 @@ void larvaCorrections(PlanContainer& plan, SituationType it)
 				it.update();
 			}
 		} else {
-			std::cout << "\tvalue changed at: " << it.time() << "\n";
+			//std::cout << "\tvalue changed at: " << it.time() << "\n";
 			if (starttime >= 0) {
 				plan.addCorrection(LinearCorrection(ri, TimeInterval(starttime, it.time()), -growth));
 				starttime = -1;
@@ -45,7 +45,7 @@ void larvaCorrections(PlanContainer& plan, SituationType it)
 		it.inc(dt);
 	}
 	if (starttime >= 0) {
-		std::cout << "\t" << TimeInterval(starttime, std::numeric_limits<TimeType>::max()) << " added.\n";
+		//std::cout << "\t" << TimeInterval(starttime, std::numeric_limits<TimeType>::max()) << " added.\n";
 		plan.addCorrection(LinearCorrection(ri, TimeInterval(starttime, std::numeric_limits<TimeType>::max()), -growth));
 	}
 }

@@ -810,6 +810,7 @@ void Resources::advance(int dt)
 	amount[RI::Larva] += dt * getGrowth(RI::Larva);
 	amount[RI::Minerals] += dt * getGrowth(RI::Minerals);
 	amount[RI::Gas] += dt * getGrowth(RI::Gas);
+	time += dt;
 }
 
 void Resources::inc(const ResourceIndex& ri, int optime, int value)
@@ -846,7 +847,7 @@ void Resources::inc(const ResourceIndex& ri, int optime, int value)
 		default:
 			break;
 	}
-	amount[ri.getIndex()] += value;
+	amount[ri.getIndex()] += value * ri.getScaling();
 }
 
 std::string OperationIndex::getName() const

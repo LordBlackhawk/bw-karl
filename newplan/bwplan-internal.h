@@ -52,24 +52,8 @@ void Locks(const Resources& res, int num, const ResourceIndex& ri, TimeType& res
 
 void Consums(const Resources& res, int num, const ResourceIndex& ri, TimeType& result, ResourceIndex& blocking)
 {
-	if (res.get(ri) < num) {
-		blocking = ri;
-		switch (ri.getType())
-		{
-			case ResourceIndex::Minerals:
-			case ResourceIndex::Gas:
-			case ResourceIndex::Larva:
-			{
-				int growth = res.getGrowth(ri);
-				int value  = res.getInternal(ri);
-				result = (num - value + growth-1)/growth;
-				break;
-			}
-			default:
-				result = std::numeric_limits<TimeType>::max();
-				break;
-		}
-	}
+	if (res.get(ri) < num)
+		result = res.firstMoreThan(ri, num, blocking);
 }
 
 /* for Operation::apply(): */

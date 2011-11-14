@@ -37,10 +37,12 @@ int main(int argc, const char* argv[])
 		std::cout << "planed(" << it.time() << "): \t" << outResources(it.getResources());
 	std::cout << "\n";
 	
+	/*
 	std::cout << "Corrections:\n";
 	for (auto it : plan.getCorrections())
 		std::cout << "correction: " << it.interval << ", value = " << it.value << "\n";
 	std::cout << "\n";
+	*/
 
 	std::cout << "Plan finished after " << outTime(plan.end().time()) << " frames.\n";
 	
