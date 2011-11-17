@@ -4,6 +4,7 @@
 #include <BWAPI.h>
 #include <BWTA.h>
 
+/*
 class LongMoveTask : public BaseTask
 {
 	public:
@@ -40,11 +41,11 @@ class LongMoveTask : public BaseTask
 
 		MicroTask						stask;
 
-		void calculatedWay()
+		void updateWay()
 		{
-			BWAPI::TilePosition pos  = unit->getTilePosition();
-			BWTA::Region startregion = BWTA::getRegion(pos);
-			BWTA::Region endregion   = BWTA::getRegion(target);
+			BWAPI::TilePosition pos   = unit->getTilePosition();
+			BWTA::Region* startregion = BWTA::getRegion(pos);
+			BWTA::Region* endregion   = BWTA::getRegion(target);
 			if (startregion == endregion) {
 				nextwaypoint = NULL;
 				return;
@@ -54,17 +55,17 @@ class LongMoveTask : public BaseTask
 
 		bool reachedTarget() const
 		{
-			return /*TODO*/;
+			return TODO;
 		}
 
 		bool nearNextWaypoint() const
 		{
-			return /*TODO*/;
+			return TODO;
 		}
 
 		BWAPI::Position getChokepointWaitingPosition() const
 		{
-			return /*TODO*/;
+			return TODO;
 		}
 };
 
@@ -72,4 +73,10 @@ MicroTask createLongMove(const BWAPI::Position& target)
 {
 	MicroTaskData data(new LongMoveTask(target));
 	return MicroTask(MicroTaskEnum::LongMove, data);
+}
+*/
+
+MicroTask createLongMove(const BWAPI::Position& target)
+{
+	return createRegionMove(target);
 }

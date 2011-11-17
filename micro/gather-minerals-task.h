@@ -1,10 +1,11 @@
 #pragma once
 
 #include "base-task.h"
+#include "utils/random-chooser.h"
 #include <BWAPI.h>
 #include <BWTA.h>
 
-class GatherMineralsTask : BaseTask
+class GatherMineralsTask : public BaseTask
 {
 	public:
 		GatherMineralsTask(BWTA::BaseLocation* l) : location(l)
@@ -12,17 +13,25 @@ class GatherMineralsTask : BaseTask
 
 		void activate(BWAPI::Unit* unit)
 		{
-			worker.insert(u);
+			worker.insert(unit);
 			unit->rightClick(getMineral());
 		}
 		
 		void deactive(BWAPI::Unit* unit)
 		{
-			worker.erase(u);
+			worker.erase(unit);
 		}
 
 		void tick(BWAPI::Unit* unit)
-		{ }
+		{
+			if (unit->isIdle())
+				unit->rightClick(getMineral());
+		}
+		
+		BWAPI::Position getPosition() const
+		{
+			return getMineral()->getPosition();
+		}
 
 	protected:
 		std::set<BWAPI::Unit*>	worker;
@@ -30,6 +39,7 @@ class GatherMineralsTask : BaseTask
 		
 		BWAPI::Unit* getMineral() const
 		{
-			return /*TODO*/;
+			// TODO BETTER:
+			return getRandomSomething(location->getMinerals());
 		}
 };

@@ -14,10 +14,12 @@
 #include "upgrade-task.h"
 #include "upgrade-observer-task.h"
 
+#include <cassert>
+
 #define LISTTASKS		\
 	DO(RegionMove)		\
-	DO(LongMove)		\
-	DO(LongMove)		\
+	DO(GatherMinerals)	\
+	DO(GatherGas)		\
 	DO(Build)			\
 	DO(BuildObserver)	\
 	DO(Morph)			\
@@ -31,66 +33,89 @@
 
 void MicroTask::activate(BWAPI::Unit* unit) const
 {
-	#define DO(name)														\
-		case MicroTaskEnum::name:											\
-			auto dataholder = static_pointer_cast<name##Task>(data);		\
-			dataholder.activate(unit);										\
-			return;
+	#define DO(name) {															\
+		case MicroTaskEnum::name:												\
+			auto dataholder = boost::static_pointer_cast<name##Task>(data);		\
+			dataholder->activate(unit);											\
+			return; }
 
 	switch (type)
 	{
 		LISTTASKS
+		case MicroTaskEnum::None:
+			return;
 		default:
+			std::cerr << "Unknown MicroTaskEnum: " << type << "\n";
+			assert(false);
 			return;
 	}
+	
+	#undef DO
 }
 
 void MicroTask::deactivate(BWAPI::Unit* unit) const
 {
-	#define DO(name)														\
-		case MicroTaskEnum::name:											\
-			auto dataholder = static_pointer_cast<name##Task>(data);		\
-			dataholder.deactivate(unit);									\
-			return;
+	#define DO(name) {															\
+		case MicroTaskEnum::name:												\
+			auto dataholder = boost::static_pointer_cast<name##Task>(data);		\
+			dataholder->deactivate(unit);										\
+			return; }
 
 	switch (type)
 	{
 		LISTTASKS
+		case MicroTaskEnum::None:
+			return;
 		default:
+			std::cerr << "Unknown MicroTaskEnum: " << type << "\n";
+			assert(false);
 			return;
 	}
+	
+	#undef DO
 }
 
 void MicroTask::tick(BWAPI::Unit* unit) const
 {
-	#define DO(name)														\
-		case MicroTaskEnum::name:											\
-			auto dataholder = static_pointer_cast<name##Task>(data);		\
-			dataholder.tick(unit);										\
-			return;
+	#define DO(name) {															\
+		case MicroTaskEnum::name:												\
+			auto dataholder = boost::static_pointer_cast<name##Task>(data);		\
+			dataholder->tick(unit);												\
+			return; }
 
 	switch (type)
 	{
-		LISTTAKS
+		LISTTASKS
+		case MicroTaskEnum::None:
+			return;
 		default:
+			std::cerr << "Unknown MicroTaskEnum: " << type << "\n";
+			assert(false);
 			return;
 	}
+	
+	#undef DO
 }
 
 TaskStatus::Type MicroTask::status() const
 {
-	#define DO(name)														\
-		case MicroTaskEnum::name:											\
-			auto dataholder = static_pointer_cast<name##Task>(data);		\
-			return dataholder.status();
+	#define DO(name) {															\
+		case MicroTaskEnum::name:												\
+			auto dataholder = boost::static_pointer_cast<name##Task>(data);		\
+			return dataholder->status(); }
 
 	switch (type)
 	{
-		LISTTAKS
+		LISTTASKS
+		case MicroTaskEnum::None:
+			return TaskStatus::failed;
 		default:
+			std::cerr << "Unknown MicroTaskEnum: " << type << "\n";
+			assert(false);
 			return TaskStatus::failed;
 	}
+	
+	#undef DO
 }
 
-#undef DO
 #undef LISTTASKS

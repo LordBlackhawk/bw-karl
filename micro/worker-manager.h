@@ -29,7 +29,7 @@ class WorkerManager
 			}
 			if (bestvalue > 2)
 				return;
-			BWAPI::Unit* unit = UnitFinder::findWorker(bestvalue->geyser.getPosition());
+			BWAPI::Unit* unit = UnitFinder::instance().findWorker(best->getPosition());
 			MicroTaskManager::instance().pushTask(unit, MicroTask(MicroTaskEnum::GatherGas, best));
 		}
 
@@ -51,19 +51,24 @@ class WorkerManager
 
 		void useIdleWorker(BWAPI::Unit* unit)
 		{
+			if (mineralTasks.size() < 1)
+				mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTask(BWTA::getStartLocation(BWAPI::Broodwar->self()))));
+
 			BWAPI::Position pos = unit->getPosition();
 			GatherMineralsTaskPtr best;
 			double bestvalue = std::numeric_limits<double>::max();
 			for (auto it : mineralTasks) {
-				BWAPI::Position target = it->getPosition();
-				double value = pos.distance(target);
+				BWAPI::Position target = it->getPosition(); // TODO
+				double value = pos.getDistance(target);
 				if (value < bestvalue) {
 					best = it;
 					bestvalue = value;
 				}
 			}
-			if (bestvalue > 1e5)
+			if (bestvalue > 1e5) {
+				std::clog << "Unable to use Worker! bestvalue is " << bestvalue << "\n";
 				return;
+			}
 			MicroTaskManager::instance().pushTask(unit, MicroTask(MicroTaskEnum::GatherMinerals, best));
 		}
 

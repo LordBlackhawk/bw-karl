@@ -5,13 +5,13 @@
 
 void addworker(BWResources& res, int time, const BWAPI::Unit* u, const ResourceIndex& riWorker, const ResourceIndex& riGasWorker)
 {
-	res.inc(riWorker, time);
+	res.inc(riWorker, time, 1);
 	if (!u->isGatheringMinerals())
 	{
-		res.incLocked(riWorker, time);
+		res.incLocked(riWorker, time, 1);
 		if (u->isGatheringGas()) {
-			res.inc(riGasWorker, time);
-			res.incLocked(BWResourceIndex::GasWorkingPlaces, time);
+			res.inc(riGasWorker, time, 1);
+			res.incLocked(BWResourceIndex::GasWorkingPlaces, time, 1);
 		}
 	}
 }
@@ -19,10 +19,10 @@ void addworker(BWResources& res, int time, const BWAPI::Unit* u, const ResourceI
 BWResources extractResources()
 {
 	BWResources res;
-	int time = Broodwar->getFrameCount();
+	int time = BWAPI::Broodwar->getFrameCount();
 	res.setTime(time);
 
-	BWAPI::Player* self = Broodwar->self();
+	BWAPI::Player* self = BWAPI::Broodwar->self();
 
 	res.set(BWResourceIndex::Minerals, self->minerals());
 	res.set(BWResourceIndex::Gas, self->gas());
@@ -34,11 +34,11 @@ BWResources extractResources()
 	res.setLocked(BWResourceIndex::ProtossSupply, self->supplyUsed(BWAPI::Races::Protoss));
 
 	res.set(BWResourceIndex::ZergSupply, self->supplyTotal(BWAPI::Races::Zerg));
-	res.setLocked(BWResourceIndex::ZergSupply, self->supplyUsed(BWAPI::Races::Zerg));));
+	res.setLocked(BWResourceIndex::ZergSupply, self->supplyUsed(BWAPI::Races::Zerg));
 
 	for (auto it : self->getUnits())
 	{
-		BWAPI::UnitType& ut = it->getType();
+		BWAPI::UnitType ut = it->getType();
 
 		// Worker:
 		if (ut.isWorker()) {
@@ -54,7 +54,7 @@ BWResources extractResources()
 
 		// Larva:
 		if (ut == BWAPI::UnitTypes::Zerg_Larva) {
-			res.inc(BWResourceIndex::Larva, time);
+			res.inc(BWResourceIndex::Larva, time, 1);
 			continue;
 		}
 
@@ -72,9 +72,9 @@ BWResources extractResources()
 			continue;
 
 		BWResourceIndex ri = BWResourceIndex::byUnitType(ut);
-		res.inc(ri, time);
+		res.inc(ri, time, 1);
 		if (!it->isIdle())
-			res.incLocked(ri, time);
+			res.incLocked(ri, time, 1);
 	}
 
 	return res;

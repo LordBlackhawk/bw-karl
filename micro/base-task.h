@@ -9,13 +9,13 @@ class BaseTask
 		BaseTask() : status_(TaskStatus::running)
 		{ }
 		
-		void completed(BWAPI::Unit* unit) const
+		void completed(BWAPI::Unit* unit)
 		{
 			status_ = TaskStatus::completed;
 			MicroTaskManager::instance().popTask(unit);
 		}
 
-		void failed(BWAPI::Unit* unit) const
+		void failed(BWAPI::Unit* unit)
 		{
 			status_ = TaskStatus::failed;
 			MicroTaskManager::instance().popTask(unit);
@@ -33,27 +33,27 @@ class BaseTask
 
 		int currentFrame() const
 		{
-			return Broodwar->getFrameCount();
+			return BWAPI::Broodwar->getFrameCount();
 		}
 
 		int latencyFrames() const
 		{
-			return Broodwar->getRemainingLatencyFrames
+			return BWAPI::Broodwar->getRemainingLatencyFrames();
 		}
 
 		BWAPI::Player* self() const
 		{
-			return Broodwar->self();
+			return BWAPI::Broodwar->self();
 		}
 
 	public:
-		void activate(BWAPI::Unit* u) const
+		void activate(BWAPI::Unit* /*u*/) const
 		{ }
 
-		void deactivate(BWAPI::Unit* u) const
+		void deactivate(BWAPI::Unit* /*u*/) const
 		{ }
 
-		void tick(BWAPI::Unit* u) const
+		void tick(BWAPI::Unit* /*u*/) const
 		{ }
 
 		TaskStatus::Type status() const

@@ -3,7 +3,7 @@
 #include "base-task.h"
 #include <BWAPI.h>
 
-class MorphObserverTask : BaseTask
+class MorphObserverTask : public BaseTask
 {
 	public:
 		MorphObserverTask()

@@ -4,6 +4,7 @@
 #include <BWAPI.h>
 #endif
 
+#include <boost/operators.hpp>
 #include <string>
 
 class OperationIndex;

@@ -3,7 +3,7 @@
 #include "base-task.h"
 #include <BWAPI.h>
 
-class RegionMoveTask : BaseTask
+class RegionMoveTask : public BaseTask
 {
 	public:
 		RegionMoveTask(const BWAPI::Position& t) : target(t)
@@ -38,7 +38,7 @@ class RegionMoveTask : BaseTask
 
 		bool reachedTarget() const
 		{
-			return (unit->getPosition().distance(target) < 64.);
+			return (unit->getPosition().getDistance(target) < 64.);
 		}
 };
 

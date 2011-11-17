@@ -3,7 +3,7 @@
 #include "base-task.h"
 #include <BWAPI.h>
 
-class MorphTask : BaseTask
+class MorphTask : public BaseTask
 {
 	public:
 		MorphTask(const BWAPI::UnitType t) : ut(t)

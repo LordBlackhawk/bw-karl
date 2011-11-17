@@ -3,6 +3,7 @@
 #include "newplan/resourcenextractor.h"
 #include "newplan/displayres.h"
 #include "micro/micro.h"
+//#include "newplan/nocheckpoints.h"
 
 #include <stdio.h>
 
@@ -56,29 +57,31 @@ int main(int argc, const char* argv[])
 			}
 		}
 
-		std::cout << "Reading terran information...\";
+		std::cout << "Reading terran information...\n";
 		BWTA::readMap();
 		BWTA::analyze();
 
 		std::cout << "Starting match...\n";
 		BWPlan plan = initplan;
-		Mirco::instance().clear();
+		Micro::instance().clear();
 		Broodwar->sendText("Hello world from Karl!");
 		Broodwar->enableFlag(Flag::UserInput);
 
+		/*
 		if (plan.race != Broodwar->self()->getRace()->getName()) {
 			std::cout << "Error: Game started with wrong race!\n";
 			return 1;
 		}
+		*/
 
 		while(Broodwar->isInGame())
 		{
 			Broodwar->drawTextScreen(300, 0, "FPS: %f", Broodwar->getAverageFPS());
 
 			BWResources res = extractResources();
+			displayResources(res);
 			plan.rebase_sr(1, res);
 			plan.execute();
-			displayResources(res);
 
 			Micro::instance().tick();
 

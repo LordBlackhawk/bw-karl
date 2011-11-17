@@ -74,14 +74,14 @@ class MicroTaskManager
 				it->second->task.deactivate(unit);
 				activeunits.erase(it);
 			} else {
-				inacitveunits.erase(unit);
+				inactiveunits.erase(unit);
 			}
 		}
 
 		void onTick()
 		{
 			for (auto it : activeunits)
-				it->second->task->tick(it->first);
+				it.second->task.tick(it.first);
 		}
 
 		std::set<BWAPI::Unit*> inactiveUnits() const

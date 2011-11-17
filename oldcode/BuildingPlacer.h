@@ -1,4 +1,5 @@
 #pragma once
+
 #include "BWAPI.h"
 #include "RectangleArray.h"
 

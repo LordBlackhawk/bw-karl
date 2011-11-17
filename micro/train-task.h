@@ -3,7 +3,7 @@
 #include "base-task.h"
 #include <BWAPI.h>
 
-class TrainTask : BaseTask
+class TrainTask : public BaseTask
 {
 	public:
 		TrainTask(const BWAPI::UnitType t) : ut(t)

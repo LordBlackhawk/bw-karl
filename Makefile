@@ -15,7 +15,7 @@ else
 CXXLIBS     += -lBWTA
 endif
 
-REALSOURCES  = newplan/bwplan.cpp
+REALSOURCES  = newplan/bwplan.cpp micro/micro.cpp
 OBJECTS		 = $(addprefix $(OBJECTPATH), $(notdir $(REALSOURCES:.cpp=.o)))
 SOURCES      = $(filter-out $(REALSOURCES),$(wildcard */*.cpp))
 EXECUTEABLES = $(notdir $(SOURCES:.cpp=.exe))
@@ -32,7 +32,10 @@ echo:
 %.exe: $(OBJECTPATH)%.o
 	$(CXX) $(CXXFLAGS) $< $(CXXLIBS) -o $@
 	
-PlanDesigner.exe: $(OBJECTPATH)PlanDesigner.o $(OBJECTS)
+PlanDesigner.exe: $(OBJECTPATH)PlanDesigner.o out/bwplan.o
+	$(CXX) $(CXXFLAGS) out/bwplan.o $< $(CXXLIBS) -o $@
+	
+karl.exe: $(OBJECTPATH)karl.o $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(OBJECTS) $< $(CXXLIBS) -o $@
 	
 newplan/resourceenum.h: BWPlanWriter.exe

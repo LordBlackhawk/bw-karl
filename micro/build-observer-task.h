@@ -3,7 +3,7 @@
 #include "base-task.h"
 #include <BWAPI.h>
 
-class BuildObserverTask : BaseTask
+class BuildObserverTask : public BaseTask
 {
 	public:
 		BuildObserverTask()

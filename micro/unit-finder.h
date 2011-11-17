@@ -43,7 +43,7 @@ class UnitFinder
 		{
 			auto pred = [ut] (BWAPI::Unit* unit)
 					{
-						return (unit.getType() == ut);
+						return (unit->getType() == ut);
 					};
 			return findFirst(pred);
 		}
@@ -52,7 +52,7 @@ class UnitFinder
 		{
 			auto pred = [ut, pos] (BWAPI::Unit* unit)
 					{
-						return (unit.getType() == ut) && (unit.getTilePosition() == pos);
+						return (unit->getType() == ut) && (unit->getTilePosition() == pos);
 					};
 			return findFirst(pred);
 		}
@@ -61,7 +61,7 @@ class UnitFinder
 		{
 			auto pred = [ut, pos] (BWAPI::Unit* unit)
 					{
-						return (unit.getType() == ut) && (pos.distance(unit.getPosition()) < 32);
+						return (unit->getType() == ut) && (pos.getDistance(unit->getPosition()) < 32);
 					};
 			return findFirst(pred);
 		}
@@ -71,8 +71,8 @@ class UnitFinder
 			BWAPI::UnitType ut = race.getWorker();
 			auto pred = [ut, pos] (BWAPI::Unit* unit)
 					{
-						if (it->getType() == ut)
-							return pos.distance(it->getPosition());
+						if (unit->getType() == ut)
+							return pos.getDistance(unit->getTilePosition());
 						else
 							return 0.;
 					};
@@ -83,11 +83,24 @@ class UnitFinder
 		{
 			auto pred = [pos] (BWAPI::Unit* unit)
 					{
-						if (it->getType().isWorker())
-							return pos.distance(it->getPosition());
+						if (unit->getType().isWorker())
+							return pos.getDistance(unit->getTilePosition());
 						else
 							return 0.;
 					};
 			return findBest(pred);
 		}
+		
+		BWAPI::Unit* findWorker(const BWAPI::Position& pos) const
+		{
+			auto pred = [pos] (BWAPI::Unit* unit)
+					{
+						if (unit->getType().isWorker())
+							return pos.getDistance(unit->getPosition());
+						else
+							return 0.;
+					};
+			return findBest(pred);
+		}
+
 };

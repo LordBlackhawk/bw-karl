@@ -3,7 +3,7 @@
 #include "base-task.h"
 #include <BWAPI.h>
 
-class TechTask : BaseTask
+class TechTask : public BaseTask
 {
 	public:
 		TechTask(const BWAPI::TechType t) : tt(t)

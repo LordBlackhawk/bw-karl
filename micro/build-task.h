@@ -3,7 +3,7 @@
 #include "base-task.h"
 #include <BWAPI.h>
 
-class BuildTask : BaseTask
+class BuildTask : public BaseTask
 {
 	public:
 		BuildTask(const BWAPI::UnitType t, const BWAPI::TilePosition& p) : ut(t), pos(p)

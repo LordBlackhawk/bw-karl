@@ -5,6 +5,7 @@
 #include "building-placer.h"
 #include "worker-manager.h"
 #include "task-constructor.h"
+#include "newplan/operations.h"
 
 namespace {
 	CheckPointResult::type WaitForTask(MicroTask& task)
@@ -23,13 +24,13 @@ namespace {
 	}
 }
 
-CheckPointResult::type CSendGasWorker(Operation& op)
+CheckPointResult::type CSendGasWorker(Operation& /*op*/)
 {
 	WorkerManager::instance().sendGasWorker();
 	return CheckPointResult::completed;
 }
 
-CheckPointResult::type CReturnGasWorker(Operation& op)
+CheckPointResult::type CReturnGasWorker(Operation& /*op*/)
 {
 	WorkerManager::instance().returnGasWorker();
 	return CheckPointResult::completed;
@@ -48,13 +49,13 @@ CheckPointResult::type CSendWorkerToBuildingPlace(Operation& op)
 			details->pos = BuildingPlacer::instance().find(details->ut);
 	
 		if (details->builder == NULL)
-			detail->builder = UnitFinder::instance().findWorker(details->ut.getRace(), details->pos);
+			details->builder = UnitFinder::instance().findWorker(details->ut.getRace(), details->pos);
 
 		assert(details->ut != BWAPI::UnitTypes::None);
 		assert(details->pos != BWAPI::TilePositions::None);
 		assert(details->builder != NULL);
 
-		details->task = createLongMove(details->pos);
+		details->task = createLongMove(BWAPI::Position(details->pos));
 		MicroTaskManager::instance().pushTask(details->builder, details->task);
 
 		return CheckPointResult::running;
@@ -114,19 +115,19 @@ CheckPointResult::type CBuildingFinished(Operation& op)
 	}
 }
 
-CheckPointResult::type CBuildAddon(Operation& op)
+CheckPointResult::type CBuildAddon(Operation& /*op*/)
 {
 	return CheckPointResult::failed;
 }
 
-CheckPointResult::type CBuildAddonFinished(Operation& op)
+CheckPointResult::type CBuildAddonFinished(Operation& /*op*/)
 {
 	return CheckPointResult::failed;
 }
 
 CheckPointResult::type CMorphUnit(Operation& op)
 {
-	boost::shared_ptr<BuildBuildingDetails> details = op.getDetails<BuildBuildingDetails>(); // Makes initialisation!!!
+	boost::shared_ptr<BuildUnitDetails> details = op.getDetails<BuildUnitDetails>(); // Makes initialisation!!!
 
 	if (op.status() == OperationStatus::started) {
 
@@ -134,7 +135,7 @@ CheckPointResult::type CMorphUnit(Operation& op)
 			details->ut = op.associatedUnitType();
 
 		if (details->builder == NULL)
-			details->builder = UnitFinder::instance().findIdle(details->ut.whatBuilds());
+			details->builder = UnitFinder::instance().findIdle(details->ut.whatBuilds().first);
 
 		assert(details->ut != BWAPI::UnitTypes::None);
 		assert(details->builder != NULL);
@@ -152,14 +153,14 @@ CheckPointResult::type CMorphUnit(Operation& op)
 	}
 }
 
-CheckPointResult::type CCombineUnit(Operation& op)
+CheckPointResult::type CCombineUnit(Operation& /*op*/)
 {
 	return CheckPointResult::failed;
 }
 
 CheckPointResult::type CTrainUnit(Operation& op)
 {
-	boost::shared_ptr<BuildBuildingDetails> details = op.getDetails<BuildBuildingDetails>(); // Makes initialisation!!!
+	boost::shared_ptr<BuildUnitDetails> details = op.getDetails<BuildUnitDetails>(); // Makes initialisation!!!
 
 	if (op.status() == OperationStatus::started) {
 
@@ -167,7 +168,7 @@ CheckPointResult::type CTrainUnit(Operation& op)
 			details->ut = op.associatedUnitType();
 
 		if (details->builder == NULL)
-			details->builder = UnitFinder::instance().findIdle(details->ut.whatBuilds());
+			details->builder = UnitFinder::instance().findIdle(details->ut.whatBuilds().first);
 
 		assert(details->ut != BWAPI::UnitTypes::None);
 		assert(details->builder != NULL);
@@ -192,7 +193,7 @@ CheckPointResult::type CTrainUnit(Operation& op)
 
 CheckPointResult::type CUnitFinished(Operation& op)
 {
-	boost::shared_ptr<BuildBuildingDetails> details = op.getDetails<BuildBuildingDetails>(); // Makes initialisation!!!
+	boost::shared_ptr<BuildUnitDetails> details = op.getDetails<BuildUnitDetails>(); // Makes initialisation!!!
 
 	if (op.status() == OperationStatus::started) {
 
@@ -226,7 +227,7 @@ CheckPointResult::type CTechStart(Operation& op)
 			details->tt = op.associatedTechType();
 
 		if (details->researcher == NULL)
-			details->researcher = UnitFinder::findIdle(details->tt.whatResearches());
+			details->researcher = UnitFinder::instance().findIdle(details->tt.whatResearches());
 
 		assert(details->tt != BWAPI::TechTypes::None);
 		assert(details->researcher != NULL);
@@ -269,16 +270,16 @@ CheckPointResult::type CUpgradeStart(Operation& op)
 
 	if (op.status() == OperationStatus::started) {
 
-		if (details->tt == BWAPI::TechTypes::None)
-			details->tt = op.associatedTechType();
+		if (details->gt == BWAPI::TechTypes::None)
+			details->gt = op.associatedUpgradeType();
 
 		if (details->upgrader == NULL)
-			details->upgrader = UnitFinder::findIdle(details->tt.whatResearches());
+			details->upgrader = UnitFinder::instance().findIdle(details->gt.whatUpgrades());
 
-		assert(details->tt != BWAPI::TechTypes::None);
+		assert(details->gt != BWAPI::TechTypes::None);
 		assert(details->upgrader != NULL);
 
-		details->task = createUpgrade(details->tt);
+		details->task = createUpgrade(details->gt);
 		MicroTaskManager::instance().pushTask(details->upgrader, details->task);
 
 		return CheckPointResult::running;

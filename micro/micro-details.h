@@ -46,6 +46,6 @@ struct UpgradeDetails
 
 	MicroTask			task;
 
-	UpgradeDetails() : gt(BWAPI::UpgradeType::None), upgrader(NULL)
+	UpgradeDetails() : gt(BWAPI::UpgradeTypes::None), upgrader(NULL)
 	{ }
 };

@@ -818,31 +818,31 @@ void Resources::inc(const ResourceIndex& ri, int optime, int value)
 	switch(ri.getType())
 	{
 		case RI::TerranWorker:
-			amount[RI::Minerals] -= 45 * (optime - time) * value;
+			amount[RI::Minerals] -= 45 * (optime - time);
 			break;
 		case RI::ProtossWorker:
-			amount[RI::Minerals] -= 45 * (optime - time) * value;
+			amount[RI::Minerals] -= 45 * (optime - time);
 			break;
 		case RI::ZergWorker:
-			amount[RI::Minerals] -= 45 * (optime - time) * value;
+			amount[RI::Minerals] -= 45 * (optime - time);
 			break;
 		case RI::TerranGasWorker:
-			amount[RI::Gas] -= 45 * (optime - time) * value;
+			amount[RI::Gas] -= 45 * (optime - time);
 			break;
 		case RI::ProtossGasWorker:
-			amount[RI::Gas] -= 45 * (optime - time) * value;
+			amount[RI::Gas] -= 45 * (optime - time);
 			break;
 		case RI::ZergGasWorker:
-			amount[RI::Gas] -= 45 * (optime - time) * value;
+			amount[RI::Gas] -= 45 * (optime - time);
 			break;
 		case RI::ZergHatchery:
-			amount[RI::Larva] -= 1 * (optime - time) * value;
+			amount[RI::Larva] -= 1 * (optime - time);
 			break;
 		case RI::ZergLair:
-			amount[RI::Larva] -= 1 * (optime - time) * value;
+			amount[RI::Larva] -= 1 * (optime - time);
 			break;
 		case RI::ZergHive:
-			amount[RI::Larva] -= 1 * (optime - time) * value;
+			amount[RI::Larva] -= 1 * (optime - time);
 			break;
 		default:
 			break;

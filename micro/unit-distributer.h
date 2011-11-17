@@ -17,7 +17,8 @@ class UnitDistributer
 			for (auto it : list) {
 				BWAPI::UnitType ut = it->getType();
 				if (ut.isWorker()) {
-					WorkerManager::instance().useIdleUnit(it);
+					std::clog << "WorkerManager should use Worker...\n";
+					WorkerManager::instance().useIdleWorker(it);
 				}
 			}
 		}

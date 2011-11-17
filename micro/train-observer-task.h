@@ -3,7 +3,7 @@
 #include "base-task.h"
 #include <BWAPI.h>
 
-class TrainObserverTask : BaseTask
+class TrainObserverTask : public BaseTask
 {
 	public:
 		TrainObserverTask()

@@ -4,7 +4,7 @@
 #include <BWAPI.h>
 #include <BWTA.h>
 
-class GatherGasTask : BaseTask
+class GatherGasTask : public BaseTask
 {
 	public:
 		GatherGasTask(BWAPI::Unit* g) : geyser(g)
@@ -12,16 +12,16 @@ class GatherGasTask : BaseTask
 
 		void activate(BWAPI::Unit* unit)
 		{
-			worker.insert(u);
+			worker.insert(unit);
 			unit->rightClick(geyser);
 		}
 		
 		void deactive(BWAPI::Unit* unit)
 		{
-			worker.erase(u);
+			worker.erase(unit);
 		}
 
-		void tick(BWAPI::Unit* unit)
+		void tick(BWAPI::Unit* /*unit*/)
 		{ }
 
 		int workercount() const
@@ -34,7 +34,12 @@ class GatherGasTask : BaseTask
 			if (worker.size() < 1)
 				return;
 			BWAPI::Unit* unit = *worker.begin();
-			complete(unit);
+			completed(unit);
+		}
+		
+		BWAPI::Position getPosition() const
+		{
+			return geyser->getPosition();
 		}
 
 	protected:

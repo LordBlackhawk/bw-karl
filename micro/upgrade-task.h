@@ -3,7 +3,7 @@
 #include "base-task.h"
 #include <BWAPI.h>
 
-class UpgradeTask : BaseTask
+class UpgradeTask : public BaseTask
 {
 	public:
 		UpgradeTask(const BWAPI::UpgradeType t) : gt(t)

@@ -84,6 +84,14 @@ class Operation
 			details_ = ptr;
 		}
 		
+		template <class T>
+		boost::shared_ptr<T> getDetails()
+		{
+			if (details_.use_count() == 0)
+				details_ = boost::shared_ptr<T>(new T());
+			return boost::static_pointer_cast<T>(details_);
+		}
+		
 		OperationStatus::type status() const
 		{
 			return status_;
@@ -93,6 +101,28 @@ class Operation
 		{
 			return status_;
 		}
+	
+	#ifndef NO_ASSOCIATIONS
+		BWAPI::Race associatedRace() const
+		{
+			return index_.associatedRace();
+		}
+		
+		BWAPI::UnitType associatedUnitType() const
+		{
+			return index_.associatedUnitType();
+		}
+	
+		BWAPI::TechType associatedTechType() const
+		{
+			return index_.associatedTechType();
+		}
+		
+		BWAPI::UpgradeType associatedUpgradeType() const
+		{
+			return index_.associatedUpgradeType();
+		}
+	#endif
 
 	protected:
 		OperationIndex			index_;

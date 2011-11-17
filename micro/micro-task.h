@@ -14,16 +14,17 @@ typedef boost::shared_ptr<void>			MicroTaskData;
 class MicroTask
 {
 	public:
-		MicroTask() : type(None)
+		MicroTask()
+			: type(MicroTaskEnum::None)
 		{ }
 
 		MicroTask(MicroTaskEnum::Type t, const MicroTaskData& d)
-			: type(t), data(d), stackedtask(p)
+			: type(t), data(d)
 		{ }
 
 		bool empty() const
 		{
-			return (type == None);
+			return (type == MicroTaskEnum::None);
 		}
 
 		void activate(BWAPI::Unit* unit) const; // Hand dispatch!
@@ -32,6 +33,6 @@ class MicroTask
 		TaskStatus::Type status() const; // Hand dispatch!
 
 	protected:
-		MircoTaskEnum::Type		type;
+		MicroTaskEnum::Type		type;
 		MicroTaskData			data;
 };
