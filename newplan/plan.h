@@ -101,7 +101,8 @@ class PlanContainer
 				{
 					TimeType old = currenttime;
 					current      = parent.startres;
-					currenttime  = parent.starttime-1;
+					currenttime  = parent.starttime;
+					init();
 					advance(old);
 				}
 			
@@ -116,14 +117,29 @@ class PlanContainer
 				{
 					if (time < 0)
 						time = parent.starttime;
+					init();
 					advance(time);
+				}
+				
+				void init()
+				{
+					if (pushdecs)
+					{
+						TimeInterval interval(currenttime, currenttime);
+						parent.evalOperations(current, interval, pushdecs);
+					}
 				}
             
 				void advance(TimeType newtime)
 				{
+					if (newtime == currenttime)
+						return;
+					//std::clog << "advancing from " << currenttime << " to " << newtime << "\n";
 					current.advance(newtime-currenttime);
 					TimeInterval interval(currenttime, newtime);
 					parent.evalOperations(current, interval, pushdecs);
+					if (!current.valid())
+						std::clog << "advancing from " << currenttime << " to " << newtime << ": Resources not valid!!!\n";
 					currenttime = newtime;
 				}
 		};
@@ -146,9 +162,9 @@ class PlanContainer
 			return Situation(*this, time, pushdecs);
 		}
 		
-		Situation begin() const
+		Situation begin(bool pushdecs = false) const
 		{
-			return Situation(*this);
+			return Situation(*this, -1, pushdecs);
 		}
 		
 		Situation opend(bool pushdecs = false) const
@@ -162,21 +178,34 @@ class PlanContainer
 		}
 		
 		template <class FallbackBehaviour>
-		FallbackBehaviourType::type push_back(const Operation& op, FallbackBehaviour& fbb)
+		FallbackBehaviourType::type push_back(const Operation& op_, FallbackBehaviour& fbb)
 		{
+			Operation op = op_;
+			//std::clog << "adding " << op.getName() << "...\n";
 			Situation it = opend(true);
+			TimeType current_duration = 0;
 			for (int k=0; k<op.stageCount(); ++k)
 			{
 				TimeType firstapplyable;
 				ResourceIndex blocking;
-				while ((firstapplyable = it.firstApplyableAt(op, k, blocking)) > it.getNextTime())
+				while ((firstapplyable = it.firstApplyableAt(op, k, blocking)) > it.getNextTime()) {
+					//std::clog << "\tat " << it.time() << ": \tfirstapplyable at " << firstapplyable << "\n";
 					++it;
+				}
 			
 				if (firstapplyable == std::numeric_limits<TimeType>::max())
 					return fbb(*this, op, blocking);
 				
-				it.inc(op.stageDuration(k) + firstapplyable - it.time());
+				//std::clog << "\tat " << it.time() << ": \tfirstapplyable at " << firstapplyable << "\n";
+				op.scheduledTime() = firstapplyable - current_duration;
+				current_duration  += op.stageDuration(k);
+				TimeInterval interval(-1, firstapplyable + op.stageDuration(k)-1);
+				it.update();
+				it.applyOperation(op, interval);
+				
+				it.inc(firstapplyable + op.stageDuration(k) - it.time());
 			}
+			//std::clog << "end push_back!!!\n";
 			add(op, it.time() - op.duration());
 			return FallbackBehaviourType::Success;
 		}
@@ -305,6 +334,11 @@ class PlanContainer
 		std::vector<LinearCorrection> getCorrections() const
 		{
 			return corrections;
+		}
+		
+		void addtime(TimeType t)
+		{
+			changetimes.insert(t);
 		}
 
 	protected:

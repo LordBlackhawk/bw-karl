@@ -33,17 +33,25 @@ int main(int argc, const char* argv[])
 	std::cout << "\n";
 
 	std::cout << "Planed Resources:\n";
-	for (auto it : plan)
+	for (auto it : plan) {
 		std::cout << "planed(" << it.time() << "): \t" << outResources(it.getResources());
+		auto alt = plan.at(it.time());
+		if (it.getResources() != alt.getResources())
+			std::cout << "directly gives: " << outResources(alt.getResources());
+	}
 	std::cout << "\n";
 	
-	/*
+	std::cout << "Planed Resources (pushdecs):\n";
+	for (auto it = plan.begin(true); !it.beyond(); ++it) {
+		std::cout << "planed(" << it.time() << "): \t" << outResources(it.getResources());
+	}
+	std::cout << "\n";
+	
 	std::cout << "Corrections:\n";
 	for (auto it : plan.getCorrections())
 		std::cout << "correction: " << it.interval << ", value = " << it.value << "\n";
 	std::cout << "\n";
-	*/
-
+	
 	std::cout << "Plan finished after " << outTime(plan.end().time()) << " frames.\n";
 	
 	if (savefilename != "")

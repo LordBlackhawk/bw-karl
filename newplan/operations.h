@@ -40,6 +40,11 @@ class Operation
 		{
 			return scheduledtime_;
 		}
+		
+		TimeType& scheduledTime()
+		{
+			return scheduledtime_;
+		}
 
 		TimeType scheduledEndtime() const
 		{

@@ -6,6 +6,7 @@
 #include <array>
 #include <limits>
 #include <cassert>
+#include <iostream>
 
 class Resources
 {
@@ -103,11 +104,23 @@ class Resources
 			if (current >= value) {
 				return 0;
 			} else if (growth > 0) {
+				//std::clog << "\t\tvalue = " << value << "; current = " << current << "; growth = " << growth << "\n";
 				return (value - current + growth - 1) / growth;
 			} else {
 				blocking = ri;
 				return std::numeric_limits<int>::max();
 			}
+		}
+		
+		bool operator != (const Resources& other) const
+		{
+			for (auto it : AllResourceIndices())
+				if (!it.isGrowthing() && (amount[it.getIndex()] != other.amount[it.getIndex()]))
+					return true;
+			for (auto it : LockedResourceIndices())
+				if (locked[it.getIndex()] != other.locked[it.getIndex()])
+					return true;
+			return false;
 		}
     
 	public:

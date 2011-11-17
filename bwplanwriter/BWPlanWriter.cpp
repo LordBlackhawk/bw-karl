@@ -356,9 +356,9 @@ void init()
 	workerMap[BWAPI::Races::Protoss] = new ResourceDescription("ProtossWorker", true);
 	workerMap[BWAPI::Races::Zerg]    = new ResourceDescription("ZergWorker", true);
 	
-	gasworkerMap[BWAPI::Races::Terran]  = new ResourceDescription("TerranGasWorker", true);
-	gasworkerMap[BWAPI::Races::Protoss] = new ResourceDescription("ProtossGasWorker", true);
-	gasworkerMap[BWAPI::Races::Zerg]    = new ResourceDescription("ZergGasWorker", true);
+	gasworkerMap[BWAPI::Races::Terran]  = new ResourceDescription("TerranGasWorker");
+	gasworkerMap[BWAPI::Races::Protoss] = new ResourceDescription("ProtossGasWorker");
+	gasworkerMap[BWAPI::Races::Zerg]    = new ResourceDescription("ZergGasWorker");
 	
 	supplyMap[BWAPI::Races::Terran]  = new ResourceDescription("TerranSupply", true);
 	supplyMap[BWAPI::Races::Protoss] = new ResourceDescription("ProtossSupply", true);
@@ -557,7 +557,7 @@ void writeBWPlan()
 		if (!it->influence.empty()) {
 			std::cout << "\t\tcase RI::" << it->name << ":\n";
 			for (auto iit : it->influence)
-				std::cout << "\t\t\tamount[RI::" << iit.second->name << "] += " << iit.first << " * (optime - time);\n";
+				std::cout << "\t\t\tamount[RI::" << iit.second->name << "] -= " << iit.first << " * (optime - time);\n";
 			std::cout << "\t\t\tbreak;\n";
 		}
 	std::cout << "\t\tdefault:\n"

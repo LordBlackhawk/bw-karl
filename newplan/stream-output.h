@@ -25,7 +25,7 @@ struct outResources
 		const BWResources& res = o.res;
 		bool first = true;
 		for (auto it : BWAllResourceIndices())
-			if ((res.get(it) > 0) || (it.isLockable() && (res.getLocked(it) > 0)))
+			if ((res.get(it) != 0) || (it.isLockable() && (res.getLocked(it) != 0)))
 		{
 			if (!first)
 					stream << ", ";

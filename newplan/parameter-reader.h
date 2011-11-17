@@ -19,6 +19,7 @@ struct BWParameterReader
 	std::string					race;
 	std::string					loadfilename;
 	std::vector<std::string>	inputops;
+	std::vector<int>			additionaltimes;
 
 	BWParameterReader()
 	: general("General options"), hidden("Hidden options"), all("All options"), visible("Allowed options"), showhelp(false)
@@ -28,6 +29,7 @@ struct BWParameterReader
 				("optimize,o",	po::value<int>(&oplevel)->default_value(0),				"Optimization level.")
 				("race,r",		po::value<std::string>(&race)->default_value("Zerg"),	"Race for start resources.")
 				("load,l",		po::value<std::string>(&loadfilename),					"Load build from file name.")
+				("time,t",		po::value< std::vector<int> >(&additionaltimes),		"Add additional times.")
 				;
 
 		hidden.add_options()
@@ -84,6 +86,9 @@ struct BWParameterReader
 			if (!plan.push_back_sr(BWOperation(index)))
 				std::cerr << "Unable to add " << index.getName() << "!\n";
 		}
+		
+		for (auto it : additionaltimes)
+			plan.addtime(it);
 
 		//if (oplevel > 0)
 		//	plan.optimize(oplevel);

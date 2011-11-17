@@ -33,7 +33,9 @@ class TimeInterval
 		bool contains(const ctype& value, bool pushdecs) const
 		{
 			if (pushdecs) {
-				return (lower <= value) && (value <= upper);
+				if ((lower == upper) && (upper == value))
+					return true;
+				return (lower < value) && (value <= upper);
 			} else {
 				return contains(value);
 			}
