@@ -66,6 +66,7 @@ int main(int argc, const char* argv[])
 		std::cout << "Starting match...\n";
 		BWPlan plan = initplan;
 		Micro::instance().clear();
+		Micro::instance().prepareMap();
 		Broodwar->sendText("Hello world from Karl!");
 		Broodwar->enableFlag(Flag::UserInput);
 		Broodwar->setLocalSpeed(0);

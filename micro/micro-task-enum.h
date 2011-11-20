@@ -24,6 +24,8 @@ struct MicroTaskEnum
 
 		Upgrade,
 		UpgradeObserver,
+		
+		Scout,
 
 		None = -1
 	};

@@ -11,6 +11,7 @@ class Micro
 		}
 
 		void clear();
+		void prepareMap();
 		void pretick();
 		void tick();
 };

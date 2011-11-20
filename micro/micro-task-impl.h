@@ -13,6 +13,7 @@
 #include "tech-observer-task.h"
 #include "upgrade-task.h"
 #include "upgrade-observer-task.h"
+#include "scout-task.h"
 
 #include <cassert>
 
@@ -29,7 +30,8 @@
 	DO(Tech)			\
 	DO(TechObserver)	\
 	DO(Upgrade)			\
-	DO(UpgradeObserver)
+	DO(UpgradeObserver) \
+	DO(Scout)
 
 void MicroTask::activate(BWAPI::Unit* unit) const
 {

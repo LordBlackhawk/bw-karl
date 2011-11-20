@@ -4,11 +4,19 @@
 #include "micro-task-manager.h"
 #include "unit-distributer.h"
 #include "worker-manager.h"
+#include "scout-manager.h"
+
 
 void Micro::clear()
 {
 	MicroTaskManager::instance().clear();
 	WorkerManager::instance().clear();
+	ScoutManager::instance().clear();
+}
+
+void Micro::prepareMap()
+{
+	ScoutManager::instance().prepareMap();
 }
 
 void Micro::pretick()
@@ -39,6 +47,7 @@ void Micro::tick()
 	UnitDistributer::instance().tick();
 	WorkerManager::instance().tick();
 	MicroTaskManager::instance().tick();
+	ScoutManager::instance().tick();
 }
 
 
