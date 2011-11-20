@@ -34,16 +34,47 @@ class Operation
 		TimeType stageDuration(int stage) const;
 		TimeType firstApplyableAt(const Resources& res, int stage, ResourceIndex& blocking) const;
 		void apply(Resources& res, const TimeInterval& interval, bool pushdecs = false) const;
-		void execute(bool justactived);
+		CheckPointResult::type executeInternal();
+		
+		void execute(bool justactived)
+		{
+			if (justactived || (status_ == OperationStatus::scheduled))
+				status_ = OperationStatus::started;
+			CheckPointResult::type result = executeInternal();
+			switch (result)
+			{
+			case CheckPointResult::waiting:
+				break;
+				
+			case CheckPointResult::running:
+				status_ = OperationStatus::running;
+				break;
+				
+			case CheckPointResult::completed:
+				scheduledtime_ += stageDuration(stage_);
+				++stage_;
+				status_ = (stage_ >= stageCount()) ? OperationStatus::completed : OperationStatus::scheduled;
+				break;
+			
+			case CheckPointResult::failed:
+				status_ = OperationStatus::failed;
+				break;
+			}
+		}
 
 		TimeType scheduledTime() const
 		{
 			return scheduledtime_;
 		}
 		
-		TimeType& scheduledTime()
+		void rescheduleBegin(const TimeType& newtime)
 		{
-			return scheduledtime_;
+			scheduledtime_ = newtime;
+		}
+		
+		void rescheduleEnd(const TimeType& newtime)
+		{
+			scheduledtime_ = newtime - stageDuration(stage_);
 		}
 
 		TimeType scheduledEndtime() const
@@ -88,7 +119,7 @@ class Operation
 		boost::shared_ptr<T> getDetails()
 		{
 			if (details_.use_count() == 0)
-				details_ = boost::shared_ptr<T>(new T());
+				details_ = boost::shared_ptr<T>(new T);
 			return boost::static_pointer_cast<T>(details_);
 		}
 		

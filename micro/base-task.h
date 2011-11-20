@@ -6,19 +6,19 @@
 class BaseTask
 {
 	public:
-		BaseTask() : status_(TaskStatus::running)
+		BaseTask()
 		{ }
 		
-		void completed(BWAPI::Unit* unit)
+		TaskStatus::Type completed(BWAPI::Unit* unit)
 		{
-			status_ = TaskStatus::completed;
 			MicroTaskManager::instance().popTask(unit);
+			return TaskStatus::completed;
 		}
 
-		void failed(BWAPI::Unit* unit)
+		TaskStatus::Type failed(BWAPI::Unit* unit)
 		{
-			status_ = TaskStatus::failed;
 			MicroTaskManager::instance().popTask(unit);
+			return TaskStatus::failed;
 		}
 
 		void subtask(BWAPI::Unit* unit, const MicroTask& task) const
@@ -53,14 +53,8 @@ class BaseTask
 		void deactivate(BWAPI::Unit* /*u*/) const
 		{ }
 
-		void tick(BWAPI::Unit* /*u*/) const
-		{ }
-
-		TaskStatus::Type status() const
+		TaskStatus::Type tick() const
 		{
-			return status_;
+			return TaskStatus::failed;
 		}
-
-	protected:
-		TaskStatus::Type status_;
 };

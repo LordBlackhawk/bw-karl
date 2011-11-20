@@ -22,10 +22,12 @@ class GatherMineralsTask : public BaseTask
 			worker.erase(unit);
 		}
 
-		void tick(BWAPI::Unit* unit)
+		TaskStatus::Type tick()
 		{
-			if (unit->isIdle())
-				unit->rightClick(getMineral());
+			for (auto unit : worker)
+				if (unit->isIdle())
+					unit->rightClick(getMineral());
+			return TaskStatus::running;
 		}
 		
 		BWAPI::Position getPosition() const

@@ -19,6 +19,9 @@ class UnitDistributer
 				if (ut.isWorker()) {
 					std::clog << "WorkerManager should use Worker...\n";
 					WorkerManager::instance().useIdleWorker(it);
+				} else if (ut.isRefinery()) {
+					std::clog << "WorkerManager should use Extractor...\n";
+					WorkerManager::instance().useIdleExtractor(it);
 				}
 			}
 		}

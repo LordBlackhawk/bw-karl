@@ -17,11 +17,11 @@ class LongMoveTask : public BaseTask
 			updateWay();
 		}
 
-		void tick(BWAPI::Unit* u)
+		TaskStatus::Type tick()
 		{
 			unit = u;
 			if (reachedTarget()) {
-				completed(unit);
+				return completed(unit);
 			} else if (nextwaypoint == NULL) {
 				stask = createRegionMove(target);
 				subtask(unit, stask);
@@ -32,6 +32,7 @@ class LongMoveTask : public BaseTask
 				stask = createRegionMove(getChokepointWaitingPosition());
 				subtask(unit, stask);
 			}
+			// TODO subtask!!!!!!
 		}
 
 	protected:

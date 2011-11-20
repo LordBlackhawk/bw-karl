@@ -4,6 +4,7 @@
 #include "gather-minerals-task.h"
 #include "gather-gas-task.h"
 #include "unit-finder.h"
+#include "settick.h"
 
 typedef boost::shared_ptr<GatherMineralsTask>	GatherMineralsTaskPtr;
 typedef boost::shared_ptr<GatherGasTask>		GatherGasTaskPtr;
@@ -21,10 +22,12 @@ class WorkerManager
 			GatherGasTaskPtr best;
 			int bestvalue = 3;
 			for (auto it : gasTasks) {
-				int value = it->workercount();
-				if (value < bestvalue) {
-					bestvalue = value;
-					best = it;
+				if (it->isWorking()) {
+					int value = it->workercount();
+					if (value < bestvalue) {
+						bestvalue = value;
+						best = it;
+					}
 				}
 			}
 			if (bestvalue > 2)
@@ -71,11 +74,24 @@ class WorkerManager
 			}
 			MicroTaskManager::instance().pushTask(unit, MicroTask(MicroTaskEnum::GatherMinerals, best));
 		}
+		
+		void useIdleExtractor(BWAPI::Unit* unit)
+		{
+			GatherGasTaskPtr data = GatherGasTaskPtr(new GatherGasTask(unit));
+			MicroTaskManager::instance().pushTask(unit, MicroTask(MicroTaskEnum::GatherGas, data));
+			gasTasks.insert(data);
+		}
 
 		void clear()
 		{
 			mineralTasks.clear();
 			gasTasks.clear();
+		}
+		
+		void tick()
+		{
+			settickptr(mineralTasks);
+			settickptr(gasTasks);
 		}
 
 	protected:

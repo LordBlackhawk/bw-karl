@@ -75,34 +75,12 @@ void MicroTask::deactivate(BWAPI::Unit* unit) const
 	#undef DO
 }
 
-void MicroTask::tick(BWAPI::Unit* unit) const
+TaskStatus::Type MicroTask::tick() const
 {
 	#define DO(name) {															\
 		case MicroTaskEnum::name:												\
 			auto dataholder = boost::static_pointer_cast<name##Task>(data);		\
-			dataholder->tick(unit);												\
-			return; }
-
-	switch (type)
-	{
-		LISTTASKS
-		case MicroTaskEnum::None:
-			return;
-		default:
-			std::cerr << "Unknown MicroTaskEnum: " << type << "\n";
-			assert(false);
-			return;
-	}
-	
-	#undef DO
-}
-
-TaskStatus::Type MicroTask::status() const
-{
-	#define DO(name) {															\
-		case MicroTaskEnum::name:												\
-			auto dataholder = boost::static_pointer_cast<name##Task>(data);		\
-			return dataholder->status(); }
+			return dataholder->tick(); }
 
 	switch (type)
 	{

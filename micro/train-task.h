@@ -15,20 +15,21 @@ class TrainTask : public BaseTask
 			lastcommandframe = -1;
 		}
 
-		void tick(BWAPI::Unit* u)
+		TaskStatus::Type tick()
 		{
-			unit = u;
 			if (lastcommandframe < 0) {
 				unit->train(ut);
 				lastcommandframe = currentFrame();
 			} else if (unit->getLastCommand().getType() == BWAPI::UnitCommandTypes::Train) {
-				completed(unit);
+				return completed(unit);
 			} else if (lastcommandframe + latencyFrames() > currentFrame()) {
 				// WAIT ...
 			} else {
 				// DO ANALYSIS, TRYAGAIN OR FAIL ...
-				failed(unit);
+				return failed(unit);
 			}
+			
+			return TaskStatus::running;
 		}
 
 	protected:

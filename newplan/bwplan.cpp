@@ -818,31 +818,31 @@ void Resources::inc(const ResourceIndex& ri, int optime, int value)
 	switch(ri.getType())
 	{
 		case RI::TerranWorker:
-			amount[RI::Minerals] -= 45 * (optime - time);
+			amount[RI::Minerals] -= 45 * (optime - time) * value;
 			break;
 		case RI::ProtossWorker:
-			amount[RI::Minerals] -= 45 * (optime - time);
+			amount[RI::Minerals] -= 45 * (optime - time) * value;
 			break;
 		case RI::ZergWorker:
-			amount[RI::Minerals] -= 45 * (optime - time);
+			amount[RI::Minerals] -= 45 * (optime - time) * value;
 			break;
 		case RI::TerranGasWorker:
-			amount[RI::Gas] -= 45 * (optime - time);
+			amount[RI::Gas] -= 45 * (optime - time) * value;
 			break;
 		case RI::ProtossGasWorker:
-			amount[RI::Gas] -= 45 * (optime - time);
+			amount[RI::Gas] -= 45 * (optime - time) * value;
 			break;
 		case RI::ZergGasWorker:
-			amount[RI::Gas] -= 45 * (optime - time);
+			amount[RI::Gas] -= 45 * (optime - time) * value;
 			break;
 		case RI::ZergHatchery:
-			amount[RI::Larva] -= 1 * (optime - time);
+			amount[RI::Larva] -= 1 * (optime - time) * value;
 			break;
 		case RI::ZergLair:
-			amount[RI::Larva] -= 1 * (optime - time);
+			amount[RI::Larva] -= 1 * (optime - time) * value;
 			break;
 		case RI::ZergHive:
-			amount[RI::Larva] -= 1 * (optime - time);
+			amount[RI::Larva] -= 1 * (optime - time) * value;
 			break;
 		default:
 			break;
@@ -4994,7 +4994,7 @@ TimeType Operation::stageDuration(int stage) const
 	}
 }
 
-void Operation::execute(bool justactived)
+CheckPointResult::type Operation::executeInternal()
 {
 	switch(index_.getType())
 	{
@@ -5002,1676 +5002,1877 @@ void Operation::execute(bool justactived)
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendGasWorker, justactived, *this); break;
+					return CSendGasWorker(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ReturnTerranGasWorker:
 			switch(stage_)
 			{
 				case 0:
-					Call(CReturnGasWorker, justactived, *this); break;
+					return CReturnGasWorker(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::SendProtossGasWorker:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendGasWorker, justactived, *this); break;
+					return CSendGasWorker(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ReturnProtossGasWorker:
 			switch(stage_)
 			{
 				case 0:
-					Call(CReturnGasWorker, justactived, *this); break;
+					return CReturnGasWorker(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::SendZergGasWorker:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendGasWorker, justactived, *this); break;
+					return CSendGasWorker(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ReturnZergGasWorker:
 			switch(stage_)
 			{
 				case 0:
-					Call(CReturnGasWorker, justactived, *this); break;
+					return CReturnGasWorker(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranMarine:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranGhost:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranVulture:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranGoliath:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranSiegeTankTankMode:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranSCV:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranWraith:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranScienceVessel:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranDropship:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranBattlecruiser:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranNuclearMissile:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranFirebat:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranMedic:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergZergling:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergHydralisk:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergUltralisk:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergDrone:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergOverlord:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergMutalisk:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergGuardian:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 				case 1:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergQueen:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergDefiler:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergScourge:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergInfestedTerran:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranValkyrie:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossCorsair:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossDarkTemplar:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergDevourer:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 				case 1:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossProbe:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossZealot:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossDragoon:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossHighTemplar:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossShuttle:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossScout:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossArbiter:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossCarrier:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossReaver:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossObserver:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTrainUnit, justactived, *this); break;
+					return CTrainUnit(*this);
 				case 1:
-					Call(CUnitFinished, justactived, *this); break;
+					return CUnitFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergLurker:
 			switch(stage_)
 			{
 				case 0:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 				case 1:
-					Call(CMorphUnit, justactived, *this); break;
+					return CMorphUnit(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranCommandCenter:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranComsatStation:
 			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, justactived, *this); break;
+					return CBuildAddon(*this);
 				case 1:
-					Call(CBuildAddonFinished, justactived, *this); break;
+					return CBuildAddonFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranNuclearSilo:
 			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, justactived, *this); break;
+					return CBuildAddon(*this);
 				case 1:
-					Call(CBuildAddonFinished, justactived, *this); break;
+					return CBuildAddonFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranSupplyDepot:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranRefinery:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranBarracks:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranAcademy:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranFactory:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranStarport:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranControlTower:
 			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, justactived, *this); break;
+					return CBuildAddon(*this);
 				case 1:
-					Call(CBuildAddonFinished, justactived, *this); break;
+					return CBuildAddonFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranScienceFacility:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranCovertOps:
 			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, justactived, *this); break;
+					return CBuildAddon(*this);
 				case 1:
-					Call(CBuildAddonFinished, justactived, *this); break;
+					return CBuildAddonFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranPhysicsLab:
 			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, justactived, *this); break;
+					return CBuildAddon(*this);
 				case 1:
-					Call(CBuildAddonFinished, justactived, *this); break;
+					return CBuildAddonFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranMachineShop:
 			switch(stage_)
 			{
 				case 0:
-					Call(CBuildAddon, justactived, *this); break;
+					return CBuildAddon(*this);
 				case 1:
-					Call(CBuildAddonFinished, justactived, *this); break;
+					return CBuildAddonFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranEngineeringBay:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranArmory:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranMissileTurret:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranBunker:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergHatchery:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergLair:
 			switch(stage_)
 			{
 				case 0:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 1:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergHive:
 			switch(stage_)
 			{
 				case 0:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 1:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergNydusCanal:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergHydraliskDen:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergDefilerMound:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergGreaterSpire:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergQueensNest:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergEvolutionChamber:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergUltraliskCavern:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergSpire:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergSpawningPool:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergCreepColony:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergSporeColony:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 				case 3:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 4:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergSunkenColony:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 				case 3:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 4:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergExtractor:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossNexus:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossRoboticsFacility:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossPylon:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossAssimilator:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossObservatory:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossGateway:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossPhotonCannon:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossCitadelofAdun:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossCyberneticsCore:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossTemplarArchives:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossForge:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossStargate:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossFleetBeacon:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossArbiterTribunal:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossRoboticsSupportBay:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossShieldBattery:
 			switch(stage_)
 			{
 				case 0:
-					Call(CSendWorkerToBuildingPlace, justactived, *this); break;
+					return CSendWorkerToBuildingPlace(*this);
 				case 1:
-					Call(CBuildBuilding, justactived, *this); break;
+					return CBuildBuilding(*this);
 				case 2:
-					Call(CBuildingFinished, justactived, *this); break;
+					return CBuildingFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::StimPacks:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Lockdown:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::EMPShockwave:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::SpiderMines:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TankSiegeMode:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Irradiate:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::YamatoGun:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::CloakingField:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::PersonnelCloaking:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Burrowing:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::SpawnBroodlings:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Plague:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Consume:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Ensnare:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::PsionicStorm:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Hallucination:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Recall:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::StasisField:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Restoration:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::DisruptionWeb:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::MindControl:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::OpticalFlare:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Maelstrom:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::LurkerAspect:
 			switch(stage_)
 			{
 				case 0:
-					Call(CTechStart, justactived, *this); break;
+					return CTechStart(*this);
 				case 1:
-					Call(CTechFinished, justactived, *this); break;
+					return CTechFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranInfantryArmor1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranInfantryArmor2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranInfantryArmor3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranVehiclePlating1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranVehiclePlating2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranVehiclePlating3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranShipPlating1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranShipPlating2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranShipPlating3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergCarapace1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergCarapace2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergCarapace3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergFlyerCarapace1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergFlyerCarapace2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergFlyerCarapace3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossGroundArmor1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossGroundArmor2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossGroundArmor3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossAirArmor1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossAirArmor2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossAirArmor3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranInfantryWeapons1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranInfantryWeapons2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranInfantryWeapons3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranVehicleWeapons1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranVehicleWeapons2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranVehicleWeapons3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranShipWeapons1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranShipWeapons2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TerranShipWeapons3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergMeleeAttacks1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergMeleeAttacks2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergMeleeAttacks3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergMissileAttacks1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergMissileAttacks2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergMissileAttacks3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergFlyerAttacks1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergFlyerAttacks2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ZergFlyerAttacks3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossGroundWeapons1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossGroundWeapons2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossGroundWeapons3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossAirWeapons1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossAirWeapons2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossAirWeapons3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossPlasmaShields1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossPlasmaShields2:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ProtossPlasmaShields3:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::U_238Shells1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::IonThrusters1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::TitanReactor1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::OcularImplants1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::MoebiusReactor1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ApolloReactor1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ColossusReactor1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::VentralSacs1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::Antennae1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::PneumatizedCarapace1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::MetabolicBoost1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::AdrenalGlands1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::MuscularAugments1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::GroovedSpines1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::GameteMeiosis1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::MetasynapticNode1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::SingularityCharge1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::LegEnhancements1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ScarabDamage1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ReaverCapacity1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::GraviticDrive1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::SensorArray1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::GraviticBoosters1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::KhaydarinAmulet1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ApialSensors1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::GraviticThrusters1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::CarrierCapacity1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::KhaydarinCore1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ArgusJewel1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ArgusTalisman1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::CaduceusReactor1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::ChitinousPlating1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::AnabolicSynthesis1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		case OI::CharonBoosters1:
 			switch(stage_)
 			{
 				case 0:
-					Call(CUpgradeStart, justactived, *this); break;
+					return CUpgradeStart(*this);
 				case 1:
-					Call(CUpgradeFinished, justactived, *this); break;
+					return CUpgradeFinished(*this);
 			}
+			return CheckPointResult::failed;
 		default:
-			break;
+			return CheckPointResult::failed;
 	}
 }
 

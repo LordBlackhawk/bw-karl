@@ -15,20 +15,21 @@ class MorphTask : public BaseTask
 			lastcommandframe = -1;
 		}
 
-		void tick(BWAPI::Unit* u)
+		TaskStatus::Type tick()
 		{
-			unit = u;
 			if (lastcommandframe < 0) {
 				unit->morph(ut);
 				lastcommandframe = currentFrame();
 			} else if (unit->isMorphing()) {
-				completed(unit);
+				std::clog << BWAPI::Broodwar->getFrameCount() << ": Morphing " << ut.getName() << " started.\n";
+				return completed(unit);
 			} else if (lastcommandframe + latencyFrames() > currentFrame()) {
 				// WAIT ...
 			} else {
 				// DO ANALYSIS, TRYAGAIN OR FAIL ...
-				failed(unit);
+				return failed(unit);
 			}
+			return TaskStatus::running;
 		}
 
 	protected:

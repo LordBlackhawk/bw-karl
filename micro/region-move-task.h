@@ -15,20 +15,20 @@ class RegionMoveTask : public BaseTask
 			lastcommandframe = -1;
 		}
 
-		void tick(BWAPI::Unit* u)
+		TaskStatus::Type tick()
 		{
-			unit = u;
 			if (lastcommandframe < 0) {
 				unit->rightClick(target);
 				lastcommandframe = currentFrame();
 			} else if (reachedTarget()) {
-				completed(unit);
+				return completed(unit);
 			} else if (lastcommandframe + latencyFrames() > currentFrame()) {
 				// DO NOTHING!
 			} else if (!unit->isMoving()) {
 				unit->rightClick(target);
 				lastcommandframe = currentFrame();
 			}
+			return TaskStatus::running;
 		}
 
 	protected:
@@ -38,7 +38,7 @@ class RegionMoveTask : public BaseTask
 
 		bool reachedTarget() const
 		{
-			return (unit->getPosition().getDistance(target) < 64.);
+			return (unit->getPosition().getDistance(target) < 128.);
 		}
 };
 

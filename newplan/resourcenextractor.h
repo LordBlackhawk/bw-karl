@@ -27,13 +27,13 @@ BWResources extractResources()
 	res.set(BWResourceIndex::Minerals, self->minerals());
 	res.set(BWResourceIndex::Gas, self->gas());
 
-	res.set(BWResourceIndex::TerranSupply, self->supplyTotal(BWAPI::Races::Terran));
+	res.set(BWResourceIndex::TerranSupply, self->supplyTotal(BWAPI::Races::Terran) - self->supplyUsed(BWAPI::Races::Terran));
 	res.setLocked(BWResourceIndex::TerranSupply, self->supplyUsed(BWAPI::Races::Terran));
 
-	res.set(BWResourceIndex::ProtossSupply, self->supplyTotal(BWAPI::Races::Protoss));
+	res.set(BWResourceIndex::ProtossSupply, self->supplyTotal(BWAPI::Races::Protoss) - self->supplyUsed(BWAPI::Races::Protoss));
 	res.setLocked(BWResourceIndex::ProtossSupply, self->supplyUsed(BWAPI::Races::Protoss));
 
-	res.set(BWResourceIndex::ZergSupply, self->supplyTotal(BWAPI::Races::Zerg));
+	res.set(BWResourceIndex::ZergSupply, self->supplyTotal(BWAPI::Races::Zerg) - self->supplyUsed(BWAPI::Races::Zerg));
 	res.setLocked(BWResourceIndex::ZergSupply, self->supplyUsed(BWAPI::Races::Zerg));
 
 	for (auto it : self->getUnits())
@@ -73,7 +73,7 @@ BWResources extractResources()
 
 		BWResourceIndex ri = BWResourceIndex::byUnitType(ut);
 		res.inc(ri, time, 1);
-		if (!it->isIdle())
+		if (it->isUpgrading() || it->isResearching() || it->isTraining())
 			res.incLocked(ri, time, 1);
 	}
 

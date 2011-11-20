@@ -41,8 +41,10 @@ class UnitFinder
 
 		BWAPI::Unit* findIdle(const BWAPI::UnitType& ut) const
 		{
+			//std::clog << "searching for UnitType " << ut.getName() << "...\n";
 			auto pred = [ut] (BWAPI::Unit* unit)
 					{
+						//std::clog << "\tfound " << unit->getType().getName() << ".\n";
 						return (unit->getType() == ut);
 					};
 			return findFirst(pred);
@@ -71,10 +73,14 @@ class UnitFinder
 			BWAPI::UnitType ut = race.getWorker();
 			auto pred = [ut, pos] (BWAPI::Unit* unit)
 					{
-						if (unit->getType() == ut)
-							return pos.getDistance(unit->getTilePosition());
-						else
-							return 0.;
+						if (unit->getType() != ut)
+							return -1.;
+						
+						MicroTask task = MicroTaskManager::instance().activeTask(unit);
+						if (!task.empty() && !task.isGatherMinerals())
+							return -1.;
+						
+						return 1e5 - pos.getDistance(unit->getTilePosition());
 					};
 			return findBest(pred);
 		}
@@ -84,9 +90,9 @@ class UnitFinder
 			auto pred = [pos] (BWAPI::Unit* unit)
 					{
 						if (unit->getType().isWorker())
-							return pos.getDistance(unit->getTilePosition());
+							return 1e5 - pos.getDistance(unit->getTilePosition());
 						else
-							return 0.;
+							return -1.;
 					};
 			return findBest(pred);
 		}
@@ -96,9 +102,9 @@ class UnitFinder
 			auto pred = [pos] (BWAPI::Unit* unit)
 					{
 						if (unit->getType().isWorker())
-							return pos.getDistance(unit->getPosition());
+							return 1e5 - pos.getDistance(unit->getPosition());
 						else
-							return 0.;
+							return -1.;
 					};
 			return findBest(pred);
 		}

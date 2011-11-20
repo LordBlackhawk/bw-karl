@@ -11,5 +11,6 @@ class Micro
 		}
 
 		void clear();
+		void pretick();
 		void tick();
 };

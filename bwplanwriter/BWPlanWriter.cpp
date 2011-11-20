@@ -557,7 +557,7 @@ void writeBWPlan()
 		if (!it->influence.empty()) {
 			std::cout << "\t\tcase RI::" << it->name << ":\n";
 			for (auto iit : it->influence)
-				std::cout << "\t\t\tamount[RI::" << iit.second->name << "] -= " << iit.first << " * (optime - time);\n";
+				std::cout << "\t\t\tamount[RI::" << iit.second->name << "] -= " << iit.first << " * (optime - time) * value;\n";
 			std::cout << "\t\t\tbreak;\n";
 		}
 	std::cout << "\t\tdefault:\n"
@@ -650,7 +650,7 @@ void writeBWPlan()
 				<< "\t\t\treturn 0;\n";
 	std::cout << "\t}\n}\n\n";
 	
-	std::cout << "void Operation::execute(bool justactived)\n{\n"
+	std::cout << "CheckPointResult::type Operation::executeInternal()\n{\n"
 			<< "\tswitch(index_.getType())\n\t{\n";
 	for (auto it : operationDescriptions) {
 		std::cout << "\t\tcase OI::" << it->name << ":\n";
@@ -660,12 +660,12 @@ void writeBWPlan()
 			if (iit.type == ItemDescription::CheckPoint)
 		{
 			std::cout << "\t\t\t\tcase " << counter << ":\n"
-					<< "\t\t\t\t\tCall(" << iit.name << ", justactived, *this); break;\n";
+					<< "\t\t\t\t\treturn " << iit.name << "(*this);\n";
 			++counter;
 		}
-		std::cout << "\t\t\t}\n";
+		std::cout << "\t\t\t}\n\t\t\treturn CheckPointResult::failed;\n";
 	}
-	std::cout << "\t\tdefault:\n\t\t\tbreak;\n";
+	std::cout << "\t\tdefault:\n\t\t\treturn CheckPointResult::failed;\n";
 	std::cout << "\t}\n}\n\n";
 	
 	std::cout << "TimeType Operation::firstApplyableAt(const Resources& res, int stage, ResourceIndex& blocking) const\n{\n"

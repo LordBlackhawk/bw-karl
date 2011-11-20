@@ -138,8 +138,8 @@ class PlanContainer
 					current.advance(newtime-currenttime);
 					TimeInterval interval(currenttime, newtime);
 					parent.evalOperations(current, interval, pushdecs);
-					if (!current.valid())
-						std::clog << "advancing from " << currenttime << " to " << newtime << ": Resources not valid!!!\n";
+					//if (!current.valid())
+					//	std::clog << "advancing from " << currenttime << " to " << newtime << ": Resources not valid!!!\n";
 					currenttime = newtime;
 				}
 		};
@@ -197,7 +197,7 @@ class PlanContainer
 					return fbb(*this, op, blocking);
 				
 				//std::clog << "\tat " << it.time() << ": \tfirstapplyable at " << firstapplyable << "\n";
-				op.scheduledTime() = firstapplyable - current_duration;
+				op.rescheduleBegin(firstapplyable - current_duration);
 				current_duration  += op.stageDuration(k);
 				TimeInterval interval(-1, firstapplyable + op.stageDuration(k)-1);
 				it.update();
@@ -219,10 +219,16 @@ class PlanContainer
 			ThisType newplan(newres, starttime+timeinc);
 			
 			for (auto& it : active_operations) {
+				if (it.status() == OperationStatus::failed) {
+					std::clog << "Operation " << it.getName() << " failed, before rebase.\n";
+					continue;
+				}
 				it.execute(false);
-				if (   (it.status() != OperationStatus::completed)
-				    && (it.status() != OperationStatus::failed))
+				if (it.status() == OperationStatus::failed) {
+					std::clog << "Operation " << it.getName() << " failed, while rebase.\n";
+				} else if (it.status() != OperationStatus::completed) {
 					newplan.addActive(it);
+				}
 			}
 			
 			for (auto it : scheduled_operations) {
@@ -381,7 +387,10 @@ class PlanContainer
 		void addActive(const Operation& op)
 		{
 			active_operations.push_back(op);
-			op.changeTimes(changetimes);
+			Operation& newop = active_operations.back();
+			if (newop.scheduledTime() <= starttime)
+				newop.rescheduleBegin(starttime + 1);
+			newop.changeTimes(changetimes);
 			endtime = *changetimes.rbegin();
 		}
 		

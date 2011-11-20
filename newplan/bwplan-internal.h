@@ -9,30 +9,6 @@
 
 namespace {
 
-/* for Operation::execute(): */
-template <class FUNC>
-void Call(const FUNC& f, bool /*justactived*/, Operation& op)
-{
-	CheckPointResult::type res = f(op);
-	switch (res)
-	{
-	case CheckPointResult::waiting:
-		break;
-		
-	case CheckPointResult::running:
-		op.status() = OperationStatus::running;
-		break;
-		
-	case CheckPointResult::completed:
-		op.status() = OperationStatus::completed;
-		break;
-	
-	case CheckPointResult::failed:
-		op.status() = OperationStatus::failed;
-		break;
-	}
-}
-
 /* for Operation::firstApplyableAt(): */
 void Needs(const Resources& res, int num, const ResourceIndex& ri, TimeType& result, ResourceIndex& blocking)
 {

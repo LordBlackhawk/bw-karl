@@ -26,11 +26,25 @@ class MicroTask
 		{
 			return (type == MicroTaskEnum::None);
 		}
+		
+		bool isGatherMinerals() const
+		{
+			return (type == MicroTaskEnum::GatherMinerals);
+		}
 
 		void activate(BWAPI::Unit* unit) const; // Hand dispatch!
 		void deactivate(BWAPI::Unit* unit) const; // Hand dispatch!
-		void tick(BWAPI::Unit* unit) const; // Hand dispatch!
-		TaskStatus::Type status() const; // Hand dispatch!
+		TaskStatus::Type tick() const; // Hand dispatch!
+		
+		bool operator < (const MicroTask& other) const
+		{
+			return (data < other.data);
+		}
+		
+		bool operator == (const MicroTask& other) const
+		{
+			return (data == other.data);
+		}
 
 	protected:
 		MicroTaskEnum::Type		type;

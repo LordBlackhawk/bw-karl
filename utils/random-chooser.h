@@ -9,7 +9,7 @@ T getRandomSomething(const std::set<T>& list)
 		return NULL;
 
 	int index = rand() % list.size();
-	std::set<T>::const_iterator it=list.begin();
+	typename std::set<T>::const_iterator it=list.begin();
 	while (index > 0)
 	{
 		--index;

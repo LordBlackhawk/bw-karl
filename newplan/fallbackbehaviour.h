@@ -3,6 +3,7 @@
 #include "operations.h"
 #include "resourceindex.h"
 
+#include <BWAPI.h>
 #include <set>
 #include <iostream>
 
@@ -12,7 +13,7 @@ struct DefaultFallbackBehaviour
 {
 	FallbackBehaviourType::type operator () (PlanContainer& /*plan*/, const Operation& /*op*/, const ResourceIndex& /*blocking*/) const
 	{
-		std::cout << "fallback!!!\n";
+		std::clog << "fallback!!!\n";
 		return FallbackBehaviourType::Fail;
 	}
 };
@@ -26,7 +27,7 @@ class SimpleFallbackBehaviour
 		
 		FallbackBehaviourType::type operator () (PlanContainer& plan, const Operation& op, const ResourceIndex& blocking)
 		{
-			std::cout << "Operation " << op.getName() << " failed, problem resource is " << blocking.getName() << "\n";
+			std::clog << BWAPI::Broodwar->getFrameCount() << ": Operation " << op.getName() << " failed, problem resource is " << blocking.getName() << "\n";
 			if (!blocking.valid()) {
 				if (level == 0)
 					return nextfbb(plan, op, blocking);

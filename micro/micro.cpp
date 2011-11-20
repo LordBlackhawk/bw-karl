@@ -11,7 +11,7 @@ void Micro::clear()
 	WorkerManager::instance().clear();
 }
 
-void Micro::tick()
+void Micro::pretick()
 {
 	BWAPI::Player* self = BWAPI::Broodwar->self();
 	for (auto event : BWAPI::Broodwar->getEvents())
@@ -32,10 +32,13 @@ void Micro::tick()
 				break;
 		}
 	}
+}
 
+void Micro::tick()
+{
 	UnitDistributer::instance().tick();
-
-	MicroTaskManager::instance().onTick();
+	WorkerManager::instance().tick();
+	MicroTaskManager::instance().tick();
 }
 
 

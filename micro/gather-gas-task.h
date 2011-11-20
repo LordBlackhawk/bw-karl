@@ -12,17 +12,29 @@ class GatherGasTask : public BaseTask
 
 		void activate(BWAPI::Unit* unit)
 		{
-			worker.insert(unit);
-			unit->rightClick(geyser);
+			if (geyser == NULL)
+				return;
+			if ((unit != geyser) && unit->getType().isWorker()) {
+				worker.insert(unit);
+				unit->rightClick(geyser);
+			}
 		}
 		
 		void deactive(BWAPI::Unit* unit)
 		{
-			worker.erase(unit);
+			if (unit == geyser) {
+				for (auto it : worker)
+					completed(it);
+				geyser = NULL;
+			} else {
+				worker.erase(unit);
+			}
 		}
 
-		void tick(BWAPI::Unit* /*unit*/)
-		{ }
+		TaskStatus::Type tick()
+		{
+			return (geyser != NULL) ? TaskStatus::running : TaskStatus::failed;
+		}
 
 		int workercount() const
 		{
@@ -40,6 +52,11 @@ class GatherGasTask : public BaseTask
 		BWAPI::Position getPosition() const
 		{
 			return geyser->getPosition();
+		}
+		
+		bool isWorking() const
+		{
+			return (geyser != NULL);
 		}
 
 	protected:

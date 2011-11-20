@@ -14,17 +14,17 @@ class MorphObserverTask : public BaseTask
 			unit = u;
 		}
 
-		void tick(BWAPI::Unit* u)
+		TaskStatus::Type tick()
 		{
-			unit = u;
 			if (!unit->exists()) {
-				failed(unit);
+				return failed(unit);
 			} else if (unit->isMorphing()) {
 				// WAIT ...
-			} else {
-				completed(unit);
+			} else if (unit->isIdle()) {
+				return completed(unit);
 			}
 			// TODO: isUnderAttack?
+			return TaskStatus::running;
 		}
 
 	protected:

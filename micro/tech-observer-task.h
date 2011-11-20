@@ -14,17 +14,17 @@ class TechObserverTask : public BaseTask
 			unit = u;
 		}
 
-		void tick(BWAPI::Unit* u)
+		TaskStatus::Type tick()
 		{
-			unit = u;
 			if (!unit->exists()) {
-				failed(unit);
+				return failed(unit);
 			} else if (unit->isResearching()) {
 				// WAIT ...
 			} else {
-				completed(unit);
+				return completed(unit);
 			}
 			// TODO: isUnderAttack?
+			return TaskStatus::running;
 		}
 
 	protected:

@@ -2,6 +2,7 @@
 
 #include "micro-task.h"
 #include "utils/singleton.h"
+#include "settick.h"
 #include <BWAPI.h>
 #include <map>
 
@@ -77,11 +78,15 @@ class MicroTaskManager
 				inactiveunits.erase(unit);
 			}
 		}
-
-		void onTick()
+		
+		void insertTickTask(const MicroTask& task)
 		{
-			for (auto it : activeunits)
-				it.second->task.tick(it.first);
+			ticktasks.insert(task);
+		}
+
+		void tick()
+		{
+			settick(ticktasks);
 		}
 
 		std::set<BWAPI::Unit*> inactiveUnits() const
@@ -105,4 +110,5 @@ class MicroTaskManager
 	protected:
 		std::map<BWAPI::Unit*, MicroTaskStackPtr>	activeunits;
 		std::set<BWAPI::Unit*>						inactiveunits;
+		std::set<MicroTask>							ticktasks;
 };

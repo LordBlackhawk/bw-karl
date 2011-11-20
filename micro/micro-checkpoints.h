@@ -10,7 +10,7 @@
 namespace {
 	CheckPointResult::type WaitForTask(MicroTask& task)
 	{
-		switch (task.status())
+		switch (task.tick())
 		{
 			case TaskStatus::failed:
 				task = MicroTask();
@@ -21,6 +21,19 @@ namespace {
 			default:
 				return CheckPointResult::running;
 		}
+	}
+	
+	void drawBuildingPosition(const BWAPI::UnitType& ut, const BWAPI::TilePosition& tp)
+	{
+		BWAPI::Broodwar->drawBoxMap(tp.x()*32, tp.y()*32, tp.x()*32+ut.tileWidth()*32, tp.y()*32+ut.tileHeight()*32, BWAPI::Colors::Green);
+		BWAPI::Broodwar->drawTextMap(tp.x()*32, tp.y()*32, "%s", ut.getName().c_str());
+	}
+	
+	BWAPI::Position getBuildingCenter(const BWAPI::TilePosition& pos, const BWAPI::UnitType& ut)
+	{
+		BWAPI::Position result = BWAPI::Position(pos);
+		result += BWAPI::Position(ut.tileWidth() * 16, ut.tileHeight() * 16);
+		return result;
 	}
 }
 
@@ -39,6 +52,7 @@ CheckPointResult::type CReturnGasWorker(Operation& /*op*/)
 CheckPointResult::type CSendWorkerToBuildingPlace(Operation& op)
 {
 	boost::shared_ptr<BuildBuildingDetails> details = op.getDetails<BuildBuildingDetails>(); // Makes initialisation!!!
+	assert(details.use_count() > 0);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -55,64 +69,75 @@ CheckPointResult::type CSendWorkerToBuildingPlace(Operation& op)
 		assert(details->pos != BWAPI::TilePositions::None);
 		assert(details->builder != NULL);
 
-		details->task = createLongMove(BWAPI::Position(details->pos));
+		details->task = createLongMove(getBuildingCenter(details->pos, details->ut));
 		MicroTaskManager::instance().pushTask(details->builder, details->task);
 
-		return CheckPointResult::running;
-
-	} else {
-
-		return WaitForTask(details->task);
-
 	}
+
+	drawBuildingPosition(details->ut, details->pos);
+	return WaitForTask(details->task);
 }
 
 CheckPointResult::type CBuildBuilding(Operation& op)
 {
 	boost::shared_ptr<BuildBuildingDetails> details = op.getDetails<BuildBuildingDetails>(); // Makes initialisation!!!
+	assert(details.use_count() > 0);
 
 	if (op.status() == OperationStatus::started) {
 
 		assert(details->ut != BWAPI::UnitTypes::None);
 		assert(details->pos != BWAPI::TilePositions::None);
 		assert(details->builder != NULL);
+	
+		std::clog << BWAPI::Broodwar->getFrameCount() << ": Calling BuildBuilding(" << details->ut.getName() << ")...\n";
 
 		details->task = createBuild(details->ut, details->pos);
 		MicroTaskManager::instance().pushTask(details->builder, details->task);
 
-		return CheckPointResult::running;
-
-	} else {
-
-		CheckPointResult::type result = WaitForTask(details->task);
-		if (result == CheckPointResult::completed) {
-			details->building = UnitFinder::instance().find(details->ut, details->pos);
-			if (details->building == NULL)
-				return CheckPointResult::failed;
-		}
-		return result;
-
 	}
+
+	op.rescheduleBegin(BWAPI::Broodwar->getFrameCount()+1);
+	drawBuildingPosition(details->ut, details->pos);
+	//std::clog << "Calling BuildBuilding (running)...\n";
+	CheckPointResult::type result = WaitForTask(details->task);
+	if (result == CheckPointResult::completed) {
+		if ((details->ut.getRace() == BWAPI::Races::Zerg) && (details->ut != BWAPI::UnitTypes::Zerg_Extractor)) {
+			if (details->builder->getType() == details->ut) {
+				details->building = details->builder;
+			} else {
+				return CheckPointResult::failed;
+			}
+		} else {
+			details->building = UnitFinder::instance().find(details->ut, details->pos);
+			if (details->building == NULL) {
+				std::clog << "could not find building " << details->ut.getName() << ", so operation fails.\n";
+				return CheckPointResult::failed;
+			}
+		}
+	}
+	return result;
 }
 
 CheckPointResult::type CBuildingFinished(Operation& op)
 {
 	boost::shared_ptr<BuildBuildingDetails> details = op.getDetails<BuildBuildingDetails>(); // Makes initialisation!!!
+	assert(details.use_count() > 0);
 
 	if (op.status() == OperationStatus::started) {
 
+		std::clog << "Calling BuildFinished(" << details->ut.getName() << ")...\n";
 		assert(details->building != NULL);
 
 		details->task = createBuildObserver();
 		MicroTaskManager::instance().pushTask(details->building, details->task);
-
-		return CheckPointResult::running;
-
-	} else {
-
-		return WaitForTask(details->task);
+		
+		op.rescheduleEnd(BWAPI::Broodwar->getFrameCount() + details->building->getRemainingBuildTime());
 
 	}
+
+	//drawBuildingPosition(details->ut, details->pos);
+	//std::clog << "Calling BuildFinished (running)...\n";
+	return WaitForTask(details->task);
 }
 
 CheckPointResult::type CBuildAddon(Operation& /*op*/)
@@ -128,6 +153,7 @@ CheckPointResult::type CBuildAddonFinished(Operation& /*op*/)
 CheckPointResult::type CMorphUnit(Operation& op)
 {
 	boost::shared_ptr<BuildUnitDetails> details = op.getDetails<BuildUnitDetails>(); // Makes initialisation!!!
+	assert(details.use_count() > 0);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -143,14 +169,13 @@ CheckPointResult::type CMorphUnit(Operation& op)
 		details->result = details->builder;
 		details->task = createMorph(details->ut);
 		MicroTaskManager::instance().pushTask(details->builder, details->task);
-
-		return CheckPointResult::running;
-
-	} else {
-
-		return WaitForTask(details->task);
+		
+		std::clog << BWAPI::Broodwar->getFrameCount() << ": Started morphing " << details->ut.getName() << "...\n";
 
 	}
+	
+	op.rescheduleBegin(BWAPI::Broodwar->getFrameCount()+1);
+	return WaitForTask(details->task);
 }
 
 CheckPointResult::type CCombineUnit(Operation& /*op*/)
@@ -161,6 +186,7 @@ CheckPointResult::type CCombineUnit(Operation& /*op*/)
 CheckPointResult::type CTrainUnit(Operation& op)
 {
 	boost::shared_ptr<BuildUnitDetails> details = op.getDetails<BuildUnitDetails>(); // Makes initialisation!!!
+	assert(details.use_count() > 0);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -176,24 +202,21 @@ CheckPointResult::type CTrainUnit(Operation& op)
 		details->task = createTrain(details->ut);
 		MicroTaskManager::instance().pushTask(details->builder, details->task);
 
-		return CheckPointResult::running;
-
-	} else {
-
-		CheckPointResult::type result = WaitForTask(details->task);
-		if (result == CheckPointResult::completed) {
-			details->result = UnitFinder::instance().find(details->ut, details->builder->getPosition());
-			if (details->result == NULL)
-				return CheckPointResult::failed;
-		}
-		return result;
-
 	}
+
+	CheckPointResult::type result = WaitForTask(details->task);
+	if (result == CheckPointResult::completed) {
+		details->result = UnitFinder::instance().find(details->ut, details->builder->getPosition());
+		if (details->result == NULL)
+			return CheckPointResult::failed;
+	}
+	return result;
 }
 
 CheckPointResult::type CUnitFinished(Operation& op)
 {
 	boost::shared_ptr<BuildUnitDetails> details = op.getDetails<BuildUnitDetails>(); // Makes initialisation!!!
+	assert(details.use_count() > 0);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -207,19 +230,18 @@ CheckPointResult::type CUnitFinished(Operation& op)
 			return CheckPointResult::failed;
 		}
 		MicroTaskManager::instance().pushTask(details->result, details->task);
-
-		return CheckPointResult::running;
-
-	} else {
-
-		return WaitForTask(details->task);
-
+		
+		op.rescheduleEnd(BWAPI::Broodwar->getFrameCount() + details->result->getRemainingBuildTime());
+	
 	}
+
+	return WaitForTask(details->task);
 }
 
 CheckPointResult::type CTechStart(Operation& op)
 {
 	boost::shared_ptr<TechDetails> details = op.getDetails<TechDetails>(); // Makes initialisation!!!
+	assert(details.use_count() > 0);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -235,18 +257,15 @@ CheckPointResult::type CTechStart(Operation& op)
 		details->task = createTech(details->tt);
 		MicroTaskManager::instance().pushTask(details->researcher, details->task);
 
-		return CheckPointResult::running;
-
-	} else {
-
-		return WaitForTask(details->task);
-
 	}
+
+	return WaitForTask(details->task);
 }
 
 CheckPointResult::type CTechFinished(Operation& op)
 {
 	boost::shared_ptr<TechDetails> details = op.getDetails<TechDetails>(); // Makes initialisation!!!
+	assert(details.use_count() > 0);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -255,18 +274,15 @@ CheckPointResult::type CTechFinished(Operation& op)
 		details->task = createTechObserver();
 		MicroTaskManager::instance().pushTask(details->researcher, details->task);
 
-		return CheckPointResult::running;
-
-	} else {
-
-		return WaitForTask(details->task);
-
 	}
+
+	return WaitForTask(details->task);
 }
 
 CheckPointResult::type CUpgradeStart(Operation& op)
 {
 	boost::shared_ptr<UpgradeDetails> details = op.getDetails<UpgradeDetails>(); // Makes initialisation!!!
+	assert(details.use_count() > 0);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -282,18 +298,15 @@ CheckPointResult::type CUpgradeStart(Operation& op)
 		details->task = createUpgrade(details->gt);
 		MicroTaskManager::instance().pushTask(details->upgrader, details->task);
 
-		return CheckPointResult::running;
-
-	} else {
-
-		return WaitForTask(details->task);
-
 	}
+
+	return WaitForTask(details->task);
 }
 
 CheckPointResult::type CUpgradeFinished(Operation& op)
 {
 	boost::shared_ptr<UpgradeDetails> details = op.getDetails<UpgradeDetails>(); // Makes initialisation!!!
+	assert(details.use_count() > 0);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -302,12 +315,8 @@ CheckPointResult::type CUpgradeFinished(Operation& op)
 		details->task = createUpgradeObserver();
 		MicroTaskManager::instance().pushTask(details->upgrader, details->task);
 
-		return CheckPointResult::running;
-
-	} else {
-
-		return WaitForTask(details->task);
-
 	}
+
+	return WaitForTask(details->task);
 }
 

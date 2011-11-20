@@ -6,6 +6,8 @@
 class BuildTask : public BaseTask
 {
 	public:
+		enum { max_tries = 200 };
+		
 		BuildTask(const BWAPI::UnitType t, const BWAPI::TilePosition& p) : ut(t), pos(p)
 		{ }
 
@@ -13,21 +15,42 @@ class BuildTask : public BaseTask
 		{
 			unit = u;
 			lastcommandframe = -1;
+			tries = 0;
 		}
 
-		void tick(BWAPI::Unit* u)
+		TaskStatus::Type tick()
 		{
-			unit = u;
 			if (lastcommandframe < 0) {
-				unit->build(pos, ut);
-				lastcommandframe = currentFrame();
-			} else if (unit->getLastCommand().getType() == BWAPI::UnitCommandTypes::Build) {
-				completed(unit);
-			} else if (lastcommandframe + latencyFrames() > currentFrame()) {
+				if (!unit->build(pos, ut)) {
+					//std::clog << "Failed to start build...\n";
+					unit->rightClick(BWAPI::Position(pos));
+					++tries;
+					if (tries > max_tries)
+						return failed(unit);
+				} else {
+					lastcommandframe = currentFrame();
+				}
+			} else if (isComplete()) {
+				return completed(unit);
+			} else if (lastcommandframe + latencyFrames() + 1 > currentFrame()) {
 				// WAIT ...
-			} else {
+			} else if (unit->isIdle()) {
 				// DO ANALYSIS, TRYAGAIN OR FAIL ...
-				failed(unit);
+				//failed(unit);
+				tries = 0;
+				lastcommandframe = -1;
+			}
+			return TaskStatus::running;
+		}
+		
+		bool isComplete() const
+		{
+			if (ut.getRace() != BWAPI::Races::Zerg) {
+				return (unit->getLastCommand().getType() == BWAPI::UnitCommandTypes::Build);
+			} else if (ut != BWAPI::UnitTypes::Zerg_Extractor) {
+				return (unit->getType() == ut);
+			} else {
+				return (!unit->exists());
 			}
 		}
 
@@ -36,6 +59,7 @@ class BuildTask : public BaseTask
 		BWAPI::UnitType		ut;
 		BWAPI::TilePosition	pos;
 		int					lastcommandframe;
+		int					tries;
 };
 
 MicroTask createBuild(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos)
