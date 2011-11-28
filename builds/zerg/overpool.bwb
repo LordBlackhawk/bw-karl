@@ -3,5 +3,7 @@ ZergOverlord
 ZergSpawningPool
 *3 ZergDrone
 ZergExtractor
+*4 ZergDrone
 *3 SendZergGasWorker
 *3 ZergZergling
+*3 ZergSunkenColony

@@ -7,7 +7,7 @@
 class ScoutTask : public BaseTask
 {
 	public:
-		BuildTask(const BWTA::BaseLocation* l) : location(l)
+		ScoutTask(BWTA::BaseLocation* l) : location(l)
 		{ }
 
 		void activate(BWAPI::Unit* u)
@@ -27,7 +27,7 @@ class ScoutTask : public BaseTask
 		MicroTask			subtask;
 };
 
-MicroTask createScout(const BWTA::BaseLocation* loc)
+MicroTask createScout(BWTA::BaseLocation* loc)
 {
 	MicroTaskData data(new ScoutTask(loc));
 	return MicroTask(MicroTaskEnum::Scout, data);

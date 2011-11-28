@@ -17,6 +17,9 @@ class RegionMoveTask : public BaseTask
 
 		TaskStatus::Type tick()
 		{
+			if (unit == NULL)
+				return TaskStatus::failed;
+
 			if (lastcommandframe < 0) {
 				unit->rightClick(target);
 				lastcommandframe = currentFrame();

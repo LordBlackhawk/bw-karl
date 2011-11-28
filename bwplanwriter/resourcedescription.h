@@ -30,4 +30,14 @@ struct ResourceDescription
 		growth.push_back(std::make_pair(multiplier, base));
 		base->influence.push_back(std::make_pair(multiplier, this));
 	}
+	
+	bool isTech() const
+	{
+		return (tt != BWAPI::TechTypes::None);
+	}
+	
+	bool isUpgrade() const
+	{
+		return (gt != BWAPI::UpgradeTypes::None);
+	}
 };

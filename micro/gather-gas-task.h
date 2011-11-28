@@ -1,6 +1,9 @@
 #pragma once
 
 #include "base-task.h"
+
+#include "utils/debug.h"
+
 #include <BWAPI.h>
 #include <BWTA.h>
 
@@ -14,9 +17,15 @@ class GatherGasTask : public BaseTask
 		{
 			if (geyser == NULL)
 				return;
-			if ((unit != geyser) && unit->getType().isWorker()) {
+			BWAPI::UnitType ut = unit->getType();
+			if (ut.isWorker()) {
+				LOG1 << "GatherGasTask: Worker added.";
 				worker.insert(unit);
 				unit->rightClick(geyser);
+			} else if (ut.isRefinery()) {
+				geyser = unit;
+			} else {
+				failed(unit);
 			}
 		}
 		
@@ -33,7 +42,14 @@ class GatherGasTask : public BaseTask
 
 		TaskStatus::Type tick()
 		{
-			return (geyser != NULL) ? TaskStatus::running : TaskStatus::failed;
+			if (geyser == NULL)
+				return TaskStatus::failed;
+				
+			for (auto it : worker)
+				if (!it->isGatheringGas())
+					it->rightClick(geyser);
+			
+			return TaskStatus::running;
 		}
 
 		int workercount() const

@@ -1,10 +1,12 @@
+#include "utils/debug-broodwar.h"
+#include "utils/debug-1.h"
+
 #include "newplan/bwplan.h"
 #include "newplan/parameter-reader.h"
 #include "newplan/resourcenextractor.h"
 #include "newplan/displayres.h"
 #include "newplan/stream-output.h"
 #include "micro/micro.h"
-//#include "newplan/nocheckpoints.h"
 
 #include <stdio.h>
 
@@ -38,32 +40,31 @@ int main(int argc, const char* argv[])
 		std::cerr << "Use: Karl [Options...] [Operations...]\n" << reader;
 		return 1;
 	}
-	std::cout << "Parsing arguments...\n";
+	LOG << "Parsing arguments...";
 	BWPlan initplan = reader.getStartPlan();
-	std::cout << "InitialPlan has " << initplan.scheduledCount() << " elements.\n";
-	std::cout << "\n";
+	LOG1 << "InitialPlan has " << initplan.scheduledCount() << " elements.";
 
 	BWAPI::BWAPI_init();
-	std::cout << "Connecting...\n";
+	LOG << "Connecting...";
 	reconnect();
 	while(true)
 	{
-		std::cout << "Waiting to enter match...\n";
+		LOG << "Waiting to enter match...";
 		while (!Broodwar->isInGame())
 		{
 			BWAPI::BWAPIClient.update();
 			if (!BWAPI::BWAPIClient.isConnected())
 			{
-				std::cout << "Reconnecting...\n";
+				LOG << "Reconnecting...";
 				reconnect();
 			}
 		}
 
-		std::cout << "Reading terran information...\n";
+		LOG << "Reading terran information...";
 		BWTA::readMap();
 		BWTA::analyze();
 
-		std::cout << "Starting match...\n";
+		LOG << "Starting match...";
 		BWPlan plan = initplan;
 		Micro::instance().clear();
 		Micro::instance().prepareMap();
@@ -71,7 +72,7 @@ int main(int argc, const char* argv[])
 		Broodwar->enableFlag(Flag::UserInput);
 		Broodwar->setLocalSpeed(0);
 		
-		std::clog << "Latency Frames: " << BWAPI::Broodwar->getRemainingLatencyFrames() << "\n";
+		LOG1 << "Latency Frames: " << BWAPI::Broodwar->getRemainingLatencyFrames();
 
 		/*
 		if (plan.race != Broodwar->self()->getRace()->getName()) {
@@ -89,27 +90,30 @@ int main(int argc, const char* argv[])
 			displayResources(res);
 			Micro::instance().pretick();
 			
-			if (res != old)
-				std::clog << BWAPI::Broodwar->getFrameCount() << ": " << outResources(res);
+			if (res != old) {
+				LOG1 << outResources(res) << "\n\tplanned: " << outResources(initplan.at(BWAPI::Broodwar->getFrameCount()).getResources());
+				if (plan.scheduledOperations().size() > 0)
+					LOG1 << "Next in plan: " << plan.scheduledOperations().begin()->getName();
+			}
 			
-			std::clog << BWAPI::Broodwar->getFrameCount() << ": Rebasing plan...\n";
+			LOG4 << "Rebasing plan...";
 			plan.rebase_sr(1, res);
 
-			std::clog << BWAPI::Broodwar->getFrameCount() << ": Executing plan...\n";
+			LOG4 << "Executing plan...";
 			plan.execute();
 			
-			std::clog << BWAPI::Broodwar->getFrameCount() << ": Micro tick...\n";
+			LOG4 << "Micro tick...";
 			Micro::instance().tick();
 
 			//std::clog << "waiting for next frame...\n";
 			BWAPI::BWAPIClient.update();
 			if (!BWAPI::BWAPIClient.isConnected())
 			{
-				printf("Reconnecting...\n");
+				LOG << "Reconnecting...";
 				reconnect();
 			}
 		}
-		printf("Game ended.\n");
+		LOG << "Game ended.\n";
 	}
 	return 0;
 }

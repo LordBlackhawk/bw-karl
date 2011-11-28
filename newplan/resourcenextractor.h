@@ -58,24 +58,38 @@ BWResources extractResources()
 			continue;
 		}
 
+		// Other Buildings:
+		if (!ut.isBuilding())
+			continue;
+			
+		// Ein Hive ist auch ein Lair, damit das mit dem Forschen klappt.
+		if (ut == BWAPI::UnitTypes::Zerg_Hive) {
+			res.inc(BWResourceIndex::ZergLair, time, 1);
+			if (it->isBeingConstructed() || it->isUpgrading() || it->isResearching())
+				res.inc(BWResourceIndex::ZergLair, time, 1);
+		}
+
+		if (it->isBeingConstructed())
+			continue;
+		
 		// Refinery:
 		if (ut.isRefinery()) {
 			res.inc(BWResourceIndex::GasWorkingPlaces, time, 3);
 			continue;
 		}
 
-		// Other Buildings:
-		if (!ut.isBuilding())
-			continue;
-
-		if (it->isBeingConstructed())
-			continue;
-
 		BWResourceIndex ri = BWResourceIndex::byUnitType(ut);
 		res.inc(ri, time, 1);
 		if (it->isUpgrading() || it->isResearching() || it->isTraining())
 			res.incLocked(ri, time, 1);
 	}
+	
+	for (auto ri : TechResourceIndices())
+		if (self->hasResearched(ri.associatedTechType()))
+			res.inc(ri, time, 1);
+	
+	for (auto ri : UpgradeResourceIndices())
+		res.set(ri, self->getUpgradeLevel(ri.associatedUpgradeType()));
 
 	return res;
 }

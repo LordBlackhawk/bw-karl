@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base-task.h"
+#include "bwapi-helper.h"
 #include <BWAPI.h>
 
 class BuildTask : public BaseTask
@@ -22,8 +23,7 @@ class BuildTask : public BaseTask
 		{
 			if (lastcommandframe < 0) {
 				if (!unit->build(pos, ut)) {
-					//std::clog << "Failed to start build...\n";
-					unit->rightClick(BWAPI::Position(pos));
+					unit->rightClick(getBuildingCenter(pos, ut));
 					++tries;
 					if (tries > max_tries)
 						return failed(unit);

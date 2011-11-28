@@ -4,8 +4,7 @@
 #include "operations.h"
 #include "checkpoints.h"
 #include "plan.h"
-#include "add-linear-correction.h"
-#include "fallbackbehaviour.h"
+#include "plan-impl.h"
 
 namespace {
 
@@ -216,30 +215,4 @@ OperationIndex OperationIndex::byUpgradeType(const BWAPI::UpgradeType& gt)
 	if (it == fast.end())
 		return OperationIndex::None;
 	return it->second;
-}
-
-FallbackBehaviourType::type PlanContainer::push_back_sr(const Operation& op)
-{
-	DefaultFallbackBehaviour dfbb;
-	SimpleFallbackBehaviour<DefaultFallbackBehaviour> sfbb(dfbb);
-	return push_back(op, sfbb);
-}
-
-FallbackBehaviourType::type PlanContainer::push_back_df(const Operation& op)
-{
-	DefaultFallbackBehaviour dfbb;
-	return push_back(op, dfbb);
-}
-
-bool PlanContainer::rebase_sr(TimeType timeinc, const Resources& newres)
-{
-	DefaultFallbackBehaviour dfbb;
-	SimpleFallbackBehaviour<DefaultFallbackBehaviour> sfbb(dfbb);
-	return rebase(timeinc, newres, sfbb);
-}
-
-bool PlanContainer::rebase_df(TimeType timeinc, const Resources& newres)
-{
-	DefaultFallbackBehaviour dfbb;
-	return rebase(timeinc, newres, dfbb);
 }

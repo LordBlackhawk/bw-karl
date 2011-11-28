@@ -94,40 +94,19 @@ class ResourceIndex : boost::totally_ordered<ResourceIndex>, boost::incrementabl
 		Type index_;
 };
 
-class AllResourceIndices
-{
-	public:
-		int size() const
-		{
-			return ResourceIndex::IndexEnd;
-		}
+#define INDEXSET(Name, Begin, End)									\
+	class Name														\
+	{																\
+		public:														\
+			int size() const										\
+			{ return ResourceIndex::End - ResourceIndex::Begin; }	\
+			ResourceIndex begin() const								\
+			{ return ResourceIndex(ResourceIndex::Begin); }			\
+			ResourceIndex end() const								\
+			{ return ResourceIndex(ResourceIndex::End); }			\
+	};
 
-		ResourceIndex begin() const
-		{
-			return ResourceIndex(ResourceIndex::IndexBegin);
-		}
-
-		ResourceIndex end() const
-		{
-			return ResourceIndex(ResourceIndex::IndexEnd);
-		}
-};
-
-class LockedResourceIndices
-{
-	public:
-		int size() const
-		{
-			return ResourceIndex::IndexLockedEnd;
-		}
-
-		ResourceIndex begin() const
-		{
-			return ResourceIndex(ResourceIndex::IndexBegin);
-		}
-
-		ResourceIndex end() const
-		{
-			return ResourceIndex(ResourceIndex::IndexLockedEnd);
-		}
-};
+INDEXSET(AllResourceIndices, IndexBegin, IndexEnd);
+INDEXSET(LockedResourceIndices, IndexBegin, IndexLockedEnd);
+INDEXSET(TechResourceIndices, IndexTechBegin, IndexTechEnd);
+INDEXSET(UpgradeResourceIndices, IndexUpgradeBegin, IndexUpgradeEnd);

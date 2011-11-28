@@ -13,8 +13,12 @@ class GatherMineralsTask : public BaseTask
 
 		void activate(BWAPI::Unit* unit)
 		{
-			worker.insert(unit);
-			unit->rightClick(getMineral());
+			if (unit->getType().isWorker()) {
+				worker.insert(unit);
+				unit->rightClick(getMineral());
+			} else {
+				failed(unit);
+			}
 		}
 		
 		void deactive(BWAPI::Unit* unit)

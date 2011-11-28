@@ -3,16 +3,22 @@
 #include "timetype.h"
 #include "resourceindex.h"
 
+#include "utils/debug.h"
+
 #include <array>
 #include <limits>
-#include <cassert>
 #include <iostream>
+
+#define ASSERT(eq) if (!(eq)) { \
+	LOG << "Assertation failed in " << __func__ << "(ri=" << ri.getName() << "):" << __LINE__ << ", condition was:" \
+		<< #eq; \
+	exit(1); }
 
 class Resources
 {
 	public:	
 		Resources() : time(0)
-		{ 
+		{
 			for (auto& it : amount)
 				it = 0;
 			for (auto& it : locked)
@@ -33,36 +39,39 @@ class Resources
 	public:
 		int get(const ResourceIndex& ri) const
 		{
-			assert(ri.valid());
+			ASSERT(ri.valid());
 			return amount[ri.getIndex()] / ri.getScaling();
 		}
 		
 		int getLocked(const ResourceIndex& ri) const
 		{
-			assert(ri.valid() && ri.isLockable());
+			ASSERT(ri.valid() && ri.isLockable());
 			return locked[ri.getIndex()] / ri.getScaling();
 		}
 		
 		int getExisting(const ResourceIndex& ri) const
 		{
-			return get(ri) + getLocked(ri);
+			if (ri.isLockable())
+				return get(ri) + getLocked(ri);
+			else
+				return get(ri);
 		}
 		
 		int getInternal(const ResourceIndex& ri) const
 		{
-			assert(ri.valid());
+			ASSERT(ri.valid());
 			return amount[ri.getIndex()];
 		}
 		
 		void set(const ResourceIndex& ri, int value)
 		{
-			assert(ri.valid());
+			ASSERT(ri.valid());
 			amount[ri.getIndex()] = value * ri.getScaling();
 		}
 		
 		void setLocked(const ResourceIndex& ri, int value)
 		{
-			assert(ri.valid() && ri.isLockable());
+			ASSERT(ri.valid() && ri.isLockable());
 			locked[ri.getIndex()] = value * ri.getScaling();
 		}
 		
@@ -71,7 +80,7 @@ class Resources
 		
 		void incInternal(const ResourceIndex& ri, int value)
 		{
-			assert(ri.valid());
+			ASSERT(ri.valid());
 			amount[ri.getIndex()] += value;
 		}
 		
@@ -82,7 +91,7 @@ class Resources
 		
 		void incLocked(const ResourceIndex& ri, int optime, int value)
 		{
-			assert(ri.valid() && ri.isLockable());
+			ASSERT(ri.valid() && ri.isLockable());
 			dec(ri, optime, value);
 			locked[ri.getIndex()] += value * ri.getScaling();
 		}
@@ -97,14 +106,13 @@ class Resources
 		
 		int firstMoreThan(const ResourceIndex& ri, int value, ResourceIndex& blocking) const
 		{
-			assert(ri.valid());
+			ASSERT(ri.valid());
 			int current = amount[ri.getIndex()];
 			int growth  = getGrowth(ri);
 			value *= ri.getScaling();
 			if (current >= value) {
 				return 0;
 			} else if (growth > 0) {
-				//std::clog << "\t\tvalue = " << value << "; current = " << current << "; growth = " << growth << "\n";
 				return (value - current + growth - 1) / growth;
 			} else {
 				blocking = ri;
@@ -144,3 +152,5 @@ class Resources
 		AmountType		amount;
 		LockedType		locked;
 };
+
+#undef ASSERT

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <iostream>
 
 typedef int TimeType;
 
@@ -74,8 +75,7 @@ class TimeInterval
 			return res;
 		}
 
-		template <class Stream>
-		friend Stream& operator << (Stream& stream, const ThisType& i)
+		friend std::ostream& operator << (std::ostream& stream, const ThisType& i)
 		{
 			if (i.empty()) {
 				stream << "{}";

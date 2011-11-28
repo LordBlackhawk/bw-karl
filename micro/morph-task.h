@@ -6,6 +6,8 @@
 class MorphTask : public BaseTask
 {
 	public:
+		enum { max_tries = 200 };
+		
 		MorphTask(const BWAPI::UnitType t) : ut(t)
 		{ }
 
@@ -13,15 +15,24 @@ class MorphTask : public BaseTask
 		{
 			unit = u;
 			lastcommandframe = -1;
+			tries = 0;
 		}
 
 		TaskStatus::Type tick()
 		{
+			if (unit == NULL)
+				return TaskStatus::failed;
+
 			if (lastcommandframe < 0) {
-				unit->morph(ut);
-				lastcommandframe = currentFrame();
+				if (!unit->morph(ut)) {
+					++tries;
+					if (tries > max_tries)
+						return failed(unit);
+				} else {
+					lastcommandframe = currentFrame();
+				}
 			} else if (unit->isMorphing()) {
-				std::clog << BWAPI::Broodwar->getFrameCount() << ": Morphing " << ut.getName() << " started.\n";
+				LOG2 << "Morphing " << ut.getName() << " started.";
 				return completed(unit);
 			} else if (lastcommandframe + latencyFrames() > currentFrame()) {
 				// WAIT ...
@@ -36,6 +47,7 @@ class MorphTask : public BaseTask
 		BWAPI::Unit*		unit;
 		BWAPI::UnitType		ut;
 		int					lastcommandframe;
+		int					tries;
 };
 
 MicroTask createMorph(const BWAPI::UnitType& ut)

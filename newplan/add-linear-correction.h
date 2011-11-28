@@ -59,7 +59,6 @@ void supplyCorrections(PlanContainer& plan, SituationType it, const ResourceInde
 
 void PlanContainer::addCorrections(const TimeType& starttime)
 {
-	//std::clog << "begin addCorrections\n";
 	// 1. Larva Correction:
 	larvaCorrections(*this, at(starttime, true));
 
@@ -67,5 +66,4 @@ void PlanContainer::addCorrections(const TimeType& starttime)
 	supplyCorrections(*this, at(starttime, true), ResourceIndex::TerranSupply);
 	supplyCorrections(*this, at(starttime, true), ResourceIndex::ProtossSupply);
 	supplyCorrections(*this, at(starttime, true), ResourceIndex::ZergSupply);
-	//std::clog << "end addCorrections\n";
 }

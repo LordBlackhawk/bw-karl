@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <sstream>
 
 void writeHeader()
 {
@@ -69,8 +70,7 @@ void writeStringList(const std::vector<T*>& list, const std::string addIndex = "
 		first = false;
 	}
 	std::cout << ",\n\n\t\tIndexEnd,\n\t\tIndexBegin = " << (*list.begin())->name;
-	if (addIndex != "")
-		std::cout << ",\n\t\tIndexLockedEnd = " << addIndex;
+	std::cout << addIndex;
 	std::cout << ",\n\t\tNone = -1";
 	std::cout << "\n\t};\n";
 }
@@ -287,6 +287,8 @@ void writeOpForUnitType(const BWAPI::UnitType& ut, OperationDescription* op = NU
 			op->prods(ut.supplyProvided(), supplyMap[ut.getRace()]);
 			writeUnitFinished = true;
 		}
+		if (!isnew)
+			writeUnitFinished = true;
 		if (writeUnitFinished)
 			op->checkpoint("CUnitFinished", 1);
 	}
@@ -305,6 +307,8 @@ void writeOpForTechType(const BWAPI::TechType& tt)
 	if (isTechResource(tt))
 		techMap[tt]->associated.push_back(op);
 	
+	if (tt == BWAPI::TechTypes::Lurker_Aspect)
+		op->needs(1, unitMap[BWAPI::UnitTypes::Zerg_Lair]);
 	if (tt.mineralPrice() > 0)
 		op->consums(tt.mineralPrice(), minerals);
 	if (tt.gasPrice() > 0)
@@ -750,10 +754,15 @@ struct CompareByLockable
 {
 	bool operator () (ResourceDescription* a, ResourceDescription* b) const
 	{
-		if (a->lockable && !b->lockable)
-			return true;
-		if (b->lockable && !a->lockable)
-			return false;
+		if (a->lockable != b->lockable)
+			return a->lockable;
+			
+		if (a->isTech() != b->isTech())
+			return a->isTech();
+		
+		if (a->isUpgrade() != b->isUpgrade())
+			return a->isUpgrade();
+	
 		return a->name < b->name;
 	}
 };
@@ -771,9 +780,20 @@ int main(int argc, char *argv[])
 	std::string filename(argv[1]);
 	if (filename == "resourceenum.h") {
 		std::sort(resourceDescriptions.begin(), resourceDescriptions.end(), CompareByLockable());
+		
+		std::stringstream stream;
+		
 		auto it = resourceDescriptions.begin();
 		while ((*it)->lockable) ++it;
-		writeStringList(resourceDescriptions, (*it)->name);
+		stream << ",\n\t\tIndexLockedEnd = " << (*it)->name;
+		stream << ",\n\t\tIndexTechBegin = " << (*it)->name;
+		while ((*it)->isTech()) ++it;
+		stream << ",\n\t\tIndexTechEnd = " << (*it)->name;
+		stream << ",\n\t\tIndexUpgradeBegin = " << (*it)->name;
+		while ((*it)->isUpgrade()) ++it;
+		stream << ",\n\t\tIndexUpgradeEnd = " << (*it)->name;
+		
+		writeStringList(resourceDescriptions, stream.str());
 	} else if (filename == "operationenum.h") {
 		writeStringList(operationDescriptions);
 	} else if (filename == "bwplan.cpp") {

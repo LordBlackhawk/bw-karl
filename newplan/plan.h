@@ -5,9 +5,10 @@
 #include "operations.h"
 #include "fallbackbehaviourtype.h"
 #include "linear-correction.h"
-#include "utils/fileutils.h"
 
-#include <boost/regex.hpp>
+#include "utils/pair-container.h"
+#include "utils/debug.h"
+
 #include <vector>
 
 class PlanContainer
@@ -134,12 +135,9 @@ class PlanContainer
 				{
 					if (newtime == currenttime)
 						return;
-					//std::clog << "advancing from " << currenttime << " to " << newtime << "\n";
 					current.advance(newtime-currenttime);
 					TimeInterval interval(currenttime, newtime);
 					parent.evalOperations(current, interval, pushdecs);
-					//if (!current.valid())
-					//	std::clog << "advancing from " << currenttime << " to " << newtime << ": Resources not valid!!!\n";
 					currenttime = newtime;
 				}
 		};
@@ -147,6 +145,13 @@ class PlanContainer
 	public:
 		PlanContainer(Resources sr, TimeType st=0)
 			: startres(sr), starttime(st), opendtime(st), endtime(st)
+		{
+			startres.setTime(starttime);
+			addCorrections(starttime);
+		}
+		
+		PlanContainer(const Resources& sr, TimeType st, const std::vector<Operation>& actives)
+			: startres(sr), active_operations(actives), starttime(st), opendtime(st), endtime(st)
 		{
 			startres.setTime(starttime);
 			addCorrections(starttime);
@@ -181,22 +186,18 @@ class PlanContainer
 		FallbackBehaviourType::type push_back(const Operation& op_, FallbackBehaviour& fbb)
 		{
 			Operation op = op_;
-			//std::clog << "adding " << op.getName() << "...\n";
 			Situation it = opend(true);
 			TimeType current_duration = 0;
 			for (int k=0; k<op.stageCount(); ++k)
 			{
 				TimeType firstapplyable;
 				ResourceIndex blocking;
-				while ((firstapplyable = it.firstApplyableAt(op, k, blocking)) > it.getNextTime()) {
-					//std::clog << "\tat " << it.time() << ": \tfirstapplyable at " << firstapplyable << "\n";
+				while ((firstapplyable = it.firstApplyableAt(op, k, blocking)) > it.getNextTime())
 					++it;
-				}
 			
 				if (firstapplyable == std::numeric_limits<TimeType>::max())
 					return fbb(*this, op, blocking);
 				
-				//std::clog << "\tat " << it.time() << ": \tfirstapplyable at " << firstapplyable << "\n";
 				op.rescheduleBegin(firstapplyable - current_duration);
 				current_duration  += op.stageDuration(k);
 				TimeInterval interval(-1, firstapplyable + op.stageDuration(k)-1);
@@ -205,7 +206,6 @@ class PlanContainer
 				
 				it.inc(firstapplyable + op.stageDuration(k) - it.time());
 			}
-			//std::clog << "end push_back!!!\n";
 			add(op, it.time() - op.duration());
 			return FallbackBehaviourType::Success;
 		}
@@ -220,12 +220,14 @@ class PlanContainer
 			
 			for (auto& it : active_operations) {
 				if (it.status() == OperationStatus::failed) {
-					std::clog << "Operation " << it.getName() << " failed, before rebase.\n";
+					LOG1 << "Operation " << it.getName() << " failed, before rebase.";
+					continue;
+				} else if (it.status() == OperationStatus::completed) {
 					continue;
 				}
 				it.execute(false);
 				if (it.status() == OperationStatus::failed) {
-					std::clog << "Operation " << it.getName() << " failed, while rebase.\n";
+					LOG1 << "Operation " << it.getName() << " failed, while rebase.";
 				} else if (it.status() != OperationStatus::completed) {
 					newplan.addActive(it);
 				}
@@ -251,6 +253,61 @@ class PlanContainer
 		
 		bool rebase_sr(TimeType timeinc, const Resources& newres);
 		bool rebase_df(TimeType timeinc, const Resources& newres);
+		
+		template <class Function>
+		bool optimizeLocal(const Function& f)
+		{
+			PlanContainer newplan(startres, starttime, active_operations);
+			bool skipnext = false;
+			bool changed  = false;
+
+			for (auto it : pairsOf(scheduled_operations))
+			{
+				if (skipnext) {
+					skipnext = false;
+					continue;
+				}
+
+				PlanContainer keep   = newplan;
+				PlanContainer change = newplan;
+
+				Operation first = *it.first, second = *it.second;
+
+				if (!keep.push_back_df(first) || !keep.push_back_df(second)) {
+					LOG1 << "Something went wrong. Original order is not possible any more.";
+					return false;
+				}
+
+				if (!change.push_back_df(first) || !change.push_back_df(second) || f(keep, change)) {
+					newplan.push_back_df(first);
+					continue;
+				}
+
+				newplan  = change;
+				skipnext = true;
+				changed  = true;
+			}
+
+			if (!skipnext)
+				newplan.push_back_df(scheduled_operations.back());
+
+			if (f(*this, newplan))
+				LOG1 << "Elementar Steps are better, but overall plan is not better! Nevertheless taking the new.";
+
+			std::swap(*this, newplan);
+			return changed;
+		}
+
+		template <class Function>
+		int optimizeLocalMulti(const Function& f, int max_counter = 100)
+		{
+			int counter = 1;
+			while (optimizeLocal(f) && (counter < max_counter))
+				++counter;
+			return counter;
+		}
+
+		int optimizeEndTime(int max_counter = 100);
 		
 		void execute()
 		{
@@ -294,43 +351,8 @@ class PlanContainer
 			opendtime = endtime = starttime;
 		}
 		
-		bool loadFromFile(const char* filename)
-		{
-			std::string content;
-			if (!readFileToString(filename, content))
-				return false;
-			
-			static boost::regex expression("^[[:space:]]*(\\*([[:digit:]]*))?[[:space:]]*([[:word:]]+)$");
-			std::string::const_iterator start = content.begin(), end = content.end();
-			boost::match_results<std::string::const_iterator> what;
-			boost::match_flag_type flags = boost::match_default;
-			while ((start != end) && regex_search(start, end, what, expression, flags))
-			{
-				start = what[0].second;
-				// what[0] whole string.
-				// what[2] Anzahl.
-				// what[3] Operationsname.
-				OperationIndex index = OperationIndex::byName(what.str(3));
-				if (!index.valid())
-					continue;
-				int count = (what.str(2) != "") ? atoi(what.str(2).c_str()) : 1;
-				for (int k=0; k<count; ++k)
-					push_back_df(Operation(index));
-			}
-			
-			return true;
-		}
-		
-		bool saveToFile(const char* filename) const
-		{
-			FILE* file = fopen(filename, "w");
-			if (file == NULL)
-				return false;
-			for (auto it : scheduled_operations)
-				fprintf(file, "%s\n", it.getName().c_str());
-			fclose(file);
-			return true;
-		}
+		bool loadFromFile(const char* filename);
+		bool saveToFile(const char* filename) const;
 		
 		void addCorrection(const LinearCorrection& c)
 		{

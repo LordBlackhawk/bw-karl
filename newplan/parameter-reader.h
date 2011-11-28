@@ -1,6 +1,9 @@
 #pragma once
 
 #include "bwplan.h"
+
+#include "utils/debug.h"
+
 #include <boost/program_options.hpp>
 #include <vector>
 #include <string>
@@ -90,8 +93,8 @@ struct BWParameterReader
 		for (auto it : additionaltimes)
 			plan.addtime(it);
 
-		//if (oplevel > 0)
-		//	plan.optimize(oplevel);
+		if (oplevel > 0)
+			LOG << "Took " << plan.optimizeEndTime() << " rounds to optimize plan.";
 
 		return plan;
 	}

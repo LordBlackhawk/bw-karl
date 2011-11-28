@@ -28,9 +28,13 @@ class ScoutManager
 		void useScout(BWAPI::Unit* unit)
 		{
 			BWTA::BaseLocation* target = getNextLocation(unit);
+			if (target == NULL) {
+				LOG << "ScoutManager: Find base location failed.";
+				return;
+			}
 			MicroTask task = createScout(target);
-			MicroTaskManager::instance.pushTask(unit, task);
 			units[unit] = task;
+			MicroTaskManager::instance().pushTask(unit, task);
 		}
 		
 		int scoutCount() const
@@ -44,11 +48,11 @@ class ScoutManager
 			auto it = units.begin();
 			while (it != units.end())
 			{
-				switch(it.second.tick())
+				switch(it->second.tick())
 				{
 					case TaskStatus::completed:
-						processInformation(it.first);
-						newjobs.insert(it.first);
+						processInformation(it->first);
+						newjobs.insert(it->first);
 					case TaskStatus::failed:
 						units.erase(it);
 						break;
@@ -79,6 +83,9 @@ class ScoutManager
 			int failedGroundScouting;
 			int failedAirScouting;
 			
+			ScoutInformation()
+			{ }
+			
 			ScoutInformation(const BWAPI::Position& p, bool sl)
 				: basepos(p), startlocation(sl), lastTimeSeen(0), lastScoutSent(0), failedGroundScouting(0), failedAirScouting(0)
 			{ }
@@ -103,13 +110,15 @@ class ScoutManager
 			BWTA::BaseLocation* best = NULL;
 			int bestvalue = std::numeric_limits<int>::max();
 			for (auto it : informations) {
-				int value = it.second.getValue();
+				int value = it.second.getValue(pos, flyer);
 				if (value < bestvalue) {
 					bestvalue = value;
 					best = it.first;
 				}
 			}
-			ScoutInformation& info = information[best];
+			if (best == NULL)
+				return NULL;
+			ScoutInformation& info = informations[best];
 			info.lastScoutSent     = BWAPI::Broodwar->getFrameCount();
 			if (flyer)
 				++info.failedAirScouting;
@@ -126,7 +135,7 @@ class ScoutManager
 				return;
 			ScoutInformation& info   = informations[base];
 			info.lastTimeSeen        = BWAPI::Broodwar->getFrameCount();
-			info.failedGroupScouting = 0;
+			info.failedGroundScouting = 0;
 			info.failedAirScouting   = 0;
 		}
 };

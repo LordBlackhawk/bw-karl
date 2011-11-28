@@ -7,8 +7,7 @@ struct outTime
 {
 	int time;
 	outTime(int t) : time(t) { }
-	template <class Stream>
-	friend Stream& operator << (Stream& stream, const outTime& data)
+	friend std::ostream& operator << (std::ostream& stream, const outTime& data)
 	{
 		stream << data.time << " (" << std::setprecision(3) << ((double)data.time/15./60.) << " min)";
 		return stream;
@@ -19,8 +18,7 @@ struct outResources
 {
 	const BWResources& res;
 	outResources(const BWResources& r) : res(r) { }
-	template <class Stream>
-	friend Stream& operator << (Stream& stream, const outResources& o)
+	friend std::ostream& operator << (std::ostream& stream, const outResources& o)
 	{
 		const BWResources& res = o.res;
 		bool first = true;
@@ -37,7 +35,6 @@ struct outResources
 		}
 		if (first)
 			stream << "[There are no resources!]";
-		stream << "\n";
 		return stream;
 	}
 };

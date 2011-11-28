@@ -2144,7 +2144,7 @@ TimeType Operation::duration() const
 		case OI::ZergMutalisk:
 			return 600;
 		case OI::ZergGuardian:
-			return 1200;
+			return 1201;
 		case OI::ZergQueen:
 			return 750;
 		case OI::ZergDefiler:
@@ -2160,7 +2160,7 @@ TimeType Operation::duration() const
 		case OI::ProtossDarkTemplar:
 			return 751;
 		case OI::ZergDevourer:
-			return 1200;
+			return 1201;
 		case OI::ProtossProbe:
 			return 301;
 		case OI::ProtossZealot:
@@ -2182,7 +2182,7 @@ TimeType Operation::duration() const
 		case OI::ProtossObserver:
 			return 601;
 		case OI::ZergLurker:
-			return 1020;
+			return 1021;
 		case OI::TerranCommandCenter:
 			return 1846;
 		case OI::TerranComsatStation:
@@ -2555,7 +2555,7 @@ int Operation::stageCount() const
 		case OI::ZergMutalisk:
 			return 1;
 		case OI::ZergGuardian:
-			return 2;
+			return 3;
 		case OI::ZergQueen:
 			return 1;
 		case OI::ZergDefiler:
@@ -2571,7 +2571,7 @@ int Operation::stageCount() const
 		case OI::ProtossDarkTemplar:
 			return 2;
 		case OI::ZergDevourer:
-			return 2;
+			return 3;
 		case OI::ProtossProbe:
 			return 2;
 		case OI::ProtossZealot:
@@ -2593,7 +2593,7 @@ int Operation::stageCount() const
 		case OI::ProtossObserver:
 			return 2;
 		case OI::ZergLurker:
-			return 2;
+			return 3;
 		case OI::TerranCommandCenter:
 			return 3;
 		case OI::TerranComsatStation:
@@ -3151,6 +3151,8 @@ TimeType Operation::stageDuration(int stage) const
 				case 0:
 					return 600;
 				case 1:
+					return 1;
+				case 2:
 					return 600;
 				default:
 					return 0;
@@ -3223,6 +3225,8 @@ TimeType Operation::stageDuration(int stage) const
 				case 0:
 					return 600;
 				case 1:
+					return 1;
+				case 2:
 					return 600;
 				default:
 					return 0;
@@ -3333,6 +3337,8 @@ TimeType Operation::stageDuration(int stage) const
 				case 0:
 					return 420;
 				case 1:
+					return 1;
+				case 2:
 					return 600;
 				default:
 					return 0;
@@ -5209,6 +5215,8 @@ CheckPointResult::type Operation::executeInternal()
 				case 0:
 					return CMorphUnit(*this);
 				case 1:
+					return CUnitFinished(*this);
+				case 2:
 					return CMorphUnit(*this);
 			}
 			return CheckPointResult::failed;
@@ -5273,6 +5281,8 @@ CheckPointResult::type Operation::executeInternal()
 				case 0:
 					return CMorphUnit(*this);
 				case 1:
+					return CUnitFinished(*this);
+				case 2:
 					return CMorphUnit(*this);
 			}
 			return CheckPointResult::failed;
@@ -5372,6 +5382,8 @@ CheckPointResult::type Operation::executeInternal()
 				case 0:
 					return CMorphUnit(*this);
 				case 1:
+					return CUnitFinished(*this);
+				case 2:
 					return CMorphUnit(*this);
 			}
 			return CheckPointResult::failed;
@@ -7229,12 +7241,14 @@ TimeType Operation::firstApplyableAt(const Resources& res, int stage, ResourceIn
 					Consums(res, 1, RI::Larva, result, blocking);
 					return result;
 				case 1:
+					return result;
+				case 2:
 					Needs(res, 1, RI::ZergGreaterSpire, result, blocking);
 					Consums(res, 50, RI::Minerals, result, blocking);
 					Consums(res, 100, RI::Gas, result, blocking);
 					Locks(res, 4, RI::ZergSupply, result, blocking);
 					return result;
-				case 2:
+				case 3:
 					return result;
 			}
 		case OI::ZergQueen:
@@ -7347,12 +7361,14 @@ TimeType Operation::firstApplyableAt(const Resources& res, int stage, ResourceIn
 					Consums(res, 1, RI::Larva, result, blocking);
 					return result;
 				case 1:
+					return result;
+				case 2:
 					Needs(res, 1, RI::ZergGreaterSpire, result, blocking);
 					Consums(res, 150, RI::Minerals, result, blocking);
 					Consums(res, 50, RI::Gas, result, blocking);
 					Locks(res, 4, RI::ZergSupply, result, blocking);
 					return result;
-				case 2:
+				case 3:
 					return result;
 			}
 		case OI::ProtossProbe:
@@ -7519,12 +7535,14 @@ TimeType Operation::firstApplyableAt(const Resources& res, int stage, ResourceIn
 					Consums(res, 1, RI::Larva, result, blocking);
 					return result;
 				case 1:
+					return result;
+				case 2:
 					Consums(res, 50, RI::Minerals, result, blocking);
 					Consums(res, 100, RI::Gas, result, blocking);
 					Locks(res, 4, RI::ZergSupply, result, blocking);
 					Needs(res, 1, RI::LurkerAspect, result, blocking);
 					return result;
-				case 2:
+				case 3:
 					return result;
 			}
 		case OI::TerranCommandCenter:
@@ -8610,6 +8628,7 @@ TimeType Operation::firstApplyableAt(const Resources& res, int stage, ResourceIn
 			switch(stage)
 			{
 				case 0:
+					Needs(res, 1, RI::ZergLair, result, blocking);
 					Consums(res, 200, RI::Minerals, result, blocking);
 					Consums(res, 200, RI::Gas, result, blocking);
 					Locks(res, 1, RI::ZergHydraliskDen, result, blocking);
@@ -10154,11 +10173,13 @@ void Operation::apply(Resources& res, const TimeInterval& interval, bool pushdec
 					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
 					applytime += 600;
 				case 1:
+					applytime += 1;
+				case 2:
 					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
 					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
 					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
 					applytime += 600;
-				case 2:
+				case 3:
 				default:
 					break;
 			}
@@ -10279,11 +10300,13 @@ void Operation::apply(Resources& res, const TimeInterval& interval, bool pushdec
 					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
 					applytime += 600;
 				case 1:
+					applytime += 1;
+				case 2:
 					Consums(res, 150, RI::Minerals, interval, applytime, pushdecs);
 					Consums(res, 50, RI::Gas, interval, applytime, pushdecs);
 					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
 					applytime += 600;
-				case 2:
+				case 3:
 				default:
 					break;
 			}
@@ -10466,11 +10489,13 @@ void Operation::apply(Resources& res, const TimeInterval& interval, bool pushdec
 					Consums(res, 1, RI::Larva, interval, applytime, pushdecs);
 					applytime += 420;
 				case 1:
+					applytime += 1;
+				case 2:
 					Consums(res, 50, RI::Minerals, interval, applytime, pushdecs);
 					Consums(res, 100, RI::Gas, interval, applytime, pushdecs);
 					Locks(res, 4, RI::ZergSupply, interval, applytime, pushdecs);
 					applytime += 600;
-				case 2:
+				case 3:
 				default:
 					break;
 			}

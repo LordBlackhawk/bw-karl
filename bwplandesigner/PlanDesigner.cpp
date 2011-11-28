@@ -1,3 +1,6 @@
+#include "utils/debug-clog.h"
+#include "utils/debug-0.h"
+
 #define  NO_ASSOCIATIONS
 #include "newplan/bwplan.h"
 #include "newplan/nocheckpoints.h"
@@ -34,16 +37,16 @@ int main(int argc, const char* argv[])
 
 	std::cout << "Planed Resources:\n";
 	for (auto it : plan) {
-		std::cout << "planed(" << it.time() << "): \t" << outResources(it.getResources());
+		std::cout << "planed(" << it.time() << "): \t" << outResources(it.getResources()) << "\n";
 		auto alt = plan.at(it.time());
 		if (it.getResources() != alt.getResources())
-			std::cout << "directly gives: " << outResources(alt.getResources());
+			std::cout << "directly gives: " << outResources(alt.getResources()) << "\n";
 	}
 	std::cout << "\n";
 	
 	std::cout << "Planed Resources (pushdecs):\n";
 	for (auto it = plan.begin(true); !it.beyond(); ++it) {
-		std::cout << "planed(" << it.time() << "): \t" << outResources(it.getResources());
+		std::cout << "planed(" << it.time() << "): \t" << outResources(it.getResources()) << "\n";
 	}
 	std::cout << "\n";
 	

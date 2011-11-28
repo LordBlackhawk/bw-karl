@@ -6,6 +6,8 @@
 #include "unit-finder.h"
 #include "settick.h"
 
+#include "utils/debug.h"
+
 typedef boost::shared_ptr<GatherMineralsTask>	GatherMineralsTaskPtr;
 typedef boost::shared_ptr<GatherGasTask>		GatherGasTaskPtr;
 
@@ -69,7 +71,7 @@ class WorkerManager
 				}
 			}
 			if (bestvalue > 1e5) {
-				std::clog << "Unable to use Worker! bestvalue is " << bestvalue << "\n";
+				LOG2 << "Unable to use Worker! bestvalue is " << bestvalue;
 				return;
 			}
 			MicroTaskManager::instance().pushTask(unit, MicroTask(MicroTaskEnum::GatherMinerals, best));

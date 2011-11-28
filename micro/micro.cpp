@@ -28,7 +28,7 @@ void Micro::pretick()
 		{
 			case BWAPI::EventType::UnitCreate:
 				if (event.getUnit()->getPlayer() == self) {
-					std::clog << "Adding " << event.getUnit()->getType().getName() << " to MicroTaskHandler...\n";
+					LOG2 << "Adding " << event.getUnit()->getType().getName() << " to MicroTaskHandler...";
 					MicroTaskManager::instance().onUnitAdded(event.getUnit());
 				}
 				break;

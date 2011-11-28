@@ -3,9 +3,10 @@
 #include "operations.h"
 #include "resourceindex.h"
 
+#include "utils/debug.h"
+
 #include <BWAPI.h>
 #include <set>
-#include <iostream>
 
 class PlanContainer;
 
@@ -13,7 +14,7 @@ struct DefaultFallbackBehaviour
 {
 	FallbackBehaviourType::type operator () (PlanContainer& /*plan*/, const Operation& /*op*/, const ResourceIndex& /*blocking*/) const
 	{
-		std::clog << "fallback!!!\n";
+		LOG2 << "fallback!!!";
 		return FallbackBehaviourType::Fail;
 	}
 };
@@ -27,7 +28,7 @@ class SimpleFallbackBehaviour
 		
 		FallbackBehaviourType::type operator () (PlanContainer& plan, const Operation& op, const ResourceIndex& blocking)
 		{
-			std::clog << BWAPI::Broodwar->getFrameCount() << ": Operation " << op.getName() << " failed, problem resource is " << blocking.getName() << "\n";
+			LOG2 << "Operation " << op.getName() << " failed, problem resource is " << blocking.getName();
 			if (!blocking.valid()) {
 				if (level == 0)
 					return nextfbb(plan, op, blocking);
