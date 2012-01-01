@@ -79,6 +79,8 @@ CheckPointResult::type CSendWorkerToBuildingPlace(Operation& op)
 		ASSERT(details->ut != BWAPI::UnitTypes::None);
 		ASSERT(details->pos != BWAPI::TilePositions::None);
 		ASSERT(details->builder != NULL);
+		
+		details->reserve();
 
 		details->task = createLongMove(getBuildingCenter(details->pos, details->ut));
 		MicroTaskManager::instance().pushTask(details->builder, details->task);
@@ -126,7 +128,7 @@ CheckPointResult::type CBuildBuilding(Operation& op)
 
 	}
 
-	op.rescheduleBegin(BWAPI::Broodwar->getFrameCount()+1);
+	op.rescheduleBegin(InformationKeeper::instance().currentFrame()+1);
 	drawBuildingPosition(details->ut, details->pos);
 
 	CheckPointResult::type result = WaitForTask(details->task);
@@ -151,7 +153,7 @@ CheckPointResult::type CBuildingFinished(Operation& op)
 		details->task = createBuildObserver();
 		MicroTaskManager::instance().pushTask(details->building, details->task);
 		
-		op.rescheduleEnd(BWAPI::Broodwar->getFrameCount() + details->building->getRemainingBuildTime());
+		op.rescheduleEnd(InformationKeeper::instance().currentFrame() + details->building->getRemainingBuildTime());
 
 	}
 
@@ -206,7 +208,7 @@ CheckPointResult::type CMorphUnit(Operation& op)
 
 	}
 	
-	op.rescheduleBegin(BWAPI::Broodwar->getFrameCount()+1);
+	op.rescheduleBegin(InformationKeeper::instance().currentFrame()+1);
 	return WaitForTask(details->task);
 }
 
@@ -263,7 +265,7 @@ CheckPointResult::type CUnitFinished(Operation& op)
 		}
 		MicroTaskManager::instance().pushTask(details->result, details->task);
 		
-		op.rescheduleEnd(BWAPI::Broodwar->getFrameCount() + details->result->getRemainingBuildTime());
+		op.rescheduleEnd(InformationKeeper::instance().currentFrame() + details->result->getRemainingBuildTime());
 	
 	}
 

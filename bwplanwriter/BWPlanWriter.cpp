@@ -337,6 +337,10 @@ void writeOpForUpgradeType(const BWAPI::UpgradeType& gt)
 		op->race = gt.getRace();
 		op->gt   = gt;
 		
+		// Bugfixes:
+		if (gt == BWAPI::UpgradeTypes::Adrenal_Glands)
+			op->needs(1, unitMap[BWAPI::UnitTypes::Zerg_Hive]);
+		
 		BWAPI::UnitType ut = gt.whatsRequired(k);
 		if (ut != BWAPI::UnitTypes::None)
 			op->needs(1, unitMap[ut]);
@@ -351,6 +355,8 @@ void writeOpForUpgradeType(const BWAPI::UpgradeType& gt)
 		op->unlocks(1, unitMap[what]);
 		op->prods(1, res);
 		op->checkpoint("CUpgradeFinished", 1);
+		
+		res->associated.push_back(op);
 	}
 }
 

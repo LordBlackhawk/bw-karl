@@ -1,6 +1,8 @@
 #include "utils/debug-broodwar.h"
 #include "utils/debug-1.h"
 
+#include "expandplan.h"
+
 #include "newplan/bwplan.h"
 #include "newplan/parameter-reader.h"
 #include "newplan/resourcenextractor.h"
@@ -76,12 +78,12 @@ int main(int argc, const char* argv[])
 
 		/*
 		if (plan.race != Broodwar->self()->getRace()->getName()) {
-			std::cout << "Error: Game started with wrong race!\n";
+			LOG << "Error: Game started with wrong race!";
 			return 1;
 		}
 		*/
 
-		while(Broodwar->isInGame())
+		while (Broodwar->isInGame())
 		{
 			Broodwar->drawTextScreen(300, 0, "FPS: %f", Broodwar->getAverageFPS());
 			
@@ -91,13 +93,20 @@ int main(int argc, const char* argv[])
 			Micro::instance().pretick();
 			
 			if (res != old) {
-				LOG1 << outResources(res) << "\n\tplanned: " << outResources(initplan.at(BWAPI::Broodwar->getFrameCount()).getResources());
+				//LOG1 << outResources(res) << "\n\tplanned: " << outResources(initplan.at(BWAPI::Broodwar->getFrameCount()).getResources());
+				LOG1 << outResources(res) << "\n\told: " << outResources(old);
 				if (plan.scheduledOperations().size() > 0)
 					LOG1 << "Next in plan: " << plan.scheduledOperations().begin()->getName();
 			}
 			
 			LOG4 << "Rebasing plan...";
 			plan.rebase_sr(1, res);
+			
+			LOG4 << "Updating plan...";
+			updatePlan(plan);
+			
+			LOG4 << "Optimizing plan...";
+			plan.optimizeEndTime(1);
 
 			LOG4 << "Executing plan...";
 			plan.execute();
@@ -105,7 +114,6 @@ int main(int argc, const char* argv[])
 			LOG4 << "Micro tick...";
 			Micro::instance().tick();
 
-			//std::clog << "waiting for next frame...\n";
 			BWAPI::BWAPIClient.update();
 			if (!BWAPI::BWAPIClient.isConnected())
 			{

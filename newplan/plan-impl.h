@@ -10,17 +10,17 @@
 
 #include <boost/regex.hpp>
 
-FallbackBehaviourType::type PlanContainer::push_back_sr(const Operation& op)
+bool PlanContainer::push_back_sr(const Operation& op)
 {
 	DefaultFallbackBehaviour dfbb;
 	SimpleFallbackBehaviour<DefaultFallbackBehaviour> sfbb(dfbb);
-	return push_back(op, sfbb);
+	return (push_back(op, sfbb) != FallbackBehaviourType::Fail);
 }
 
-FallbackBehaviourType::type PlanContainer::push_back_df(const Operation& op)
+bool PlanContainer::push_back_df(const Operation& op)
 {
 	DefaultFallbackBehaviour dfbb;
-	return push_back(op, dfbb);
+	return (push_back(op, dfbb) != FallbackBehaviourType::Fail);
 }
 
 bool PlanContainer::rebase_sr(TimeType timeinc, const Resources& newres)

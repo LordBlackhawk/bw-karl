@@ -15,13 +15,16 @@ else
 CXXLIBS     += -lBWTA
 endif
 
-REALSOURCES  = newplan/bwplan.cpp micro/micro.cpp
+REALSOURCES  = newplan/bwplan.cpp micro/micro.cpp informations/informations.cpp
 OBJECTS		 = $(addprefix $(OBJECTPATH), $(notdir $(REALSOURCES:.cpp=.o)))
 SOURCES      = $(filter-out $(REALSOURCES),$(wildcard */*.cpp))
 EXECUTEABLES = $(notdir $(SOURCES:.cpp=.exe))
 DEPS         = $(addprefix $(OBJECTPATH), $(notdir $(SOURCES:.cpp=.d) $(REALSOURCES:.cpp=.d)))
 
 all: $(EXECUTEABLES) $(DEPS)
+
+run: karl.exe
+	karl -l builds/zerg/overpool.bwb
 
 echo:
 	@echo "Sources:"

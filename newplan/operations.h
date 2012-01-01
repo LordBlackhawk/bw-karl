@@ -132,6 +132,21 @@ class Operation
 		{
 			return status_;
 		}
+		
+		bool operator == (const Operation& other) const
+		{
+			return (index_ == other.index_) && (details_ == other.details_);
+		}
+		
+		bool operator != (const Operation& other) const
+		{
+			return !((*this) == other);
+		}
+		
+		OperationIndex getIndex() const
+		{
+			return index_;
+		}
 	
 	#ifndef NO_ASSOCIATIONS
 		BWAPI::Race associatedRace() const

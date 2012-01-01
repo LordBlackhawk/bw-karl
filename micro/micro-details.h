@@ -1,7 +1,10 @@
 #pragma once
 
-#include "newplan/checkpoints.h"
 #include "micro-task.h"
+#include "building-placer.h"
+
+#include "utils/debug.h"
+#include "newplan/checkpoints.h"
 
 struct BuildBuildingDetails
 {
@@ -11,9 +14,24 @@ struct BuildBuildingDetails
 	BWAPI::Unit*		building;
 
 	MicroTask			task;
+	bool 				reserved;
 
 	BuildBuildingDetails() : ut(BWAPI::UnitTypes::None), pos(BWAPI::TilePositions::None), builder(NULL), building(NULL)
 	{ }
+	
+	~BuildBuildingDetails()
+	{
+		if (reserved) {
+			LOG1 << "Freeing tiles for " << ut.getName() << " on " << pos.x() << ", " << pos.y();
+			BuildingPlacer::instance().freeTiles(ut, pos);
+		}
+	}
+	
+	void reserve()
+	{
+		LOG1 << "Reserving tiles for " << ut.getName() << " on " << pos.x() << ", " << pos.y();
+		BuildingPlacer::instance().reserveTiles(ut, pos);
+	}
 };
 
 struct BuildUnitDetails

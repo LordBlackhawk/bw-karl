@@ -1,5 +1,9 @@
 #pragma once
 
+#include "informations/informations.h"
+
+#include "utils/array2d.h"
+
 #include <BWAPI.h>
 #include <BWTA.h>
 
@@ -10,7 +14,27 @@ class BuildingPlacer
 	{
 		return Singleton<BuildingPlacer>::instance();
 	}
-		
+	
+	void init()
+	{
+		reserved.resize(BWAPI::Broodwar->mapWidth(), BWAPI::Broodwar->mapHeight(), false);
+	}
+	
+	void reserveTiles(const BWAPI::UnitType& ut, const BWAPI::TilePosition& tp)
+	{
+		reserveTiles(tp, ut.tileWidth(), ut.tileHeight());
+	}
+	
+	void freeTiles(const BWAPI::UnitType& ut, const BWAPI::TilePosition& tp)
+	{
+		freeTiles(tp, ut.tileWidth(), ut.tileHeight());
+	}
+	
+	BWAPI::TilePosition find(BWAPI::UnitType type) const
+	{
+		return getBuildLocationNear(BWTA::getStartLocation(InformationKeeper::instance().self())->getTilePosition(), type);
+	}
+
     BuildingPlacer();
     bool canBuildHere(BWAPI::TilePosition position, BWAPI::UnitType type) const;
     bool canBuildHereWithSpace(BWAPI::TilePosition position, BWAPI::UnitType type) const;
@@ -19,18 +43,15 @@ class BuildingPlacer
     BWAPI::TilePosition getBuildLocationNear(BWAPI::TilePosition position,BWAPI::UnitType type) const;
     BWAPI::TilePosition getBuildLocationNear(BWAPI::TilePosition position,BWAPI::UnitType type, int buildDist) const;
     bool buildable(int x, int y) const;
+	void reserveTiles(BWAPI::TilePosition position, int width, int height);
+    void freeTiles(BWAPI::TilePosition position, int width, int height);
     void setBuildDistance(int distance);
     int getBuildDistance() const;
-	
-	BWAPI::TilePosition find(BWAPI::UnitType type) const;
+    bool isReserved(int x, int y) const;
   private:
     int buildDistance;
+	Array2d<bool> reserved;
 };
-
-BWAPI::TilePosition BuildingPlacer::find(BWAPI::UnitType type) const
-{
-	return getBuildLocationNear(BWTA::getStartLocation(BWAPI::Broodwar->self())->getTilePosition(), type);
-}
 
 BuildingPlacer::BuildingPlacer()
 {
@@ -42,6 +63,10 @@ bool BuildingPlacer::canBuildHere(BWAPI::TilePosition position, BWAPI::UnitType 
   //returns true if we can build this type of unit here. Takes into account reserved tiles.
   if (!BWAPI::Broodwar->canBuildHere(NULL, position, type))
     return false;
+  for(int x = position.x(); x < position.x() + type.tileWidth(); x++)
+    for(int y = position.y(); y < position.y() + type.tileHeight(); y++)
+      if (reserved[x][y])
+        return false;
   return true;
 }
 
@@ -83,7 +108,7 @@ bool BuildingPlacer::canBuildHereWithSpace(BWAPI::TilePosition position, BWAPI::
   {
     for(int x = startx; x < endx; x++)
       for(int y = starty; y < endy; y++)
-          if (!buildable(x, y))
+          if (!buildable(x, y) || reserved[x][y])
             return false;
   }
 
@@ -192,12 +217,31 @@ bool BuildingPlacer::buildable(int x, int y) const
   return true;
 }
 
+void BuildingPlacer::reserveTiles(BWAPI::TilePosition position, int width, int height)
+{
+  for(int x = position.x(); x < position.x() + width && x < reserved.getWidth(); x++)
+    for(int y = position.y(); y < position.y() + height && y < reserved.getHeight(); y++)
+      reserved[x][y] = true;
+}
+
+void BuildingPlacer::freeTiles(BWAPI::TilePosition position, int width, int height)
+{
+  for(int x = position.x(); x < position.x() + width && x < reserved.getWidth(); x++)
+    for(int y = position.y(); y < position.y() + height && y < reserved.getHeight(); y++)
+      reserved[x][y] = false;
+}
+
 void BuildingPlacer::setBuildDistance(int distance)
 {
   this->buildDistance=distance;
 }
-
 int BuildingPlacer::getBuildDistance() const
 {
   return this->buildDistance;
+}
+bool BuildingPlacer::isReserved(int x, int y) const
+{
+  if (x<0 || y<0 || x>=reserved.getWidth() || y>=reserved.getHeight())
+    return false;
+  return reserved[x][y];
 }

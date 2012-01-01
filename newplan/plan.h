@@ -151,10 +151,12 @@ class PlanContainer
 		}
 		
 		PlanContainer(const Resources& sr, TimeType st, const std::vector<Operation>& actives)
-			: startres(sr), active_operations(actives), starttime(st), opendtime(st), endtime(st)
+			: startres(sr), starttime(st), opendtime(st), endtime(st)
 		{
 			startres.setTime(starttime);
 			addCorrections(starttime);
+			for (auto op : actives)
+				addActive(op);
 		}
 		
 		bool empty() const
@@ -210,8 +212,8 @@ class PlanContainer
 			return FallbackBehaviourType::Success;
 		}
 		
-		FallbackBehaviourType::type push_back_sr(const Operation& op);
-		FallbackBehaviourType::type push_back_df(const Operation& op);
+		bool push_back_sr(const Operation& op);
+		bool push_back_df(const Operation& op);
       
 		template <class FallbackBehaviour>
 		bool rebase(TimeType timeinc, const Resources& newres, FallbackBehaviour& fbb)
@@ -257,6 +259,9 @@ class PlanContainer
 		template <class Function>
 		bool optimizeLocal(const Function& f)
 		{
+			if (scheduled_operations.empty())
+				return false;
+
 			PlanContainer newplan(startres, starttime, active_operations);
 			bool skipnext = false;
 			bool changed  = false;
@@ -272,13 +277,21 @@ class PlanContainer
 				PlanContainer change = newplan;
 
 				Operation first = *it.first, second = *it.second;
+				if (first.getIndex() == second.getIndex()) {
+					newplan.push_back_df(first);
+					continue;
+				}
 
-				if (!keep.push_back_df(first) || !keep.push_back_df(second)) {
-					LOG1 << "Something went wrong. Original order is not possible any more.";
+				if (!keep.push_back_df(first)) {
+					LOG1 << "Something went wrong. Original order is not possible any more. Operation '" << first.getName() << "' failed.";
+					return false;
+				}
+				if (!keep.push_back_df(second)) {
+					LOG1 << "Something went wrong. Original order is not possible any more. Operation '" << second.getName() << "' failed.";
 					return false;
 				}
 
-				if (!change.push_back_df(first) || !change.push_back_df(second) || f(keep, change)) {
+				if (!change.push_back_df(second) || !change.push_back_df(first) || f(keep, change)) {
 					newplan.push_back_df(first);
 					continue;
 				}
@@ -286,13 +299,14 @@ class PlanContainer
 				newplan  = change;
 				skipnext = true;
 				changed  = true;
+				LOG1 << "Decided to exchange '" << first.getName() << "' and '" << second.getName() << "'.";
 			}
 
 			if (!skipnext)
 				newplan.push_back_df(scheduled_operations.back());
 
-			if (f(*this, newplan))
-				LOG1 << "Elementar Steps are better, but overall plan is not better! Nevertheless taking the new.";
+			//if (changed && f(*this, newplan))
+			//	LOG1 << "Elementar Steps are better, but overall plan is not better! Nevertheless taking the new.";
 
 			std::swap(*this, newplan);
 			return changed;
@@ -338,7 +352,7 @@ class PlanContainer
 			return scheduled_operations.size();
 		}
 		
-		const std::vector<Operation> scheduledOperations() const
+		const std::vector<Operation>& scheduledOperations() const
 		{
 			return scheduled_operations;
 		}
@@ -367,6 +381,16 @@ class PlanContainer
 		void addtime(TimeType t)
 		{
 			changetimes.insert(t);
+		}
+		
+		Operation lastOperation() const
+		{
+			return scheduled_operations.back();
+		}
+		
+		Operation beforeLastOperation() const
+		{
+			return *(scheduled_operations.end()-2);
 		}
 
 	protected:

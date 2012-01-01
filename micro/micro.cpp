@@ -6,9 +6,11 @@
 #include "worker-manager.h"
 #include "scout-manager.h"
 
+#include "informations/informations.h"
 
 void Micro::clear()
 {
+	InformationKeeper::instance().clear();
 	MicroTaskManager::instance().clear();
 	WorkerManager::instance().clear();
 	ScoutManager::instance().clear();
@@ -16,26 +18,35 @@ void Micro::clear()
 
 void Micro::prepareMap()
 {
+	InformationKeeper::instance().prepareMap();
+	BuildingPlacer::instance().init();
 	ScoutManager::instance().prepareMap();
 }
 
 void Micro::pretick()
 {
+	InformationKeeper::instance().pretick();
 	BWAPI::Player* self = BWAPI::Broodwar->self();
 	for (auto event : BWAPI::Broodwar->getEvents())
 	{
 		switch (event.getType())
 		{
 			case BWAPI::EventType::UnitCreate:
-				if (event.getUnit()->getPlayer() == self) {
-					LOG2 << "Adding " << event.getUnit()->getType().getName() << " to MicroTaskHandler...";
-					MicroTaskManager::instance().onUnitAdded(event.getUnit());
+			{
+				BWAPI::Unit* unit = event.getUnit();
+				if (unit->getPlayer() == self) {
+					LOG2 << "Adding " << unit->getType().getName() << " to MicroTaskHandler...";
+					MicroTaskManager::instance().onUnitAdded(unit);
 				}
 				break;
+			}
 			case BWAPI::EventType::UnitDestroy:
-				if (event.getUnit()->getPlayer() == self)
-					MicroTaskManager::instance().onUnitDestroyed(event.getUnit());
+			{
+				BWAPI::Unit* unit = event.getUnit();
+				if (unit->getPlayer() == self)
+					MicroTaskManager::instance().onUnitDestroyed(unit);
 				break;
+			}
 			default:
 				break;
 		}
@@ -44,6 +55,7 @@ void Micro::pretick()
 
 void Micro::tick()
 {
+	InformationKeeper::instance().tick();
 	UnitDistributer::instance().tick();
 	WorkerManager::instance().tick();
 	MicroTaskManager::instance().tick();

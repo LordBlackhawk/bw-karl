@@ -6,6 +6,8 @@
 #include "unit-finder.h"
 #include "settick.h"
 
+#include "informations/informations.h"
+
 #include "utils/debug.h"
 
 typedef boost::shared_ptr<GatherMineralsTask>	GatherMineralsTaskPtr;
@@ -57,7 +59,7 @@ class WorkerManager
 		void useIdleWorker(BWAPI::Unit* unit)
 		{
 			if (mineralTasks.size() < 1)
-				mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTask(BWTA::getStartLocation(BWAPI::Broodwar->self()))));
+				mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTask(BWTA::getStartLocation(InformationKeeper::instance().self()))));
 
 			BWAPI::Position pos = unit->getPosition();
 			GatherMineralsTaskPtr best;

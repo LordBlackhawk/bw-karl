@@ -1,5 +1,5 @@
 #include "utils/debug-clog.h"
-#include "utils/debug-0.h"
+#include "utils/debug-1.h"
 
 #define  NO_ASSOCIATIONS
 #include "newplan/bwplan.h"
@@ -44,18 +44,22 @@ int main(int argc, const char* argv[])
 	}
 	std::cout << "\n";
 	
+	/*
 	std::cout << "Planed Resources (pushdecs):\n";
 	for (auto it = plan.begin(true); !it.beyond(); ++it) {
 		std::cout << "planed(" << it.time() << "): \t" << outResources(it.getResources()) << "\n";
 	}
 	std::cout << "\n";
+	*/
 	
+	/*
 	std::cout << "Corrections:\n";
 	for (auto it : plan.getCorrections())
 		std::cout << "correction: " << it.interval << ", value = " << it.value << "\n";
 	std::cout << "\n";
+	*/
 	
-	std::cout << "Plan finished after " << outTime(plan.end().time()) << " frames.\n";
+	std::cout << "Plan finished after " << outTime(plan.endTime()) << " frames.\n";
 	
 	if (savefilename != "")
 		plan.saveToFile(savefilename.c_str());

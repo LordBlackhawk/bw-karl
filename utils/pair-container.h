@@ -60,7 +60,10 @@ class PairContainer
 
 		iterator end()
 		{
-			return iterator(container.end()-1);
+			if (container.size() < 1)
+				return iterator(container.end());
+			else
+				return iterator(container.end()-1);
 		}
 
 		size_type size() const

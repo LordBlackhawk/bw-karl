@@ -1,6 +1,9 @@
 #pragma once
 
 #include "micro-task-manager.h"
+
+#include "informations/informations.h"
+
 #include <BWAPI.h>
 
 class BaseTask
@@ -33,17 +36,17 @@ class BaseTask
 
 		int currentFrame() const
 		{
-			return BWAPI::Broodwar->getFrameCount();
+			return InformationKeeper::instance().currentFrame();
 		}
 
 		int latencyFrames() const
 		{
-			return BWAPI::Broodwar->getRemainingLatencyFrames();
+			return InformationKeeper::instance().latencyFrames();
 		}
 
 		BWAPI::Player* self() const
 		{
-			return BWAPI::Broodwar->self();
+			return InformationKeeper::instance().self();
 		}
 
 	public:

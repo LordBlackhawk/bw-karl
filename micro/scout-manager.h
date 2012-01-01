@@ -119,7 +119,7 @@ class ScoutManager
 			if (best == NULL)
 				return NULL;
 			ScoutInformation& info = informations[best];
-			info.lastScoutSent     = BWAPI::Broodwar->getFrameCount();
+			info.lastScoutSent     = InformationKeeper::instance().currentFrame();
 			if (flyer)
 				++info.failedAirScouting;
 			else
@@ -134,7 +134,7 @@ class ScoutManager
 			if (dis > 96.)
 				return;
 			ScoutInformation& info   = informations[base];
-			info.lastTimeSeen        = BWAPI::Broodwar->getFrameCount();
+			info.lastTimeSeen        = InformationKeeper::instance().currentFrame();
 			info.failedGroundScouting = 0;
 			info.failedAirScouting   = 0;
 		}
