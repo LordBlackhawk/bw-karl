@@ -11,9 +11,9 @@ void displayResources(const BWResources& res)
 		if ((res.get(it) != 0) || (it.isLockable() && (res.getExisting(it) != 0)))
 	{
 		if (it.isLockable()) {
-			BWAPI::Broodwar->drawTextScreen(5, 16*line, "- %d/%d %ss", res.get(it), res.getExisting(it), it.getName().c_str());
+			BWAPI::Broodwar->drawTextScreen(5, 16*line, "- %d/%d %s", res.get(it), res.getExisting(it), it.getName().c_str());
 		} else {
-			BWAPI::Broodwar->drawTextScreen(5, 16*line, "-   %d  %ss", res.get(it), it.getName().c_str());
+			BWAPI::Broodwar->drawTextScreen(5, 16*line, "-   %d  %s", res.get(it), it.getName().c_str());
 		}
 		++line;
 	}

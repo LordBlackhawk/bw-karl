@@ -99,7 +99,7 @@ CheckPointResult::type CBuildBuilding(Operation& op)
 	if (op.status() == OperationStatus::started) {		
 		
 		if (details->building != NULL) {
-			LOG1 << "Recognized building in 2 steps.";
+			LOG2 << "Recognized building in 2 steps.";
 			details->builder = details->building;
 			details->ut      = op.associatedUnitType();
 		}
@@ -115,7 +115,7 @@ CheckPointResult::type CBuildBuilding(Operation& op)
 			details->pos = details->builder->getTilePosition();
 		ASSERT(details->pos != BWAPI::TilePositions::None);
 		
-		LOG1 << "Calling BuildBuilding(" << details->ut.getName() << ")...";
+		LOG2 << "Calling BuildBuilding(" << details->ut.getName() << ")...";
 		
 		if (!details->builder->getType().isWorker()) {
 			// morph-Building:
@@ -135,7 +135,7 @@ CheckPointResult::type CBuildBuilding(Operation& op)
 	if (result == CheckPointResult::completed) {
 		details->building = findBuilding(details->builder, details->ut, details->pos);
 		ASSERT(details->building != NULL);
-		LOG1 << "BuildBuilding(" << details->ut.getName() << ") completed.";
+		LOG2 << "BuildBuilding(" << details->ut.getName() << ") completed.";
 	}
 	return result;
 }
@@ -147,7 +147,7 @@ CheckPointResult::type CBuildingFinished(Operation& op)
 
 	if (op.status() == OperationStatus::started) {
 
-		LOG1 << "Calling BuildFinished(" << details->ut.getName() << ")...";
+		LOG2 << "Calling BuildFinished(" << details->ut.getName() << ")...";
 		ASSERT(details->building != NULL);
 
 		details->task = createBuildObserver();
@@ -159,7 +159,7 @@ CheckPointResult::type CBuildingFinished(Operation& op)
 
 	CheckPointResult::type result = WaitForTask(details->task);
 	if (result == CheckPointResult::completed)
-		LOG1 << "BuildFinished(" << details->ut.getName() << ") completed.";
+		LOG2 << "BuildFinished(" << details->ut.getName() << ") completed.";
 	return result;
 }
 
@@ -181,7 +181,7 @@ CheckPointResult::type CMorphUnit(Operation& op)
 	if (op.status() == OperationStatus::started) {
 	
 		if (details->result != NULL) {
-			LOG1 << "Recognized morphing in 2 steps.";
+			LOG2 << "Recognized morphing in 2 steps.";
 			details->builder = details->result;
 			details->ut      = op.associatedUnitType();
 		} else {
@@ -189,7 +189,7 @@ CheckPointResult::type CMorphUnit(Operation& op)
 				details->ut = op.associatedUnitType();
 				
 			if (details->ut.whatBuilds().first != BWAPI::UnitTypes::Zerg_Larva) {
-				LOG1 << "Morphing requirements first...";
+				LOG2 << "Morphing requirements first...";
 				details->ut = details->ut.whatBuilds().first;
 			}
 		

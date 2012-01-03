@@ -1,12 +1,12 @@
 OBJECTPATH   = out/
-BWAPIPATH    = ../bwapi/trunk/bwapi/include/
-BWTAPATH     = ../bwta/include/
-BOOSTPATH    = ../boost_1_46_1/
+BWAPIPATH    = ../bwapi/trunk/bwapi/include
+BWTAPATH     = ../bwta/include
+BOOSTPATH    = ../boost_1_46_1
 
 CXX          = g++
 CXXINCLUDES  = -I$(BWAPIPATH) -I$(BWTAPATH) -I$(BOOSTPATH) -I.
 CXXFLAGS     = -Wall -Wextra -O3 --std=c++0x $(CXXINCLUDES)
-CXXLIBS      = -L. -lBWAPI -L$(BOOSTPATH)stage/lib -lboost_program_options-mgw46-mt-1_46_1 -lboost_regex-mgw46-mt-1_46_1
+CXXLIBS      = -L. -lBWAPI -L$(BOOSTPATH)/stage/lib -lboost_program_options-mgw46-mt-1_46_1 -lboost_regex-mgw46-mt-1_46_1
 
 ifdef DEBUG
 CXX         += -ggdb

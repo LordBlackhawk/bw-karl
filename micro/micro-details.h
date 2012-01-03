@@ -22,14 +22,14 @@ struct BuildBuildingDetails
 	~BuildBuildingDetails()
 	{
 		if (reserved) {
-			LOG1 << "Freeing tiles for " << ut.getName() << " on " << pos.x() << ", " << pos.y();
+			LOG2 << "Freeing tiles for " << ut.getName() << " on " << pos.x() << ", " << pos.y();
 			BuildingPlacer::instance().freeTiles(ut, pos);
 		}
 	}
 	
 	void reserve()
 	{
-		LOG1 << "Reserving tiles for " << ut.getName() << " on " << pos.x() << ", " << pos.y();
+		LOG2 << "Reserving tiles for " << ut.getName() << " on " << pos.x() << ", " << pos.y();
 		BuildingPlacer::instance().reserveTiles(ut, pos);
 	}
 };

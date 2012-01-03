@@ -1,10 +1,15 @@
 #pragma once
 
+#include "utils/debug.h"
+
 #include <BWAPI.h>
+
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/shared_ptr.hpp>
 
 class PlayerInfo;
 
-class UnitInfo
+class UnitInfo : public boost::enable_shared_from_this<UnitInfo>
 {
 	friend class InformationKeeper;
 	
@@ -14,7 +19,7 @@ class UnitInfo
 			return unit;
 		}
 		
-		BWAPI::Player* getOwner() const
+		PlayerInfoPtr getPlayer() const
 		{
 			return owner;
 		}
@@ -24,7 +29,7 @@ class UnitInfo
 			return lastseen_time;
 		}
 		
-		BWAPI::Position lastseenPosition() const
+		BWAPI::Position getPosition() const
 		{
 			return lastseen_pos;
 		}
@@ -46,7 +51,26 @@ class UnitInfo
 		
 		bool isNeutral() const
 		{
-			return (owner == InformationKeeper::instance().neutral());
+			assert(owner.use_count() > 0);
+			return owner->isNeutral();
+		}
+		
+		bool isMe() const
+		{
+			assert(owner.use_count() > 0);
+			return owner->isMe();
+		}
+		
+		bool isAlly() const
+		{
+			assert(owner.use_count() > 0);
+			return owner->isAlly();
+		}
+		
+		bool isEnemy() const
+		{
+			assert(owner.use_count() > 0);
+			return owner->isEnemy();
 		}
 		
 	protected:
@@ -60,15 +84,27 @@ class UnitInfo
 		bool dead;
 		bool visible;
 		BWAPI::UnitType type;
-		BWAPI::Player* owner;
+		PlayerInfoPtr owner;
 		int lastseen_time;
 		BWAPI::Position lastseen_pos;
 		int hitpoints; // also use for resources (Minerals, Gas)
-		
+	
+	private:
 		UnitInfo(BWAPI::Unit* u) : unit(u), dead(false), visible(true), lastseen_pos(BWAPI::Positions::Invalid), hitpoints(1)
+		{ }
+		
+		void init()
 		{
-			readType();
 			readOwner();
 			readPosition();
+			readType();
+		}
+	
+	protected:
+		static UnitInfoPtr create(BWAPI::Unit* u)
+		{
+			UnitInfoPtr result = UnitInfoPtr(new UnitInfo(u));
+			result->init();
+			return result;
 		}
 };

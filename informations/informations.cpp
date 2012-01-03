@@ -12,8 +12,13 @@ void InformationKeeper::clear()
 
 void InformationKeeper::prepareMap()
 {
-	_self    = BWAPI::Broodwar->self();
-	_neutral = BWAPI::Broodwar->neutral();
+	LOG1 << "loading Players/BaseLocations/Regions/Chokepoints...";
+	
+	_self    = getInfo(BWAPI::Broodwar->self());
+	_neutral = getInfo(BWAPI::Broodwar->neutral());
+	
+	for (auto it : BWAPI::Broodwar->getPlayers())
+		getInfo(it);
 	
 	for (auto it : BWTA::getBaseLocations())
 		getInfo(it);
@@ -23,6 +28,8 @@ void InformationKeeper::prepareMap()
 	
 	for (auto it : BWTA::getChokepoints())
 		getInfo(it);
+	
+	LOG1 << "finished loading.";
 }
 
 void InformationKeeper::pretick()
@@ -59,18 +66,17 @@ void InformationKeeper::pretick()
 					UnitInfoPtr info = getInfo(unit);
 					if (type == BWAPI::EventType::UnitShow) {
 						info->visible = true;
-						info->readType();
 						info->readOwner();
+						info->readType();
 					}
 					if (type == BWAPI::EventType::UnitHide)
 						info->visible = false;
-					if (type == BWAPI::EventType::UnitMorph)
-						info->readType();
 					if (type == BWAPI::EventType::UnitRenegade)
 						info->readOwner();
+					if (type == BWAPI::EventType::UnitMorph)
+						info->readType();
 				} else if (type == BWAPI::EventType::UnitShow) {
-					if (unit->getPlayer() != _self)
-						getInfo(unit);
+					units[unit] = UnitInfo::create(unit);
 				}
 				break;
 			}
@@ -110,7 +116,7 @@ void InformationKeeper::tick()
 	for (auto it : units)
 	{
 		UnitInfoPtr info = it.second;
-		BWAPI::Position pos = info->lastseenPosition();
+		BWAPI::Position pos = info->getPosition();
 		BWAPI::Broodwar->drawTextMap(pos.x(), pos.y(), (info->isVisible() ? "%d" : "\x06%d"), info->hitPoints());
 	}
 	
@@ -118,12 +124,16 @@ void InformationKeeper::tick()
 	{
 		BaseLocationInfoPtr info = it.second;
 		BWAPI::Position pos = info->pos;
-		BWAPI::Broodwar->drawTextMap(pos.x(), pos.y(), (info->currentuser != NULL) ? "used!" : "free?");
+		BWAPI::Broodwar->drawTextMap(pos.x(), pos.y()+12, (info->currentuser != NULL) ? "used!" : "free?");
+		BWAPI::Broodwar->drawTextMap(pos.x(), pos.y()+24, (info->isVisible() ? "visible" : "hiden"));
 	}
 }
 
 PlayerInfoPtr InformationKeeper::getInfo(BWAPI::Player* player)
 {
+	if (player == NULL)
+		return PlayerInfoPtr();
+
 	auto it = players.find(player);
 	if (it != players.end())
 		return it->second;
@@ -135,17 +145,23 @@ PlayerInfoPtr InformationKeeper::getInfo(BWAPI::Player* player)
 
 UnitInfoPtr InformationKeeper::getInfo(BWAPI::Unit* unit)
 {
+	if (unit == NULL)
+		return UnitInfoPtr();
+
 	auto it = units.find(unit);
 	if (it != units.end())
 		return it->second;
 	
-	UnitInfoPtr info = UnitInfoPtr(new UnitInfo(unit));
+	UnitInfoPtr info = UnitInfo::create(unit);
 	units[unit] = info;
 	return info;
 }
 
 BaseLocationInfoPtr InformationKeeper::getInfo(BWTA::BaseLocation* loc)
 {
+	if (loc == NULL)
+		return BaseLocationInfoPtr();
+
 	auto it = baselocations.find(loc);
 	if (it != baselocations.end())
 		return it->second;
@@ -157,6 +173,9 @@ BaseLocationInfoPtr InformationKeeper::getInfo(BWTA::BaseLocation* loc)
 
 RegionInfoPtr InformationKeeper::getInfo(BWTA::Region* region)
 {
+	if (region == NULL)
+		return RegionInfoPtr();
+
 	auto it = regions.find(region);
 	if (it != regions.end())
 		return it->second;
@@ -168,6 +187,9 @@ RegionInfoPtr InformationKeeper::getInfo(BWTA::Region* region)
 
 ChokepointInfoPtr InformationKeeper::getInfo(BWTA::Chokepoint* point)
 {
+	if (point == NULL)
+		return ChokepointInfoPtr();
+
 	auto it = chokepoints.find(point);
 	if (it != chokepoints.end())
 		return it->second;
@@ -177,17 +199,19 @@ ChokepointInfoPtr InformationKeeper::getInfo(BWTA::Chokepoint* point)
 	return info;
 }
 
-void InformationKeeper::baseFound(BWAPI::Unit* base)
+void InformationKeeper::baseFound(UnitInfoPtr base)
 {
 	if (baselocations.empty()) {
 		LOG1 << "InformationKeeper::baseFound(): baselocations are empty!!!";
 		return;
 	}
 	
+	LOG1 << "InformationKeeper::baseFound() called.";
+	
 	BWAPI::Position pos = base->getPosition();
 	
-	double bestdis = 1e10;
 	auto   bestit  = baselocations.begin();
+	double bestdis = bestit->second->pos.getDistance(pos);
 	auto   it      = ++bestit;
 	auto   itend   = baselocations.end();
 	for (; it != itend; ++it)
@@ -199,19 +223,24 @@ void InformationKeeper::baseFound(BWAPI::Unit* base)
 		}
 	}
 	
-	if (bestdis > 10*32)
+	if (bestdis > 10*32) {
+		LOG1 << "\tbase to far away, distance is " << bestdis << "...";
 		return; // Zu weit weg, als dass man es zu diese Basis zuordnen kann!
+	}
 	
 	BaseLocationInfoPtr info = bestit->second;
 	
-	if (info->currentbase != NULL) {
-		if (info->currentbase->exists()) {
+	if (info->currentbase.use_count() > 0) {
+		if (!info->currentbase->isDead()) {
 			double dis = info->currentbase->getPosition().getDistance(info->pos);
-			if (dis < bestdis)
+			if (dis < bestdis) {
+				LOG1 << "\tthere is a base more near...";
 				return;
+			}
 		}
 	}
 	
+	LOG1 << "\tnew base is nearer...";
 	info->currentbase = base;
 	info->currentuser = base->getPlayer();
 }
@@ -229,13 +258,18 @@ void UnitInfo::readType()
 		|| (type == BWAPI::UnitTypes::Terran_Command_Center)
 		|| (type == BWAPI::UnitTypes::Protoss_Nexus))
 	{
-		InformationKeeper::instance().baseFound(unit);
+		InformationKeeper::instance().baseFound(shared_from_this());
 	}
 }
 
 void UnitInfo::readOwner()
 {
-	owner = unit->getPlayer();
+	BWAPI::Player* newowner = unit->getPlayer();
+	if (owner.use_count() > 0)
+		if (newowner == owner->get())
+			return;
+	
+	owner = InformationKeeper::instance().getInfo(newowner);
 }
 
 void UnitInfo::readPosition()
@@ -257,5 +291,11 @@ void BaseLocationInfo::readLastSeen()
 {
 	if (BWAPI::Broodwar->isVisible(tilepos)) {
 		lastseen = InformationKeeper::instance().currentFrame();
+	}
+	if (currentbase != NULL)
+		if (currentbase->isDead())
+	{
+		currentbase = UnitInfoPtr();
+		currentuser = PlayerInfoPtr();
 	}
 }

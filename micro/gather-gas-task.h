@@ -19,7 +19,7 @@ class GatherGasTask : public BaseTask
 				return;
 			BWAPI::UnitType ut = unit->getType();
 			if (ut.isWorker()) {
-				LOG1 << "GatherGasTask: Worker added.";
+				LOG2 << "GatherGasTask: Worker added.";
 				worker.insert(unit);
 				unit->rightClick(geyser);
 			} else if (ut.isRefinery()) {
@@ -29,12 +29,15 @@ class GatherGasTask : public BaseTask
 			}
 		}
 		
-		void deactive(BWAPI::Unit* unit)
+		void deactivate(BWAPI::Unit* unit)
 		{
+			if (geyser == NULL)
+				return;
+
 			if (unit == geyser) {
+			    geyser = NULL;
 				for (auto it : worker)
 					completed(it);
-				geyser = NULL;
 			} else {
 				worker.erase(unit);
 			}

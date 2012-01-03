@@ -199,8 +199,10 @@ void writeOpForUnitType(const BWAPI::UnitType& ut, OperationDescription* op = NU
 			supplyMap[BWAPI::Races::Protoss]->associated.push_back(op);
 		if (ut == BWAPI::UnitTypes::Terran_Supply_Depot)
 			supplyMap[BWAPI::Races::Terran]->associated.push_back(op);
-		if (ut.isWorker())
+		if (ut.isWorker()) {
 			minerals->associated.push_back(op);
+			workerMap[ut.getRace()]->associated.push_back(op);
+		}
 	}
 	
 	// Morph required units before morphing this unit.
@@ -336,6 +338,7 @@ void writeOpForUpgradeType(const BWAPI::UpgradeType& gt)
 		OperationDescription* op = new OperationDescription(getUpgradeName(gt, k));
 		op->race = gt.getRace();
 		op->gt   = gt;
+		op->upgradelevel = k;
 		
 		// Bugfixes:
 		if (gt == BWAPI::UpgradeTypes::Adrenal_Glands)
@@ -356,7 +359,8 @@ void writeOpForUpgradeType(const BWAPI::UpgradeType& gt)
 		op->prods(1, res);
 		op->checkpoint("CUpgradeFinished", 1);
 		
-		res->associated.push_back(op);
+		if (gt.maxRepeats() > 1)
+			res->associated.insert(res->associated.begin(), op);
 	}
 }
 
@@ -618,6 +622,15 @@ void writeBWPlan()
 			std::cout << "\t\tcase " << it->name << ":\n\t\t\treturn BWAPI::UpgradeTypes::" << toCName(it->gt.getName()) << ";\n";
 	std::cout << "\t\tdefault:\n"
 				<< "\t\t\treturn BWAPI::UpgradeTypes::None;\n";
+	std::cout << "\t}\n}\n\n";
+	
+	std::cout << "int OperationIndex::getUpgradeLevel() const\n{\n"
+		      << "\tswitch(index_)\n\t{\n";
+	for (auto it : operationDescriptions)
+		if (it->gt != BWAPI::UpgradeTypes::None)
+			std::cout << "\t\tcase " << it->name << ":\n\t\t\treturn " << it->upgradelevel << ";\n";
+	std::cout << "\t\tdefault:\n"
+				<< "\t\t\treturn 0;\n";
 	std::cout << "\t}\n}\n\n";
 	
 	for (auto it : operationDescriptions)

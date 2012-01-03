@@ -27,8 +27,7 @@ void Locks(const Resources& res, int num, const ResourceIndex& ri, TimeType& res
 
 void Consums(const Resources& res, int num, const ResourceIndex& ri, TimeType& result, ResourceIndex& blocking)
 {
-	if (res.get(ri) < num)
-		result = res.firstMoreThan(ri, num, blocking);
+	result = std::max(result, res.firstMoreThan(ri, num, blocking));
 }
 
 /* for Operation::apply(): */
@@ -197,21 +196,24 @@ OperationIndex OperationIndex::byTechType(const BWAPI::TechType& tt)
 	return it->second;
 }
 
-OperationIndex OperationIndex::byUpgradeType(const BWAPI::UpgradeType& gt)
+OperationIndex OperationIndex::byUpgradeType(const BWAPI::UpgradeType& gt, int level)
 {
-	typedef std::map<BWAPI::UpgradeType, OperationIndex> MapType;
+	typedef std::pair<BWAPI::UpgradeType, int>	ItemType;
+	typedef std::map<ItemType, OperationIndex>	MapType;
 	static MapType fast = []
 		{
 			MapType result;
 			for (auto it : AllOperationIndices()) {
 				BWAPI::UpgradeType t = it.associatedUpgradeType();
-				if (t != BWAPI::UpgradeTypes::None)
-					result[t] = it;
+				if (t != BWAPI::UpgradeTypes::None) {
+					int level = it.getUpgradeLevel();
+					result[std::make_pair(t, level)] = it;
+				}
 			}
 			return result;
 		}();
 
-	auto it = fast.find(gt);
+	auto it = fast.find(std::make_pair(gt, level));
 	if (it == fast.end())
 		return OperationIndex::None;
 	return it->second;

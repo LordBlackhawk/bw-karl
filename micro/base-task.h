@@ -17,6 +17,12 @@ class BaseTask
 			MicroTaskManager::instance().popTask(unit);
 			return TaskStatus::completed;
 		}
+		
+		/*TaskStatus::Type completedAndClearAll(BWAPI::Unit* unit)
+		{
+			MicroTaskManager::instance().clearTasks(unit);
+			return TaskStatus::completed;
+		}*/
 
 		TaskStatus::Type failed(BWAPI::Unit* unit)
 		{
@@ -44,7 +50,7 @@ class BaseTask
 			return InformationKeeper::instance().latencyFrames();
 		}
 
-		BWAPI::Player* self() const
+		PlayerInfoPtr self() const
 		{
 			return InformationKeeper::instance().self();
 		}

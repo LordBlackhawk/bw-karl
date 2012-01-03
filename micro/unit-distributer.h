@@ -21,7 +21,9 @@ class UnitDistributer
 					LOG3 << "WorkerManager should use Worker...";
 					WorkerManager::instance().useIdleWorker(it);
 				} else if (ut.isRefinery()) {
-					LOG1 << "WorkerManager should use Extractor...";
+					if (it->isBeingConstructed())
+						continue;
+					LOG2 << "WorkerManager should use Extractor...";
 					WorkerManager::instance().useIdleExtractor(it);
 				} else if (ut == BWAPI::UnitTypes::Zerg_Overlord) {
 					//LOG1 << "ScoutManager should use Overlord...";

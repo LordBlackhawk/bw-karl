@@ -54,6 +54,21 @@ class MicroTaskManager
 			it->second = it->second->next;
 			it->second->task.activate(unit);
 		}
+		
+		void clearTasks(BWAPI::Unit* unit)
+		{
+			auto it = activeunits.find(unit);
+			if (it == activeunits.end())
+				return;
+			MicroTaskStackPtr stack = it->second;
+			while (stack.use_count() > 0) {
+				stack->task.deactivate(unit);
+				stack = stack->next;
+			}
+			activeunits.erase(it);
+			if (unit->exists())
+				inactiveunits.insert(unit);
+		}
 
 		MicroTask activeTask(BWAPI::Unit* unit) const
 		{

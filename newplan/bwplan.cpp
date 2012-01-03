@@ -251,6 +251,15 @@ std::set<OperationIndex> ResourceIndex::getAssociatedOperations() const
 	std::set<OperationIndex> result;
 	switch(index_)
 	{
+		case TerranWorker:
+			result.insert(OI::TerranSCV);
+			break;
+		case ProtossWorker:
+			result.insert(OI::ProtossProbe);
+			break;
+		case ZergWorker:
+			result.insert(OI::ZergDrone);
+			break;
 		case TerranSupply:
 			result.insert(OI::TerranSupplyDepot);
 			break;
@@ -393,186 +402,84 @@ std::set<OperationIndex> ResourceIndex::getAssociatedOperations() const
 			result.insert(OI::LurkerAspect);
 			break;
 		case TerranInfantryArmor:
-			result.insert(OI::TerranInfantryArmor1);
-			result.insert(OI::TerranInfantryArmor2);
 			result.insert(OI::TerranInfantryArmor3);
+			result.insert(OI::TerranInfantryArmor2);
+			result.insert(OI::TerranInfantryArmor1);
 			break;
 		case TerranVehiclePlating:
-			result.insert(OI::TerranVehiclePlating1);
-			result.insert(OI::TerranVehiclePlating2);
 			result.insert(OI::TerranVehiclePlating3);
+			result.insert(OI::TerranVehiclePlating2);
+			result.insert(OI::TerranVehiclePlating1);
 			break;
 		case TerranShipPlating:
-			result.insert(OI::TerranShipPlating1);
-			result.insert(OI::TerranShipPlating2);
 			result.insert(OI::TerranShipPlating3);
+			result.insert(OI::TerranShipPlating2);
+			result.insert(OI::TerranShipPlating1);
 			break;
 		case ZergCarapace:
-			result.insert(OI::ZergCarapace1);
-			result.insert(OI::ZergCarapace2);
 			result.insert(OI::ZergCarapace3);
+			result.insert(OI::ZergCarapace2);
+			result.insert(OI::ZergCarapace1);
 			break;
 		case ZergFlyerCarapace:
-			result.insert(OI::ZergFlyerCarapace1);
-			result.insert(OI::ZergFlyerCarapace2);
 			result.insert(OI::ZergFlyerCarapace3);
+			result.insert(OI::ZergFlyerCarapace2);
+			result.insert(OI::ZergFlyerCarapace1);
 			break;
 		case ProtossGroundArmor:
-			result.insert(OI::ProtossGroundArmor1);
-			result.insert(OI::ProtossGroundArmor2);
 			result.insert(OI::ProtossGroundArmor3);
+			result.insert(OI::ProtossGroundArmor2);
+			result.insert(OI::ProtossGroundArmor1);
 			break;
 		case ProtossAirArmor:
-			result.insert(OI::ProtossAirArmor1);
-			result.insert(OI::ProtossAirArmor2);
 			result.insert(OI::ProtossAirArmor3);
+			result.insert(OI::ProtossAirArmor2);
+			result.insert(OI::ProtossAirArmor1);
 			break;
 		case TerranInfantryWeapons:
-			result.insert(OI::TerranInfantryWeapons1);
-			result.insert(OI::TerranInfantryWeapons2);
 			result.insert(OI::TerranInfantryWeapons3);
+			result.insert(OI::TerranInfantryWeapons2);
+			result.insert(OI::TerranInfantryWeapons1);
 			break;
 		case TerranVehicleWeapons:
-			result.insert(OI::TerranVehicleWeapons1);
-			result.insert(OI::TerranVehicleWeapons2);
 			result.insert(OI::TerranVehicleWeapons3);
+			result.insert(OI::TerranVehicleWeapons2);
+			result.insert(OI::TerranVehicleWeapons1);
 			break;
 		case TerranShipWeapons:
-			result.insert(OI::TerranShipWeapons1);
-			result.insert(OI::TerranShipWeapons2);
 			result.insert(OI::TerranShipWeapons3);
+			result.insert(OI::TerranShipWeapons2);
+			result.insert(OI::TerranShipWeapons1);
 			break;
 		case ZergMeleeAttacks:
-			result.insert(OI::ZergMeleeAttacks1);
-			result.insert(OI::ZergMeleeAttacks2);
 			result.insert(OI::ZergMeleeAttacks3);
+			result.insert(OI::ZergMeleeAttacks2);
+			result.insert(OI::ZergMeleeAttacks1);
 			break;
 		case ZergMissileAttacks:
-			result.insert(OI::ZergMissileAttacks1);
-			result.insert(OI::ZergMissileAttacks2);
 			result.insert(OI::ZergMissileAttacks3);
+			result.insert(OI::ZergMissileAttacks2);
+			result.insert(OI::ZergMissileAttacks1);
 			break;
 		case ZergFlyerAttacks:
-			result.insert(OI::ZergFlyerAttacks1);
-			result.insert(OI::ZergFlyerAttacks2);
 			result.insert(OI::ZergFlyerAttacks3);
+			result.insert(OI::ZergFlyerAttacks2);
+			result.insert(OI::ZergFlyerAttacks1);
 			break;
 		case ProtossGroundWeapons:
-			result.insert(OI::ProtossGroundWeapons1);
-			result.insert(OI::ProtossGroundWeapons2);
 			result.insert(OI::ProtossGroundWeapons3);
+			result.insert(OI::ProtossGroundWeapons2);
+			result.insert(OI::ProtossGroundWeapons1);
 			break;
 		case ProtossAirWeapons:
-			result.insert(OI::ProtossAirWeapons1);
-			result.insert(OI::ProtossAirWeapons2);
 			result.insert(OI::ProtossAirWeapons3);
+			result.insert(OI::ProtossAirWeapons2);
+			result.insert(OI::ProtossAirWeapons1);
 			break;
 		case ProtossPlasmaShields:
-			result.insert(OI::ProtossPlasmaShields1);
-			result.insert(OI::ProtossPlasmaShields2);
 			result.insert(OI::ProtossPlasmaShields3);
-			break;
-		case U_238Shells:
-			result.insert(OI::U_238Shells1);
-			break;
-		case IonThrusters:
-			result.insert(OI::IonThrusters1);
-			break;
-		case TitanReactor:
-			result.insert(OI::TitanReactor1);
-			break;
-		case OcularImplants:
-			result.insert(OI::OcularImplants1);
-			break;
-		case MoebiusReactor:
-			result.insert(OI::MoebiusReactor1);
-			break;
-		case ApolloReactor:
-			result.insert(OI::ApolloReactor1);
-			break;
-		case ColossusReactor:
-			result.insert(OI::ColossusReactor1);
-			break;
-		case VentralSacs:
-			result.insert(OI::VentralSacs1);
-			break;
-		case Antennae:
-			result.insert(OI::Antennae1);
-			break;
-		case PneumatizedCarapace:
-			result.insert(OI::PneumatizedCarapace1);
-			break;
-		case MetabolicBoost:
-			result.insert(OI::MetabolicBoost1);
-			break;
-		case AdrenalGlands:
-			result.insert(OI::AdrenalGlands1);
-			break;
-		case MuscularAugments:
-			result.insert(OI::MuscularAugments1);
-			break;
-		case GroovedSpines:
-			result.insert(OI::GroovedSpines1);
-			break;
-		case GameteMeiosis:
-			result.insert(OI::GameteMeiosis1);
-			break;
-		case MetasynapticNode:
-			result.insert(OI::MetasynapticNode1);
-			break;
-		case SingularityCharge:
-			result.insert(OI::SingularityCharge1);
-			break;
-		case LegEnhancements:
-			result.insert(OI::LegEnhancements1);
-			break;
-		case ScarabDamage:
-			result.insert(OI::ScarabDamage1);
-			break;
-		case ReaverCapacity:
-			result.insert(OI::ReaverCapacity1);
-			break;
-		case GraviticDrive:
-			result.insert(OI::GraviticDrive1);
-			break;
-		case SensorArray:
-			result.insert(OI::SensorArray1);
-			break;
-		case GraviticBoosters:
-			result.insert(OI::GraviticBoosters1);
-			break;
-		case KhaydarinAmulet:
-			result.insert(OI::KhaydarinAmulet1);
-			break;
-		case ApialSensors:
-			result.insert(OI::ApialSensors1);
-			break;
-		case GraviticThrusters:
-			result.insert(OI::GraviticThrusters1);
-			break;
-		case CarrierCapacity:
-			result.insert(OI::CarrierCapacity1);
-			break;
-		case KhaydarinCore:
-			result.insert(OI::KhaydarinCore1);
-			break;
-		case ArgusJewel:
-			result.insert(OI::ArgusJewel1);
-			break;
-		case ArgusTalisman:
-			result.insert(OI::ArgusTalisman1);
-			break;
-		case CaduceusReactor:
-			result.insert(OI::CaduceusReactor1);
-			break;
-		case ChitinousPlating:
-			result.insert(OI::ChitinousPlating1);
-			break;
-		case AnabolicSynthesis:
-			result.insert(OI::AnabolicSynthesis1);
-			break;
-		case CharonBoosters:
-			result.insert(OI::CharonBoosters1);
+			result.insert(OI::ProtossPlasmaShields2);
+			result.insert(OI::ProtossPlasmaShields1);
 			break;
 		default:
 			break;
@@ -2268,6 +2175,179 @@ BWAPI::UpgradeType OperationIndex::associatedUpgradeType() const
 			return BWAPI::UpgradeTypes::Charon_Boosters;
 		default:
 			return BWAPI::UpgradeTypes::None;
+	}
+}
+
+int OperationIndex::getUpgradeLevel() const
+{
+	switch(index_)
+	{
+		case TerranInfantryArmor1:
+			return 1;
+		case TerranInfantryArmor2:
+			return 2;
+		case TerranInfantryArmor3:
+			return 3;
+		case TerranVehiclePlating1:
+			return 1;
+		case TerranVehiclePlating2:
+			return 2;
+		case TerranVehiclePlating3:
+			return 3;
+		case TerranShipPlating1:
+			return 1;
+		case TerranShipPlating2:
+			return 2;
+		case TerranShipPlating3:
+			return 3;
+		case ZergCarapace1:
+			return 1;
+		case ZergCarapace2:
+			return 2;
+		case ZergCarapace3:
+			return 3;
+		case ZergFlyerCarapace1:
+			return 1;
+		case ZergFlyerCarapace2:
+			return 2;
+		case ZergFlyerCarapace3:
+			return 3;
+		case ProtossGroundArmor1:
+			return 1;
+		case ProtossGroundArmor2:
+			return 2;
+		case ProtossGroundArmor3:
+			return 3;
+		case ProtossAirArmor1:
+			return 1;
+		case ProtossAirArmor2:
+			return 2;
+		case ProtossAirArmor3:
+			return 3;
+		case TerranInfantryWeapons1:
+			return 1;
+		case TerranInfantryWeapons2:
+			return 2;
+		case TerranInfantryWeapons3:
+			return 3;
+		case TerranVehicleWeapons1:
+			return 1;
+		case TerranVehicleWeapons2:
+			return 2;
+		case TerranVehicleWeapons3:
+			return 3;
+		case TerranShipWeapons1:
+			return 1;
+		case TerranShipWeapons2:
+			return 2;
+		case TerranShipWeapons3:
+			return 3;
+		case ZergMeleeAttacks1:
+			return 1;
+		case ZergMeleeAttacks2:
+			return 2;
+		case ZergMeleeAttacks3:
+			return 3;
+		case ZergMissileAttacks1:
+			return 1;
+		case ZergMissileAttacks2:
+			return 2;
+		case ZergMissileAttacks3:
+			return 3;
+		case ZergFlyerAttacks1:
+			return 1;
+		case ZergFlyerAttacks2:
+			return 2;
+		case ZergFlyerAttacks3:
+			return 3;
+		case ProtossGroundWeapons1:
+			return 1;
+		case ProtossGroundWeapons2:
+			return 2;
+		case ProtossGroundWeapons3:
+			return 3;
+		case ProtossAirWeapons1:
+			return 1;
+		case ProtossAirWeapons2:
+			return 2;
+		case ProtossAirWeapons3:
+			return 3;
+		case ProtossPlasmaShields1:
+			return 1;
+		case ProtossPlasmaShields2:
+			return 2;
+		case ProtossPlasmaShields3:
+			return 3;
+		case U_238Shells1:
+			return 1;
+		case IonThrusters1:
+			return 1;
+		case TitanReactor1:
+			return 1;
+		case OcularImplants1:
+			return 1;
+		case MoebiusReactor1:
+			return 1;
+		case ApolloReactor1:
+			return 1;
+		case ColossusReactor1:
+			return 1;
+		case VentralSacs1:
+			return 1;
+		case Antennae1:
+			return 1;
+		case PneumatizedCarapace1:
+			return 1;
+		case MetabolicBoost1:
+			return 1;
+		case AdrenalGlands1:
+			return 1;
+		case MuscularAugments1:
+			return 1;
+		case GroovedSpines1:
+			return 1;
+		case GameteMeiosis1:
+			return 1;
+		case MetasynapticNode1:
+			return 1;
+		case SingularityCharge1:
+			return 1;
+		case LegEnhancements1:
+			return 1;
+		case ScarabDamage1:
+			return 1;
+		case ReaverCapacity1:
+			return 1;
+		case GraviticDrive1:
+			return 1;
+		case SensorArray1:
+			return 1;
+		case GraviticBoosters1:
+			return 1;
+		case KhaydarinAmulet1:
+			return 1;
+		case ApialSensors1:
+			return 1;
+		case GraviticThrusters1:
+			return 1;
+		case CarrierCapacity1:
+			return 1;
+		case KhaydarinCore1:
+			return 1;
+		case ArgusJewel1:
+			return 1;
+		case ArgusTalisman1:
+			return 1;
+		case CaduceusReactor1:
+			return 1;
+		case ChitinousPlating1:
+			return 1;
+		case AnabolicSynthesis1:
+			return 1;
+		case CharonBoosters1:
+			return 1;
+		default:
+			return 0;
 	}
 }
 

@@ -8,7 +8,7 @@
 class GatherMineralsTask : public BaseTask
 {
 	public:
-		GatherMineralsTask(BWTA::BaseLocation* l) : location(l)
+		GatherMineralsTask(BaseLocationInfoPtr l) : location(l)
 		{ }
 
 		void activate(BWAPI::Unit* unit)
@@ -21,7 +21,7 @@ class GatherMineralsTask : public BaseTask
 			}
 		}
 		
-		void deactive(BWAPI::Unit* unit)
+		void deactivate(BWAPI::Unit* unit)
 		{
 			worker.erase(unit);
 		}
@@ -29,23 +29,27 @@ class GatherMineralsTask : public BaseTask
 		TaskStatus::Type tick()
 		{
 			for (auto unit : worker)
-				if (unit->isIdle())
-					unit->rightClick(getMineral());
+				if (unit->isIdle()) {
+					if (unit->getType().isWorker())
+						unit->rightClick(getMineral());
+					else
+						LOG1 << "GatherMineralsTask has none worker unit of type '" << unit->getType().getName() << "' in list!";
+				}
 			return TaskStatus::running;
 		}
 		
 		BWAPI::Position getPosition() const
 		{
-			return getMineral()->getPosition();
+			return location->getPosition();
 		}
 
 	protected:
 		std::set<BWAPI::Unit*>	worker;
-		BWTA::BaseLocation*		location;
+		BaseLocationInfoPtr		location;
 		
 		BWAPI::Unit* getMineral() const
 		{
 			// TODO BETTER:
-			return getRandomSomething(location->getMinerals());
+			return getRandomSomething(location->get()->getMinerals());
 		}
 };

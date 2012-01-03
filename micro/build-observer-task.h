@@ -21,6 +21,8 @@ class BuildObserverTask : public BaseTask
 			} else if (unit->isBeingConstructed()) {
 				// WAIT ...
 			} else {
+			    //if (unit->getType().getRace() == BWAPI::Races::Zerg)
+				//	return completedAndClearAll(unit);
 				return completed(unit);
 			}
 			// TODO: isUnderAttack?

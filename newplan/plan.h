@@ -299,7 +299,7 @@ class PlanContainer
 				newplan  = change;
 				skipnext = true;
 				changed  = true;
-				LOG1 << "Decided to exchange '" << first.getName() << "' and '" << second.getName() << "'.";
+				LOG2 << "Decided to exchange '" << first.getName() << "' and '" << second.getName() << "'.";
 			}
 
 			if (!skipnext)
@@ -345,6 +345,11 @@ class PlanContainer
 		TimeType endTime() const
 		{
 			return endtime;
+		}
+		
+		TimeType opEndTime() const
+		{
+			return opendtime;
 		}
 		
 		int scheduledCount() const

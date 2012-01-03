@@ -46,12 +46,12 @@ class InformationKeeper
 			return latencyframes;
 		}
 		
-		BWAPI::Player* self() const
+		PlayerInfoPtr self() const
 		{
 			return _self;
 		}
 		
-		BWAPI::Player* neutral() const
+		PlayerInfoPtr neutral() const
 		{
 			return _neutral;
 		}
@@ -63,14 +63,14 @@ class InformationKeeper
 		ChokepointInfoPtr   getInfo(BWTA::Chokepoint* point);
 		
 	protected:
-		void baseFound(BWAPI::Unit* base);
+		void baseFound(UnitInfoPtr base);
 		
 	protected:
 		int currentframe;
 		int latencyframes;
 		
-		BWAPI::Player* _self;
-		BWAPI::Player* _neutral;
+		PlayerInfoPtr _self;
+		PlayerInfoPtr _neutral;
 		
 		std::map<BWAPI::Player*, PlayerInfoPtr>				players;
 		std::map<BWAPI::Unit*, UnitInfoPtr>					units;

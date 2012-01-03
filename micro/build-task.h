@@ -14,13 +14,16 @@ class BuildTask : public BaseTask
 
 		void activate(BWAPI::Unit* u)
 		{
-			unit = u;
+			unit = (u->getType().isWorker()) ? u : NULL;
 			lastcommandframe = -1;
 			tries = 0;
 		}
 
 		TaskStatus::Type tick()
 		{
+			if (unit == NULL)
+				return failed(unit);
+
 			if (lastcommandframe < 0) {
 				if (!unit->build(pos, ut)) {
 					unit->rightClick(getBuildingCenter(pos, ut));
@@ -31,6 +34,8 @@ class BuildTask : public BaseTask
 					lastcommandframe = currentFrame();
 				}
 			} else if (isComplete()) {
+				//if (unit->getType().getRace() == BWAPI::Races::Zerg)
+				//	return completedAndClearAll(unit);
 				return completed(unit);
 			} else if (lastcommandframe + latencyFrames() + 1 > currentFrame()) {
 				// WAIT ...

@@ -108,15 +108,17 @@ class Resources
 		{
 			ASSERT(ri.valid());
 			int current = amount[ri.getIndex()];
-			int growth  = getGrowth(ri);
 			value *= ri.getScaling();
 			if (current >= value) {
 				return 0;
-			} else if (growth > 0) {
-				return (value - current + growth - 1) / growth;
 			} else {
-				blocking = ri;
-				return std::numeric_limits<int>::max();
+			    int growth  = getGrowth(ri);
+				if (growth > 0) {
+					return (value - current + growth - 1) / growth;
+				} else {
+					blocking = ri;
+					return std::numeric_limits<int>::max();
+				}
 			}
 		}
 		

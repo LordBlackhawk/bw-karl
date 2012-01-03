@@ -59,7 +59,7 @@ class WorkerManager
 		void useIdleWorker(BWAPI::Unit* unit)
 		{
 			if (mineralTasks.size() < 1)
-				mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTask(BWTA::getStartLocation(InformationKeeper::instance().self()))));
+				mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTask(InformationKeeper::instance().self()->getStartLocation())));
 
 			BWAPI::Position pos = unit->getPosition();
 			GatherMineralsTaskPtr best;

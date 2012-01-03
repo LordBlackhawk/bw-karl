@@ -7,7 +7,7 @@ void updatePlan(BWPlan& plan)
 {
 	const int minPlanTime  = 1000;
 	const int maxPlanTime  = 3000;
-	const int minPlanItems = 3;
+	const int minPlanItems = 2;
 	
 	const int minWorker    = 12;
 
@@ -24,44 +24,58 @@ void updatePlan(BWPlan& plan)
 	
 	BWAPI::UnitType ut = BWAPI::UnitTypes::Zerg_Zergling;
 	
-	/*
-	// Techs:
-	auto abilities = ut.abilities();
-	for (auto it : abilities)
-	{
-		if (!InformationKeeper::instance().hasResearched(it)) {
-			OperationIndex oi = OperationIndex::byTechType(it);
-			LOG1 << "* researching " << oi.getName();
-			plan.push_back_sr(Operation(oi));
-			break;
-		}
-	}
-	*/
-	
-	// Upgrades:
-	auto upgrades = ut.upgrades();
-	for (auto it : upgrades)
-	{
-		ResourceIndex ri = ResourceIndex::byUpgradeType(it);
-		if (plan.end().getResources().get(ri) < 1) {
-			OperationIndex oi = OperationIndex::byUpgradeType(it);
-			LOG1 << "* upgrading " << oi.getName();
-			plan.push_back_sr(Operation(oi));
-			//break;
-		}
-	}
-	
 	// Arbeiter:
 	if (plan.opend().getResources().get(ResourceIndex::ZergWorker) < minWorker)
 		insert(BWAPI::UnitTypes::Zerg_Drone);
+
+	// Upgrades:
+	auto upgrades = ut.upgrades();
+	bool upgradesfinished = true;
+	for (auto it : upgrades)
+	{
+		ResourceIndex  ri = ResourceIndex::byUpgradeType(it);
+		OperationIndex oi = OperationIndex::byUpgradeType(it);
+		if (plan.end().getResources().get(ri) < 1) {
+			LOG1 << "* upgrading " << oi.getName();
+			plan.push_back_sr(Operation(oi));
+			upgradesfinished = false;
+			break;
+		}
+		int current = InformationKeeper::instance().self()->getUpgradeLevel(it);
+		int planed  = oi.getUpgradeLevel();
+		if (current < planed) {
+			LOG1 << "* descided to wait for Tech " << it.getName() << " (current: " << current << ", planed: " << planed << ").";
+			upgradesfinished = false;
+			break;
+		}
+	}
 	
+	// Techs:
+	if (upgradesfinished) {
+		auto abilities = ut.abilities();
+		for (auto it : abilities)
+		{
+			if (InformationKeeper::instance().self()->isResearching(it)) {
+				LOG1 << "* descided to wait for Tech " << it.getName();
+				break;
+			}
+			if (!InformationKeeper::instance().self()->hasResearched(it)) {
+				OperationIndex oi = OperationIndex::byTechType(it);
+				LOG1 << "* researching " << oi.getName();
+				plan.push_back_sr(Operation(oi));
+				break;
+			}
+		}
+	}
+
 	// Zerglinge:
-	while (plan.endTime()-starttime < maxPlanTime)
+	while (plan.opEndTime()-starttime < maxPlanTime)
 		insert(ut);
 	
 	// Hatchery:
-	if (plan.opend().getResources().get(ResourceIndex::Minerals) > 300)
-		insert(BWAPI::UnitTypes::Zerg_Hatchery);
+	if (plan.end().getResources().get(ResourceIndex::ZergHatchery) < 3)
+		if (plan.opend().getResources().get(ResourceIndex::Minerals) > 300)
+			insert(BWAPI::UnitTypes::Zerg_Hatchery);
 	
 	LOG1 << "Finished update plan.";
 }

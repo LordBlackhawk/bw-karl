@@ -87,17 +87,17 @@ int main(int argc, const char* argv[])
 		{
 			Broodwar->drawTextScreen(300, 0, "FPS: %f", Broodwar->getAverageFPS());
 			
-			BWResources old = plan.startResources();
 			BWResources res = extractResources();
 			displayResources(res);
 			Micro::instance().pretick();
 			
-			if (res != old) {
-				//LOG1 << outResources(res) << "\n\tplanned: " << outResources(initplan.at(BWAPI::Broodwar->getFrameCount()).getResources());
-				LOG1 << outResources(res) << "\n\told: " << outResources(old);
-				if (plan.scheduledOperations().size() > 0)
-					LOG1 << "Next in plan: " << plan.scheduledOperations().begin()->getName();
-			}
+			//BWResources old = plan.startResources();
+			//if (res != old) {
+			//	//LOG1 << outResources(res) << "\n\tplanned: " << outResources(initplan.at(BWAPI::Broodwar->getFrameCount()).getResources());
+			//	LOG1 << outResources(res) << "\n\told: " << outResources(old);
+			//	if (plan.scheduledOperations().size() > 0)
+			//		LOG1 << "Next in plan: " << plan.scheduledOperations().begin()->getName();
+			//}
 			
 			LOG4 << "Rebasing plan...";
 			plan.rebase_sr(1, res);

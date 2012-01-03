@@ -36,8 +36,10 @@ struct OperationDescription
 	BWAPI::TechType tt;
 	BWAPI::UpgradeType gt;
 	
+	int upgradelevel;
+	
 	OperationDescription(std::string n)
-		: name(n), race(BWAPI::Races::None), ut(BWAPI::UnitTypes::None), tt(BWAPI::TechTypes::None), gt(BWAPI::UpgradeTypes::None)
+		: name(n), race(BWAPI::Races::None), ut(BWAPI::UnitTypes::None), tt(BWAPI::TechTypes::None), gt(BWAPI::UpgradeTypes::None), upgradelevel(0)
 	{
 		operationDescriptions.push_back(this);
 	}

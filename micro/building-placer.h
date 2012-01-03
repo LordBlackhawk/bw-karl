@@ -32,7 +32,7 @@ class BuildingPlacer
 	
 	BWAPI::TilePosition find(BWAPI::UnitType type) const
 	{
-		return getBuildLocationNear(BWTA::getStartLocation(InformationKeeper::instance().self())->getTilePosition(), type);
+		return getBuildLocationNear(InformationKeeper::instance().self()->getStartLocation()->getTilePosition(), type);
 	}
 
     BuildingPlacer();

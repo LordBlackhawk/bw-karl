@@ -33,12 +33,17 @@ class BaseLocationInfo
 			return lastseen;
 		}
 		
-		BWAPI::Unit* currentBase() const
+		bool isVisible() const
+		{
+			return (lastseen == InformationKeeper::instance().currentFrame());
+		}
+		
+		UnitInfoPtr currentBase() const
 		{
 			return currentbase;
 		}
 		
-		BWAPI::Player* currentUser() const
+		PlayerInfoPtr currentUser() const
 		{
 			return currentuser;
 		}
@@ -53,10 +58,10 @@ class BaseLocationInfo
 		BWAPI::Position pos;
 		bool startlocation;
 		int lastseen;
-		BWAPI::Unit* currentbase;
-		BWAPI::Player* currentuser;
+		UnitInfoPtr currentbase;
+		PlayerInfoPtr currentuser;
 		
-		BaseLocationInfo(BWTA::BaseLocation* loc) : location(loc), lastseen(-1), currentbase(NULL), currentuser(NULL)
+		BaseLocationInfo(BWTA::BaseLocation* loc) : location(loc), lastseen(-1)
 		{
 			tilepos       = location->getTilePosition();
 			pos           = location->getPosition();

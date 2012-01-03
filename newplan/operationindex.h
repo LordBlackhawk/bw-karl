@@ -27,6 +27,8 @@ class OperationIndex : boost::totally_ordered<OperationIndex>, boost::incrementa
 		// Auto-generated functions see bwplan.cpp
 		std::string getName() const;
 		static ThisType byName(const std::string& name);
+		
+		int getUpgradeLevel() const;
 
 	#ifndef NO_ASSOCIATIONS
 		BWAPI::Race associatedRace() const;
@@ -36,7 +38,7 @@ class OperationIndex : boost::totally_ordered<OperationIndex>, boost::incrementa
 		
 		static ThisType byUnitType(const BWAPI::UnitType& ut);
 		static ThisType byTechType(const BWAPI::TechType& tt);
-		static ThisType byUpgradeType(const BWAPI::UpgradeType& gt);
+		static ThisType byUpgradeType(const BWAPI::UpgradeType& gt, int level = 1);
 	#endif
 		
 		bool valid() const
