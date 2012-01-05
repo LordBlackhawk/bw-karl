@@ -28,6 +28,9 @@ void InformationKeeper::prepareMap()
 	
 	for (auto it : BWTA::getChokepoints())
 		getInfo(it);
+		
+	for (auto it : regions)
+		it->init();
 	
 	LOG1 << "finished loading.";
 }
@@ -101,13 +104,13 @@ void InformationKeeper::pretick()
 	for (auto it : units)
 	{
 		UnitInfoPtr info = it.second;
-		info->readPosition();
+		info->readEveryTurn();
 	}
 	
 	for (auto it : baselocations)
 	{
 		BaseLocationInfoPtr info = it.second;
-		info->readLastSeen();
+		info->readEveryTurn();
 	}
 }
 
@@ -212,7 +215,7 @@ void InformationKeeper::baseFound(UnitInfoPtr base)
 	
 	auto   bestit  = baselocations.begin();
 	double bestdis = bestit->second->pos.getDistance(pos);
-	auto   it      = ++bestit;
+	auto   it      = bestit; ++it;
 	auto   itend   = baselocations.end();
 	for (; it != itend; ++it)
 	{
@@ -252,6 +255,7 @@ void UnitInfo::readType()
 		return;
 
 	type = newtype;
+	
 	if (   (type == BWAPI::UnitTypes::Zerg_Hatchery)
 	    || (type == BWAPI::UnitTypes::Zerg_Lair)
 		|| (type == BWAPI::UnitTypes::Zerg_Hive)
@@ -260,6 +264,8 @@ void UnitInfo::readType()
 	{
 		InformationKeeper::instance().baseFound(shared_from_this());
 	}
+	
+	
 }
 
 void UnitInfo::readOwner()
@@ -272,30 +278,37 @@ void UnitInfo::readOwner()
 	owner = InformationKeeper::instance().getInfo(newowner);
 }
 
-void UnitInfo::readPosition()
+void UnitInfo::readEveryTurn()
 {
 	if (visible) {
 		lastseen_time = InformationKeeper::instance().currentFrame();
-		if (!isNeutral()) {
-		    lastseen_pos  = unit->getPosition();
-			hitpoints     = unit->getHitPoints();
-		} else {
-			if (lastseen_pos == BWAPI::Positions::Invalid)
-				lastseen_pos  = unit->getPosition();
-			hitpoints     = unit->getResources();
-		}
+		
+		if ((lastseen_pos == BWAPI::Positions::Invalid) || isMoveable())
+			lastseen_pos = unit->getPosition();
+		
+		if (!isInvincible())
+			hitpoints = unit->getHitPoints();
+		
+		if (isResourceContainer())
+			resources = unit->getResources();
 	}
 }
 
-void BaseLocationInfo::readLastSeen()
+void BaseLocationInfo::readEveryTurn()
 {
-	if (BWAPI::Broodwar->isVisible(tilepos)) {
+	if (BWAPI::Broodwar->isVisible(tilepos))
 		lastseen = InformationKeeper::instance().currentFrame();
-	}
+
 	if (currentbase != NULL)
 		if (currentbase->isDead())
 	{
 		currentbase = UnitInfoPtr();
 		currentuser = PlayerInfoPtr();
 	}
+}
+
+void ChokepointInfo::readEveryTurn()
+{
+	if (BWAPI::Broodwar->isVisible(tilepos))
+		lastseen = InformationKeeper::instance().currentFrame();
 }

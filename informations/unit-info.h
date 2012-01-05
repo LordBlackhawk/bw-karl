@@ -73,10 +73,30 @@ class UnitInfo : public boost::enable_shared_from_this<UnitInfo>
 			return owner->isEnemy();
 		}
 		
+		bool isMoveable() const
+		{
+			return (type.isBuilding() && !type.isFlyer());
+		}
+		
+		bool isInvincible() const
+		{
+			return type.isInvincible();
+		}
+		
+		bool isResourceContainer() const
+		{
+			return type.isResourceContainer();
+		}
+		
+		int getResources() const
+		{
+			return resources;
+		}
+		
 	protected:
 		void readType();	
 		void readOwner();
-		void readPosition();
+		void readEveryTurn();
 	
 	protected:
 		BWAPI::Unit* unit;
@@ -87,17 +107,19 @@ class UnitInfo : public boost::enable_shared_from_this<UnitInfo>
 		PlayerInfoPtr owner;
 		int lastseen_time;
 		BWAPI::Position lastseen_pos;
-		int hitpoints; // also use for resources (Minerals, Gas)
+		int hitpoints;
+		int resources;
 	
 	private:
-		UnitInfo(BWAPI::Unit* u) : unit(u), dead(false), visible(true), lastseen_pos(BWAPI::Positions::Invalid), hitpoints(1)
+		UnitInfo(BWAPI::Unit* u)
+			: unit(u), dead(false), visible(true), type(BWAPI::UnitTypes::Invalid), lastseen_pos(BWAPI::Positions::Invalid), hitpoints(1), resources(0)
 		{ }
 		
 		void init()
 		{
 			readOwner();
-			readPosition();
 			readType();
+			readEveryTurn();
 		}
 	
 	protected:

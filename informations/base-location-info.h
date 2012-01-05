@@ -47,9 +47,14 @@ class BaseLocationInfo
 		{
 			return currentuser;
 		}
+		
+		RegionInfoPtr getRegion() const
+		{
+			return region;
+		}
 	
 	protected:
-		void readLastSeen();
+		void readEveryTurn();
 	
 	protected:
 		BWTA::BaseLocation* location;
@@ -60,11 +65,13 @@ class BaseLocationInfo
 		int lastseen;
 		UnitInfoPtr currentbase;
 		PlayerInfoPtr currentuser;
+		RegionInfoPtr region;
 		
 		BaseLocationInfo(BWTA::BaseLocation* loc) : location(loc), lastseen(-1)
 		{
 			tilepos       = location->getTilePosition();
 			pos           = location->getPosition();
 			startlocation = location->isStartLocation();
+			region        = InformationKeeper::instance().getInfo(location->getRegion());
 		}
 };
