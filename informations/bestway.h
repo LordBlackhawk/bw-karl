@@ -62,7 +62,7 @@ double InformationKeeper::getBestWay(const FUNCTIONAL& f, const BWAPI::Position&
 		visited.insert(point);
 		
 		RegionInfoPtr lastregion = cur.form;
-		RegionInfoPtr newregion = point->getOtherSide(lastregion);
+		RegionInfoPtr newregion = point->getOtherRegion(lastregion);
 		if (newregion == endregion) {
 			cur.distance += BWTA::getGroundDistance(point->getPosition(), target);
 			cur.current = ChokepointInfoPtr();

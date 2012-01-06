@@ -18,6 +18,7 @@
 #include <cassert>
 
 #define LISTTASKS		\
+	DO(LongMove)		\
 	DO(RegionMove)		\
 	DO(GatherMinerals)	\
 	DO(GatherGas)		\

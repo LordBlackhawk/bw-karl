@@ -51,6 +51,8 @@ void Micro::pretick()
 				break;
 		}
 	}
+	
+	WorkerManager::instance().updateBases();
 }
 
 void Micro::tick()

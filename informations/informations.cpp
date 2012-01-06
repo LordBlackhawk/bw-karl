@@ -1,5 +1,6 @@
 #include "informations.h"
 #include "utils/debug.h"
+#include "utils/random-chooser.h"
 
 void InformationKeeper::clear()
 {
@@ -244,8 +245,38 @@ void InformationKeeper::baseFound(UnitInfoPtr base)
 	}
 	
 	LOG1 << "\tnew base is nearer...";
-	info->currentbase = base;
-	info->currentuser = base->getPlayer();
+	info->setNewBase(base);
+}
+
+void BaseLocationInfo::setNewBase(UnitInfoPtr base)
+{
+	if (currentuser.use_count() > 0)
+		currentuser->removeBaseLocation(shared_from_this());
+	
+	currentbase = base;
+	if (base.use_count() > 0) {
+		currentuser = base->getPlayer();
+	} else {
+		currentuser = PlayerInfoPtr();
+	}
+	currentusersince = InformationKeeper::instance().currentFrame();
+	
+	if (currentuser.use_count() > 0)
+		currentuser->addBaseLocation(shared_from_this());
+}
+
+void PlayerInfo::addBaseLocation(BaseLocationInfoPtr base)
+{
+	bases.insert(base);
+	if (mainbase.use_count() == 0)
+		mainbase = base;
+}
+
+void PlayerInfo::removeBaseLocation(BaseLocationInfoPtr base)
+{
+	bases.erase(base);
+	if (mainbase == base)
+		mainbase = getRandomSomething(bases);
 }
 
 void UnitInfo::readType()
@@ -264,8 +295,6 @@ void UnitInfo::readType()
 	{
 		InformationKeeper::instance().baseFound(shared_from_this());
 	}
-	
-	
 }
 
 void UnitInfo::readOwner()

@@ -32,9 +32,14 @@ class PlayerInfo
 			return enemy;
 		}
 		
-		BaseLocationInfoPtr getStartLocation() const
+		BaseLocationInfoPtr getMainBaseLocation() const
 		{
-			return startloc;
+			return mainbase;
+		}
+		
+		const std::set<BaseLocationInfoPtr>& getBases() const
+		{
+			return bases;
 		}
 		
 		int getUpgradeLevel(const BWAPI::UpgradeType& gt) const
@@ -53,15 +58,19 @@ class PlayerInfo
 		}
 	
 	protected:
+		void addBaseLocation(BaseLocationInfoPtr base);
+		void removeBaseLocation(BaseLocationInfoPtr base);
+	
+	protected:
 		BWAPI::Player* player;
 		bool ally;
 		bool enemy;
-		BaseLocationInfoPtr startloc;
+		BaseLocationInfoPtr mainbase;
+		std::set<BaseLocationInfoPtr> bases;
 		
 		PlayerInfo(BWAPI::Player* p) : player(p)
 		{
 			ally     = BWAPI::Broodwar->self()->isAlly(player);
 			enemy    = BWAPI::Broodwar->self()->isEnemy(player);
-			startloc = InformationKeeper::instance().getInfo(BWTA::getStartLocation(player));
 		}
 };

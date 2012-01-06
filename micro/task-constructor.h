@@ -4,6 +4,8 @@
 #include <BWAPI.h>
 
 MicroTask createLongMove(const BWAPI::Position& target);
+MicroTask createRegionMove(const BWAPI::Position& target);
+MicroTask createChokepointMove(ChokepointInfoPtr point, RegionInfoPtr region);
 
 MicroTask createBuild(const BWAPI::UnitType& ut, const BWAPI::TilePosition& target);
 MicroTask createBuildObserver();

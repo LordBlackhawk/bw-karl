@@ -3,7 +3,10 @@
 #include <BWAPI.h>
 #include <BWTA.h>
 
-class BaseLocationInfo
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/shared_ptr.hpp>
+
+class BaseLocationInfo : public boost::enable_shared_from_this<UnitInfo>
 {
 	friend class InformationKeeper;
 	
@@ -48,6 +51,11 @@ class BaseLocationInfo
 			return currentuser;
 		}
 		
+		int currentUserSince() const
+		{
+			return currentusersince;
+		}
+		
 		RegionInfoPtr getRegion() const
 		{
 			return region;
@@ -55,6 +63,7 @@ class BaseLocationInfo
 	
 	protected:
 		void readEveryTurn();
+		void setNewBase(UnitInfoPtr base);
 	
 	protected:
 		BWTA::BaseLocation* location;
@@ -66,6 +75,7 @@ class BaseLocationInfo
 		UnitInfoPtr currentbase;
 		PlayerInfoPtr currentuser;
 		RegionInfoPtr region;
+		int currentusersince;
 		
 		BaseLocationInfo(BWTA::BaseLocation* loc) : location(loc), lastseen(-1)
 		{

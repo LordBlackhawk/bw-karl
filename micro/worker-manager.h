@@ -55,11 +55,23 @@ class WorkerManager
 				return;
 			best->giveBackWorker();
 		}
+		
+		void updateBases()
+		{
+			int currentframe = InformationKeeper::instance().currentFrame();
+			for (auto it : InformationKeeper::instance().self().getBases())
+				if (it->currentUserSince() == currentframe)
+					mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTasks(it)));
+		}
 
 		void useIdleWorker(BWAPI::Unit* unit)
 		{
-			if (mineralTasks.size() < 1)
-				mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTask(InformationKeeper::instance().self()->getStartLocation())));
+			//if (mineralTasks.size() < 1) {
+			//	BaseLocationInfoPtr mainbase = InformationKeeper::instance().self()->getMainBaseLocation();
+			//	if (mainbase.use_count() == 0)
+			//		return;
+			//	mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTask(mainbase)));
+			//}
 
 			BWAPI::Position pos = unit->getPosition();
 			GatherMineralsTaskPtr best;

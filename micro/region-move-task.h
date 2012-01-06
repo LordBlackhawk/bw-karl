@@ -50,3 +50,8 @@ MicroTask createRegionMove(const BWAPI::Position& target)
 	MicroTaskData data(new RegionMoveTask(target));
 	return MicroTask(MicroTaskEnum::RegionMove, data);
 }
+
+MicroTask createChokepointMove(ChokepointInfoPtr point, RegionInfoPtr region)
+{
+	return createRegionMove(point->getWaitingPosition(region));
+}

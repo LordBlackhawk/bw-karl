@@ -1,15 +1,19 @@
 #pragma once
 
 #include "base-task.h"
+
+#include "informations/informations.h"
+
 #include <BWAPI.h>
 #include <BWTA.h>
 
-/*
 class LongMoveTask : public BaseTask
 {
 	public:
 		LongMoveTask(const BWAPI::Position& t) : target(t)
-		{ }
+		{
+			targetregion = InformationKeeper::instance().getRegion(target);
+		}
 		
 		void activate(BWAPI::Unit* u)
 		{
@@ -19,54 +23,55 @@ class LongMoveTask : public BaseTask
 
 		TaskStatus::Type tick()
 		{
-			unit = u;
-			if (reachedTarget()) {
-				return completed(unit);
-			} else if (nextwaypoint == NULL) {
-				stask = createRegionMove(target);
-				subtask(unit, stask);
-			} else if (nearNextWaypoint()) {
-				stask = createChokepointMove();
-				subtask(unit, stask);
-			} else {
-				stask = createRegionMove(getChokepointWaitingPosition());
-				subtask(unit, stask);
+			if (subtask.empty())
+				return reachedTarget() ? completed() : failed();
+
+			TaskStatus::Type type = subtask.tick();
+			switch (type)
+			{
+				case TaskStatus::completed:
+					return updateWay();
+				
+				case TaskStatus::running:
+				case TaskStatus::failed:
+					return type;
 			}
-			// TODO subtask!!!!!!
 		}
 
 	protected:
 		BWAPI::Unit*					unit;
 		BWAPI::Position					target;
-		BWTA::Chokepoint*				nextwaypoint;
+		RegionInfoPtr 					targetregion;
+		ChokepointInfoPtr				nextwaypoint;
+		RegionInfoPtr					nextregion;
 
-		MicroTask						stask;
+		MicroTask						subtask;
 
-		void updateWay()
+		TaskStatus::Type updateWay()
 		{
-			BWAPI::TilePosition pos   = unit->getTilePosition();
-			BWTA::Region* startregion = BWTA::getRegion(pos);
-			BWTA::Region* endregion   = BWTA::getRegion(target);
-			if (startregion == endregion) {
-				nextwaypoint = NULL;
-				return;
+			BWAPI::TilePosition pos = unit->getTilePosition();
+			RegionInfoPtr currentregion = InformationKeeper::instance().getRegion(pos);
+			
+			if (reachedTarget()) {
+				return completed(unit);
+			} else if (currentregion == targetregion) {
+				stask = createRegionMove(target);
+				subtask(unit, stask);
+			} else if ((nextregion.use_count() == 0) || (nextregion == currentregion)) {
+				InformationKeeper::instance().getShortestWay(pos, target, nextwaypoint);
+				nextregion = nextwaypoint->getOtherRegion(currentregion);
+				stask = createRegionMove(nextwaypoint->getWaitingPosition(currentregion));
+				subtask(unit, stask);
+			} else {
+				stask = createChokepointMove(nextwaypoint, nextregion);
+				subtask(unit, stask);
 			}
-			nextwaypoint = PathFinder::findBestWaypoint(startregion, endregion);
+			return TaskStatus::running;
 		}
 
 		bool reachedTarget() const
 		{
-			return TODO;
-		}
-
-		bool nearNextWaypoint() const
-		{
-			return TODO;
-		}
-
-		BWAPI::Position getChokepointWaitingPosition() const
-		{
-			return TODO;
+			return (unit->getPosition().getDistance(target) < 128.);
 		}
 };
 
@@ -75,9 +80,10 @@ MicroTask createLongMove(const BWAPI::Position& target)
 	MicroTaskData data(new LongMoveTask(target));
 	return MicroTask(MicroTaskEnum::LongMove, data);
 }
-*/
 
+/*
 MicroTask createLongMove(const BWAPI::Position& target)
 {
 	return createRegionMove(target);
 }
+*/
