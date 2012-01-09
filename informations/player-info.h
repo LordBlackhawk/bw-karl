@@ -5,6 +5,7 @@
 class PlayerInfo
 {
 	friend class InformationKeeper;
+	friend class BaseLocationInfo;
 	
 	public:
 		BWAPI::Player* get() const

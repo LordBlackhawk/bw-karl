@@ -59,9 +59,9 @@ class WorkerManager
 		void updateBases()
 		{
 			int currentframe = InformationKeeper::instance().currentFrame();
-			for (auto it : InformationKeeper::instance().self().getBases())
+			for (auto it : InformationKeeper::instance().self()->getBases())
 				if (it->currentUserSince() == currentframe)
-					mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTasks(it)));
+					mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTask(it)));
 		}
 
 		void useIdleWorker(BWAPI::Unit* unit)

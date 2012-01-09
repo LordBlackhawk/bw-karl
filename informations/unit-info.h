@@ -112,7 +112,7 @@ class UnitInfo : public boost::enable_shared_from_this<UnitInfo>
 	
 	private:
 		UnitInfo(BWAPI::Unit* u)
-			: unit(u), dead(false), visible(true), type(BWAPI::UnitTypes::Invalid), lastseen_pos(BWAPI::Positions::Invalid), hitpoints(1), resources(0)
+			: unit(u), dead(false), visible(true), type(BWAPI::UnitTypes::None), lastseen_pos(BWAPI::Positions::None), hitpoints(1), resources(0)
 		{ }
 		
 		void init()

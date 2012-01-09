@@ -6,7 +6,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
-class BaseLocationInfo : public boost::enable_shared_from_this<UnitInfo>
+class BaseLocationInfo : public boost::enable_shared_from_this<BaseLocationInfo>
 {
 	friend class InformationKeeper;
 	

@@ -63,14 +63,15 @@ class InformationKeeper
 		ChokepointInfoPtr   getInfo(BWTA::Chokepoint* point);
 		
 		/* bestway.h */
-		RegionInfoPtr getRegion(const BWAPI::Position& pos) const;
-		BaseLocationInfoPtr getNearestBaseLocation(const BWAPI::Position& pos) const;
-		ChokepointInfoPtr getNearestChokepoint(const BWAPI::Position& pos) const;
+		RegionInfoPtr getRegion(const BWAPI::Position& pos);
+		RegionInfoPtr getRegion(const BWAPI::TilePosition& tilepos);
+		BaseLocationInfoPtr getNearestBaseLocation(const BWAPI::Position& pos);
+		ChokepointInfoPtr getNearestChokepoint(const BWAPI::Position& pos);
 		
 		template <class FUNCTIONAL>
-		double getBestWay(const FUNCTIONAL& f, const BWAPI::Position& pos, const BWAPI::Position& target, ChokepointInfoPtr& next);
+		double getBestWay(const FUNCTIONAL& f, const BWAPI::TilePosition& pos, const BWAPI::TilePosition& target, ChokepointInfoPtr& next);
 		
-		double getShortestWay(const BWAPI::Position& pos, const BWAPI::Position& target, ChokepointInfoPtr& next);
+		double getShortestWay(const BWAPI::TilePosition& pos, const BWAPI::TilePosition& target, ChokepointInfoPtr& next);
 		
 	protected:
 		void baseFound(UnitInfoPtr base);
@@ -94,5 +95,3 @@ class InformationKeeper
 #include "base-location-info.h"
 #include "region-info.h"
 #include "choke-point-info.h"
-
-#inculde "bestway.h"

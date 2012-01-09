@@ -2,6 +2,8 @@
 #include "utils/debug.h"
 #include "utils/random-chooser.h"
 
+#include "bestway.h"
+
 void InformationKeeper::clear()
 {
 	players.clear();
@@ -31,7 +33,7 @@ void InformationKeeper::prepareMap()
 		getInfo(it);
 		
 	for (auto it : regions)
-		it->init();
+		it.second->init();
 	
 	LOG1 << "finished loading.";
 }
@@ -210,15 +212,15 @@ void InformationKeeper::baseFound(UnitInfoPtr base)
 		return;
 	}
 	
-	LOG1 << "InformationKeeper::baseFound() called.";
-	
 	BWAPI::Position pos = base->getPosition();
+	
+	LOG1 << "InformationKeeper::baseFound() called for " << pos.x() << "," << pos.y() << ".";
 	
 	auto   bestit  = baselocations.begin();
 	double bestdis = bestit->second->pos.getDistance(pos);
 	auto   it      = bestit; ++it;
 	auto   itend   = baselocations.end();
-	for (; it != itend; ++it)
+	for (; it!=itend; ++it)
 	{
 		double dis = it->second->pos.getDistance(pos);
 		if (dis < bestdis) {
@@ -312,7 +314,7 @@ void UnitInfo::readEveryTurn()
 	if (visible) {
 		lastseen_time = InformationKeeper::instance().currentFrame();
 		
-		if ((lastseen_pos == BWAPI::Positions::Invalid) || isMoveable())
+		if ((lastseen_pos == BWAPI::Positions::None) || isMoveable())
 			lastseen_pos = unit->getPosition();
 		
 		if (!isInvincible())
@@ -340,4 +342,20 @@ void ChokepointInfo::readEveryTurn()
 {
 	if (BWAPI::Broodwar->isVisible(tilepos))
 		lastseen = InformationKeeper::instance().currentFrame();
+}
+
+void RegionInfo::init()
+{
+	for (auto it : region->getChokepoints())
+		chokepoints.insert(InformationKeeper::instance().getInfo(it));
+	
+	auto it    = chokepoints.begin();
+	auto itend = chokepoints.end();
+	for (; it!=itend; )
+		for (auto iit=++it; iit!=itend; ++iit)
+	{
+		std::pair<ChokepointInfoPtr, ChokepointInfoPtr> pair = (*it < *iit) ? std::make_pair(*it, *iit) : std::make_pair(*iit, *it);
+		double distance = BWTA::getGroundDistance((*it)->getTilePosition(), (*iit)->getTilePosition());
+		distances[pair] = distance;
+	}
 }

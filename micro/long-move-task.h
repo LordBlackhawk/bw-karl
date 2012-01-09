@@ -23,10 +23,10 @@ class LongMoveTask : public BaseTask
 
 		TaskStatus::Type tick()
 		{
-			if (subtask.empty())
-				return reachedTarget() ? completed() : failed();
+			if (stask.empty())
+				return reachedTarget() ? completed(unit) : failed(unit);
 
-			TaskStatus::Type type = subtask.tick();
+			TaskStatus::Type type = stask.tick();
 			switch (type)
 			{
 				case TaskStatus::completed:
@@ -35,6 +35,9 @@ class LongMoveTask : public BaseTask
 				case TaskStatus::running:
 				case TaskStatus::failed:
 					return type;
+					
+				default:
+					return TaskStatus::failed;
 			}
 		}
 
@@ -45,7 +48,7 @@ class LongMoveTask : public BaseTask
 		ChokepointInfoPtr				nextwaypoint;
 		RegionInfoPtr					nextregion;
 
-		MicroTask						subtask;
+		MicroTask						stask;
 
 		TaskStatus::Type updateWay()
 		{
@@ -58,7 +61,7 @@ class LongMoveTask : public BaseTask
 				stask = createRegionMove(target);
 				subtask(unit, stask);
 			} else if ((nextregion.use_count() == 0) || (nextregion == currentregion)) {
-				InformationKeeper::instance().getShortestWay(pos, target, nextwaypoint);
+				InformationKeeper::instance().getShortestWay(pos, BWAPI::TilePosition(target), nextwaypoint);
 				nextregion = nextwaypoint->getOtherRegion(currentregion);
 				stask = createRegionMove(nextwaypoint->getWaitingPosition(currentregion));
 				subtask(unit, stask);

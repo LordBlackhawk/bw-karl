@@ -65,18 +65,18 @@ class ChokepointInfo
 		std::pair<BWAPI::Position, BWAPI::Position> waitingpos;
 		double width;
 		
-		ChokepointInfo(BWTA::Chokepoint* p) : point(p), visible(false)
+		ChokepointInfo(BWTA::Chokepoint* p) : point(p)
 		{
 			pos = point->getCenter();
-			tilepos = TilePosition(pos);
+			tilepos = BWAPI::TilePosition(pos);
 			auto s = point->getRegions();
 			regions = std::make_pair(InformationKeeper::instance().getInfo(s.first), InformationKeeper::instance().getInfo(s.second));
 			width = point->getWidth();
 			
 			auto pts = point->getSides();
 			BWAPI::Position normal(-(pts.first.y() - pts.second.y()), pts.first.x() - pts.second.x());
-			waitingpos.first = pos + 2*normal;
-			waitingpos.second = pos - 2*normal;
+			waitingpos.first  = BWAPI::Position(pos.x() + 2*normal.x(), pos.y() + 2*normal.y());
+			waitingpos.second = BWAPI::Position(pos.x() - 2*normal.x(), pos.y() - 2*normal.y());
 			
 			if (InformationKeeper::instance().getRegion(waitingpos.first) != regions.first)
 				std::swap(waitingpos.first, waitingpos.second);
