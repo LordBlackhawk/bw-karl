@@ -1,6 +1,5 @@
 #pragma once
 
-#include "micro-task-manager.h"
 #include "gather-minerals-task.h"
 #include "gather-gas-task.h"
 #include "unit-finder.h"
@@ -36,8 +35,8 @@ class WorkerManager
 			}
 			if (bestvalue > 2)
 				return;
-			BWAPI::Unit* unit = UnitFinder::instance().findWorker(best->getPosition());
-			MicroTaskManager::instance().pushTask(unit, MicroTask(MicroTaskEnum::GatherGas, best));
+			UnitInfoPtr unit = UnitFinder::instance().findWorker(best->getPosition());
+			unit->pushTask(best);
 		}
 
 		void returnGasWorker()
@@ -64,15 +63,8 @@ class WorkerManager
 					mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTask(it)));
 		}
 
-		void useIdleWorker(BWAPI::Unit* unit)
+		void useIdleWorker(UnitInfoPtr unit)
 		{
-			//if (mineralTasks.size() < 1) {
-			//	BaseLocationInfoPtr mainbase = InformationKeeper::instance().self()->getMainBaseLocation();
-			//	if (mainbase.use_count() == 0)
-			//		return;
-			//	mineralTasks.insert(GatherMineralsTaskPtr(new GatherMineralsTask(mainbase)));
-			//}
-
 			BWAPI::Position pos = unit->getPosition();
 			GatherMineralsTaskPtr best;
 			double bestvalue = std::numeric_limits<double>::max();
@@ -88,14 +80,14 @@ class WorkerManager
 				LOG2 << "Unable to use Worker! bestvalue is " << bestvalue;
 				return;
 			}
-			MicroTaskManager::instance().pushTask(unit, MicroTask(MicroTaskEnum::GatherMinerals, best));
+			unit->pushTask(best);
 		}
 		
-		void useIdleExtractor(BWAPI::Unit* unit)
+		void useIdleExtractor(UnitInfoPtr unit)
 		{
-			GatherGasTaskPtr data = GatherGasTaskPtr(new GatherGasTask(unit));
-			MicroTaskManager::instance().pushTask(unit, MicroTask(MicroTaskEnum::GatherGas, data));
-			gasTasks.insert(data);
+			GatherGasTaskPtr task = GatherGasTaskPtr(new GatherGasTask(unit));
+			unit->pushTask(task);
+			gasTasks.insert(task);
 		}
 
 		void clear()

@@ -1,43 +1,25 @@
 #pragma once
 
-#include "micro-task-manager.h"
-
+#include "micro-task.h"
 #include "informations/informations.h"
-
 #include <BWAPI.h>
 
-class BaseTask
+class BaseTask : public MicroTask
 {
 	public:
-		BaseTask()
+		BaseTask(MicroTaskEnum::Type t) : MicroTask(t)
 		{ }
 		
-		TaskStatus::Type completed(BWAPI::Unit* unit)
+		TaskStatus::Type completed(UnitInfoPtr unit)
 		{
-			MicroTaskManager::instance().popTask(unit);
+			unit->popTask();
 			return TaskStatus::completed;
 		}
-		
-		/*TaskStatus::Type completedAndClearAll(BWAPI::Unit* unit)
-		{
-			MicroTaskManager::instance().clearTasks(unit);
-			return TaskStatus::completed;
-		}*/
 
-		TaskStatus::Type failed(BWAPI::Unit* unit)
+		TaskStatus::Type failed(UnitInfoPtr unit)
 		{
-			MicroTaskManager::instance().popTask(unit);
+			unit->popTask();
 			return TaskStatus::failed;
-		}
-
-		void subtask(BWAPI::Unit* unit, const MicroTask& task) const
-		{
-			MicroTaskManager::instance().pushTask(unit, task);
-		}
-
-		MicroTask activeTask(BWAPI::Unit* unit) const
-		{
-			return MicroTaskManager::instance().activeTask(unit);
 		}
 
 		int currentFrame() const
@@ -56,14 +38,16 @@ class BaseTask
 		}
 
 	public:
-		void activate(BWAPI::Unit* /*u*/) const
+		void deactivate(UnitInfoPtr /*u*/)
+		{ }
+		
+		/*
+		void activate(UnitInfoPtr / *u* /)
 		{ }
 
-		void deactivate(BWAPI::Unit* /*u*/) const
-		{ }
-
-		TaskStatus::Type tick() const
+		TaskStatus::Type tick()
 		{
 			return TaskStatus::failed;
 		}
+		*/
 };

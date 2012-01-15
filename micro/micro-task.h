@@ -1,6 +1,7 @@
 #pragma once
 
 #include "micro-task-enum.h"
+#include "informations/informations.h"
 #include <BWAPI.h>
 #include <boost/shared_ptr.hpp>
 
@@ -9,17 +10,11 @@ struct TaskStatus
 	enum Type { running, completed, failed };
 };
 
-typedef boost::shared_ptr<void>			MicroTaskData;
-
 class MicroTask
 {
 	public:
-		MicroTask()
-			: type(MicroTaskEnum::None)
-		{ }
-
-		MicroTask(MicroTaskEnum::Type t, const MicroTaskData& d)
-			: type(t), data(d)
+		MicroTask(MicroTaskEnum::Type t)
+			: type(t)
 		{ }
 
 		bool empty() const
@@ -32,21 +27,10 @@ class MicroTask
 			return (type == MicroTaskEnum::GatherMinerals);
 		}
 
-		void activate(BWAPI::Unit* unit) const; // Hand dispatch!
-		void deactivate(BWAPI::Unit* unit) const; // Hand dispatch!
-		TaskStatus::Type tick() const; // Hand dispatch!
-		
-		bool operator < (const MicroTask& other) const
-		{
-			return (data < other.data);
-		}
-		
-		bool operator == (const MicroTask& other) const
-		{
-			return (data == other.data);
-		}
+		virtual void activate(UnitInfoPtr unit) = 0;
+		virtual void deactivate(UnitInfoPtr unit) = 0;
+		virtual TaskStatus::Type tick() = 0;
 
 	protected:
 		MicroTaskEnum::Type		type;
-		MicroTaskData			data;
 };

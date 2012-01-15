@@ -10,83 +10,85 @@
 class LongMoveTask : public BaseTask
 {
 	public:
-		LongMoveTask(const BWAPI::Position& t) : target(t)
+		LongMoveTask(const BWAPI::Position& t) : BaseTask(MicroTaskEnum::LongMove), target(t)
 		{
 			targetregion = InformationKeeper::instance().getRegion(target);
+			assert(targetregion != NULL);
 		}
 		
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
-			unit = u;
-			updateWay();
+			unit  = u;
+			stask = MicroTaskPtr();
 		}
 
 		TaskStatus::Type tick()
 		{
-			if (stask.empty())
-				return reachedTarget() ? completed(unit) : failed(unit);
+			if (stask == NULL) {
+				auto res = updateWay();
+				if (res != TaskStatus::running)
+					return res;
+			}
 
-			TaskStatus::Type type = stask.tick();
+			TaskStatus::Type type = stask->tick();
 			switch (type)
 			{
 				case TaskStatus::completed:
 					return updateWay();
 				
 				case TaskStatus::running:
-				case TaskStatus::failed:
-					return type;
-					
+					return TaskStatus::running;
+
 				default:
-					return TaskStatus::failed;
+					return failed(unit);
 			}
 		}
 
 	protected:
-		BWAPI::Unit*					unit;
+		UnitInfoPtr						unit;
 		BWAPI::Position					target;
 		RegionInfoPtr 					targetregion;
 		ChokepointInfoPtr				nextwaypoint;
 		RegionInfoPtr					nextregion;
 
-		MicroTask						stask;
+		MicroTaskPtr					stask;
 
 		TaskStatus::Type updateWay()
 		{
+			assert(unit != NULL);
 			BWAPI::TilePosition pos = unit->getTilePosition();
 			RegionInfoPtr currentregion = InformationKeeper::instance().getRegion(pos);
+			assert(currentregion != NULL);
 			
 			if (reachedTarget()) {
 				return completed(unit);
 			} else if (currentregion == targetregion) {
 				stask = createRegionMove(target);
-				subtask(unit, stask);
-			} else if ((nextregion.use_count() == 0) || (nextregion == currentregion)) {
+				unit->pushTask(stask);
+			} else if ((nextregion == NULL) || (nextregion == currentregion)) {
 				InformationKeeper::instance().getShortestWay(pos, BWAPI::TilePosition(target), nextwaypoint);
+				if (nextwaypoint == NULL) {
+					LOG1 << "Error in LongMoveTask: No way found!";
+					return failed(unit);
+				}
 				nextregion = nextwaypoint->getOtherRegion(currentregion);
 				stask = createRegionMove(nextwaypoint->getWaitingPosition(currentregion));
-				subtask(unit, stask);
+				unit->pushTask(stask);
 			} else {
 				stask = createChokepointMove(nextwaypoint, nextregion);
-				subtask(unit, stask);
+				unit->pushTask(stask);
 			}
 			return TaskStatus::running;
 		}
 
 		bool reachedTarget() const
 		{
+			assert(unit != NULL);
 			return (unit->getPosition().getDistance(target) < 128.);
 		}
 };
 
-MicroTask createLongMove(const BWAPI::Position& target)
+MicroTaskPtr createLongMove(const BWAPI::Position& target)
 {
-	MicroTaskData data(new LongMoveTask(target));
-	return MicroTask(MicroTaskEnum::LongMove, data);
+	return MicroTaskPtr(new LongMoveTask(target));
 }
-
-/*
-MicroTask createLongMove(const BWAPI::Position& target)
-{
-	return createRegionMove(target);
-}
-*/

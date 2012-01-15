@@ -81,6 +81,9 @@ class ChokepointInfo
 			if (InformationKeeper::instance().getRegion(waitingpos.first) != regions.first)
 				std::swap(waitingpos.first, waitingpos.second);
 			
+			// correct length of waitingpos!!!!
+			while (InformationKeeper::instance().getRegion(waitingpos.first)
+			
 			// ToDo: Blocked by Minerals ???
 		}
 };

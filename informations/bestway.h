@@ -57,7 +57,7 @@ double InformationKeeper::getBestWay(const FUNCTIONAL& f, const BWAPI::TilePosit
 		BestWayHelper cur = list.top(); list.pop();
 		
 		ChokepointInfoPtr point = cur.current;
-		if (point.use_count() == 0) {
+		if (point == NULL) {
 			next = cur.first;
 			return cur.distance;
 		}

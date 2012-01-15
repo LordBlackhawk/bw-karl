@@ -118,7 +118,7 @@ class Operation
 		template <class T>
 		boost::shared_ptr<T> getDetails()
 		{
-			if (details_.use_count() == 0)
+			if (details_ == NULL)
 				details_ = boost::shared_ptr<T>(new T);
 			return boost::static_pointer_cast<T>(details_);
 		}

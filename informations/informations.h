@@ -62,6 +62,8 @@ class InformationKeeper
 		RegionInfoPtr       getInfo(BWTA::Region* region);
 		ChokepointInfoPtr   getInfo(BWTA::Chokepoint* point);
 		
+		BaseLocationInfoPtr getNearestFreeBase(const BWAPI::TilePosition& tilepos);
+		
 		/* bestway.h */
 		RegionInfoPtr getRegion(const BWAPI::Position& pos);
 		RegionInfoPtr getRegion(const BWAPI::TilePosition& tilepos);
@@ -75,6 +77,7 @@ class InformationKeeper
 		
 	protected:
 		void baseFound(UnitInfoPtr base);
+		void baseDestroyed(UnitInfoPtr base);
 		
 	protected:
 		int currentframe;

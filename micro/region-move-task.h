@@ -6,10 +6,10 @@
 class RegionMoveTask : public BaseTask
 {
 	public:
-		RegionMoveTask(const BWAPI::Position& t) : target(t)
+		RegionMoveTask(const BWAPI::Position& t) : BaseTask(MicroTaskEnum::RegionMove), target(t)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
 			unit = u;
 			lastcommandframe = -1;
@@ -19,23 +19,26 @@ class RegionMoveTask : public BaseTask
 		{
 			if (unit == NULL)
 				return TaskStatus::failed;
+				
+			auto pos = unit->getPosition();
+			BWAPI::Broodwar->drawLineMap(pos.x(), pos.y(), target.x(), target.y(), BWAPI::Colors::Red);
 
 			if (lastcommandframe < 0) {
-				unit->rightClick(target);
+				unit->get()->rightClick(target);
 				lastcommandframe = currentFrame();
 			} else if (reachedTarget()) {
 				return completed(unit);
 			} else if (lastcommandframe + latencyFrames() > currentFrame()) {
 				// DO NOTHING!
-			} else if (!unit->isMoving()) {
-				unit->rightClick(target);
+			} else if (!unit->get()->isMoving()) {
+				unit->get()->rightClick(target);
 				lastcommandframe = currentFrame();
 			}
 			return TaskStatus::running;
 		}
 
 	protected:
-		BWAPI::Unit*	unit;
+		UnitInfoPtr		unit;
 		BWAPI::Position	target;
 		int				lastcommandframe;
 
@@ -45,13 +48,12 @@ class RegionMoveTask : public BaseTask
 		}
 };
 
-MicroTask createRegionMove(const BWAPI::Position& target)
+MicroTaskPtr createRegionMove(const BWAPI::Position& target)
 {
-	MicroTaskData data(new RegionMoveTask(target));
-	return MicroTask(MicroTaskEnum::RegionMove, data);
+	return MicroTaskPtr(new RegionMoveTask(target));
 }
 
-MicroTask createChokepointMove(ChokepointInfoPtr point, RegionInfoPtr region)
+MicroTaskPtr createChokepointMove(ChokepointInfoPtr point, RegionInfoPtr region)
 {
 	return createRegionMove(point->getWaitingPosition(region));
 }

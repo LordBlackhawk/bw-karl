@@ -6,10 +6,10 @@
 class UpgradeTask : public BaseTask
 {
 	public:
-		UpgradeTask(const BWAPI::UpgradeType t) : gt(t)
+		UpgradeTask(const BWAPI::UpgradeType t) : BaseTask(MicroTaskEnum::Upgrade), gt(t)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
 			unit = u;
 			lastcommandframe = -1;
@@ -18,9 +18,9 @@ class UpgradeTask : public BaseTask
 		TaskStatus::Type tick()
 		{
 			if (lastcommandframe < 0) {
-				unit->upgrade(gt);
+				unit->get()->upgrade(gt);
 				lastcommandframe = currentFrame();
-			} else if (unit->isUpgrading()) {
+			} else if (unit->get()->isUpgrading()) {
 				return completed(unit);
 			} else if (lastcommandframe + latencyFrames() > currentFrame()) {
 				// WAIT ...
@@ -32,13 +32,12 @@ class UpgradeTask : public BaseTask
 		}
 
 	protected:
-		BWAPI::Unit*		unit;
+		UnitInfoPtr			unit;
 		BWAPI::UpgradeType	gt;
 		int					lastcommandframe;
 };
 
-MicroTask createUpgrade(const BWAPI::UpgradeType& gt)
+MicroTaskPtr createUpgrade(const BWAPI::UpgradeType& gt)
 {
-	MicroTaskData data(new UpgradeTask(gt));
-	return MicroTask(MicroTaskEnum::Upgrade, data);
+	return MicroTaskPtr(new UpgradeTask(gt));
 } 

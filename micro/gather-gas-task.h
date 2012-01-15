@@ -10,10 +10,10 @@
 class GatherGasTask : public BaseTask
 {
 	public:
-		GatherGasTask(BWAPI::Unit* g) : geyser(g)
+		GatherGasTask(UnitInfoPtr g) : BaseTask(MicroTaskEnum::GatherGas), geyser(g)
 		{ }
 
-		void activate(BWAPI::Unit* unit)
+		void activate(UnitInfoPtr unit)
 		{
 			if (geyser == NULL)
 				return;
@@ -21,7 +21,7 @@ class GatherGasTask : public BaseTask
 			if (ut.isWorker()) {
 				LOG2 << "GatherGasTask: Worker added.";
 				worker.insert(unit);
-				unit->rightClick(geyser);
+				unit->get()->rightClick(geyser->get());
 			} else if (ut.isRefinery()) {
 				geyser = unit;
 			} else {
@@ -29,13 +29,13 @@ class GatherGasTask : public BaseTask
 			}
 		}
 		
-		void deactivate(BWAPI::Unit* unit)
+		void deactivate(UnitInfoPtr unit)
 		{
 			if (geyser == NULL)
 				return;
 
 			if (unit == geyser) {
-			    geyser = NULL;
+			    geyser = UnitInfoPtr();
 				for (auto it : worker)
 					completed(it);
 			} else {
@@ -49,8 +49,8 @@ class GatherGasTask : public BaseTask
 				return TaskStatus::failed;
 				
 			for (auto it : worker)
-				if (!it->isGatheringGas())
-					it->rightClick(geyser);
+				if (!it->get()->isGatheringGas())
+					it->get()->rightClick(geyser->get());
 			
 			return TaskStatus::running;
 		}
@@ -64,7 +64,7 @@ class GatherGasTask : public BaseTask
 		{
 			if (worker.size() < 1)
 				return;
-			BWAPI::Unit* unit = *worker.begin();
+			UnitInfoPtr unit = *worker.begin();
 			completed(unit);
 		}
 		
@@ -79,6 +79,6 @@ class GatherGasTask : public BaseTask
 		}
 
 	protected:
-		std::set<BWAPI::Unit*>	worker;
-		BWAPI::Unit* geyser;
+		std::set<UnitInfoPtr>	worker;
+		UnitInfoPtr geyser;
 };

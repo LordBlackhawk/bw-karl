@@ -1,23 +1,24 @@
 #pragma once
 
+#include "informations/informations.h"
 #include "micro-task.h"
 #include <BWAPI.h>
 
-MicroTask createLongMove(const BWAPI::Position& target);
-MicroTask createRegionMove(const BWAPI::Position& target);
-MicroTask createChokepointMove(ChokepointInfoPtr point, RegionInfoPtr region);
+MicroTaskPtr createLongMove(const BWAPI::Position& target);
+MicroTaskPtr createRegionMove(const BWAPI::Position& target);
+MicroTaskPtr createChokepointMove(ChokepointInfoPtr point, RegionInfoPtr region);
 
-MicroTask createBuild(const BWAPI::UnitType& ut, const BWAPI::TilePosition& target);
-MicroTask createBuildObserver();
+MicroTaskPtr createBuild(const BWAPI::UnitType& ut, const BWAPI::TilePosition& target);
+MicroTaskPtr createBuildObserver();
 
-MicroTask createMorph(const BWAPI::UnitType& ut);
-MicroTask createMorphObserver();
+MicroTaskPtr createMorph(const BWAPI::UnitType& ut);
+MicroTaskPtr createMorphObserver();
 
-MicroTask createTrain(const BWAPI::UnitType& ut);
-MicroTask createTrainObserver();
+MicroTaskPtr createTrain(const BWAPI::UnitType& ut);
+MicroTaskPtr createTrainObserver();
 
-MicroTask createTech(const BWAPI::TechType& tt);
-MicroTask createTechObserver();
+MicroTaskPtr createTech(const BWAPI::TechType& tt);
+MicroTaskPtr createTechObserver();
 
-MicroTask createUpgrade(const BWAPI::UpgradeType& gt);
-MicroTask createUpgradeObserver();
+MicroTaskPtr createUpgrade(const BWAPI::UpgradeType& gt);
+MicroTaskPtr createUpgradeObserver();

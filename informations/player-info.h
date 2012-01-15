@@ -6,6 +6,7 @@ class PlayerInfo
 {
 	friend class InformationKeeper;
 	friend class BaseLocationInfo;
+	friend class UnitInfo;
 	
 	public:
 		BWAPI::Player* get() const
@@ -57,21 +58,44 @@ class PlayerInfo
 		{
 			return player->isResearching(tt);
 		}
+		
+		const std::set<UnitInfoPtr>& idleUnits() const
+		{
+			return idleunits;
+		}
+		
+		const std::set<UnitInfoPtr>& allUnits() const
+		{
+			return allunits;
+		}
+		
+		BaseLocationInfoPtr getNearestFreeBase() const;
 	
 	protected:
 		void addBaseLocation(BaseLocationInfoPtr base);
 		void removeBaseLocation(BaseLocationInfoPtr base);
+		void addUnit(UnitInfoPtr unit);
+		void removeUnit(UnitInfoPtr unit);
+		void addIdleUnit(UnitInfoPtr unit);
+		void removeIdleUnit(UnitInfoPtr unit);
 	
 	protected:
+		/* underlying */
 		BWAPI::Player* player;
+		
+		/* information buffer */
 		bool ally;
 		bool enemy;
 		BaseLocationInfoPtr mainbase;
 		std::set<BaseLocationInfoPtr> bases;
+		std::set<UnitInfoPtr> allunits;
+		
+		/* active things */
+		std::set<UnitInfoPtr> idleunits;
 		
 		PlayerInfo(BWAPI::Player* p) : player(p)
 		{
-			ally     = BWAPI::Broodwar->self()->isAlly(player);
-			enemy    = BWAPI::Broodwar->self()->isEnemy(player);
+			ally  = BWAPI::Broodwar->self()->isAlly(player);
+			enemy = BWAPI::Broodwar->self()->isEnemy(player);
 		}
 };

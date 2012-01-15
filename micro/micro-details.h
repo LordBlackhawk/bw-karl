@@ -1,6 +1,6 @@
 #pragma once
 
-#include "micro-task.h"
+#include "informations/informations.h"
 #include "building-placer.h"
 
 #include "utils/debug.h"
@@ -10,13 +10,13 @@ struct BuildBuildingDetails
 {
 	BWAPI::UnitType		ut;
 	BWAPI::TilePosition	pos;
-	BWAPI::Unit*		builder;
-	BWAPI::Unit*		building;
+	UnitInfoPtr			builder;
+	UnitInfoPtr			building;
 
-	MicroTask			task;
+	MicroTaskPtr		task;
 	bool 				reserved;
 
-	BuildBuildingDetails() : ut(BWAPI::UnitTypes::None), pos(BWAPI::TilePositions::None), builder(NULL), building(NULL)
+	BuildBuildingDetails() : ut(BWAPI::UnitTypes::None), pos(BWAPI::TilePositions::None)
 	{ }
 	
 	~BuildBuildingDetails()
@@ -37,33 +37,33 @@ struct BuildBuildingDetails
 struct BuildUnitDetails
 {
 	BWAPI::UnitType		ut;
-	BWAPI::Unit*		builder;
-	BWAPI::Unit*		result;
+	UnitInfoPtr			builder;
+	UnitInfoPtr			result;
 
-	MicroTask			task;
+	MicroTaskPtr		task;
 	
-	BuildUnitDetails() : ut(BWAPI::UnitTypes::None), builder(NULL), result(NULL)
+	BuildUnitDetails() : ut(BWAPI::UnitTypes::None)
 	{ }
 };
 
 struct TechDetails
 {
 	BWAPI::TechType		tt;
-	BWAPI::Unit*		researcher;
+	UnitInfoPtr			researcher;
 
-	MicroTask			task;
+	MicroTaskPtr		task;
 
-	TechDetails() : tt(BWAPI::TechTypes::None), researcher(NULL)
+	TechDetails() : tt(BWAPI::TechTypes::None)
 	{ }
 };
 
 struct UpgradeDetails
 {
 	BWAPI::UpgradeType	gt;
-	BWAPI::Unit*		upgrader;
+	UnitInfoPtr			upgrader;
 
-	MicroTask			task;
+	MicroTaskPtr		task;
 
-	UpgradeDetails() : gt(BWAPI::UpgradeTypes::None), upgrader(NULL)
+	UpgradeDetails() : gt(BWAPI::UpgradeTypes::None)
 	{ }
 };

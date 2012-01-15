@@ -7,28 +7,39 @@
 class ScoutTask : public BaseTask
 {
 	public:
-		ScoutTask(BWTA::BaseLocation* l) : location(l)
+		ScoutTask(BaseLocationInfoPtr l) : BaseTask(MicroTaskEnum::Scout), location(l)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
 			unit    = u;
-			subtask = createLongMove(location->getPosition());
+			stask = createLongMove(location->getPosition());
+			unit->pushTask(stask);
 		}
 
 		TaskStatus::Type tick()
 		{
-			return subtask.tick();
+			TaskStatus::Type res = stask->tick();
+			switch (res)
+			{
+				case TaskStatus::completed:
+					return completed(unit);
+				
+				case TaskStatus::failed:
+					return failed(unit);
+				
+				default:
+					return res;
+			}
 		}
 
 	protected:
-		BWAPI::Unit*		unit;
-		BWTA::BaseLocation*	location;
-		MicroTask			subtask;
+		UnitInfoPtr			unit;
+		BaseLocationInfoPtr	location;
+		MicroTaskPtr		stask;
 };
 
-MicroTask createScout(BWTA::BaseLocation* loc)
+MicroTaskPtr createScout(BaseLocationInfoPtr loc)
 {
-	MicroTaskData data(new ScoutTask(loc));
-	return MicroTask(MicroTaskEnum::Scout, data);
+	return MicroTaskPtr(new ScoutTask(loc));
 } 

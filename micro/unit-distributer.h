@@ -1,6 +1,5 @@
 #pragma once
 
-#include "micro-task-manager.h"
 #include "worker-manager.h"
 #include "scout-manager.h"
 
@@ -14,14 +13,14 @@ class UnitDistributer
 
 		void tick() const
 		{
-			std::set<BWAPI::Unit*> list = MicroTaskManager::instance().inactiveUnits();
+			auto list = InformationKeeper::instance().self()->idleUnits();
 			for (auto it : list) {
 				BWAPI::UnitType ut = it->getType();
 				if (ut.isWorker()) {
 					LOG3 << "WorkerManager should use Worker...";
 					WorkerManager::instance().useIdleWorker(it);
 				} else if (ut.isRefinery()) {
-					if (it->isBeingConstructed())
+					if (it->get()->isBeingConstructed())
 						continue;
 					LOG2 << "WorkerManager should use Extractor...";
 					WorkerManager::instance().useIdleExtractor(it);

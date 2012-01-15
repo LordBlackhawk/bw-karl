@@ -9,12 +9,12 @@ class BuildTask : public BaseTask
 	public:
 		enum { max_tries = 200 };
 		
-		BuildTask(const BWAPI::UnitType t, const BWAPI::TilePosition& p) : ut(t), pos(p)
+		BuildTask(const BWAPI::UnitType t, const BWAPI::TilePosition& p) : BaseTask(MicroTaskEnum::Build), ut(t), pos(p)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
-			unit = (u->getType().isWorker()) ? u : NULL;
+			unit = (u->getType().isWorker()) ? u : UnitInfoPtr();
 			lastcommandframe = -1;
 			tries = 0;
 		}
@@ -24,9 +24,10 @@ class BuildTask : public BaseTask
 			if (unit == NULL)
 				return failed(unit);
 
+			BWAPI::Unit* direct = unit->get();
 			if (lastcommandframe < 0) {
-				if (!unit->build(pos, ut)) {
-					unit->rightClick(getBuildingCenter(pos, ut));
+				if (!direct->build(pos, ut)) {
+					direct->rightClick(getBuildingCenter(pos, ut));
 					++tries;
 					if (tries > max_tries)
 						return failed(unit);
@@ -34,12 +35,10 @@ class BuildTask : public BaseTask
 					lastcommandframe = currentFrame();
 				}
 			} else if (isComplete()) {
-				//if (unit->getType().getRace() == BWAPI::Races::Zerg)
-				//	return completedAndClearAll(unit);
 				return completed(unit);
 			} else if (lastcommandframe + latencyFrames() + 1 > currentFrame()) {
 				// WAIT ...
-			} else if (unit->isIdle()) {
+			} else if (direct->isIdle()) {
 				// DO ANALYSIS, TRYAGAIN OR FAIL ...
 				//failed(unit);
 				tries = 0;
@@ -51,24 +50,23 @@ class BuildTask : public BaseTask
 		bool isComplete() const
 		{
 			if (ut.getRace() != BWAPI::Races::Zerg) {
-				return (unit->getLastCommand().getType() == BWAPI::UnitCommandTypes::Build);
+				return (unit->get()->getLastCommand().getType() == BWAPI::UnitCommandTypes::Build);
 			} else if (ut != BWAPI::UnitTypes::Zerg_Extractor) {
 				return (unit->getType() == ut);
 			} else {
-				return (!unit->exists());
+				return unit->isDead();
 			}
 		}
 
 	protected:
-		BWAPI::Unit*		unit;
+		UnitInfoPtr			unit;
 		BWAPI::UnitType		ut;
 		BWAPI::TilePosition	pos;
 		int					lastcommandframe;
 		int					tries;
 };
 
-MicroTask createBuild(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos)
+MicroTaskPtr createBuild(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos)
 {
-	MicroTaskData data(new BuildTask(ut, pos));
-	return MicroTask(MicroTaskEnum::Build, data);
+	return MicroTaskPtr(new BuildTask(ut, pos));
 } 

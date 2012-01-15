@@ -6,19 +6,19 @@
 class TrainObserverTask : public BaseTask
 {
 	public:
-		TrainObserverTask()
+		TrainObserverTask() : BaseTask(MicroTaskEnum::TrainObserver)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
 			unit = u;
 		}
 
 		TaskStatus::Type tick()
 		{
-			if (!unit->exists()) {
+			if (!unit->get()->exists()) {
 				return failed(unit);
-			} else if (unit->isBeingConstructed()) {
+			} else if (unit->get()->isBeingConstructed()) {
 				// WAIT ...
 			} else {
 				return completed(unit);
@@ -28,11 +28,10 @@ class TrainObserverTask : public BaseTask
 		}
 
 	protected:
-		BWAPI::Unit*		unit;
+		UnitInfoPtr		unit;
 };
 
-MicroTask createTrainObserver()
+MicroTaskPtr createTrainObserver()
 {
-	MicroTaskData data(new TrainObserverTask());
-	return MicroTask(MicroTaskEnum::TrainObserver, data);
+	return MicroTaskPtr(new TrainObserverTask());
 } 

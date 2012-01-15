@@ -1,9 +1,8 @@
 #pragma once
 
-#include "micro-task-manager.h"
-
+#include "informations/informations.h"
 #include "utils/debug.h"
-
+#include "micro-task.h"
 #include <BWAPI.h>
 
 class UnitFinder
@@ -16,42 +15,39 @@ class UnitFinder
 		
 		struct ListType
 		{
-			enum Type { inactive, own, global };
+			enum Type { idle, all };
 		};
 		
-		std::set<BWAPI::Unit*> getList(const ListType::Type& type) const
+		const std::set<UnitInfoPtr>& getList(const ListType::Type& type) const
 		{
 			switch (type)
 			{
-				case ListType::inactive:
-					return MicroTaskManager::instance().inactiveUnits();
-				case ListType::own:
-					return MicroTaskManager::instance().allUnits();
-				case ListType::global:
-					return BWAPI::Broodwar->getAllUnits();
+				case ListType::idle:
+					return InformationKeeper::instance().self()->idleUnits();
+				case ListType::all:
+					return InformationKeeper::instance().self()->allUnits();
 				default:
-					return std::set<BWAPI::Unit*>();
+					static std::set<UnitInfoPtr> emptyset;
+					return emptyset;
 			}
 		}
 
 		template <class Predicate>
-		BWAPI::Unit* findFirst(const ListType::Type& type, const Predicate& pred) const
+		UnitInfoPtr findFirst(const ListType::Type& type, const Predicate& pred) const
 		{
-			std::set<BWAPI::Unit*> list = getList(type);
-			for (auto it : list) {
+			for (auto it : getList(type)) {
 				if (pred(it))
 					return it;
 			}
-			return NULL;
+			return UnitInfoPtr();
 		}
 
 		template <class Predicate>
-		BWAPI::Unit* findBest(const ListType::Type& type, const Predicate& pred) const
+		UnitInfoPtr findBest(const ListType::Type& type, const Predicate& pred) const
 		{
-			BWAPI::Unit* best = NULL;
+			UnitInfoPtr best = UnitInfoPtr();
 			double bestvalue = 0.;
-			std::set<BWAPI::Unit*> list = getList(type);
-			for (auto it : list)
+			for (auto it : getList(type))
 			{
 				double value = pred(it);
 				if (value > bestvalue) {
@@ -62,92 +58,94 @@ class UnitFinder
 			return best;
 		}
 
-		BWAPI::Unit* findIdle(const BWAPI::UnitType& ut) const
+		UnitInfoPtr findIdle(const BWAPI::UnitType& ut) const
 		{
-			auto pred = [ut] (BWAPI::Unit* unit)
+			auto pred = [ut] (UnitInfoPtr unit)
 					{
 						return (unit->getType() == ut);
 					};
-			BWAPI::Unit* result = findFirst(ListType::inactive, pred);
+			UnitInfoPtr result = findFirst(ListType::idle, pred);
 			if (result == NULL)
 				LOG << "UnitFinder::findIdle(" << ut.getName() << ") unable to find!";
 			return result;
 		}
 
-		BWAPI::Unit* find(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos) const
+		UnitInfoPtr find(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos) const
 		{
-			auto pred = [ut, pos] (BWAPI::Unit* unit)
+			auto pred = [ut, pos] (UnitInfoPtr unit)
 					{
 						return (unit->getType() == ut) && (unit->getTilePosition() == pos);
 					};
-			return findFirst(ListType::inactive, pred);
+			return findFirst(ListType::idle, pred);
 		}
 
-		BWAPI::Unit* find(const BWAPI::UnitType& ut, const BWAPI::Position& pos) const
+		UnitInfoPtr find(const BWAPI::UnitType& ut, const BWAPI::Position& pos) const
 		{
-			auto pred = [ut, pos] (BWAPI::Unit* unit)
+			auto pred = [ut, pos] (UnitInfoPtr unit)
 					{
 						return (unit->getType() == ut) && (pos.getDistance(unit->getPosition()) < 32);
 					};
-			return findFirst(ListType::inactive, pred);
+			return findFirst(ListType::idle, pred);
 		}
 		
-		BWAPI::Unit* findGlobal(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos) const
+		/*
+		UnitInfoPtr findGlobal(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos) const
 		{
-			auto pred = [ut, pos] (BWAPI::Unit* unit)
+			auto pred = [ut, pos] (UnitInfoPtr unit)
 					{
 						return (unit->getType() == ut) && (unit->getTilePosition() == pos);
 					};
 			return findFirst(ListType::global, pred);
 		}
+		*/
 
-		BWAPI::Unit* findWorker(const BWAPI::Race& race, const BWAPI::TilePosition& pos) const
+		UnitInfoPtr findWorker(const BWAPI::Race& race, const BWAPI::TilePosition& pos) const
 		{
 			BWAPI::UnitType ut = race.getWorker();
-			auto pred = [ut, pos] (BWAPI::Unit* unit)
+			auto pred = [ut, pos] (UnitInfoPtr unit)
 					{
 						if (unit->getType() != ut)
 							return -1.;
 						
-						MicroTask task = MicroTaskManager::instance().activeTask(unit);
-						if (!task.empty() && !task.isGatherMinerals())
+						MicroTaskPtr task = unit->currentTask();
+						if (!task->empty() && !task->isGatherMinerals())
 							return -1.;
 						
 						return 1e5 - pos.getDistance(unit->getTilePosition());
 					};
-			return findBest(ListType::own, pred);
+			return findBest(ListType::all, pred);
 		}
 
-		BWAPI::Unit* findWorker(const BWAPI::TilePosition& pos) const
+		UnitInfoPtr findWorker(const BWAPI::TilePosition& pos) const
 		{
-			auto pred = [pos] (BWAPI::Unit* unit)
+			auto pred = [pos] (UnitInfoPtr unit)
 					{
 						if (!unit->getType().isWorker())
 							return -1.;
 						
-						MicroTask task = MicroTaskManager::instance().activeTask(unit);
-						if (!task.empty() && !task.isGatherMinerals())
+						MicroTaskPtr task = unit->currentTask();
+						if (!task->empty() && !task->isGatherMinerals())
 							return -1.;
 						
 						return 1e5 - pos.getDistance(unit->getTilePosition());
 					};
-			return findBest(ListType::own, pred);
+			return findBest(ListType::all, pred);
 		}
 		
-		BWAPI::Unit* findWorker(const BWAPI::Position& pos) const
+		UnitInfoPtr findWorker(const BWAPI::Position& pos) const
 		{
-			auto pred = [pos] (BWAPI::Unit* unit)
+			auto pred = [pos] (UnitInfoPtr unit)
 					{
 						if (!unit->getType().isWorker())
 							return -1.;
 						
-						MicroTask task = MicroTaskManager::instance().activeTask(unit);
-						if (!task.empty() && !task.isGatherMinerals())
+						MicroTaskPtr task = unit->currentTask();
+						if (!task->empty() && !task->isGatherMinerals())
 							return -1.;
 						
 						return 1e5 - pos.getDistance(unit->getPosition());
 					};
-			return findBest(ListType::own, pred);
+			return findBest(ListType::all, pred);
 		}
 
 };

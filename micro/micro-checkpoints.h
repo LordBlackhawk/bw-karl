@@ -14,30 +14,30 @@
 	if (!(eq)) { LOG << "Assertation(" << __func__ << ") failed, while handling " << op.getName() << "! " << #eq; return CheckPointResult::failed; }
 
 namespace {
-	CheckPointResult::type WaitForTask(MicroTask& task)
+	CheckPointResult::type WaitForTask(MicroTaskPtr& task)
 	{
-		switch (task.tick())
+		switch (task->tick())
 		{
 			case TaskStatus::failed:
-				task = MicroTask();
+				task = MicroTaskPtr();
 				return CheckPointResult::failed;
 			case TaskStatus::completed:
-				task = MicroTask();
+				task = MicroTaskPtr();
 				return CheckPointResult::completed;
 			default:
 				return CheckPointResult::running;
 		}
 	}
 	
-	BWAPI::Unit* findBuilding(BWAPI::Unit* builder, const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos)
+	UnitInfoPtr findBuilding(UnitInfoPtr builder, const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos)
 	{
 		if (ut.isRefinery()) {
-			BWAPI::Unit* result = UnitFinder::instance().findGlobal(ut, pos);
-			if (result != NULL)
-				MicroTaskManager::instance().onUnitAdded(result);
+			UnitInfoPtr result = UnitFinder::instance().find(ut, pos);
+			if (result == NULL)
+				LOG1 << "No Extractor found!!!";
 			return result;
 		} else if (ut.getRace() == BWAPI::Races::Zerg) {
-			return (builder->getType() == ut) ? builder : NULL;
+			return (builder->getType() == ut) ? builder : UnitInfoPtr();
 		} else {
 			return UnitFinder::instance().find(ut, pos);
 		}
@@ -59,7 +59,7 @@ CheckPointResult::type CReturnGasWorker(Operation& /*op*/)
 CheckPointResult::type CSendWorkerToBuildingPlace(Operation& op)
 {
 	boost::shared_ptr<BuildBuildingDetails> details = op.getDetails<BuildBuildingDetails>(); // Makes initialisation!!!
-	ASSERT(details.use_count() > 0);
+	ASSERT(details != NULL);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -82,8 +82,8 @@ CheckPointResult::type CSendWorkerToBuildingPlace(Operation& op)
 		
 		details->reserve();
 
-		details->task = createLongMove(getBuildingCenter(details->pos, details->ut));
-		MicroTaskManager::instance().pushTask(details->builder, details->task);
+		details->task = createLongMove(getBuildingCenter(details->pos, details->ut)); // should be createLongMove!!!
+		details->builder->pushTask(details->task);
 
 	}
 
@@ -94,7 +94,7 @@ CheckPointResult::type CSendWorkerToBuildingPlace(Operation& op)
 CheckPointResult::type CBuildBuilding(Operation& op)
 {
 	boost::shared_ptr<BuildBuildingDetails> details = op.getDetails<BuildBuildingDetails>(); // Makes initialisation!!!
-	ASSERT(details.use_count() > 0);
+	ASSERT(details != NULL);
 
 	if (op.status() == OperationStatus::started) {		
 		
@@ -119,12 +119,12 @@ CheckPointResult::type CBuildBuilding(Operation& op)
 		
 		if (!details->builder->getType().isWorker()) {
 			// morph-Building:
-			details->task    = createMorph(details->ut);
+			details->task = createMorph(details->ut);
 		} else {
 			// build-Building:
-			details->task    = createBuild(details->ut, details->pos);
+			details->task = createBuild(details->ut, details->pos);
 		}
-		MicroTaskManager::instance().pushTask(details->builder, details->task);
+		details->builder->pushTask(details->task);
 
 	}
 
@@ -134,6 +134,11 @@ CheckPointResult::type CBuildBuilding(Operation& op)
 	CheckPointResult::type result = WaitForTask(details->task);
 	if (result == CheckPointResult::completed) {
 		details->building = findBuilding(details->builder, details->ut, details->pos);
+		if (details->building == NULL) {
+			LOG1 << "Searching at " << details->pos.x() << "," << details->pos.y();
+			for (auto it : InformationKeeper::instance().self()->allUnits())
+				LOG1 << "\t" << it->getType().getName() << " at " << it->getTilePosition().x() << "," << it->getTilePosition().y();
+		}
 		ASSERT(details->building != NULL);
 		LOG2 << "BuildBuilding(" << details->ut.getName() << ") completed.";
 	}
@@ -143,7 +148,7 @@ CheckPointResult::type CBuildBuilding(Operation& op)
 CheckPointResult::type CBuildingFinished(Operation& op)
 {
 	boost::shared_ptr<BuildBuildingDetails> details = op.getDetails<BuildBuildingDetails>(); // Makes initialisation!!!
-	ASSERT(details.use_count() > 0);
+	ASSERT(details != NULL);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -151,10 +156,9 @@ CheckPointResult::type CBuildingFinished(Operation& op)
 		ASSERT(details->building != NULL);
 
 		details->task = createBuildObserver();
-		MicroTaskManager::instance().pushTask(details->building, details->task);
+		details->building->pushTask(details->task);
 		
-		op.rescheduleEnd(InformationKeeper::instance().currentFrame() + details->building->getRemainingBuildTime());
-
+		op.rescheduleEnd(InformationKeeper::instance().currentFrame() + details->building->get()->getRemainingBuildTime());
 	}
 
 	CheckPointResult::type result = WaitForTask(details->task);
@@ -176,7 +180,7 @@ CheckPointResult::type CBuildAddonFinished(Operation& /*op*/)
 CheckPointResult::type CMorphUnit(Operation& op)
 {
 	boost::shared_ptr<BuildUnitDetails> details = op.getDetails<BuildUnitDetails>(); // Makes initialisation!!!
-	ASSERT(details.use_count() > 0);
+	ASSERT(details != NULL);
 
 	if (op.status() == OperationStatus::started) {
 	
@@ -202,10 +206,9 @@ CheckPointResult::type CMorphUnit(Operation& op)
 
 		details->result = details->builder;
 		details->task = createMorph(details->ut);
-		MicroTaskManager::instance().pushTask(details->builder, details->task);
+		details->builder->pushTask(details->task);
 		
 		LOG3 << "Started morphing " << details->ut.getName() << "...";
-
 	}
 	
 	op.rescheduleBegin(InformationKeeper::instance().currentFrame()+1);
@@ -220,7 +223,7 @@ CheckPointResult::type CCombineUnit(Operation& /*op*/)
 CheckPointResult::type CTrainUnit(Operation& op)
 {
 	boost::shared_ptr<BuildUnitDetails> details = op.getDetails<BuildUnitDetails>(); // Makes initialisation!!!
-	ASSERT(details.use_count() > 0);
+	ASSERT(details != NULL);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -234,7 +237,7 @@ CheckPointResult::type CTrainUnit(Operation& op)
 		ASSERT(details->builder != NULL);
 
 		details->task = createTrain(details->ut);
-		MicroTaskManager::instance().pushTask(details->builder, details->task);
+		details->builder->pushTask(details->task);
 
 	}
 
@@ -250,22 +253,22 @@ CheckPointResult::type CTrainUnit(Operation& op)
 CheckPointResult::type CUnitFinished(Operation& op)
 {
 	boost::shared_ptr<BuildUnitDetails> details = op.getDetails<BuildUnitDetails>(); // Makes initialisation!!!
-	ASSERT(details.use_count() > 0);
+	ASSERT(details != NULL);
 
 	if (op.status() == OperationStatus::started) {
 
 		ASSERT(details->result != NULL);
 
-		if (details->result->isMorphing()) {
+		if (details->result->get()->isMorphing()) {
 			details->task = createMorphObserver();
-		} else if (details->result->isBeingConstructed()) {
+		} else if (details->result->get()->isBeingConstructed()) {
 			details->task = createTrainObserver();
 		} else {
 			return CheckPointResult::failed;
 		}
-		MicroTaskManager::instance().pushTask(details->result, details->task);
+		details->result->pushTask(details->task);
 		
-		op.rescheduleEnd(InformationKeeper::instance().currentFrame() + details->result->getRemainingBuildTime());
+		op.rescheduleEnd(InformationKeeper::instance().currentFrame() + details->result->get()->getRemainingBuildTime());
 	
 	}
 
@@ -275,7 +278,7 @@ CheckPointResult::type CUnitFinished(Operation& op)
 CheckPointResult::type CTechStart(Operation& op)
 {
 	boost::shared_ptr<TechDetails> details = op.getDetails<TechDetails>(); // Makes initialisation!!!
-	ASSERT(details.use_count() > 0);
+	ASSERT(details != NULL);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -289,7 +292,7 @@ CheckPointResult::type CTechStart(Operation& op)
 		ASSERT(details->researcher != NULL);
 
 		details->task = createTech(details->tt);
-		MicroTaskManager::instance().pushTask(details->researcher, details->task);
+		details->researcher->pushTask(details->task);
 
 	}
 
@@ -299,14 +302,14 @@ CheckPointResult::type CTechStart(Operation& op)
 CheckPointResult::type CTechFinished(Operation& op)
 {
 	boost::shared_ptr<TechDetails> details = op.getDetails<TechDetails>(); // Makes initialisation!!!
-	ASSERT(details.use_count() > 0);
+	ASSERT(details != NULL);
 
 	if (op.status() == OperationStatus::started) {
 
 		ASSERT(details->researcher != NULL);
 
 		details->task = createTechObserver();
-		MicroTaskManager::instance().pushTask(details->researcher, details->task);
+		details->researcher->pushTask(details->task);
 
 	}
 
@@ -316,7 +319,7 @@ CheckPointResult::type CTechFinished(Operation& op)
 CheckPointResult::type CUpgradeStart(Operation& op)
 {
 	boost::shared_ptr<UpgradeDetails> details = op.getDetails<UpgradeDetails>(); // Makes initialisation!!!
-	ASSERT(details.use_count() > 0);
+	ASSERT(details != NULL);
 
 	if (op.status() == OperationStatus::started) {
 
@@ -329,7 +332,7 @@ CheckPointResult::type CUpgradeStart(Operation& op)
 		ASSERT(details->upgrader != NULL);
 
 		details->task = createUpgrade(details->gt);
-		MicroTaskManager::instance().pushTask(details->upgrader, details->task);
+		details->upgrader->pushTask(details->task);
 
 	}
 
@@ -339,14 +342,14 @@ CheckPointResult::type CUpgradeStart(Operation& op)
 CheckPointResult::type CUpgradeFinished(Operation& op)
 {
 	boost::shared_ptr<UpgradeDetails> details = op.getDetails<UpgradeDetails>(); // Makes initialisation!!!
-	ASSERT(details.use_count() > 0);
+	ASSERT(details != NULL);
 
 	if (op.status() == OperationStatus::started) {
 
 		ASSERT(details->upgrader != NULL);
 
 		details->task = createUpgradeObserver();
-		MicroTaskManager::instance().pushTask(details->upgrader, details->task);
+		details->upgrader->pushTask(details->task);
 
 	}
 

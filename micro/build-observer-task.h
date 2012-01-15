@@ -6,23 +6,21 @@
 class BuildObserverTask : public BaseTask
 {
 	public:
-		BuildObserverTask()
+		BuildObserverTask() : BaseTask(MicroTaskEnum::BuildObserver)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
 			unit = u;
 		}
 
 		TaskStatus::Type tick()
 		{
-			if (!unit->exists()) {
+			if (unit->isDead()) {
 				return failed(unit);
-			} else if (unit->isBeingConstructed()) {
+			} else if (unit->get()->isBeingConstructed()) {
 				// WAIT ...
 			} else {
-			    //if (unit->getType().getRace() == BWAPI::Races::Zerg)
-				//	return completedAndClearAll(unit);
 				return completed(unit);
 			}
 			// TODO: isUnderAttack?
@@ -30,11 +28,10 @@ class BuildObserverTask : public BaseTask
 		}
 
 	protected:
-		BWAPI::Unit*		unit;
+		UnitInfoPtr	unit;
 };
 
-MicroTask createBuildObserver()
+MicroTaskPtr createBuildObserver()
 {
-	MicroTaskData data(new BuildObserverTask());
-	return MicroTask(MicroTaskEnum::BuildObserver, data);
+	return MicroTaskPtr(new BuildObserverTask());
 } 

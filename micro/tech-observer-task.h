@@ -6,19 +6,19 @@
 class TechObserverTask : public BaseTask
 {
 	public:
-		TechObserverTask()
+		TechObserverTask() : BaseTask(MicroTaskEnum::TechObserver)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
 			unit = u;
 		}
 
 		TaskStatus::Type tick()
 		{
-			if (!unit->exists()) {
+			if (!unit->get()->exists()) {
 				return failed(unit);
-			} else if (unit->isResearching()) {
+			} else if (unit->get()->isResearching()) {
 				// WAIT ...
 			} else {
 				return completed(unit);
@@ -28,11 +28,10 @@ class TechObserverTask : public BaseTask
 		}
 
 	protected:
-		BWAPI::Unit*		unit;
+		UnitInfoPtr		unit;
 };
 
-MicroTask createTechObserver()
+MicroTaskPtr createTechObserver()
 {
-	MicroTaskData data(new TechObserverTask());
-	return MicroTask(MicroTaskEnum::TechObserver, data);
+	return MicroTaskPtr(new TechObserverTask());
 } 

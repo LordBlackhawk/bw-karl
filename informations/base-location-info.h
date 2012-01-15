@@ -60,10 +60,16 @@ class BaseLocationInfo : public boost::enable_shared_from_this<BaseLocationInfo>
 		{
 			return region;
 		}
+		
+		double getDistance(BaseLocationInfoPtr base) const
+		{
+			return BWTA::getGroundDistance(tilepos, base->getTilePosition());
+		}
 	
 	protected:
 		void readEveryTurn();
 		void setNewBase(UnitInfoPtr base);
+		void removeBase();
 	
 	protected:
 		BWTA::BaseLocation* location;

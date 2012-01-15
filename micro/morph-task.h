@@ -8,10 +8,10 @@ class MorphTask : public BaseTask
 	public:
 		enum { max_tries = 200 };
 		
-		MorphTask(const BWAPI::UnitType t) : ut(t)
+		MorphTask(const BWAPI::UnitType t) : BaseTask(MicroTaskEnum::Morph), ut(t)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
 			unit = u;
 			lastcommandframe = -1;
@@ -24,14 +24,14 @@ class MorphTask : public BaseTask
 				return TaskStatus::failed;
 
 			if (lastcommandframe < 0) {
-				if (!unit->morph(ut)) {
+				if (!unit->get()->morph(ut)) {
 					++tries;
 					if (tries > max_tries)
 						return failed(unit);
 				} else {
 					lastcommandframe = currentFrame();
 				}
-			} else if (unit->isMorphing()) {
+			} else if (checkStarted()) {
 				LOG2 << "Morphing " << ut.getName() << " started.";
 				return completed(unit);
 			} else if (lastcommandframe + latencyFrames() > currentFrame()) {
@@ -42,16 +42,23 @@ class MorphTask : public BaseTask
 			}
 			return TaskStatus::running;
 		}
+		
+		bool checkStarted() const
+		{
+			if (ut.isBuilding())
+				return unit->getType() == ut;
+			else
+				return unit->get()->isMorphing();
+		}
 
 	protected:
-		BWAPI::Unit*		unit;
+		UnitInfoPtr			unit;
 		BWAPI::UnitType		ut;
 		int					lastcommandframe;
 		int					tries;
 };
 
-MicroTask createMorph(const BWAPI::UnitType& ut)
+MicroTaskPtr createMorph(const BWAPI::UnitType& ut)
 {
-	MicroTaskData data(new MorphTask(ut));
-	return MicroTask(MicroTaskEnum::Morph, data);
+	return MicroTaskPtr(new MorphTask(ut));
 } 

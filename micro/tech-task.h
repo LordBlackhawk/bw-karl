@@ -6,10 +6,10 @@
 class TechTask : public BaseTask
 {
 	public:
-		TechTask(const BWAPI::TechType t) : tt(t)
+		TechTask(const BWAPI::TechType t) : BaseTask(MicroTaskEnum::Tech), tt(t)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
 			unit = u;
 			lastcommandframe = -1;
@@ -18,9 +18,9 @@ class TechTask : public BaseTask
 		TaskStatus::Type tick()
 		{
 			if (lastcommandframe < 0) {
-				unit->research(tt);
+				unit->get()->research(tt);
 				lastcommandframe = currentFrame();
-			} else if (unit->isResearching()) {
+			} else if (unit->get()->isResearching()) {
 				return completed(unit);
 			} else if (lastcommandframe + latencyFrames() > currentFrame()) {
 				// WAIT ...
@@ -33,13 +33,12 @@ class TechTask : public BaseTask
 		}
 
 	protected:
-		BWAPI::Unit*		unit;
+		UnitInfoPtr			unit;
 		BWAPI::TechType		tt;
 		int					lastcommandframe;
 };
 
-MicroTask createTech(const BWAPI::TechType& tt)
+MicroTaskPtr createTech(const BWAPI::TechType& tt)
 {
-	MicroTaskData data(new TechTask(tt));
-	return MicroTask(MicroTaskEnum::Tech, data);
+	return MicroTaskPtr(new TechTask(tt));
 } 

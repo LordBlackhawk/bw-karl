@@ -1,8 +1,8 @@
 #include "informations.h"
 #include "utils/debug.h"
 #include "utils/random-chooser.h"
-
 #include "bestway.h"
+#include "micro/micro-task.h"
 
 void InformationKeeper::clear()
 {
@@ -70,17 +70,14 @@ void InformationKeeper::pretick()
 				if (it != units.end())
 				{
 					UnitInfoPtr info = getInfo(unit);
-					if (type == BWAPI::EventType::UnitShow) {
-						info->visible = true;
-						info->readOwner();
-						info->readType();
-					}
+					if (type == BWAPI::EventType::UnitShow)
+						info->onShow();
 					if (type == BWAPI::EventType::UnitHide)
-						info->visible = false;
+						info->onHide();
 					if (type == BWAPI::EventType::UnitRenegade)
-						info->readOwner();
+						info->onRenegade();
 					if (type == BWAPI::EventType::UnitMorph)
-						info->readType();
+						info->onMorph();
 				} else if (type == BWAPI::EventType::UnitShow) {
 					units[unit] = UnitInfo::create(unit);
 				}
@@ -92,8 +89,7 @@ void InformationKeeper::pretick()
 				BWAPI::Unit* unit = event.getUnit();
 				auto it = units.find(unit);
 				if (it != units.end()) {
-					it->second->dead    = true;
-					it->second->visible = false;
+					it->second->onDeath();
 					units.erase(it);
 				}
 				break;
@@ -113,6 +109,12 @@ void InformationKeeper::pretick()
 	for (auto it : baselocations)
 	{
 		BaseLocationInfoPtr info = it.second;
+		info->readEveryTurn();
+	}
+	
+	for (auto it : chokepoints)
+	{
+		ChokepointInfoPtr info = it.second;
 		info->readEveryTurn();
 	}
 }
@@ -207,6 +209,8 @@ ChokepointInfoPtr InformationKeeper::getInfo(BWTA::Chokepoint* point)
 
 void InformationKeeper::baseFound(UnitInfoPtr base)
 {
+	assert(base != NULL);
+	
 	if (baselocations.empty()) {
 		LOG1 << "InformationKeeper::baseFound(): baselocations are empty!!!";
 		return;
@@ -236,7 +240,7 @@ void InformationKeeper::baseFound(UnitInfoPtr base)
 	
 	BaseLocationInfoPtr info = bestit->second;
 	
-	if (info->currentbase.use_count() > 0) {
+	if (info->currentbase != NULL) {
 		if (!info->currentbase->isDead()) {
 			double dis = info->currentbase->getPosition().getDistance(info->pos);
 			if (dis < bestdis) {
@@ -250,27 +254,19 @@ void InformationKeeper::baseFound(UnitInfoPtr base)
 	info->setNewBase(base);
 }
 
-void BaseLocationInfo::setNewBase(UnitInfoPtr base)
+void InformationKeeper::baseDestroyed(UnitInfoPtr base)
 {
-	if (currentuser.use_count() > 0)
-		currentuser->removeBaseLocation(shared_from_this());
-	
-	currentbase = base;
-	if (base.use_count() > 0) {
-		currentuser = base->getPlayer();
-	} else {
-		currentuser = PlayerInfoPtr();
-	}
-	currentusersince = InformationKeeper::instance().currentFrame();
-	
-	if (currentuser.use_count() > 0)
-		currentuser->addBaseLocation(shared_from_this());
+	for (auto it : baselocations)
+		if (it.second->currentbase == base) {
+			it.second->removeBase();
+			return;
+		}
 }
 
 void PlayerInfo::addBaseLocation(BaseLocationInfoPtr base)
 {
 	bases.insert(base);
-	if (mainbase.use_count() == 0)
+	if (mainbase == NULL)
 		mainbase = base;
 }
 
@@ -281,6 +277,89 @@ void PlayerInfo::removeBaseLocation(BaseLocationInfoPtr base)
 		mainbase = getRandomSomething(bases);
 }
 
+void PlayerInfo::addIdleUnit(UnitInfoPtr unit)
+{
+	idleunits.insert(unit);
+}
+
+void PlayerInfo::removeIdleUnit(UnitInfoPtr unit)
+{
+	idleunits.erase(unit);
+}
+
+void PlayerInfo::addUnit(UnitInfoPtr unit)
+{
+	allunits.insert(unit);
+}
+
+void PlayerInfo::removeUnit(UnitInfoPtr unit)
+{
+	allunits.erase(unit);
+}
+
+BaseLocationInfoPtr InformationKeeper::getNearestFreeBase(const BWAPI::TilePosition& tilepos)
+{
+	BaseLocationInfoPtr bestbase;
+	double 				bestdis = 0;
+	for (auto it : baselocations)
+	{
+		if (it.second->currentUser() != NULL)
+			continue;
+		
+		double dis = BWTA::getGroundDistance(it.second->getTilePosition(), tilepos);
+		if ((dis < 0) || ((bestbase != NULL) && (dis > bestdis)))
+			continue;
+		
+		bestbase = it.second;
+		bestdis  = dis;
+	}
+	
+	return bestbase;
+}
+
+BaseLocationInfoPtr PlayerInfo::getNearestFreeBase() const
+{
+	assert(mainbase != NULL);
+	return InformationKeeper::instance().getNearestFreeBase(mainbase->getTilePosition());
+}
+
+void UnitInfo::pushTask(MicroTaskPtr task)
+{
+	assert(task != NULL);
+	assert(owner != NULL);
+	if (!tasks.empty()) {
+		tasks.top()->deactivate(shared_from_this());
+	} else {
+		owner->removeIdleUnit(shared_from_this());
+	}
+	tasks.push(task);
+	task->activate(shared_from_this());
+}
+
+void UnitInfo::popTask()
+{
+	assert(owner != NULL);
+	if (!tasks.empty()) {
+		tasks.top()->deactivate(shared_from_this());
+		tasks.pop();
+		if (!tasks.empty())
+			tasks.top()->activate(shared_from_this());
+		else
+			owner->addIdleUnit(shared_from_this());
+	}
+}
+
+void UnitInfo::popAllTasks()
+{
+	assert(owner != NULL);
+	if (!tasks.empty()) {
+		tasks.top()->deactivate(shared_from_this());
+		tasks = std::stack<MicroTaskPtr>();
+	} else {
+		owner->removeIdleUnit(shared_from_this());
+	}
+}
+
 void UnitInfo::readType()
 {
 	BWAPI::UnitType newtype = unit->getType();
@@ -289,24 +368,37 @@ void UnitInfo::readType()
 
 	type = newtype;
 	
-	if (   (type == BWAPI::UnitTypes::Zerg_Hatchery)
-	    || (type == BWAPI::UnitTypes::Zerg_Lair)
-		|| (type == BWAPI::UnitTypes::Zerg_Hive)
-		|| (type == BWAPI::UnitTypes::Terran_Command_Center)
-		|| (type == BWAPI::UnitTypes::Protoss_Nexus))
-	{
+	// Read position new for buildings!
+	lastseen_pos = BWAPI::Positions::None;
+	readEveryTurn();
+	
+	if (isBase()) {
 		InformationKeeper::instance().baseFound(shared_from_this());
+	} else if (type.isRefinery()) {
+		readOwner();
 	}
 }
 
 void UnitInfo::readOwner()
 {
 	BWAPI::Player* newowner = unit->getPlayer();
-	if (owner.use_count() > 0)
+	if (owner != NULL) {
 		if (newowner == owner->get())
 			return;
+		popAllTasks();
+		owner->removeUnit(shared_from_this());
+		owner->removeIdleUnit(shared_from_this());
+	}
 	
 	owner = InformationKeeper::instance().getInfo(newowner);
+	if (owner != NULL) {
+		owner->addUnit(shared_from_this());
+		owner->addIdleUnit(shared_from_this());
+	}
+	
+	if (type == BWAPI::UnitTypes::Zerg_Extractor) {
+		LOG1 << "Extractor seen, " << (owner->isNeutral() ? "is neutral" : "") << (owner->isMe() ? "is me!" : "") << "...";
+	}
 }
 
 void UnitInfo::readEveryTurn()
@@ -314,8 +406,15 @@ void UnitInfo::readEveryTurn()
 	if (visible) {
 		lastseen_time = InformationKeeper::instance().currentFrame();
 		
-		if ((lastseen_pos == BWAPI::Positions::None) || isMoveable())
-			lastseen_pos = unit->getPosition();
+		if ((lastseen_pos == BWAPI::Positions::None) || isMoveable()) {
+			if (!type.isBuilding()) {
+				lastseen_pos     = unit->getPosition();
+				lastseen_tilepos = BWAPI::TilePosition(lastseen_pos);
+			} else {
+				lastseen_tilepos = unit->getTilePosition(); 
+				lastseen_pos     = unit->getPosition(); //BWAPI::Position(lastseen_tilepos);
+			}
+		}
 		
 		if (!isInvincible())
 			hitpoints = unit->getHitPoints();
@@ -325,17 +424,74 @@ void UnitInfo::readEveryTurn()
 	}
 }
 
+void UnitInfo::onMorph()
+{
+	readType();
+}
+
+void UnitInfo::onShow()
+{
+	visible = true;
+	readOwner();
+	readType();
+}
+
+void UnitInfo::onHide()
+{
+	visible = false;
+}
+
+void UnitInfo::onRenegade()
+{
+	readOwner();
+}
+
+void UnitInfo::onDeath()
+{
+	dead    = true;
+	visible = false;
+	
+	if (owner != NULL) {
+		popAllTasks();
+		owner->removeUnit(shared_from_this());
+		owner->removeIdleUnit(shared_from_this());
+	}
+	
+	if (isBase())
+		InformationKeeper::instance().baseDestroyed(shared_from_this());
+}
+
 void BaseLocationInfo::readEveryTurn()
 {
 	if (BWAPI::Broodwar->isVisible(tilepos))
 		lastseen = InformationKeeper::instance().currentFrame();
+}
 
-	if (currentbase != NULL)
-		if (currentbase->isDead())
-	{
-		currentbase = UnitInfoPtr();
+void BaseLocationInfo::setNewBase(UnitInfoPtr base)
+{
+	if (currentuser != NULL)
+		currentuser->removeBaseLocation(shared_from_this());
+	
+	currentbase = base;
+	if (base != NULL) {
+		currentuser = base->getPlayer();
+	} else {
 		currentuser = PlayerInfoPtr();
 	}
+	currentusersince = InformationKeeper::instance().currentFrame();
+	
+	if (currentuser != NULL)
+		currentuser->addBaseLocation(shared_from_this());
+}
+
+void BaseLocationInfo::removeBase()
+{
+	if (currentuser != NULL)
+		currentuser->removeBaseLocation(shared_from_this());
+	currentbase = UnitInfoPtr();
+	currentuser = PlayerInfoPtr();
+	
+	// TODO: Search for alternative base!
 }
 
 void ChokepointInfo::readEveryTurn()

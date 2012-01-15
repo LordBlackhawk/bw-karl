@@ -6,19 +6,19 @@
 class UpgradeObserverTask : public BaseTask
 {
 	public:
-		UpgradeObserverTask()
+		UpgradeObserverTask() : BaseTask(MicroTaskEnum::UpgradeObserver)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
 			unit = u;
 		}
 
 		TaskStatus::Type tick()
 		{
-			if (!unit->exists()) {
+			if (!unit->get()->exists()) {
 				return failed(unit);
-			} else if (unit->isUpgrading()) {
+			} else if (unit->get()->isUpgrading()) {
 				// WAIT ...
 			} else {
 				return completed(unit);
@@ -28,11 +28,10 @@ class UpgradeObserverTask : public BaseTask
 		}
 
 	protected:
-		BWAPI::Unit*		unit;
+		UnitInfoPtr		unit;
 };
 
-MicroTask createUpgradeObserver()
+MicroTaskPtr createUpgradeObserver()
 {
-	MicroTaskData data(new UpgradeObserverTask());
-	return MicroTask(MicroTaskEnum::UpgradeObserver, data);
+	return MicroTaskPtr(new UpgradeObserverTask());
 } 

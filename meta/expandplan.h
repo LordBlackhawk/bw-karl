@@ -1,7 +1,22 @@
 #pragma once
 
+#include "randomizer.h"
 #include "newplan/bwplan.h"
 #include "informations/informations.h"
+#include "micro/micro-details.h"
+
+void buildExpansion(BWPlan& plan, BWAPI::UnitType ut)
+{
+	Operation op(OperationIndex::byUnitType(ut));
+	auto details = op.getDetails<BuildBuildingDetails>();
+	assert(details != NULL);
+	auto base = InformationKeeper::instance().self()->getNearestFreeBase();
+	if (base != NULL) {
+		details->pos = base->getTilePosition();
+		details->reserve();
+	}
+	plan.push_back_sr(op);
+}
 
 void updatePlan(BWPlan& plan)
 {
@@ -74,8 +89,15 @@ void updatePlan(BWPlan& plan)
 	
 	// Hatchery:
 	if (plan.end().getResources().get(ResourceIndex::ZergHatchery) < 3)
-		if (plan.opend().getResources().get(ResourceIndex::Minerals) > 300)
-			insert(BWAPI::UnitTypes::Zerg_Hatchery);
+		if (plan.opend().getResources().get(ResourceIndex::Minerals) > 300) {
+			//LOG1 << "[calling Randomizer::rand():]";
+			//if (Randomizer::instance().rand() > .9) {
+			//	insert(BWAPI::UnitTypes::Zerg_Hatchery);
+			//} else {
+				LOG1 << "* descided to build expansion!";
+				buildExpansion(plan, BWAPI::UnitTypes::Zerg_Hatchery);
+			//}
+		}
 	
 	LOG1 << "Finished update plan.";
 }

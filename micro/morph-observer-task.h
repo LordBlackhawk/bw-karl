@@ -6,21 +6,21 @@
 class MorphObserverTask : public BaseTask
 {
 	public:
-		MorphObserverTask()
+		MorphObserverTask() : BaseTask(MicroTaskEnum::MorphObserver)
 		{ }
 
-		void activate(BWAPI::Unit* u)
+		void activate(UnitInfoPtr u)
 		{
 			unit = u;
 		}
 
 		TaskStatus::Type tick()
 		{
-			if (!unit->exists()) {
+			if (!unit->get()->exists()) {
 				return failed(unit);
-			} else if (unit->isMorphing()) {
+			} else if (unit->get()->isMorphing()) {
 				// WAIT ...
-			} else if (unit->isIdle()) {
+			} else if (unit->get()->isIdle()) {
 				return completed(unit);
 			}
 			// TODO: isUnderAttack?
@@ -28,11 +28,10 @@ class MorphObserverTask : public BaseTask
 		}
 
 	protected:
-		BWAPI::Unit*		unit;
+		UnitInfoPtr		unit;
 };
 
-MicroTask createMorphObserver()
+MicroTaskPtr createMorphObserver()
 {
-	MicroTaskData data(new MorphObserverTask());
-	return MicroTask(MicroTaskEnum::MorphObserver, data);
+	return MicroTaskPtr(new MorphObserverTask());
 } 
