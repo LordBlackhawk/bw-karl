@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 template <int N, class CT, class RT>
 class AverageCalculator
 {
@@ -13,11 +15,16 @@ class AverageCalculator
 		CT max_;
 	
 	public:
-		AverageCalculator(const RT& f)
-			: sum(0), n(0), full(false), factor(f), min_(0), max_(0)
+		AverageCalculator()
+			: sum(0), n(0), full(false), factor(1.0), min_(0), max_(0)
 		{
 			for (int k=0; k<N; ++k)
 				data[k] = 0;
+		}
+		
+		void setFactor(const RT& f)
+		{
+			factor = f;
 		}
 		
 		void push(const CT& value)

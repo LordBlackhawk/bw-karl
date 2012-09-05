@@ -1,7 +1,6 @@
 #pragma once
 
 #include "precondition.hpp"
-#include <iostream>
 
 struct PreconditionSorter
 {
@@ -105,16 +104,13 @@ bool updateTimePreconditions(Precondition* self, int duration, List... args)
     switch (getType(time, wishtime, args...))
     {
         case TestStatus::test:
-            //std::cout << "Test recognised!\n";
             setWishTimeSave(time, wishtime, args...);
             break;
 
         case TestStatus::save:
-            //std::cout << "Save recognised!\n";
             break;
 
         case TestStatus::unknown:
-            //std::cout << "Nothing recognised!\n";
             setWishTimeTest(wishtime, args...);
             break;
     }
@@ -122,7 +118,8 @@ bool updateTimePreconditions(Precondition* self, int duration, List... args)
     return false;
 }
 
-inline void free(Precondition*& pre)
+template <class T>
+void free(T*& pre)
 {
 	if (pre != NULL) {
 		delete pre;

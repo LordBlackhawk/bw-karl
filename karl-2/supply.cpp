@@ -7,6 +7,7 @@
 #include "precondition-helper.hpp"
 #include "utils/debug.h"
 #include <BWAPI.h>
+#include <cassert>
 
 using namespace BWAPI;
 

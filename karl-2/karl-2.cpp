@@ -1,21 +1,15 @@
 #include "utils/debug-broodwar.h"
 #include "utils/debug-1.h"
 
-#include "average-calculator.hpp"
-
+#include "timer.hpp"
 #include "code-list.hpp"
 #include "strategie.hpp"
-
-#include <stdio.h>
 
 #include <BWAPI.h>
 #include <BWAPI\Client.h>
 #include <BWTA.h>
 
 #include <windows.h>
-
-#include <string>
-#include <cmath>
 
 using namespace BWAPI;
 
@@ -28,6 +22,7 @@ void reconnect()
 }
 int main(int /*argc*/, const char** /*argv[]*/)
 {
+	timerInit();
 	BWAPI::BWAPI_init();
 	LOG << "Connecting...";
 	reconnect();
@@ -61,23 +56,12 @@ int main(int /*argc*/, const char** /*argv[]*/)
 		
 		LOG1 << "Latency Frames: " << BWAPI::Broodwar->getRemainingLatencyFrames();
 
-		LARGE_INTEGER frequency;
-		if (!QueryPerformanceFrequency(&frequency))
-			LOG << "No high resolution timer!";
-		AverageCalculator<100, int, double> avg(1000000.0 / double(frequency.QuadPart));
 		while (Broodwar->isInGame())
 		{
-			LARGE_INTEGER counter_start, counter_end;
-			QueryPerformanceCounter(&counter_start);
-
+			timerStart();
 			LOG4 << "Calling onTick...";
 			CodeList::onTick();
-			
-			Broodwar->drawTextScreen(300, 0, "FPS: %f", Broodwar->getAverageFPS());
-			
-			QueryPerformanceCounter(&counter_end);
-			avg.push(counter_end.QuadPart - counter_start.QuadPart);
-			Broodwar->drawTextScreen(2, 2, "Reaction time: %.0f / %.0f / %.0f ns", avg.min(), avg.average(), avg.max());
+			timerEnd();
 
 			BWAPI::BWAPIClient.update();
 			if (!BWAPI::BWAPIClient.isConnected())

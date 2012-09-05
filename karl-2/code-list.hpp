@@ -7,6 +7,7 @@
 #include "supply.hpp"
 #include "idle-unit-container.hpp"
 #include "unit-morpher.hpp"
+#include "hud-code.hpp"
 
 typedef CodeCaller<
 					MessageDispatchCode,
@@ -14,6 +15,7 @@ typedef CodeCaller<
 					ResourcesCode,
 					SupplyCode,
 					IdleUnitContainerCode,
-					UnitMorpherCode
+					UnitMorpherCode,
+					HUDCode
                   >
         CodeList;
