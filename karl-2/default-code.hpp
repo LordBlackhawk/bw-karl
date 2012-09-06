@@ -14,6 +14,11 @@ struct DefaultCode
     static void onTick()
     { }
 	
+	static bool onAssignUnit(BWAPI::Unit* /*unit*/)
+	{
+		return false;
+	}
+	
 	static void onMatchEndMessage(bool /*winner*/)
 	{ }
 	
@@ -45,5 +50,8 @@ struct DefaultCode
 	{ }
 	
 	static void onUnitRenegade(BWAPI::Unit* /*unit*/)
+	{ }
+	
+	static void onDebug()
 	{ }
 };

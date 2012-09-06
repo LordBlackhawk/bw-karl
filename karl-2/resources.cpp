@@ -4,6 +4,8 @@
 #include "resources.hpp"
 #include "mineral-line.hpp"
 #include "vector-helper.hpp"
+#include "debugger.hpp"
+#include "utils/debug.h"
 #include <algorithm>
 
 using namespace BWAPI;
@@ -32,15 +34,18 @@ namespace
 			sum_m -= minerals;
 			sum_g -= gas;
 		}
+		
+		int sortTime() const
+		{
+			return std::max(time, wishtime);
+		}
 	};
 	
 	struct ResourcesSorter
 	{
 		bool operator () (ResourcesPreconditionInternal* lhs, ResourcesPreconditionInternal* rhs) const
 		{
-			int l = std::max(lhs->time, lhs->wishtime);
-			int r = std::max(rhs->time, rhs->wishtime);
-			return (l < r);
+			return lhs->sortTime() < rhs->sortTime();
 		}
 	};
 }
@@ -72,6 +77,8 @@ void ResourcesCode::onMatchEnd()
 
 void ResourcesCode::onTick()
 {
+	std::sort(reslist.begin(), reslist.end(), ResourcesSorter());
+
 	Player* self = Broodwar->self();
 	int cur_m = self->minerals();
 	int cur_g = self->gas();
@@ -116,10 +123,16 @@ void ResourcesCode::onTick()
 		
 		(*it)->time = esttime;
 		int dt = esttime - time;
-		cur_m += dt * prod_m - (*it)->minerals;
-		cur_g += dt * prod_g - (*it)->gas;
+		cur_m += dt * prod_m - MineralFactor * (*it)->minerals;
+		cur_g += dt * prod_g - MineralFactor * (*it)->gas;
 		time  += dt;
 	}
-	
-	std::sort(reslist.begin(), reslist.end(), ResourcesSorter());
+}
+
+void ResourcesCode::onDebug()
+{
+	LOG << "Resources list:";
+	for (auto it : reslist)
+		LOG << "\t" << debugName(it) << " at " << it->time << " (" << it->wishtime << ") "
+			<< "with " << it->minerals << " minerals and " << it->gas << " gas.";
 }

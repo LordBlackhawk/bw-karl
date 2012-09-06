@@ -12,4 +12,5 @@ struct SupplyCode : public DefaultCode
 	static void onMatchBegin();
 	static void onMatchEnd();
     static void onTick();
+	static void onDebug();
 };

@@ -34,6 +34,13 @@ struct CodeCaller<First, List...>
         Next::onTick();
     }
 	
+	static bool onAssignUnit(BWAPI::Unit* unit)
+	{
+		if (First::onAssignUnit(unit))
+			return true;
+		return Next::onAssignUnit(unit);
+	}
+	
 	static void onMatchEndMessage(bool winner)
 	{
 		First::onMatchEndMessage(winner);
@@ -98,5 +105,11 @@ struct CodeCaller<First, List...>
 	{
 		First::onUnitRenegade(unit);
 		Next::onUnitRenegade(unit);
+	}
+	
+	static void onDebug()
+	{
+		First::onDebug();
+		Next::onDebug();
 	}
 };

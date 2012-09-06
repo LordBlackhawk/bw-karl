@@ -130,9 +130,9 @@ void MineralLineCode::onMatchBegin()
 {
 	BWAPI::Player* self = BWAPI::Broodwar->self();
 	MineralLine* obj    = new MineralLine(BWTA::getStartLocation(self));
-	for (auto it : self->getUnits())
-		if (it->getType().isWorker())
-			obj->addWorker(it);
+	//for (auto it : self->getUnits())
+	//	if (it->getType().isWorker())
+	//		obj->addWorker(it);
 	minerallines.insert(obj);
 	
 	estimatedProduction.resize(1);

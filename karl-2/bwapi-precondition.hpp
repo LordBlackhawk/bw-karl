@@ -29,7 +29,15 @@ struct UnitPrecondition : public Precondition
     BWAPI::Position     pos;
     BWAPI::Unit*        unit;
 
-    UnitPrecondition(const BWAPI::UnitType& t, const BWAPI::Position& p, BWAPI::Unit* u)
+	UnitPrecondition()
+		: Precondition(0), unit(NULL)
+	{ }
+
+    explicit UnitPrecondition(BWAPI::Unit* u)
+		: Precondition(0), ut(u->getType()), pos(u->getPosition()), unit(u)
+	{ }
+	
+	UnitPrecondition(const BWAPI::UnitType& t, const BWAPI::Position& p, BWAPI::Unit* u)
         : Precondition(0), ut(t), pos(p), unit(u)
     { }
 	

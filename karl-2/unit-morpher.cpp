@@ -7,6 +7,7 @@
 #include "supply.hpp"
 #include "idle-unit-container.hpp"
 #include "vector-helper.hpp"
+#include "debugger.hpp"
 #include "utils/debug.h"
 #include <BWAPI.h>
 #include <vector>
@@ -79,7 +80,9 @@ namespace
 				free(baseunit);
 			}
 			assert(unit != NULL);
-			unit->morph(ut);
+			assert(unit->getType() == UnitTypes::Zerg_Larva);
+			if (!unit->morph(ut))
+				LOG << "Error: Unable to morph unit, internal bug!";
 		}
 
 		void freeResources()
@@ -102,34 +105,42 @@ void UnitMorpherCode::onTick()
 	VectorHelper::remove_if(list, std::mem_fun(&UnitMorphPrecondition::updateTime));
 }
 
-UnitPrecondition* morphUnit(UnitPrecondition* unit, ResourcesPrecondition* res, SupplyPrecondition* supply, const BWAPI::UnitType& ut)
+UnitPrecondition* morphUnit(UnitPrecondition* unit, ResourcesPrecondition* res, SupplyPrecondition* supply, const BWAPI::UnitType& ut, const char* debugname)
 {
 	UnitMorphPrecondition* result = new UnitMorphPrecondition(unit, res, supply, ut);
     list.push_back(result);
 	if (ut != UnitTypes::Zerg_Overlord)
 		return result;
+	if (debugname != NULL)
+		setDebugName(result, debugname);
     return registerSupplyUnit(result);
 }
 
-UnitPrecondition* morphUnit(UnitPrecondition* unit, ResourcesPrecondition* res, const BWAPI::UnitType& ut)
+UnitPrecondition* morphUnit(UnitPrecondition* unit, ResourcesPrecondition* res, const BWAPI::UnitType& ut, const char* debugname)
 {
     SupplyPrecondition* supply = getSupply(ut);
 	// supply maybe NULL.
-	return morphUnit(unit, res, supply, ut);
+	if (debugname != NULL)
+		setDebugName(supply, debugname);
+	return morphUnit(unit, res, supply, ut, debugname);
 }
 
-UnitPrecondition* morphUnit(UnitPrecondition* unit, const BWAPI::UnitType& ut)
+UnitPrecondition* morphUnit(UnitPrecondition* unit, const BWAPI::UnitType& ut, const char* debugname)
 {
     ResourcesPrecondition* res = getResources(ut);
 	if (res == NULL)
 		return NULL;
-    return morphUnit(unit, res, ut);
+	if (debugname != NULL)
+		setDebugName(res, debugname);
+    return morphUnit(unit, res, ut, debugname);
 }
 
-UnitPrecondition* morphUnit(const BWAPI::UnitType& ut)
+UnitPrecondition* morphUnit(const BWAPI::UnitType& ut, const char* debugname)
 {
     UnitPrecondition* unit = getIdleUnit(ut.whatBuilds().first);
 	if (unit == NULL)
 		return NULL;
-    return morphUnit(unit, ut);
+	if (debugname != NULL)
+		setDebugName(unit, std::string(debugname) + " larva");
+    return morphUnit(unit, ut, debugname);
 }

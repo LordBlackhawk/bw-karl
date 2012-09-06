@@ -1,10 +1,12 @@
 // ToDo:
 //  * Terran/Protoss build supply not jet implemented.
+//  * Bring SupplyUnits with wishtime at end of list.
 
 #include "supply.hpp"
 #include "vector-helper.hpp"
 #include "unit-morpher.hpp"
 #include "precondition-helper.hpp"
+#include "debugger.hpp"
 #include "utils/debug.h"
 #include <BWAPI.h>
 #include <cassert>
@@ -68,6 +70,17 @@ namespace
 		
 		UnitPrecondition* buildSupply();
 		void onTick();
+		
+		void onDebug()
+		{
+			if (supply.empty())
+				return;
+			
+			LOG << "Supply " << race.getName();
+			for (auto it : supply)
+				LOG << "\t" << debugName(it) << " at " << it->time << " (" << it->wishtime << ") "
+					<< "with " << it->supply << " supply.";
+		}
 	};
 	
 	RaceSupply terran_supply;
@@ -135,6 +148,14 @@ namespace
 		}
 	};
 	
+	struct SupplySorter
+	{
+		bool operator () (SupplyPrecondition* lhs, SupplyPrecondition* rhs)
+		{
+			return std::max(lhs->time, lhs->wishtime) < std::max(rhs->time, rhs->wishtime);
+		}
+	};
+	
 	void RaceSupply::calcSupplyUnit(SupplyUnitPrecondition* unit)
 	{
 		remaining     += unit->ut.supplyProvided();
@@ -158,6 +179,7 @@ namespace
 		auto uit       = supplyunits.begin();
 		auto uitend    = supplyunits.end();
 		
+		std::sort(supply.begin(), supply.end(), SupplySorter());
 		for (auto it : supply) {
 			remaining -= it->supply;
 			while ((remaining < 0) && (uit != uitend)) {
@@ -231,4 +253,11 @@ void SupplyCode::onTick()
 	terran_supply.onTick();
 	protoss_supply.onTick();
 	zerg_supply.onTick();
+}
+
+void SupplyCode::onDebug()
+{
+	terran_supply.onDebug();
+	protoss_supply.onDebug();
+	zerg_supply.onDebug();
 }
