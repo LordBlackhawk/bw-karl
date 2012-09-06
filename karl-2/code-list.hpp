@@ -8,6 +8,8 @@
 #include "building-placer.hpp"
 #include "idle-unit-container.hpp"
 #include "unit-morpher.hpp"
+#include "unit-builder.hpp"
+#include "zerg-strategie.hpp"
 #include "hud-code.hpp"
 #include "debugger.hpp"
 
@@ -18,8 +20,10 @@ typedef CodeCaller<
 					SupplyCode,
 					IdleUnitContainerCode,
 					BuildingPlacerCode,
+					UnitBuilderCode,
 					UnitMorpherCode,
 					HUDCode,
+					ZergStrategieCode,
 				//	DebuggerCode,
 					DefaultCode
                   >

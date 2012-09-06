@@ -1,6 +1,7 @@
 // ToDo:
 //  * estimatedProduction improving by looking into future.
 //  * adding routines for harvesting gas.
+//  * better implementation of getWorker.
 
 #include "mineral-line.hpp"
 #include "vector-helper.hpp"
@@ -69,6 +70,14 @@ namespace
 		{
 			return 45 * worker.size();
 		}
+		
+		UnitPrecondition* getWorker(const Race& r)
+		{
+			for (auto it : worker)
+				if (it->getType().getRace() == r)
+					return new UnitPrecondition(it);
+			return NULL;
+		}
 	};
 
 	std::set<MineralLine*>			minerallines;
@@ -126,14 +135,19 @@ void useWorker(UnitPrecondition* unit)
 	newworker.push_back(unit);
 }
 
+UnitPrecondition* getWorker(const BWAPI::Race& r)
+{
+	for (auto it : minerallines) {
+		UnitPrecondition* result = it->getWorker(r);
+		if (result != NULL)
+			return result;
+	}
+	return NULL;
+}
+
 void MineralLineCode::onMatchBegin()
 {
-	BWAPI::Player* self = BWAPI::Broodwar->self();
-	MineralLine* obj    = new MineralLine(BWTA::getStartLocation(self));
-	//for (auto it : self->getUnits())
-	//	if (it->getType().isWorker())
-	//		obj->addWorker(it);
-	minerallines.insert(obj);
+	minerallines.insert(new MineralLine(BWTA::getStartLocation(Broodwar->self())));
 	
 	estimatedProduction.resize(1);
 	Production& prod = estimatedProduction[0];

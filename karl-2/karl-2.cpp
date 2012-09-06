@@ -3,7 +3,6 @@
 
 #include "timer.hpp"
 #include "code-list.hpp"
-#include "strategie.hpp"
 
 #include <BWAPI.h>
 #include <BWAPI\Client.h>
@@ -50,9 +49,6 @@ int main(int /*argc*/, const char** /*argv[]*/)
 		
 		LOG << "Calling onMatchBegin...";
 		CodeList::onMatchBegin();
-		
-		LOG << "Loading strategie...";
-		loadStrategie();
 		
 		LOG1 << "Latency Frames: " << BWAPI::Broodwar->getRemainingLatencyFrames();
 

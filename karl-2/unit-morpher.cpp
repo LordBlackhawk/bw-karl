@@ -27,7 +27,7 @@ namespace
 		SupplyPrecondition*		supply;
 		StatusType 				status;
 
-		UnitMorphPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, SupplyPrecondition* s, UnitType ut)
+		UnitMorphPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, SupplyPrecondition* s, const UnitType& ut)
 			: UnitPrecondition(ut, u->pos, u->unit), baseunit(u), resources(r), supply(s), status(pending)
 		{
 			updateTime();
@@ -80,7 +80,6 @@ namespace
 				free(baseunit);
 			}
 			assert(unit != NULL);
-			assert(unit->getType() == UnitTypes::Zerg_Larva);
 			if (!unit->morph(ut))
 				LOG << "Error: Unable to morph unit, internal bug!";
 		}
@@ -109,10 +108,10 @@ UnitPrecondition* morphUnit(UnitPrecondition* unit, ResourcesPrecondition* res, 
 {
 	UnitMorphPrecondition* result = new UnitMorphPrecondition(unit, res, supply, ut);
     list.push_back(result);
-	if (ut != UnitTypes::Zerg_Overlord)
-		return result;
 	if (debugname != NULL)
 		setDebugName(result, debugname);
+	if (ut != UnitTypes::Zerg_Overlord)
+		return result;
     return registerSupplyUnit(result);
 }
 
