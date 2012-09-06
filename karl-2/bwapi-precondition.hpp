@@ -23,6 +23,16 @@ struct SupplyPrecondition : public Precondition
 	{ }
 };
 
+struct BuildingPositionPrecondition : public Precondition
+{
+	BWAPI::UnitType		ut;
+	BWAPI::TilePosition	pos;
+
+	BuildingPositionPrecondition(const BWAPI::UnitType& t, const BWAPI::TilePosition& p)
+		: Precondition(0), ut(t), pos(p)
+	{ }
+};
+
 struct UnitPrecondition : public Precondition
 {
     BWAPI::UnitType     ut;

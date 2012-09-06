@@ -2,6 +2,7 @@
 
 #include "debug.h"
 #include <vector>
+#include <cassert>
 
 template <class T>
 class Array2d
@@ -63,7 +64,7 @@ class Array2d
 		{
 			if (!((0 <= index) && (index < sizex))) {
 				LOG << "required index is " << index << ", size is " << sizex;
-				exit(1);
+				assert(false);
 			}
 			return Row(*this, index*sizex, 1, sizex);
 		}
@@ -72,7 +73,7 @@ class Array2d
 		{
 			if (!((0 <= index) && (index < sizex))) {
 				LOG << "required index is " << index << ", size is " << sizex;
-				exit(1);
+				assert(false);
 			}
 			return ConstRow(*this, index*sizex, 1, sizex);
 		}

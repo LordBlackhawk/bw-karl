@@ -171,7 +171,7 @@ namespace
 	void RaceSupply::onTick()
 	{
 		VectorHelper::remove_if(supplyunits, std::mem_fun(&SupplyUnitPrecondition::update));
-		std::sort(supplyunits.begin(), supplyunits.end(), PreconditionSorter());
+		std::stable_sort(supplyunits.begin(), supplyunits.end(), PreconditionSorter());
 		
 		Player* self   = Broodwar->self();
 		remaining      = self->supplyTotal(race) - self->supplyUsed(race);
@@ -179,7 +179,7 @@ namespace
 		auto uit       = supplyunits.begin();
 		auto uitend    = supplyunits.end();
 		
-		std::sort(supply.begin(), supply.end(), SupplySorter());
+		std::stable_sort(supply.begin(), supply.end(), SupplySorter());
 		for (auto it : supply) {
 			remaining -= it->supply;
 			while ((remaining < 0) && (uit != uitend)) {

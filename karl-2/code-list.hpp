@@ -5,6 +5,7 @@
 #include "mineral-line.hpp"
 #include "resources.hpp"
 #include "supply.hpp"
+#include "building-placer.hpp"
 #include "idle-unit-container.hpp"
 #include "unit-morpher.hpp"
 #include "hud-code.hpp"
@@ -16,6 +17,7 @@ typedef CodeCaller<
 					ResourcesCode,
 					SupplyCode,
 					IdleUnitContainerCode,
+					BuildingPlacerCode,
 					UnitMorpherCode,
 					HUDCode,
 				//	DebuggerCode,

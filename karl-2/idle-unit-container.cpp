@@ -126,7 +126,7 @@ namespace
 		
 		void update()
 		{
-			std::sort(reserved.begin(), reserved.end(), LarvaSorter());
+			std::stable_sort(reserved.begin(), reserved.end(), LarvaSorter());
 			
 			for (auto it : reserved)
 				if (it->unit != NULL) {

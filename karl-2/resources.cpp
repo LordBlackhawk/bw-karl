@@ -77,7 +77,7 @@ void ResourcesCode::onMatchEnd()
 
 void ResourcesCode::onTick()
 {
-	std::sort(reslist.begin(), reslist.end(), ResourcesSorter());
+	std::stable_sort(reslist.begin(), reslist.end(), ResourcesSorter());
 
 	Player* self = Broodwar->self();
 	int cur_m = self->minerals();
