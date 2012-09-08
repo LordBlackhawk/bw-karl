@@ -54,4 +54,7 @@ struct DefaultCode
 	
 	static void onDebug()
 	{ }
+	
+	static void onDrawPlan()
+	{ }
 };

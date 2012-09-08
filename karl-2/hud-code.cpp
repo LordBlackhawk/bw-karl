@@ -3,6 +3,7 @@
 
 #include "hud-code.hpp"
 #include "timer.hpp"
+#include "code-list.hpp"
 #include <BWTA.h>
 
 using namespace BWAPI;
@@ -94,6 +95,7 @@ namespace
 	bool showstats   = false;
 	bool showfps     = true;
 	bool showtiming  = true;
+	bool showplan    = true;
 }
 
 void HUDCode::onTick()
@@ -108,6 +110,8 @@ void HUDCode::onTick()
 		Broodwar->drawTextScreen(300, 0, "FPS: %f", Broodwar->getAverageFPS());
 	if (showtiming)
 		Broodwar->drawTextScreen(5, 2, "Reaction time: %.0f / %.0f / %.0f ns", timerMin(), timerAverage(), timerMax());
+	if (showplan)
+		CodeList::onDrawPlan();
 }
 
 void HUDCode::onSendText(const std::string& text)
@@ -122,4 +126,6 @@ void HUDCode::onSendText(const std::string& text)
 		showfps = !showfps;
 	if (text == "/show timing")
 		showtiming = !showtiming;
+	if (text == "/show plan")
+		showplan = !showplan;
 }

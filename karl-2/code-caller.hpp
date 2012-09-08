@@ -112,4 +112,10 @@ struct CodeCaller<First, List...>
 		First::onDebug();
 		Next::onDebug();
 	}
+	
+	static void onDrawPlan()
+	{
+		First::onDrawPlan();
+		Next::onDrawPlan();
+	}
 };

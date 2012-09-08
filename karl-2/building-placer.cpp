@@ -1,3 +1,6 @@
+// ToDo:
+//  * Do not build into mineral line.
+
 #include "building-placer.hpp"
 #include "utils/array2d.h"
 #include <BWTA.h>
@@ -169,7 +172,7 @@ BuildingPositionPrecondition* getBuildingPosition(const BWAPI::UnitType& ut)
 	if (pos == TilePositions::None)
 		return NULL;
 	
-	return new BuildingPositionPrecondition(ut, pos);
+	return new BuildingPositionInternal(ut, pos);
 }
 
 void BuildingPlacerCode::onMatchBegin()

@@ -74,8 +74,10 @@ namespace
 		UnitPrecondition* getWorker(const Race& r)
 		{
 			for (auto it : worker)
-				if (it->getType().getRace() == r)
+				if (it->getType().getRace() == r) {
+					worker.erase(it);
 					return new UnitPrecondition(it);
+				}
 			return NULL;
 		}
 	};
@@ -108,7 +110,7 @@ namespace
 	bool checkWorkerReady(UnitPrecondition* unit)
 	{
 		if (unit->time == 0) {
-			LOG << "Sending worker to minerals.";
+			//LOG << "Sending worker to minerals.";
 			addWorkerNearestMineralLine(unit->unit);
 			return true;
 		}
@@ -127,7 +129,7 @@ namespace
 void useWorker(UnitPrecondition* unit)
 {
 	if (unit->time == 0) {
-		LOG << "Sending worker immediately.";
+		//LOG << "Sending worker immediately.";
 		addWorkerNearestMineralLine(unit->unit);
 		return;
 	}
@@ -147,7 +149,11 @@ UnitPrecondition* getWorker(const BWAPI::Race& r)
 
 void MineralLineCode::onMatchBegin()
 {
-	minerallines.insert(new MineralLine(BWTA::getStartLocation(Broodwar->self())));
+	auto line = new MineralLine(BWTA::getStartLocation(Broodwar->self()));
+	minerallines.insert(line);
+	for (auto it : Broodwar->self()->getUnits())
+		if (it->getType().isWorker())
+			line->addWorker(it);
 	
 	estimatedProduction.resize(1);
 	Production& prod = estimatedProduction[0];

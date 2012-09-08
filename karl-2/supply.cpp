@@ -1,6 +1,7 @@
 // ToDo:
 //  * Terran/Protoss build supply not jet implemented.
 //  * Bring SupplyUnits with wishtime at end of list.
+//  * Bug: Building SupplyUnit at "just in supply". Solution: Remove added SupplyUnits, if not needed.
 
 #include "supply.hpp"
 #include "vector-helper.hpp"
@@ -117,7 +118,7 @@ namespace
 		bool fire()
 		{
 			unit = pre->unit;
-			free(pre);
+			release(pre);
 			return true;
 		}
 	};

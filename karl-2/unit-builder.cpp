@@ -1,9 +1,18 @@
+// ToDo:
+//  * Backup unit, if first is attacked.
+//  * Try again, if place is blocked.
+//  * Building Extractor/Assimilator/Rafinery.
+//  * Preconditions for buildings.
+//  * Send worker to building location.
+
 #include "unit-builder.hpp"
 #include "building-placer.hpp"
 #include "resources.hpp"
 #include "mineral-line.hpp"
 #include "precondition-helper.hpp"
 #include "vector-helper.hpp"
+#include "larvas.hpp"
+#include "supply.hpp"
 #include "utils/debug.h"
 #include <algorithm>
 #include <cassert>
@@ -12,18 +21,24 @@ using namespace BWAPI;
 
 namespace
 {
+	const int savetime = 25;
+
 	struct UnitBuilderPrecondition : public UnitPrecondition
 	{
-		enum StatusType { pending, commanded, waiting, finished };
+		enum StatusType { pending, tryagain, commanded, waiting, finished };
 
 		UnitPrecondition*       		baseunit;
 		ResourcesPrecondition*  		resources;
 		BuildingPositionPrecondition* 	pos;
+		Precondition*					extra;
 		StatusType 						status;
 		UnitPrecondition*				postworker;
+		Unit*							worker;
+		int 							starttime;
+		int								tries;
 
-		UnitBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, BuildingPositionPrecondition* p, const UnitType& ut)
-			: UnitPrecondition(ut, u->pos, u->unit), baseunit(u), resources(r), pos(p), status(pending), postworker(NULL)
+		UnitBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, BuildingPositionPrecondition* p, const UnitType& ut, Precondition* e)
+			: UnitPrecondition(ut, u->pos, u->unit), baseunit(u), resources(r), pos(p), extra(e), status(pending), postworker(NULL), worker(NULL), starttime(0), tries(0)
 		{
 			updateTime();
 			if (ut.getRace() == Races::Terran) {
@@ -37,9 +52,10 @@ namespace
 		
 		~UnitBuilderPrecondition()
 		{
-			free(baseunit);
-			free(resources);
-			free(pos);
+			release(baseunit);
+			release(resources);
+			release(pos);
+			//release(extra);
 		}
 
 		bool updateTime()
@@ -47,12 +63,17 @@ namespace
 			switch (status)
 			{
 				case pending:
-					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, pos)) {
+					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, pos, extra)) {
 						start();
 						time = Broodwar->getFrameCount() + ut.buildTime();
-						status = commanded;
-						LOG << "building started.";
+						//status = commanded;
+						LOG << "building " << ut.getName() << " started.";
 					}
+					break;
+				
+				case tryagain:
+					time = Broodwar->getFrameCount() + ut.buildTime();
+					start();
 					break;
 
 				case commanded:
@@ -60,7 +81,10 @@ namespace
 					if (hasStarted()) {
 						freeResources();
 						status = waiting;
-						LOG << "waiting for building to finish.";
+						LOG << "waiting for building " << ut.getName() << " to finish.";
+					} else if (Broodwar->getFrameCount() > starttime + savetime) {
+						start();
+						LOG << "building " << ut.getName() << " restarted (try " << tries << ").";
 					}
 					break;
 
@@ -68,7 +92,7 @@ namespace
 					if (isFinished()) {
 						time   = 0;
 						status = finished;
-						LOG << "building finished.";
+						LOG << "building " << ut.getName() << " finished.";
 					}
 					break;
 				
@@ -80,19 +104,34 @@ namespace
 
 		void start()
 		{
-			Unit* worker = NULL;
 			if (baseunit != NULL) {
 				worker = baseunit->unit;
-				if ((ut.getRace() == Races::Terran) || (ut.getRace() == Races::Protoss)) {
+				if (ut.getRace() != Races::Zerg) {
 					postworker->unit = worker;
-				} else if (ut.getRace() == Races::Zerg) {
+				} else {
 					unit = worker;
 				}
-				free(baseunit);
+				release(baseunit);
 			}
 			assert(worker != NULL);
-			if (!unit->build(pos->pos, ut))
-				LOG << "Error: Unable to morph unit, internal bug!";
+			if (!worker->build(pos->pos, ut)) {
+				auto err = Broodwar->getLastError();
+				if (err == Errors::Unit_Busy) {
+					status = tryagain;
+					return;
+				}
+				LOG << "Error: Unable to build unit " << ut.getName() << ": " << err.toString();
+				if (err == Errors::Unbuildable_Location) {
+					status = tryagain;
+					BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
+					release(pos);
+					pos = newpos;
+					return;
+				}
+			}
+			status = commanded;
+			++tries;
+			starttime = Broodwar->getFrameCount();
 		}
 		
 		bool hasStarted() const
@@ -110,54 +149,100 @@ namespace
 
 		void freeResources()
 		{
-			free(resources);
-			free(pos);
+			release(resources);
+			release(pos);
 		}
 		
-		bool onAssignUnit(Unit* unit)
+		bool onAssignUnit(Unit* u)
 		{
 			if (status != commanded)
 				return false;
-			if (unit->getType() != ut)
+			if (u->getType() != ut)
 				return false;
-			if (unit->getTilePosition() != pos->pos)
+			if (u->getTilePosition() != pos->pos)
 				return false;
+			unit = u;
 			return true;
+		}
+		
+		const char* getStatusText() const
+		{
+			switch (status)
+			{
+				case pending:
+					return "pending";
+				case tryagain:
+					return "tryagain";
+				case commanded:
+					return "commanded";
+				case waiting:
+					return "waiting";
+				case finished:
+				default:
+					return "finished";
+			}
+		}
+		
+		void onDrawPlan() const
+		{
+			int x, y, width = 32*ut.tileWidth(), height = 32*ut.tileHeight();
+			if (pos != NULL) {
+				Position p(pos->pos);
+				x = p.x();
+				y = p.y();
+			} else {
+				Position p = unit->getPosition();
+				x = p.x() - width/2;
+				y = p.y() - height/2;
+			}
+			
+			Broodwar->drawBoxMap(x, y, x + width, y + height, Colors::Green, false);
+			Broodwar->drawTextMap(x+2, y+2,  "%s", ut.getName().c_str());
+			Broodwar->drawTextMap(x+2, y+18, "%s", getStatusText());
+			Broodwar->drawTextMap(x+2, y+34, "at %d", time);
+			Broodwar->drawTextMap(x+2, y+50, "wish %d", wishtime);
 		}
 	};
 
 	std::vector<UnitBuilderPrecondition*> list;
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* worker, ResourcesPrecondition* res, BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut)
+std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* worker, ResourcesPrecondition* res, BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra)
 {
-	UnitBuilderPrecondition* result = new UnitBuilderPrecondition(worker, res, pos, ut);
+	UnitBuilderPrecondition* result = new UnitBuilderPrecondition(worker, res, pos, ut, extra);
     list.push_back(result);
-    return std::make_pair(result, result->postworker);
+	
+	UnitPrecondition* first  = result;
+	UnitPrecondition* second = result->postworker;
+	if (ut == UnitTypes::Zerg_Hatchery)
+		first = registerHatchery(first);
+	if (ut.supplyProvided() > 0)
+		first = registerSupplyUnit(first);
+    return std::make_pair(first, second);
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* worker, BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut)
+std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* worker, BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra)
 {
 	ResourcesPrecondition* res = getResources(ut);
 	if (res == NULL)
 		return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
-	return buildUnit(worker, res, pos, ut);
+	return buildUnit(worker, res, pos, ut, extra);
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut)
+std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra)
 {
 	UnitPrecondition* worker = getWorker(ut.getRace());
 	if (worker == NULL)
 		return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
-	return buildUnit(worker, pos, ut);
+	return buildUnit(worker, pos, ut, extra);
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType& ut)
+std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType& ut, Precondition* extra)
 {
 	BuildingPositionPrecondition* pos = getBuildingPosition(ut);
 	if (pos == NULL)
 		return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
-	return buildUnit(pos, ut);
+	return buildUnit(pos, ut, extra);
 }
 
 void UnitBuilderCode::onMatchEnd()
@@ -176,4 +261,10 @@ bool UnitBuilderCode::onAssignUnit(BWAPI::Unit* unit)
 		if (it->onAssignUnit(unit))
 			return true;
 	return false;
+}
+
+void UnitBuilderCode::onDrawPlan()
+{
+	for (auto it : list)
+		it->onDrawPlan();
 }

@@ -23,6 +23,7 @@ int calcMaxTime(Precondition* first, List... args)
     return std::max(calcMaxTime(first), calcMaxTime(args...));
 }
 
+/*
 inline void setWishTimeSave(int time, int wishtime, Precondition* first)
 {
 	if (first == NULL)
@@ -90,6 +91,22 @@ TestStatus::Type getType(int time, int wishtime, Precondition* first, List... ar
         return TestStatus::unknown;
     }
 }
+*/
+
+inline void setWishTimeSimple(int wishtime, Precondition* pre)
+{
+	if (pre == NULL)
+		return;
+	
+	pre->wishtime = wishtime;
+}
+
+template <class ... List>
+void setWishTimeSimple(int wishtime, Precondition* first, List... args)
+{
+    setWishTimeSimple(wishtime, first);
+    setWishTimeSimple(wishtime, args...);
+}
 
 template <class ... List>
 bool updateTimePreconditions(Precondition* self, int duration, List... args)
@@ -97,29 +114,36 @@ bool updateTimePreconditions(Precondition* self, int duration, List... args)
     int time = calcMaxTime(args...);
     if (time == 0)
         return true;
-
-    int wishtime = self->wishtime - duration;
+	int oldtime  = self->time - duration;
+	int wishtime = self->wishtime - duration;
     self->time   = time + duration;
 
-    switch (getType(time, wishtime, args...))
+	int dt       = std::max(oldtime - time, 1);
+	int subtime  = std::max(time - 10*dt, wishtime);
+	setWishTimeSimple(subtime, args...);
+	
+	/*
+    switch (getType(oldtime, wishtime, args...))
     {
         case TestStatus::test:
             setWishTimeSave(time, wishtime, args...);
             break;
 
         case TestStatus::save:
+			setWishTimeSave(time, wishtime, args...);
             break;
 
         case TestStatus::unknown:
             setWishTimeTest(wishtime, args...);
             break;
     }
+	*/
 
     return false;
 }
 
 template <class T>
-void free(T*& pre)
+void release(T*& pre)
 {
 	if (pre != NULL) {
 		delete pre;

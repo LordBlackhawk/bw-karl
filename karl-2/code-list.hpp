@@ -11,20 +11,20 @@
 #include "unit-builder.hpp"
 #include "zerg-strategie.hpp"
 #include "hud-code.hpp"
-#include "debugger.hpp"
+#include "larvas.hpp"
 
 typedef CodeCaller<
 					MessageDispatchCode,
                     MineralLineCode,
 					ResourcesCode,
-					SupplyCode,
 					IdleUnitContainerCode,
+					LarvaCode,
 					BuildingPlacerCode,
 					UnitBuilderCode,
 					UnitMorpherCode,
+					SupplyCode,
 					HUDCode,
 					ZergStrategieCode,
-				//	DebuggerCode,
 					DefaultCode
                   >
         CodeList;
