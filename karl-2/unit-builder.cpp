@@ -13,6 +13,7 @@
 #include "vector-helper.hpp"
 #include "larvas.hpp"
 #include "supply.hpp"
+#include "requirements.hpp"
 #include "utils/debug.h"
 #include <algorithm>
 #include <cassert>
@@ -30,6 +31,7 @@ namespace
 		UnitPrecondition*       		baseunit;
 		ResourcesPrecondition*  		resources;
 		BuildingPositionPrecondition* 	pos;
+		RequirementsPrecondition*		requirements;
 		Precondition*					extra;
 		StatusType 						status;
 		UnitPrecondition*				postworker;
@@ -37,8 +39,10 @@ namespace
 		int 							starttime;
 		int								tries;
 
-		UnitBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, BuildingPositionPrecondition* p, const UnitType& ut, Precondition* e)
-			: UnitPrecondition(ut, u->pos, u->unit), baseunit(u), resources(r), pos(p), extra(e), status(pending), postworker(NULL), worker(NULL), starttime(0), tries(0)
+		UnitBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, BuildingPositionPrecondition* p, RequirementsPrecondition* req, 
+								const UnitType& ut, Precondition* e)
+			: UnitPrecondition(ut, u->pos, u->unit), baseunit(u), resources(r), pos(p), requirements(req), extra(e), status(pending), 
+			  postworker(NULL), worker(NULL), starttime(0), tries(0)
 		{
 			updateTime();
 			if (ut.getRace() == Races::Terran) {
@@ -55,6 +59,7 @@ namespace
 			release(baseunit);
 			release(resources);
 			release(pos);
+			release(requirements);
 			//release(extra);
 		}
 
@@ -63,7 +68,7 @@ namespace
 			switch (status)
 			{
 				case pending:
-					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, pos, extra)) {
+					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, pos, requirements, extra)) {
 						start();
 						time = Broodwar->getFrameCount() + ut.buildTime();
 						//status = commanded;
@@ -151,6 +156,7 @@ namespace
 		{
 			release(resources);
 			release(pos);
+			release(requirements);
 		}
 		
 		bool onAssignUnit(Unit* u)
@@ -209,7 +215,10 @@ namespace
 
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* worker, ResourcesPrecondition* res, BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra)
 {
-	UnitBuilderPrecondition* result = new UnitBuilderPrecondition(worker, res, pos, ut, extra);
+	RequirementsPrecondition* req = getRequirements(ut);
+	// req maybe NULL.
+	
+	UnitBuilderPrecondition* result = new UnitBuilderPrecondition(worker, res, pos, req, ut, extra);
     list.push_back(result);
 	
 	UnitPrecondition* first  = result;

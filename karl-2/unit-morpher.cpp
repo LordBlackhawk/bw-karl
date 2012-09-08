@@ -6,6 +6,7 @@
 #include "resources.hpp"
 #include "supply.hpp"
 #include "idle-unit-container.hpp"
+#include "requirements.hpp"
 #include "vector-helper.hpp"
 #include "utils/debug.h"
 #include <BWAPI.h>
@@ -21,14 +22,16 @@ namespace
 	{
 		enum StatusType { pending, tryagain, commanded, waiting, finished };
 
-		UnitPrecondition*       baseunit;
-		ResourcesPrecondition*  resources;
-		SupplyPrecondition*		supply;
-		Precondition*			extra;
-		StatusType 				status;
+		UnitPrecondition*       	baseunit;
+		ResourcesPrecondition*  	resources;
+		SupplyPrecondition*			supply;
+		RequirementsPrecondition* 	requirements;
+		Precondition*				extra;
+		StatusType 					status;
 
-		UnitMorphPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, SupplyPrecondition* s, const UnitType& ut, Precondition* e)
-			: UnitPrecondition(ut, u->pos, u->unit), baseunit(u), resources(r), supply(s), extra(e), status(pending)
+		UnitMorphPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, SupplyPrecondition* s, RequirementsPrecondition* v, 
+							  const UnitType& ut, Precondition* e)
+			: UnitPrecondition(ut, u->pos, u->unit), baseunit(u), resources(r), supply(s), requirements(v), extra(e), status(pending)
 		{
 			updateTime();
 		}
@@ -38,6 +41,7 @@ namespace
 			release(baseunit);
 			release(resources);
 			release(supply);
+			release(requirements);
 			//release(extra);
 		}
 
@@ -58,7 +62,7 @@ namespace
 			switch (status)
 			{
 				case pending:
-					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, supply, extra)) {
+					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, supply, requirements, extra)) {
 						start();
 						time = Broodwar->getFrameCount() + ut.buildTime();
 					}
@@ -110,6 +114,7 @@ namespace
 		{
 			release(resources);
 			release(supply);
+			release(requirements);
 		}
 		
 		void onDrawPlan()
@@ -129,7 +134,10 @@ namespace
 
 UnitPrecondition* morphUnit(UnitPrecondition* unit, ResourcesPrecondition* res, SupplyPrecondition* supply, const BWAPI::UnitType& ut, Precondition* extra)
 {
-	UnitMorphPrecondition* result = new UnitMorphPrecondition(unit, res, supply, ut, extra);
+	RequirementsPrecondition* req = getRequirements(ut);
+	// req maybe NULL.
+	
+	UnitMorphPrecondition* result = new UnitMorphPrecondition(unit, res, supply, req, ut, extra);
     list.push_back(result);
 
 	UnitPrecondition* first = result;

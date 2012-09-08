@@ -12,6 +12,7 @@
 #include "zerg-strategie.hpp"
 #include "hud-code.hpp"
 #include "larvas.hpp"
+#include "requirements.hpp"
 
 typedef CodeCaller<
 					MessageDispatchCode,
@@ -19,6 +20,7 @@ typedef CodeCaller<
 					ResourcesCode,
 					IdleUnitContainerCode,
 					LarvaCode,
+					RequirementsCode,
 					BuildingPlacerCode,
 					UnitBuilderCode,
 					UnitMorpherCode,

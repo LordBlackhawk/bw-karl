@@ -33,6 +33,15 @@ struct BuildingPositionPrecondition : public Precondition
 	{ }
 };
 
+struct RequirementsPrecondition : public Precondition
+{
+	BWAPI::UnitType		ut;
+	
+	RequirementsPrecondition(const BWAPI::UnitType& t)
+		: Precondition(0), ut(t)
+	{ }
+};
+
 struct UnitPrecondition : public Precondition
 {
     BWAPI::UnitType     ut;
