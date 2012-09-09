@@ -1,6 +1,7 @@
 // ToDo:
 //  * Terran/Protoss build supply not jet implemented.
 //  * Bring SupplyUnits with wishtime at end of list.
+//  * Use 'unit-observer.hpp'.
 //  * Bug: Building SupplyUnit at "just in supply". Solution: Remove added SupplyUnits, if not needed.
 
 #include "supply.hpp"

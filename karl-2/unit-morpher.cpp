@@ -18,6 +18,9 @@ using namespace BWAPI;
 
 namespace
 {
+	struct UnitMorphPrecondition;
+	std::vector<UnitMorphPrecondition*> list;
+	
 	struct UnitMorphPrecondition : public UnitPrecondition
 	{
 		enum StatusType { pending, tryagain, commanded, waiting, finished };
@@ -38,6 +41,8 @@ namespace
 		
 		~UnitMorphPrecondition()
 		{
+			VectorHelper::remove(list, this);
+
 			release(baseunit);
 			release(resources);
 			release(supply);
@@ -128,8 +133,6 @@ namespace
 			Broodwar->drawCircleMap(x, y, 20, Colors::Green, false);
 		}
 	};
-
-	std::vector<UnitMorphPrecondition*> list;
 }
 
 UnitPrecondition* morphUnit(UnitPrecondition* unit, ResourcesPrecondition* res, SupplyPrecondition* supply, const BWAPI::UnitType& ut, Precondition* extra)
@@ -171,7 +174,7 @@ UnitPrecondition* morphUnit(const BWAPI::UnitType& ut, Precondition* extra)
 
 void UnitMorpherCode::onMatchEnd()
 {
-	VectorHelper::clear_and_delete(list);
+	list.clear();
 }
 
 void UnitMorpherCode::onTick()

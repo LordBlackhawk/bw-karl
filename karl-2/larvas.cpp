@@ -1,6 +1,7 @@
 #include "larvas.hpp"
 #include "vector-helper.hpp"
 #include "precondition-helper.hpp"
+#include "unit-observer.hpp"
 #include "utils/debug.h"
 #include <algorithm>
 #include <functional>
@@ -50,27 +51,37 @@ namespace
 		return pre->time != 0;
 	}
 	
+	struct LarvaPlaner;
+	
+	struct HatcheryObserver : UnitObserver<HatcheryObserver>
+	{
+		LarvaPlaner* planer;
+		
+		HatcheryObserver(LarvaPlaner* p, UnitPrecondition* u);
+		void onRemoveFromList();
+		void onFulfilled();
+	};
+	
 	struct LarvaPlaner
 	{
-		UnitPrecondition* 				prehatch;
-		UnitPrecondition* 				posthatch;
+		HatcheryObserver*				hatchob;
 		BWAPI::Unit* 					hatch;
 		std::set<Unit*>					idlelarvas;
 		std::vector<LarvaPrecondition*>	reserved;
 		int								nextlarvatime;
 		
 		LarvaPlaner(Unit* u)
-			: prehatch(NULL), posthatch(NULL), hatch(u)
+			: hatchob(NULL), hatch(u)
 		{
 			idlelarvas    = hatch->getLarva();
 			nextlarvatime = (idlelarvas.empty()) ? hatch->getRemainingTrainTime() : 0;
 		}
 		
 		LarvaPlaner(UnitPrecondition* u)
-			: prehatch(u), hatch(NULL)
+			: hatchob(NULL), hatch(NULL)
 		{
-			nextlarvatime = prehatch->time;
-			posthatch = new UnitPrecondition(prehatch->time, prehatch->ut, prehatch->pos);
+			hatchob = new HatcheryObserver(this, u);
+			nextlarvatime = hatchob->time;
 		}
 		
 		void distributeLarva(Unit* unit)
@@ -102,7 +113,7 @@ namespace
 				Unit* unit = *idlelarvas.begin();
 				idlelarvas.erase(unit);
 				if (idlelarvas.empty()) {
-					int dt = (prehatch != NULL) ? larva_span_time : hatch->getRemainingTrainTime();
+					int dt = (hatchob != NULL) ? larva_span_time : hatch->getRemainingTrainTime();
 					if (dt == 0)
 						dt = larva_span_time;
 					nextlarvatime = Broodwar->getFrameCount() + dt;
@@ -115,24 +126,16 @@ namespace
 			}
 			
 			pre->time = nextlarvatime;
-			pre->pos  = (prehatch != NULL) ? prehatch->pos : hatch->getPosition();
+			pre->pos  = (hatchob != NULL) ? hatchob->pos : hatch->getPosition();
 			pre->unit = NULL;
 			nextlarvatime += larva_span_time;
 		}
 		
 		void update()
 		{
-			if (prehatch != NULL) {
-				posthatch->time = prehatch->time;
-				prehatch->wishtime = posthatch->wishtime;
-				if (prehatch->time == 0) {
-					hatch = prehatch->unit;
-					posthatch->unit = hatch;
-					release(prehatch);
-					posthatch = NULL;
-					idlelarvas = hatch->getLarva();
-				}
-			}
+			if (hatchob != NULL)
+				if (hatchob->update())
+					hatchob = NULL;
 		
 			std::stable_sort(reserved.begin(), reserved.end(), LarvaSorter());
 			
@@ -142,7 +145,7 @@ namespace
 					it->unit = NULL;
 				}
 			
-			int dt = (prehatch != NULL) ? larva_span_time : hatch->getRemainingTrainTime();
+			int dt = (hatchob != NULL) ? larva_span_time : hatch->getRemainingTrainTime();
 			if (dt == 0)
 				dt = larva_span_time;
 			nextlarvatime = Broodwar->getFrameCount() + dt;
@@ -163,9 +166,10 @@ namespace
 		void onDrawPlan()
 		{
 			int x, y;
-			if (prehatch != NULL) {
-				x = prehatch->pos.x();
-				y = prehatch->pos.y();
+			if (hatchob != NULL) {
+				Position pos(hatchob->pos);
+				x = pos.x() + (32*UnitTypes::Zerg_Hatchery.tileWidth())/2;
+				y = pos.y() + (32*UnitTypes::Zerg_Hatchery.tileHeight())/2;
 			} else {
 				Position pos = hatch->getPosition();
 				x = pos.x();
@@ -190,6 +194,23 @@ namespace
 		*/
 	};
 	
+	HatcheryObserver::HatcheryObserver(LarvaPlaner* p, UnitPrecondition* u)
+		: UnitObserver(u), planer(p)
+	{
+		planer->hatchob = this;
+	}
+	
+	void HatcheryObserver::onRemoveFromList()
+	{
+		planer->hatchob = NULL;
+	}
+	
+	void HatcheryObserver::onFulfilled()
+	{
+		assert(planer != NULL);
+		planer->hatch = unit;
+	}
+	
 	LarvaPrecondition::~LarvaPrecondition()
 	{
 		VectorHelper::remove(planer->reserved, this);
@@ -213,7 +234,7 @@ namespace
 	void moveLarva(LarvaPrecondition* unit)
 	{
 		if (reservedlarvas.empty()) {
-			unit->time = -1;
+			unit->time = Precondition::Impossible;
 			return;
 		}
 		
@@ -270,7 +291,7 @@ UnitPrecondition* registerHatchery(UnitPrecondition* hatch)
 {
 	LarvaPlaner* planer = new LarvaPlaner(hatch);
 	reservedlarvas.insert(planer);
-	return planer->posthatch;
+	return planer->hatchob;
 }
 
 void LarvaCode::onMatchBegin()

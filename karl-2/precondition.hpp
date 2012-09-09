@@ -1,28 +1,51 @@
 #pragma once
 
+#include <cassert>
+
 struct Precondition
 {
+	static const int Max        = 1 * 1000 * 1000;
+	static const int Impossible = 2 * Max;
+	
     int time;
     int wishtime;
 
     Precondition()
-        : time(-1), wishtime(0)
+        : time(Impossible), wishtime(0)
+    { }
+	
+	explicit Precondition(int t)
+        : time(t), wishtime(0)
     { }
 	
 	virtual ~Precondition()
 	{ }
 
-    explicit Precondition(int t)
-        : time(t), wishtime(0)
-    { }
-
     bool isFulfilled() const
     {
+		if (this == NULL)
+			return true;
+
         return time == 0;
     }
+	
+	void setFulfilled()
+	{
+		assert(this != NULL);
+		time = 0;
+	}
 
     bool isImpossible() const
     {
-        return time == -1;
+		if (this == NULL)
+			return false;
+
+        return time >= Max;
     }
+	
+	void setImpossible()
+	{
+		assert(this != NULL);
+		time = Impossible;
+	}
 };

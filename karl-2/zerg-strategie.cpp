@@ -39,7 +39,7 @@ void ZergStrategieCode::onMatchBegin()
 		return;
 	}
 	
-	if (morphUnit(colony, UnitTypes::Zerg_Sunken_Colony, pool) == NULL) {
+	if (morphUnit(colony, UnitTypes::Zerg_Sunken_Colony) == NULL) {
 		LOG << "Error in morph(Sunken): returns NULL.";
 		return;
 	}
@@ -54,7 +54,7 @@ void ZergStrategieCode::onMatchBegin()
 	}
 	
 	for (int k=0; k<10; ++k)
-		if (morphUnit(UnitTypes::Zerg_Zergling, pool) == NULL) {
+		if (morphUnit(UnitTypes::Zerg_Zergling) == NULL) {
 			LOG << "Error in morph(Zergling): returns NULL.";
 			return;
 		}

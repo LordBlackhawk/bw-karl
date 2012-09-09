@@ -22,7 +22,10 @@ using namespace BWAPI;
 
 namespace
 {
-	const int savetime = 25;
+	const int savetime = 27;
+	
+	struct UnitBuilderPrecondition;
+	std::vector<UnitBuilderPrecondition*> list;
 
 	struct UnitBuilderPrecondition : public UnitPrecondition
 	{
@@ -41,7 +44,7 @@ namespace
 
 		UnitBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, BuildingPositionPrecondition* p, RequirementsPrecondition* req, 
 								const UnitType& ut, Precondition* e)
-			: UnitPrecondition(ut, u->pos, u->unit), baseunit(u), resources(r), pos(p), requirements(req), extra(e), status(pending), 
+			: UnitPrecondition(1, ut, Position(p->pos)), baseunit(u), resources(r), pos(p), requirements(req), extra(e), status(pending), 
 			  postworker(NULL), worker(NULL), starttime(0), tries(0)
 		{
 			updateTime();
@@ -56,6 +59,8 @@ namespace
 		
 		~UnitBuilderPrecondition()
 		{
+			VectorHelper::remove(list, this);
+
 			release(baseunit);
 			release(resources);
 			release(pos);
@@ -65,13 +70,21 @@ namespace
 
 		bool updateTime()
 		{
+			/*
+			if ((ut == UnitTypes::Zerg_Spawning_Pool) && (Broodwar->getFrameCount() % 100 == 0)) {
+				LOG << "baseunit.time = "     << ((baseunit != NULL) ? baseunit->time : -2)     << "; "
+					<< "resources.time = "    << ((resources != NULL) ? resources->time : -2)   << "; "
+					<< "pos.time = "          << ((pos != NULL) ? pos->time : -2)               << "; "
+					<< "requirements.time = " << ((requirements != NULL) ? requirements->time : -2);
+			}
+			*/
+
 			switch (status)
 			{
 				case pending:
 					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, pos, requirements, extra)) {
 						start();
 						time = Broodwar->getFrameCount() + ut.buildTime();
-						//status = commanded;
 						LOG << "building " << ut.getName() << " started.";
 					}
 					break;
@@ -119,6 +132,7 @@ namespace
 				release(baseunit);
 			}
 			assert(worker != NULL);
+			//LOG << "Sending worker to build " << ut.getName();
 			if (!worker->build(pos->pos, ut)) {
 				auto err = Broodwar->getLastError();
 				if (err == Errors::Unit_Busy) {
@@ -209,8 +223,6 @@ namespace
 			Broodwar->drawTextMap(x+2, y+50, "wish %d", wishtime);
 		}
 	};
-
-	std::vector<UnitBuilderPrecondition*> list;
 }
 
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* worker, ResourcesPrecondition* res, BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra)
@@ -227,6 +239,8 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* work
 		first = registerHatchery(first);
 	if (ut.supplyProvided() > 0)
 		first = registerSupplyUnit(first);
+	if (isRequirement(ut))
+		first = registerRequirement(first);
     return std::make_pair(first, second);
 }
 
@@ -256,7 +270,7 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType&
 
 void UnitBuilderCode::onMatchEnd()
 {
-	VectorHelper::clear_and_delete(list);
+	list.clear();
 }
 
 void UnitBuilderCode::onTick()
