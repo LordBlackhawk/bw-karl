@@ -4,6 +4,7 @@
 #include "bwapi-precondition.hpp"
 
 UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut);
+void rememberIdle(UnitPrecondition* unit);
 
 struct IdleUnitContainerCode : public DefaultCode
 {

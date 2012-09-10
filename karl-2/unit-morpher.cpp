@@ -48,7 +48,7 @@ namespace
 			release(resources);
 			release(supply);
 			release(requirements);
-			//release(extra);
+			release(extra);
 		}
 
 		bool updateTime()
@@ -121,6 +121,7 @@ namespace
 			release(resources);
 			release(supply);
 			release(requirements);
+			release(extra);
 		}
 		
 		void onDrawPlan()

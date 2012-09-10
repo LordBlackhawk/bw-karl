@@ -7,8 +7,10 @@
 #include "supply.hpp"
 #include "vector-helper.hpp"
 #include "unit-morpher.hpp"
+#include "idle-unit-container.hpp"
 #include "precondition-helper.hpp"
 #include "object-counter.hpp"
+#include "unit-observer.hpp"
 #include "utils/debug.h"
 #include <BWAPI.h>
 #include <cassert>
@@ -17,13 +19,13 @@ using namespace BWAPI;
 
 namespace
 {
-	struct SupplyUnitPrecondition;
+	struct SupplyUnitObserver;
 	
 	struct RaceSupply
 	{
 		BWAPI::Race								race;
 		std::vector<SupplyPrecondition*>		supply;
-		std::vector<SupplyUnitPrecondition*>	supplyunits;
+		std::vector<SupplyUnitObserver*>	supplyunits;
 		int										remaining;
 		int										remaining_time;
 		
@@ -41,8 +43,9 @@ namespace
 			supplyunits.clear();
 		}
 		
-		void calcSupplyUnit(SupplyUnitPrecondition* unit);
-		void addSupplyUnit(SupplyUnitPrecondition* unit);
+		void calcSupplyUnit(SupplyUnitObserver* unit);
+		void addSupplyUnit(SupplyUnitObserver* unit);
+		void removeSupplyUnit(SupplyUnitObserver* unit);
 		
 		void fillSupply()
 		{
@@ -77,15 +80,12 @@ namespace
 	RaceSupply terran_supply;
 	RaceSupply protoss_supply;
 	RaceSupply zerg_supply;
-
-	struct SupplyUnitPrecondition : public UnitPrecondition, public ObjectCounter<SupplyUnitPrecondition>
+	
+	struct SupplyUnitObserver : public UnitObserver<SupplyUnitObserver>, public ObjectCounter<SupplyUnitObserver>
 	{
-		UnitPrecondition* pre;
-		
-		SupplyUnitPrecondition(UnitPrecondition* p)
-			: UnitPrecondition(p->ut, p->pos, p->unit), pre(p)
+		SupplyUnitObserver(UnitPrecondition* p)
+			: UnitObserver<SupplyUnitObserver>(p)
 		{
-			update();
 			Race r = ut.getRace();
 			if (r == Races::Terran) {
 				terran_supply.addSupplyUnit(this);
@@ -95,21 +95,17 @@ namespace
 				zerg_supply.addSupplyUnit(this);
 			}
 		}
-		
-		bool update()
+	
+		void onRemoveFromList()
 		{
-			pre->wishtime = wishtime;
-			time          = pre->time;
-			if (pre->time == 0)
-				return fire();
-			return false;
-		}
-		
-		bool fire()
-		{
-			unit = pre->unit;
-			release(pre);
-			return true;
+			Race r = ut.getRace();
+			if (r == Races::Terran) {
+				terran_supply.removeSupplyUnit(this);
+			} else if (r == Races::Protoss) {
+				protoss_supply.removeSupplyUnit(this);
+			} else if (r == Races::Zerg) {
+				zerg_supply.removeSupplyUnit(this);
+			}
 		}
 	};
 	
@@ -147,21 +143,26 @@ namespace
 		}
 	};
 	
-	void RaceSupply::calcSupplyUnit(SupplyUnitPrecondition* unit)
+	void RaceSupply::calcSupplyUnit(SupplyUnitObserver* unit)
 	{
 		remaining     += unit->ut.supplyProvided();
 		remaining_time = unit->time;
 	}
 	
-	void RaceSupply::addSupplyUnit(SupplyUnitPrecondition* unit)
+	void RaceSupply::addSupplyUnit(SupplyUnitObserver* unit)
 	{
 		supplyunits.push_back(unit);
 		calcSupplyUnit(unit);
 	}
 	
+	void RaceSupply::removeSupplyUnit(SupplyUnitObserver* unit)
+	{
+		VectorHelper::remove(supplyunits, unit);
+	}
+	
 	void RaceSupply::onTick()
 	{
-		VectorHelper::remove_if(supplyunits, std::mem_fun(&SupplyUnitPrecondition::update));
+		VectorHelper::remove_if(supplyunits, std::mem_fun(&SupplyUnitObserver::update));
 		std::stable_sort(supplyunits.begin(), supplyunits.end(), PreconditionSorter());
 		
 		Player* self   = Broodwar->self();
@@ -203,6 +204,7 @@ namespace
 			result = morphUnit(UnitTypes::Zerg_Overlord);
 			if (result == NULL)
 				LOG << "Not able to build overlord!";
+			rememberIdle(result);
 		}
 		return result;
 	}
@@ -222,7 +224,7 @@ SupplyPrecondition* getSupply(const BWAPI::UnitType& ut)
 
 UnitPrecondition* registerSupplyUnit(UnitPrecondition* unit)
 {
-	return new SupplyUnitPrecondition(unit);
+	return new SupplyUnitObserver(unit);
 }
 
 void SupplyCode::onMatchBegin()
@@ -248,6 +250,6 @@ void SupplyCode::onTick()
 
 void SupplyCode::onCheckMemoryLeaks()
 {
-	SupplyUnitPrecondition::checkObjectsAlive();
+	SupplyUnitObserver::checkObjectsAlive();
 	SupplyPreconditionInternal::checkObjectsAlive();
 }

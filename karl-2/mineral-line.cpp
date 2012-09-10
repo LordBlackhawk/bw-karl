@@ -112,6 +112,7 @@ namespace
 		if (unit->time == 0) {
 			//LOG << "Sending worker to minerals.";
 			addWorkerNearestMineralLine(unit->unit);
+			delete unit;
 			return true;
 		}
 		return false;
@@ -128,6 +129,9 @@ namespace
 
 void useWorker(UnitPrecondition* unit)
 {
+	if (unit == NULL)
+		return;
+
 	if (unit->time == 0) {
 		//LOG << "Sending worker immediately.";
 		addWorkerNearestMineralLine(unit->unit);
@@ -164,10 +168,8 @@ void MineralLineCode::onMatchBegin()
 
 void MineralLineCode::onMatchEnd()
 {
-	for (auto it : minerallines)
-		delete it;
-	minerallines.clear();
-	newworker.clear();
+	VectorHelper::clear_and_delete(minerallines);
+	VectorHelper::clear_and_delete(newworker);
 }
 
 void MineralLineCode::onTick()

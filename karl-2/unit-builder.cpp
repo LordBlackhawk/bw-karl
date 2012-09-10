@@ -66,7 +66,7 @@ namespace
 			release(resources);
 			release(pos);
 			release(requirements);
-			//release(extra);
+			release(extra);
 		}
 
 		bool updateTime()
@@ -172,6 +172,7 @@ namespace
 			release(resources);
 			release(pos);
 			release(requirements);
+			release(extra);
 		}
 		
 		bool onAssignUnit(Unit* u)

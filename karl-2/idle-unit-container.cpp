@@ -21,6 +21,18 @@ namespace
 		idleunits.erase(unit);
 		return new UnitPrecondition(unit);
 	}
+	
+	std::vector<UnitPrecondition*>	waitingfor;
+	
+	bool updateWaiting(UnitPrecondition* pre)
+	{
+		if (pre->isFulfilled()) {
+			idleunits.insert(pre->unit);
+			delete pre;
+			return true;
+		}
+		return false;
+	}
 }
 
 UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut)
@@ -33,13 +45,24 @@ UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut)
 	return NULL;
 }
 
+void rememberIdle(UnitPrecondition* unit)
+{
+	if (unit == NULL)
+		return;
+
+	waitingfor.push_back(unit);
+}
+
 void IdleUnitContainerCode::onMatchEnd()
 {
 	idleunits.clear();
+	VectorHelper::clear_and_delete(waitingfor);
 }
 
 void IdleUnitContainerCode::onTick()
-{ }
+{
+	VectorHelper::remove_if(waitingfor, updateWaiting);
+}
 
 void IdleUnitContainerCode::onUnitCreate(BWAPI::Unit* unit)
 {

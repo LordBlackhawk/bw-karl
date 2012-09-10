@@ -3,6 +3,7 @@
 #include "unit-morpher.hpp"
 #include "unit-builder.hpp"
 #include "mineral-line.hpp"
+#include "idle-unit-container.hpp"
 #include "precondition-helper.hpp"
 #include "utils/debug.h"
 #include <sstream>
@@ -18,52 +19,20 @@ void ZergStrategieCode::onMatchBegin()
 	if (Broodwar->self()->getRace() != Races::Zerg)
 		return;
 
-	for (int k=0; k<5; ++k) {
-		UnitPrecondition* worker = morphUnit(BWAPI::UnitTypes::Zerg_Drone);
-		if (worker == NULL) {
-			LOG << "Error in morphUnit(): returns NULL.";
-			continue;
-		}
-		useWorker(worker);
-	}
+	for (int k=0; k<5; ++k)
+		useWorker(morphUnit(UnitTypes::Zerg_Drone));
 	
 	UnitPrecondition* pool = buildUnit(UnitTypes::Zerg_Spawning_Pool).first;
-	if (pool == NULL) {
-		LOG << "Error in buildUnit(Pool): returns NULL.";
-		return;
-	}
-
 	UnitPrecondition* colony = buildUnit(UnitTypes::Zerg_Creep_Colony).first;
-	if (colony == NULL) {
-		LOG << "Error in buildUnit(CreepColony): returns NULL.";
-		return;
-	}
+	rememberIdle(morphUnit(colony, UnitTypes::Zerg_Sunken_Colony));
 	
-	if (morphUnit(colony, UnitTypes::Zerg_Sunken_Colony) == NULL) {
-		LOG << "Error in morph(Sunken): returns NULL.";
-		return;
-	}
-	
-	for (int k=0; k<5; ++k) {
-		UnitPrecondition* worker = morphUnit(BWAPI::UnitTypes::Zerg_Drone);
-		if (worker == NULL) {
-			LOG << "Error in morphUnit(): returns NULL.";
-			continue;
-		}
-		useWorker(worker);
-	}
+	for (int k=0; k<5; ++k)
+		useWorker(morphUnit(BWAPI::UnitTypes::Zerg_Drone));
 	
 	for (int k=0; k<10; ++k)
-		if (morphUnit(UnitTypes::Zerg_Zergling) == NULL) {
-			LOG << "Error in morph(Zergling): returns NULL.";
-			return;
-		}
+		rememberIdle(morphUnit(UnitTypes::Zerg_Zergling));
 	
 	UnitPrecondition* hatch = buildUnit(UnitTypes::Zerg_Hatchery, pool).first;
-	if (hatch == NULL) {
-		LOG << "Error in morph(Hatch): returns NULL.";
-		return;
-	}
 	waittill = hatch;
 }
 
@@ -75,12 +44,14 @@ void ZergStrategieCode::onTick()
 	if ((waittill == NULL) || (waittill->time == 0)) {
 		release(waittill);
 		
-		for (int k=0; k<10; ++k) {
-			waittill = morphUnit(UnitTypes::Zerg_Zergling);
-			if (waittill == NULL) {
-				LOG << "Error in morph(Zergling): returns NULL.";
-				return;
-			}
-		}
+		for (int k=0; k<9; ++k)
+			rememberIdle(morphUnit(UnitTypes::Zerg_Zergling));
+		
+		waittill = morphUnit(UnitTypes::Zerg_Zergling);
 	}
+}
+
+void ZergStrategieCode::onMatchEnd()
+{
+	release(waittill);
 }
