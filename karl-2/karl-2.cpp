@@ -70,6 +70,9 @@ int main(int /*argc*/, const char** /*argv[]*/)
 		LOG << "Calling onMatchEnd...";
 		CodeList::onMatchEnd();
 		
+		LOG << "Checking for memory leaks...";
+		CodeList::onCheckMemoryLeaks();
+		
 		LOG << "Game ended.\n";
 	}
 	return 0;

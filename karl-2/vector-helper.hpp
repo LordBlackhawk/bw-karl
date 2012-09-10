@@ -23,4 +23,12 @@ namespace VectorHelper
 			delete it;
 		container.clear();
 	}
+	
+	template <class C>
+	void clear_and_delete_second(C& container)
+	{
+		for (auto it : container)
+			delete it.second;
+		container.clear();
+	}
 }

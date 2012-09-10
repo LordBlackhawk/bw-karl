@@ -13,4 +13,5 @@ struct RequirementsCode : public DefaultCode
 	static void onMatchEnd();
 	static void onTick();
 	static void onUnitDestroy(BWAPI::Unit* unit);
+	static void onCheckMemoryLeaks();
 };

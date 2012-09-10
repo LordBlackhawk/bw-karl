@@ -2,6 +2,7 @@
 #include "vector-helper.hpp"
 #include "precondition-helper.hpp"
 #include "unit-observer.hpp"
+#include "object-counter.hpp"
 #include "utils/debug.h"
 #include <algorithm>
 #include <functional>
@@ -16,7 +17,7 @@ namespace
 
 	struct LarvaPlaner;
 	
-	struct LarvaPrecondition : public UnitPrecondition
+	struct LarvaPrecondition : public UnitPrecondition, public ObjectCounter<LarvaPrecondition>
 	{
 		LarvaPlaner* planer;
 		
@@ -53,7 +54,7 @@ namespace
 	
 	struct LarvaPlaner;
 	
-	struct HatcheryObserver : UnitObserver<HatcheryObserver>
+	struct HatcheryObserver : public UnitObserver<HatcheryObserver>, public ObjectCounter<HatcheryObserver>
 	{
 		LarvaPlaner* planer;
 		
@@ -62,7 +63,7 @@ namespace
 		void onFulfilled();
 	};
 	
-	struct LarvaPlaner
+	struct LarvaPlaner : public ObjectCounter<LarvaPlaner>
 	{
 		HatcheryObserver*				hatchob;
 		BWAPI::Unit* 					hatch;
@@ -183,15 +184,6 @@ namespace
 
 			Broodwar->drawTextMap(x, y, "%d / %d", assigned, reserved.size());
 		}
-		
-		/*
-		void onDebug()
-		{
-			LOG << "Hatchery larva list:";
-			for (auto it : reserved)
-				LOG << "\t" << debugName(it) << " at " << it->time << " (" << it->wishtime << ") ";
-		}
-		*/
 	};
 	
 	HatcheryObserver::HatcheryObserver(LarvaPlaner* p, UnitPrecondition* u)
@@ -342,10 +334,9 @@ void LarvaCode::onDrawPlan()
 		it->onDrawPlan();
 }
 
-/*
-void LarvaCode::onDebug()
+void LarvaCode::onCheckMemoryLeaks()
 {
-	for (auto it : reservedlarvas)
-		it->onDebug();
+	HatcheryObserver::checkObjectsAlive();
+	LarvaPrecondition::checkObjectsAlive();
+	LarvaPlaner::checkObjectsAlive();
 }
-*/

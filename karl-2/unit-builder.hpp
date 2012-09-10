@@ -14,4 +14,5 @@ struct UnitBuilderCode : public DefaultCode
 	static void onTick();
 	static bool onAssignUnit(BWAPI::Unit* unit);
 	static void onDrawPlan();
+	static void onCheckMemoryLeaks();
 };

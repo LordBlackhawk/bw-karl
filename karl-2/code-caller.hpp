@@ -107,10 +107,10 @@ struct CodeCaller<First, List...>
 		Next::onUnitRenegade(unit);
 	}
 	
-	static void onDebug()
+	static void onCheckMemoryLeaks()
 	{
-		First::onDebug();
-		Next::onDebug();
+		First::onCheckMemoryLeaks();
+		Next::onCheckMemoryLeaks();
 	}
 	
 	static void onDrawPlan()

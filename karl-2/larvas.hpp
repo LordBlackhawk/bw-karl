@@ -14,5 +14,5 @@ struct LarvaCode : public DefaultCode
 	static bool onAssignUnit(BWAPI::Unit* unit);
 	static void onUnitDestroy(BWAPI::Unit* unit);
 	static void onDrawPlan();
-	//static void onDebug();
+	static void onCheckMemoryLeaks(); 
 };

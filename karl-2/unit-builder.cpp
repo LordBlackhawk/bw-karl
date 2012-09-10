@@ -14,6 +14,7 @@
 #include "larvas.hpp"
 #include "supply.hpp"
 #include "requirements.hpp"
+#include "object-counter.hpp"
 #include "utils/debug.h"
 #include <algorithm>
 #include <cassert>
@@ -27,7 +28,7 @@ namespace
 	struct UnitBuilderPrecondition;
 	std::vector<UnitBuilderPrecondition*> list;
 
-	struct UnitBuilderPrecondition : public UnitPrecondition
+	struct UnitBuilderPrecondition : public UnitPrecondition, public ObjectCounter<UnitBuilderPrecondition>
 	{
 		enum StatusType { pending, tryagain, commanded, waiting, finished };
 
@@ -290,4 +291,9 @@ void UnitBuilderCode::onDrawPlan()
 {
 	for (auto it : list)
 		it->onDrawPlan();
+}
+
+void UnitBuilderCode::onCheckMemoryLeaks()
+{
+	UnitBuilderPrecondition::checkObjectsAlive();
 }

@@ -10,5 +10,4 @@ struct ResourcesCode : public DefaultCode
 {
 	static void onMatchEnd();
 	static void onTick();
-	static void onDebug();
 };

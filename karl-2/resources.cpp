@@ -4,7 +4,6 @@
 #include "resources.hpp"
 #include "mineral-line.hpp"
 #include "vector-helper.hpp"
-#include "debugger.hpp"
 #include "utils/debug.h"
 #include <algorithm>
 
@@ -127,12 +126,4 @@ void ResourcesCode::onTick()
 		cur_g += dt * prod_g - MineralFactor * (*it)->gas;
 		time  += dt;
 	}
-}
-
-void ResourcesCode::onDebug()
-{
-	LOG << "Resources list:";
-	for (auto it : reslist)
-		LOG << "\t" << debugName(it) << " at " << it->time << " (" << it->wishtime << ") "
-			<< "with " << it->minerals << " minerals and " << it->gas << " gas.";
 }

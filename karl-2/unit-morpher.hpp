@@ -13,4 +13,5 @@ struct UnitMorpherCode : public DefaultCode
 	static void onMatchEnd();
     static void onTick();
 	static void onDrawPlan();
+	static void onCheckMemoryLeaks();
 };

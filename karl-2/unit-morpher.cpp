@@ -8,6 +8,7 @@
 #include "idle-unit-container.hpp"
 #include "requirements.hpp"
 #include "vector-helper.hpp"
+#include "object-counter.hpp"
 #include "utils/debug.h"
 #include <BWAPI.h>
 #include <vector>
@@ -21,7 +22,7 @@ namespace
 	struct UnitMorphPrecondition;
 	std::vector<UnitMorphPrecondition*> list;
 	
-	struct UnitMorphPrecondition : public UnitPrecondition
+	struct UnitMorphPrecondition : public UnitPrecondition, public ObjectCounter<UnitMorphPrecondition>
 	{
 		enum StatusType { pending, tryagain, commanded, waiting, finished };
 
@@ -186,4 +187,9 @@ void UnitMorpherCode::onDrawPlan()
 {
 	for (auto it : list)
 		it->onDrawPlan();
+}
+
+void UnitMorpherCode::onCheckMemoryLeaks()
+{
+	UnitMorphPrecondition::checkObjectsAlive();
 }

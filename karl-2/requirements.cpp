@@ -5,6 +5,7 @@
 #include "vector-helper.hpp"
 #include "precondition-helper.hpp"
 #include "unit-observer.hpp"
+#include "object-counter.hpp"
 #include "utils/debug.h"
 #include <map>
 #include <vector>
@@ -18,7 +19,7 @@ namespace
 {
 	struct RequirementHandler;
 	
-	struct ReqUnitInternal : public UnitObserver<ReqUnitInternal>
+	struct ReqUnitInternal : public UnitObserver<ReqUnitInternal>, public ObjectCounter<ReqUnitInternal>
 	{
 		RequirementHandler* handler;
 		
@@ -27,7 +28,7 @@ namespace
 		void onFulfilled();
 	};
 	
-	struct RequirementHandler
+	struct RequirementHandler : public ObjectCounter<RequirementHandler>
 	{
 		int 							time;
 		std::set<Unit*>					finished;
@@ -36,6 +37,12 @@ namespace
 		RequirementHandler()
 			: time(1)
 		{ }
+		
+		~RequirementHandler()
+		{
+			for (auto it : planed)
+				it->handler = NULL;
+		}
 		
 		void update(const UnitType& ut);
 		
@@ -59,8 +66,8 @@ namespace
 	
 	void ReqUnitInternal::onRemoveFromList()
 	{
-		assert(handler != NULL);
-		VectorHelper::remove(handler->planed, this);
+		if (handler != NULL)
+			VectorHelper::remove(handler->planed, this);
 	}
 	
 	void ReqUnitInternal::onFulfilled()
@@ -115,7 +122,7 @@ namespace
 	
 	std::set<RequirementsInternal*> reqlist;
 	
-	struct RequirementsInternal : public RequirementsPrecondition
+	struct RequirementsInternal : public RequirementsPrecondition, public ObjectCounter<RequirementsInternal>
 	{
 		RequirementsInternal(const UnitType& t)
 			: RequirementsPrecondition(t)
@@ -184,7 +191,7 @@ void RequirementsCode::onMatchBegin()
 
 void RequirementsCode::onMatchEnd()
 {
-	requirements.clear();
+	VectorHelper::clear_and_delete_second(requirements);
 	reqlist.clear();
 }
 
@@ -200,4 +207,11 @@ void RequirementsCode::onUnitDestroy(BWAPI::Unit* unit)
 {
 	for (auto it : requirements)
 		it.second->onUnitDestroy(unit);
+}
+
+void RequirementsCode::onCheckMemoryLeaks()
+{
+	ReqUnitInternal::checkObjectsAlive();
+	RequirementHandler::checkObjectsAlive();
+	RequirementsInternal::checkObjectsAlive();
 }

@@ -52,7 +52,7 @@ struct DefaultCode
 	static void onUnitRenegade(BWAPI::Unit* /*unit*/)
 	{ }
 	
-	static void onDebug()
+	static void onCheckMemoryLeaks()
 	{ }
 	
 	static void onDrawPlan()

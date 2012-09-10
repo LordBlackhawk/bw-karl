@@ -8,7 +8,7 @@
 #include "vector-helper.hpp"
 #include "unit-morpher.hpp"
 #include "precondition-helper.hpp"
-#include "debugger.hpp"
+#include "object-counter.hpp"
 #include "utils/debug.h"
 #include <BWAPI.h>
 #include <cassert>
@@ -72,24 +72,13 @@ namespace
 		
 		UnitPrecondition* buildSupply();
 		void onTick();
-		
-		void onDebug()
-		{
-			if (supply.empty())
-				return;
-			
-			LOG << "Supply " << race.getName();
-			for (auto it : supply)
-				LOG << "\t" << debugName(it) << " at " << it->time << " (" << it->wishtime << ") "
-					<< "with " << it->supply << " supply.";
-		}
 	};
 	
 	RaceSupply terran_supply;
 	RaceSupply protoss_supply;
 	RaceSupply zerg_supply;
 
-	struct SupplyUnitPrecondition : public UnitPrecondition
+	struct SupplyUnitPrecondition : public UnitPrecondition, public ObjectCounter<SupplyUnitPrecondition>
 	{
 		UnitPrecondition* pre;
 		
@@ -124,7 +113,7 @@ namespace
 		}
 	};
 	
-	struct SupplyPreconditionInternal : public SupplyPrecondition
+	struct SupplyPreconditionInternal : public SupplyPrecondition, public ObjectCounter<SupplyPreconditionInternal>
 	{
 		SupplyPreconditionInternal(const BWAPI::Race& r, int s)
 			: SupplyPrecondition(r, s)
@@ -257,9 +246,8 @@ void SupplyCode::onTick()
 	zerg_supply.onTick();
 }
 
-void SupplyCode::onDebug()
+void SupplyCode::onCheckMemoryLeaks()
 {
-	terran_supply.onDebug();
-	protoss_supply.onDebug();
-	zerg_supply.onDebug();
+	SupplyUnitPrecondition::checkObjectsAlive();
+	SupplyPreconditionInternal::checkObjectsAlive();
 }
