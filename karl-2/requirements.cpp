@@ -1,5 +1,5 @@
 // ToDo:
-//  * Bug fixing.
+//  * Add SetAutoRequirementMode(None/Auto).
 
 #include "requirements.hpp"
 #include "vector-helper.hpp"

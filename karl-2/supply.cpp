@@ -1,12 +1,13 @@
 // ToDo:
-//  * Terran/Protoss build supply not jet implemented.
 //  * Bring SupplyUnits with wishtime at end of list.
-//  * Use 'unit-observer.hpp'.
-//  * Bug: Building SupplyUnit at "just in supply". Solution: Remove added SupplyUnits, if not needed.
+//  * Bug: Building SupplyUnit at "just in supply". Solution: Add supply units only after n ticks.
+//  * Supply blocked units are always behind buildings. Problem?
 
 #include "supply.hpp"
 #include "vector-helper.hpp"
 #include "unit-morpher.hpp"
+#include "unit-builder.hpp"
+#include "mineral-line.hpp"
 #include "idle-unit-container.hpp"
 #include "precondition-helper.hpp"
 #include "object-counter.hpp"
@@ -25,9 +26,10 @@ namespace
 	{
 		BWAPI::Race								race;
 		std::vector<SupplyPrecondition*>		supply;
-		std::vector<SupplyUnitObserver*>	supplyunits;
+		std::vector<SupplyUnitObserver*>		supplyunits;
 		int										remaining;
 		int										remaining_time;
+		int										mode;
 		
 		void init(const BWAPI::Race& r)
 		{
@@ -35,6 +37,7 @@ namespace
 			Player* self   = Broodwar->self();
 			remaining      = self->supplyTotal(race) - self->supplyUsed(race);
 			remaining_time = 0;
+			mode           = SupplyMode::None;
 		}
 		
 		void reset()
@@ -47,24 +50,13 @@ namespace
 		void addSupplyUnit(SupplyUnitObserver* unit);
 		void removeSupplyUnit(SupplyUnitObserver* unit);
 		
-		void fillSupply()
-		{
-			while (remaining < 0) {
-				int oldremaining = remaining;
-				if (buildSupply() == NULL)
-					LOG << "build Supply returns NULL";
-				if (remaining <= oldremaining) {
-					LOG << "remaining does not increase after buildSupply()";
-					return;
-				}
-			}
-		}
-		
 		void addSupply(SupplyPrecondition* s)
 		{
 			supply.push_back(s);
 			remaining -= s->supply;
-			fillSupply();
+			//fillSupply();
+			if (remaining < 0)
+				remaining_time = Precondition::Impossible;
 			s->time = remaining_time;
 		}
 		
@@ -73,7 +65,22 @@ namespace
 			VectorHelper::remove(supply, s);
 		}
 		
-		UnitPrecondition* buildSupply();
+		void buildSupply()
+		{
+			LOG << "buildSupply called.";
+			if (race == Races::Terran) {
+				auto result = buildUnit(UnitTypes::Terran_Supply_Depot);
+				rememberIdle(result.first);
+				useWorker(result.second);
+			} else if (race == Races::Protoss) {
+				auto result = buildUnit(UnitTypes::Protoss_Pylon);
+				rememberIdle(result.first);
+				useWorker(result.second);
+			} else if (race == Races::Zerg) {
+				rememberIdle(morphUnit(UnitTypes::Zerg_Overlord));
+			}
+		}
+		
 		void onTick();
 	};
 	
@@ -179,34 +186,26 @@ namespace
 				++uit;
 			}
 			if (remaining < 0) {
-				fillSupply();
-				uit = uitend = supplyunits.end();
+				remaining_time = Precondition::Impossible;
+				//fillSupply();
+				//uit = uitend = supplyunits.end();
 			}
 			it->time = remaining_time;
 		}
 		
 		for (; uit!=uitend; ++uit)
 			calcSupplyUnit(*uit);
-	}
-	
-	UnitPrecondition* RaceSupply::buildSupply()
-	{
-		LOG << "buildSupply called.";
-
-		UnitPrecondition* result = NULL;
-		if (race == Races::Terran) {
-			LOG << "Not implemented!!!";
-			exit(1);
-		} else if (race == Races::Protoss) {
-			LOG << "Not implemented!!!";
-			exit(1);
-		} else if (race == Races::Zerg) {
-			result = morphUnit(UnitTypes::Zerg_Overlord);
-			if (result == NULL)
-				LOG << "Not able to build overlord!";
-			rememberIdle(result);
+		
+		switch (mode)
+		{
+			case SupplyMode::Auto:
+				if (remaining < 0)
+					buildSupply();
+				break;
+			
+			default:
+				break;
 		}
-		return result;
 	}
 }
 
@@ -225,6 +224,17 @@ SupplyPrecondition* getSupply(const BWAPI::UnitType& ut)
 UnitPrecondition* registerSupplyUnit(UnitPrecondition* unit)
 {
 	return new SupplyUnitObserver(unit);
+}
+
+void setSupplyMode(const BWAPI::Race& r, int mode)
+{
+	if (r == Races::Terran) {
+		terran_supply.mode = mode;
+	} else if (r == Races::Protoss) {
+		protoss_supply.mode = mode;
+	} else if (r == Races::Zerg) {
+		zerg_supply.mode = mode;
+	}
 }
 
 void SupplyCode::onMatchBegin()

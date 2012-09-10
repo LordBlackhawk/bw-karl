@@ -3,6 +3,7 @@
 #include "unit-morpher.hpp"
 #include "unit-builder.hpp"
 #include "mineral-line.hpp"
+#include "supply.hpp"
 #include "idle-unit-container.hpp"
 #include "precondition-helper.hpp"
 #include "utils/debug.h"
@@ -18,9 +19,12 @@ void ZergStrategieCode::onMatchBegin()
 {
 	if (Broodwar->self()->getRace() != Races::Zerg)
 		return;
+	
+	setSupplyMode(Races::Zerg, SupplyMode::Auto);
 
 	for (int k=0; k<5; ++k)
 		useWorker(morphUnit(UnitTypes::Zerg_Drone));
+	rememberIdle(morphUnit(UnitTypes::Zerg_Overlord));
 	
 	UnitPrecondition* pool = buildUnit(UnitTypes::Zerg_Spawning_Pool).first;
 	UnitPrecondition* colony = buildUnit(UnitTypes::Zerg_Creep_Colony).first;

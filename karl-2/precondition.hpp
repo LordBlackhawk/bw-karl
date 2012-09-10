@@ -4,7 +4,7 @@
 
 struct Precondition
 {
-	static const int Max        = 1 * 1000 * 1000;
+	static const int Max        = 100 * 1000 * 1000;
 	static const int Impossible = 2 * Max;
 	
     int time;
