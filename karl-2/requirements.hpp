@@ -7,6 +7,12 @@ RequirementsPrecondition* getRequirements(const BWAPI::UnitType& t);
 bool isRequirement(const BWAPI::UnitType& t);
 UnitPrecondition* registerRequirement(UnitPrecondition* unit);
 
+namespace RequirementsMode
+{
+	enum { None, Auto };
+}
+void setRequirementsMode(int m);
+
 struct RequirementsCode : public DefaultCode
 {
 	static void onMatchBegin();

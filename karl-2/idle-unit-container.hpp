@@ -6,6 +6,8 @@
 UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut);
 void rememberIdle(UnitPrecondition* unit);
 
+UnitPrecondition* createUnit(const BWAPI::UnitType& ut);
+
 struct IdleUnitContainerCode : public DefaultCode
 {
 	static void onMatchEnd();

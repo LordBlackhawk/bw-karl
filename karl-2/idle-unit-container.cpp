@@ -5,6 +5,8 @@
 #include "code-list.hpp"
 #include "mineral-line.hpp"
 #include "larvas.hpp"
+#include "unit-morpher.hpp"
+#include "unit-builder.hpp"
 #include "vector-helper.hpp"
 #include "utils/debug.h"
 #include <algorithm>
@@ -51,6 +53,19 @@ void rememberIdle(UnitPrecondition* unit)
 		return;
 
 	waitingfor.push_back(unit);
+}
+
+UnitPrecondition* createUnit(const BWAPI::UnitType& ut)
+{
+	if (ut.whatBuilds().first.isWorker()) {
+		auto result = buildUnit(ut);
+		useWorker(result.second);
+		return result.first;
+	} else if (ut.getRace() == Races::Zerg) {
+		return morphUnit(ut);
+	} else {
+		return NULL;
+	}
 }
 
 void IdleUnitContainerCode::onMatchEnd()

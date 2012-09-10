@@ -6,6 +6,7 @@
 #include "precondition-helper.hpp"
 #include "unit-observer.hpp"
 #include "object-counter.hpp"
+#include "idle-unit-container.hpp"
 #include "utils/debug.h"
 #include <map>
 #include <vector>
@@ -54,6 +55,14 @@ namespace
 		void onUnitDestroy(Unit* unit)
 		{
 			finished.erase(unit);
+		}
+		
+		void autoBuild(const UnitType& ut)
+		{
+			if (time > Precondition::Max) {
+				LOG << "Building requirement " << ut.getName() << ".";
+				rememberIdle(createUnit(ut));
+			}
 		}
 	};
 	
@@ -113,8 +122,11 @@ namespace
 		if (tobuild.whatBuilds().first == ut)
 			return 0;
 		auto it = requirements.find(ut);
-		if (it == requirements.end())
+		if (it == requirements.end()) {
+			RequirementHandler* handler = new RequirementHandler();
+			requirements[ut] = handler;
 			return Precondition::Impossible;
+		}
 		return it->second->time;
 	}
 	
@@ -138,13 +150,14 @@ namespace
 		void update()
 		{
 			time = 0;
-			std::map<UnitType, int> list = ut.requiredUnits();
-			for (auto it : list) {
+			for (auto it : ut.requiredUnits()) {
 				int newtime = lookup(ut, it.first);
 				time = std::max(time, newtime);
 			}
 		}
 	};
+	
+	int mode = RequirementsMode::None;
 }
 
 RequirementsPrecondition* getRequirements(const BWAPI::UnitType& t)
@@ -172,12 +185,17 @@ bool isRequirement(const BWAPI::UnitType& t)
 	{
 		return false;
 	}
-	return true;	
+	return true;
 }
 
 UnitPrecondition* registerRequirement(UnitPrecondition* unit)
 {
 	return getOrCreateHandler(unit->ut)->registerRequirement(unit);
+}
+
+void setRequirementsMode(int m)
+{
+	mode = m;
 }
 
 void RequirementsCode::onMatchBegin()
@@ -187,6 +205,9 @@ void RequirementsCode::onMatchBegin()
 		if (ut == UnitTypes::Zerg_Hatchery)
 			getOrCreateHandler(ut)->finished.insert(it);
 	}
+	
+	for (auto it : UnitTypes::Zerg_Zergling.requiredUnits())
+		LOG << it.second << " " << it.first.getName();
 }
 
 void RequirementsCode::onMatchEnd()
@@ -201,6 +222,16 @@ void RequirementsCode::onTick()
 		it.second->update(it.first);
 	for (auto it : reqlist)
 		it->update();
+	
+	switch (mode)
+	{
+		case RequirementsMode::Auto:
+			for (auto it : requirements)
+				it.second->autoBuild(it.first);
+			break;
+		default:
+			break;
+	}
 }
 
 void RequirementsCode::onUnitDestroy(BWAPI::Unit* unit)
