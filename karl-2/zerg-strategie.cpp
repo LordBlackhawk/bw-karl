@@ -24,11 +24,13 @@ void ZergStrategieCode::onMatchBegin()
 	setSupplyMode(Races::Zerg, SupplyMode::Auto);
 	setRequirementsMode(RequirementsMode::Auto);
 
-	for (int k=0; k<5; ++k)
+	for (int k=0; k<10; ++k)
 		useWorker(morphUnit(UnitTypes::Zerg_Drone));
 	//rememberIdle(morphUnit(UnitTypes::Zerg_Overlord));
 	
 	buildRefinery(UnitTypes::Zerg_Extractor);
+	
+	morphUnit(UnitTypes::Zerg_Mutalisk);
 	
 	/*
 	UnitPrecondition* pool = buildUnit(UnitTypes::Zerg_Spawning_Pool).first;

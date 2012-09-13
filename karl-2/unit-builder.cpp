@@ -89,7 +89,13 @@ namespace
 				
 				case tryagain:
 					time = Broodwar->getFrameCount() + ut.buildTime();
-					start();
+					if (hasStarted()) {
+						freeResources();
+						status = waiting;
+						LOG << "waiting for building " << ut.getName() << " to finish.";
+					} else {
+						start();
+					}
 					break;
 
 				case commanded:
@@ -140,11 +146,17 @@ namespace
 					return;
 				}
 				LOG << "Error: Unable to build unit " << ut.getName() << ": " << err.toString();
+				LOG << "       from " << worker->getType().getName() << " (player " << worker->getPlayer()->getName() << ")";
 				if (err == Errors::Unbuildable_Location) {
 					status = tryagain;
 					BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
 					release(pos);
 					pos = newpos;
+					return;
+				}
+				if (err == Errors::Unit_Not_Owned) {
+					status = tryagain;
+					baseunit = getWorker(ut.getRace());
 					return;
 				}
 			}

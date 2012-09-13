@@ -148,6 +148,8 @@ UnitPrecondition* morphUnit(UnitPrecondition* unit, ResourcesPrecondition* res, 
 	UnitPrecondition* first = result;
 	if (ut == UnitTypes::Zerg_Overlord)
 		first = registerSupplyUnit(first);
+	if (isRequirement(ut))
+		first = registerRequirement(first);
     return first;
 }
 
