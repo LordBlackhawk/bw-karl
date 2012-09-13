@@ -26,21 +26,25 @@ void ZergStrategieCode::onMatchBegin()
 
 	for (int k=0; k<5; ++k)
 		useWorker(morphUnit(UnitTypes::Zerg_Drone));
-	rememberIdle(morphUnit(UnitTypes::Zerg_Overlord));
+	//rememberIdle(morphUnit(UnitTypes::Zerg_Overlord));
 	
-	//UnitPrecondition* pool = buildUnit(UnitTypes::Zerg_Spawning_Pool).first;
-	//UnitPrecondition* colony = buildUnit(UnitTypes::Zerg_Creep_Colony).first;
-	//rememberIdle(morphUnit(colony, UnitTypes::Zerg_Sunken_Colony));
+	buildRefinery(UnitTypes::Zerg_Extractor);
+	
+	/*
+	UnitPrecondition* pool = buildUnit(UnitTypes::Zerg_Spawning_Pool).first;
+	UnitPrecondition* colony = buildUnit(UnitTypes::Zerg_Creep_Colony).first;
+	rememberIdle(morphUnit(colony, UnitTypes::Zerg_Sunken_Colony));
 	
 	for (int k=0; k<5; ++k)
 		useWorker(morphUnit(BWAPI::UnitTypes::Zerg_Drone));
 	
-	//for (int k=0; k<10; ++k)
+	for (int k=0; k<10; ++k)
 		rememberIdle(morphUnit(UnitTypes::Zerg_Zergling));
 	
-	//UnitPrecondition* hatch = buildUnit(UnitTypes::Zerg_Hatchery, pool).first;
-	//rememberIdle(morphUnit(UnitTypes::Zerg_Lair));
-	//waittill = hatch;
+	UnitPrecondition* hatch = buildUnit(UnitTypes::Zerg_Hatchery, pool).first;
+	rememberIdle(morphUnit(UnitTypes::Zerg_Lair));
+	waittill = hatch;
+	*/
 }
 
 void ZergStrategieCode::onTick()

@@ -1,5 +1,5 @@
 // ToDo:
-//  * Preconditions for units.
+//  *
 
 #include "unit-morpher.hpp"
 #include "precondition-helper.hpp"

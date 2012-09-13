@@ -1,8 +1,5 @@
 // ToDo:
 //  * Backup unit, if first is attacked.
-//  * Try again, if place is blocked.
-//  * Building Extractor/Assimilator/Rafinery.
-//  * Preconditions for buildings.
 //  * Send worker to building location.
 
 #include "unit-builder.hpp"
@@ -127,8 +124,10 @@ namespace
 				worker = baseunit->unit;
 				if (ut.getRace() != Races::Zerg) {
 					postworker->unit = worker;
-				} else {
+				} else if (ut != UnitTypes::Zerg_Extractor) {
 					unit = worker;
+				} else {
+					// Do nothing, worker will not survive.
 				}
 				release(baseunit);
 			}
@@ -156,10 +155,11 @@ namespace
 		
 		bool hasStarted() const
 		{
-			if (ut.getRace() != Races::Zerg)
+			if ((ut == UnitTypes::Zerg_Extractor) || (ut.getRace() != Races::Zerg)) {
 				return (unit != NULL); //(postworker->getLastCommand().getType() == BWAPI::UnitCommandTypes::Build);
-			else
+			} else {
 				return (unit->getType() == ut);
+			}
 		}
 		
 		bool isFinished() const
@@ -175,13 +175,18 @@ namespace
 			release(extra);
 		}
 		
+		bool near(TilePosition p1, TilePosition p2) const
+		{
+			return (std::abs(p1.x() - p2.x()) <= ut.tileWidth()) && (std::abs(p1.y() - p2.y()) <= ut.tileHeight());
+		}
+		
 		bool onAssignUnit(Unit* u)
 		{
-			if (status != commanded)
+			if ((status != commanded) && (status != tryagain))
 				return false;
 			if (u->getType() != ut)
 				return false;
-			if (u->getTilePosition() != pos->pos)
+			if (!near(u->getTilePosition(), pos->pos))
 				return false;
 			unit = u;
 			return true;
@@ -286,6 +291,14 @@ bool UnitBuilderCode::onAssignUnit(BWAPI::Unit* unit)
 		if (it->onAssignUnit(unit))
 			return true;
 	return false;
+}
+
+void UnitBuilderCode::onUnitMorph(BWAPI::Unit* unit)
+{
+	if ((unit->getType().isRefinery()) && (unit->getPlayer() == Broodwar->self()))
+		for (auto it : list)
+			if (it->onAssignUnit(unit))
+				return;
 }
 
 void UnitBuilderCode::onDrawPlan()

@@ -1,5 +1,5 @@
 // ToDo:
-//  * Add SetAutoRequirementMode(None/Auto).
+//  *
 
 #include "requirements.hpp"
 #include "vector-helper.hpp"
@@ -205,9 +205,6 @@ void RequirementsCode::onMatchBegin()
 		if (ut == UnitTypes::Zerg_Hatchery)
 			getOrCreateHandler(ut)->finished.insert(it);
 	}
-	
-	for (auto it : UnitTypes::Zerg_Zergling.requiredUnits())
-		LOG << it.second << " " << it.first.getName();
 }
 
 void RequirementsCode::onMatchEnd()

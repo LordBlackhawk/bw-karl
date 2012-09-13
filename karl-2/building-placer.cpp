@@ -150,29 +150,51 @@ namespace
 				reserved[x][y] = value;
 	}
 	
+	void reserveTiles(const TilePosition& position, const UnitType& type, bool value)
+	{
+		int width=type.tileWidth();
+		int height=type.tileHeight();
+
+		//make sure we leave space for add-ons. These types of units can have addons:
+		if (type==UnitTypes::Terran_Command_Center ||
+			type==UnitTypes::Terran_Factory || 
+			type==UnitTypes::Terran_Starport ||
+			type==UnitTypes::Terran_Science_Facility)
+		{
+			width+=2;
+		}
+		
+		reserveTiles(position, width, height, value);
+	}
+	
 	struct BuildingPositionInternal : public BuildingPositionPrecondition
 	{
 		BuildingPositionInternal(const BWAPI::UnitType& t, const BWAPI::TilePosition& p)
 			: BuildingPositionPrecondition(t, p)
 		{
-			reserveTiles(pos, ut.tileWidth(), ut.tileHeight(), true);
+			reserveTiles(pos, ut, true);
 		}
 		
 		~BuildingPositionInternal()
 		{
-			reserveTiles(pos, ut.tileWidth(), ut.tileHeight(), false);
+			reserveTiles(pos, ut, false);
 		}
 	};
+}
+
+BuildingPositionPrecondition* getBuildingPosition(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos)
+{
+	if (pos == TilePositions::None)
+		return NULL;
+
+	return new BuildingPositionInternal(ut, pos);
 }
 
 BuildingPositionPrecondition* getBuildingPosition(const BWAPI::UnitType& ut)
 {
 	TilePosition base = BWTA::getStartLocation(Broodwar->self())->getTilePosition();
 	TilePosition pos  = getBuildLocationNear(base, ut);
-	if (pos == TilePositions::None)
-		return NULL;
-	
-	return new BuildingPositionInternal(ut, pos);
+	return getBuildingPosition(ut, pos);
 }
 
 void BuildingPlacerCode::onMatchBegin()

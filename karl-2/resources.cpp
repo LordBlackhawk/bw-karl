@@ -1,5 +1,6 @@
 // ToDo:
 //  * Estimate after getResources can be improved.
+//  * Add setGasMode(None / Auto)
 
 #include "resources.hpp"
 #include "mineral-line.hpp"
