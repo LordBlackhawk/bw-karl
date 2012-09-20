@@ -1,7 +1,8 @@
 OBJECTPATH   = ../out/
-SOURCEPATH   = ../karl-2/
-BWAPIPATH    = ../bwapi/trunk/bwapi/include
+SOURCEPATH   = ../karl/
+BWAPIPATH    = ../includes
 LIBPATH		 = ../
+EXEPATH		 = ../
 
 ASSIGNMENT-TEST-SOURCES  = hungarian-algorithm.cpp timer.cpp
 ASSIGNMENT-TEST-PSOURCES = $(addprefix $(SOURCEPATH), $(ASSIGNMENT-TEST-SOURCES))
@@ -11,8 +12,15 @@ CXXINCLUDES  = -I../ -I$(SOURCEPATH) -I$(BWAPIPATH)
 CXXFLAGS     = -Wall -Wextra -O3 --std=c++0x $(CXXINCLUDES)
 CXXLIBS      = -L$(LIBPATH) -lBWAPI
 
-assignment-test.exe: assignment-test.cpp $(ASSIGNMENT-TEST-PSOURCES)
-	$(CXX) $(CXXINCLUDES) $(CXXFLAGS) assignment-test.cpp $(ASSIGNMENT-TEST-PSOURCES) -o assignment-test.exe
+$(EXEPATH)assignment-test.exe: assignment-test.cpp $(ASSIGNMENT-TEST-PSOURCES)
+	$(CXX) $(CXXINCLUDES) $(CXXFLAGS) $(CXXLIBS) assignment-test.cpp $(ASSIGNMENT-TEST-PSOURCES) -o $@
 	
-assignment: assignment-test.exe
-	assignment-test.exe
+assignment: $(EXEPATH)assignment-test.exe
+	$<
+
+$(EXEPATH)mineral-speed-test.exe: mineral-speed-test.cpp
+	$(CXX) $(CXXINCLUDES) $(CXXFLAGS) $(CXXLIBS) mineral-speed-test.cpp -o $@ -lBWAPI
+
+mineral-speed: $(EXEPATH)mineral-speed-test.exe
+	$<
+	
