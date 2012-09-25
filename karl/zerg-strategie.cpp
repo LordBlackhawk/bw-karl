@@ -33,19 +33,19 @@ void ZergStrategieCode::onMatchBegin()
 		useWorker(morphUnit(UnitTypes::Zerg_Drone));
 	buildRefinery(UnitTypes::Zerg_Extractor);
 	
-	rememberIdle(morphUnit(UnitTypes::Zerg_Mutalisk));
+	//rememberIdle(morphUnit(UnitTypes::Zerg_Mutalisk));
 	
-	UnitPrecondition* colony = buildUnit(UnitTypes::Zerg_Creep_Colony).first;
-	rememberIdle(morphUnit(colony, UnitTypes::Zerg_Sunken_Colony));
+	//UnitPrecondition* colony = buildUnit(UnitTypes::Zerg_Creep_Colony).first;
+	//rememberIdle(morphUnit(colony, UnitTypes::Zerg_Sunken_Colony));
 	
-	for (int k=0; k<5; ++k)
-		useWorker(morphUnit(BWAPI::UnitTypes::Zerg_Drone));
+	//for (int k=0; k<5; ++k)
+	//	useWorker(morphUnit(BWAPI::UnitTypes::Zerg_Drone));
 	
-	for (int k=0; k<10; ++k)
-		rememberIdle(morphUnit(UnitTypes::Zerg_Zergling));
+	//for (int k=0; k<10; ++k)
+	//	rememberIdle(morphUnit(UnitTypes::Zerg_Zergling));
 	
-	UnitPrecondition* hatch = buildUnit(UnitTypes::Zerg_Hatchery, pool).first;
-	waittill = hatch;
+	//UnitPrecondition* hatch = buildUnit(UnitTypes::Zerg_Hatchery, pool).first;
+	//waittill = hatch;
 }
 
 void ZergStrategieCode::onTick()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/debug.h"
+#include <typeinfo>
 
 template <class Derived>
 struct ObjectCounter

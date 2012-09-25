@@ -2,10 +2,13 @@
 //  * Bug: Hatchery forgets larvas.
 
 #include "larvas.hpp"
-#include "vector-helper.hpp"
 #include "precondition-helper.hpp"
 #include "unit-observer.hpp"
 #include "object-counter.hpp"
+#include "parallel-vector.hpp"
+#include "hungarian-algorithm.hpp"
+#include "unit-lifetime-observer.hpp"
+#include "container-helper.hpp"
 #include "utils/debug.h"
 #include <algorithm>
 #include <functional>
@@ -18,328 +21,354 @@ namespace
 {
 	const int larva_span_time = 300;
 
-	struct LarvaPlaner;
-	
-	struct LarvaPrecondition : public UnitPrecondition, public ObjectCounter<LarvaPrecondition>
+	struct LarvaAgent;
+	struct LarvaJob;
+	struct LarvaPrecondition;
+
+	struct LarvaAgent
 	{
-		LarvaPlaner* planer;
-		
+		// Data:
+		int         time;
+		Position    pos;
+		Unit*       larva;
+		LarvaJob*   assigned;
+		bool 		remove;
+
+		LarvaAgent();
+		void markRemove();
+		bool update();
+	};
+
+	struct LarvaJob
+	{
+		// Data:
+		int                 wishtime;
+		Position            wishpos;
+		LarvaPrecondition*  pre;
+		LarvaAgent*         assigned;
+
+		LarvaJob(LarvaPrecondition* p);
+		void markRemove();
+		bool update();
+	};
+
+	ParallelVector<LarvaAgent*>         agents;
+	ParallelVector<LarvaJob*>           jobs;
+	//std::vector<LarvaPrecondition*>     preconditions;
+
+	struct LarvaPrecondition : public UnitPrecondition
+	{
+		LarvaJob*       job;
+
 		LarvaPrecondition()
-			: UnitPrecondition(), planer(NULL)
-		{ }
-		
-		~LarvaPrecondition();
-		
-		int sortTime() const
+			: UnitPrecondition(Precondition::Impossible, UnitTypes::Zerg_Larva, Positions::Unknown), job(NULL)
 		{
-			if (time == 0) {
-				if (wishtime > Broodwar->getFrameCount() + 10)
-					return wishtime;
-				return time;
-			} else {
-				return std::max(time, wishtime);
-			}
+			job = new LarvaJob(this);
+			//Containers::add(preconditions, this);
 		}
-	};
-	
-	struct LarvaSorter
-	{
-		bool operator () (LarvaPrecondition* lhs, LarvaPrecondition* rhs)
+
+		~LarvaPrecondition()
 		{
-			return lhs->sortTime() < rhs->sortTime();
+			job->markRemove();
+			//Containers::add(preconditions, this);
 		}
 	};
 
-	bool isNotAssigned(UnitPrecondition* pre)
+	LarvaAgent::LarvaAgent()
+		: time(Precondition::Impossible), pos(Positions::Unknown), larva(NULL), remove(false)
 	{
-		return pre->time != 0;
+		Containers::add(agents, this);
 	}
-	
-	struct LarvaPlaner;
-	
-	struct HatcheryObserver : public UnitObserver<HatcheryObserver>, public ObjectCounter<HatcheryObserver>
+
+	void LarvaAgent::markRemove()
 	{
-		LarvaPlaner* planer;
-		
-		HatcheryObserver(LarvaPlaner* p, UnitPrecondition* u);
-		void onRemoveFromList();
-		void onFulfilled();
-	};
-	
-	struct LarvaPlaner : public ObjectCounter<LarvaPlaner>
+		remove = true;
+	}
+
+	bool LarvaAgent::update()
 	{
-		HatcheryObserver*				hatchob;
-		BWAPI::Unit* 					hatch;
-		std::set<Unit*>					idlelarvas;
-		std::vector<LarvaPrecondition*>	reserved;
-		int								nextlarvatime;
-		
-		LarvaPlaner(Unit* u)
-			: hatchob(NULL), hatch(u)
-		{
-			idlelarvas    = hatch->getLarva();
-			nextlarvatime = (idlelarvas.empty()) ? hatch->getRemainingTrainTime() : 0;
+		if (remove)
+			return true;
+
+		if (larva != NULL) {
+			time = 0;
+			pos  = larva->getPosition();
 		}
-		
-		LarvaPlaner(UnitPrecondition* u)
-			: hatchob(NULL), hatch(NULL)
-		{
-			hatchob = new HatcheryObserver(this, u);
-			nextlarvatime = hatchob->time;
+
+		return false;
+	}
+
+	LarvaJob::LarvaJob(LarvaPrecondition* p)
+		: wishtime(0), wishpos(Positions::Unknown), pre(p), assigned(NULL)
+	{
+		Containers::add(jobs, this);
+	}
+
+	void LarvaJob::markRemove()
+	{
+		if (assigned != NULL) {
+			assigned->markRemove();
+			assigned = NULL;
 		}
-		
-		void distributeLarva(Unit* unit)
-		{
-			auto it = std::find_if(reserved.begin(), reserved.end(), isNotAssigned);
-			if (it == reserved.end()) {
-				idlelarvas.insert(unit);
-				return;
-			}
-			
-			(*it)->time = 0;
-			(*it)->unit = unit;
-		}
-		
-		UnitPrecondition* reserveLarva()
-		{
-			LarvaPrecondition* result = new LarvaPrecondition();
-			result->ut = UnitTypes::Zerg_Larva;
-			moveLarva(result);
-			return result;
-		}
-		
-		void moveLarva(LarvaPrecondition* pre)
-		{
-			reserved.push_back(pre);
-			pre->planer = this;
-			
-			if (!idlelarvas.empty()) {
-				Unit* unit = *idlelarvas.begin();
-				idlelarvas.erase(unit);
-				if (idlelarvas.empty()) {
-					int dt = (hatchob != NULL) ? larva_span_time : hatch->getRemainingTrainTime();
-					if (dt == 0)
-						dt = larva_span_time;
-					nextlarvatime = Broodwar->getFrameCount() + dt;
-				}
-				
-				pre->time = 0;
-				pre->unit = unit;
-				pre->pos  = unit->getPosition();
-				return;
-			}
-			
-			pre->time = nextlarvatime;
-			pre->pos  = (hatchob != NULL) ? hatchob->pos : hatch->getPosition();
+		pre = NULL;
+	}
+
+	bool LarvaJob::update()
+	{
+		if (pre == NULL)
+			return true;
+
+		wishtime  = pre->wishtime;
+		//wishpos   = pre->wishpos;
+		if (assigned != NULL) {
+			pre->time = assigned->time;
+			pre->unit = assigned->larva;
+		} else {
+			pre->time = Precondition::Impossible;
 			pre->unit = NULL;
-			nextlarvatime += larva_span_time;
 		}
-		
-		void update()
+		return false;
+	}
+
+	struct ProblemType
+	{
+		double evaluate(int idAgent, int idJob) const
 		{
-			if (hatchob != NULL)
-				if (hatchob->update())
-					hatchob = NULL;
-		
-			std::stable_sort(reserved.begin(), reserved.end(), LarvaSorter());
-			
-			for (auto it : reserved)
-				if (it->unit != NULL) {
-					idlelarvas.insert(it->unit);
-					it->unit = NULL;
-				}
-			
-			int dt = (hatchob != NULL) ? larva_span_time : hatch->getRemainingTrainTime();
-			if (dt == 0)
-				dt = larva_span_time;
-			nextlarvatime = Broodwar->getFrameCount() + dt;
-			
-			for (auto it : reserved) {
-				if (!idlelarvas.empty()) {
-					it->time = 0;
-					it->unit = *idlelarvas.begin();
-					idlelarvas.erase(it->unit);
-				} else {
-					it->time = nextlarvatime;
-					it->unit = NULL;
-					nextlarvatime += larva_span_time;
-				}
-			}
-		}
-		
-		void onDrawPlan()
-		{
-			int x, y;
-			if (hatchob != NULL) {
-				Position pos(hatchob->pos);
-				x = pos.x() + (32*UnitTypes::Zerg_Hatchery.tileWidth())/2;
-				y = pos.y() + (32*UnitTypes::Zerg_Hatchery.tileHeight())/2;
-			} else {
-				Position pos = hatch->getPosition();
-				x = pos.x();
-				y = pos.y();
+			if (idAgent < agents.size()) {
+				return 0.0;
+			} else if (idJob < jobs.size()) {
+				return 0.0;
 			}
 			
-			int assigned = idlelarvas.size();
-			for (auto it : reserved)
-				if (it->time == 0)
-					++assigned;
-
-			Broodwar->drawTextMap(x, y, "%d / %d", assigned, reserved.size());
+			LarvaAgent* agent = agents[idAgent];
+			LarvaJob* job = jobs[idJob];
+			
+			double value = 1000.0;
+			
+			int dt = agent->time - job->wishtime;
+			if (dt > 0)
+				value += 0.1 * dt;
+			
+			if (job->assigned == agent)
+				value -= 10.0;
+			
+			return value;
 		}
-	};
-	
-	HatcheryObserver::HatcheryObserver(LarvaPlaner* p, UnitPrecondition* u)
-		: UnitObserver(u), planer(p)
-	{
-		planer->hatchob = this;
-	}
-	
-	void HatcheryObserver::onRemoveFromList()
-	{
-		planer->hatchob = NULL;
-	}
-	
-	void HatcheryObserver::onFulfilled()
-	{
-		assert(planer != NULL);
-		planer->hatch = unit;
-	}
-	
-	LarvaPrecondition::~LarvaPrecondition()
-	{
-		VectorHelper::remove(planer->reserved, this);
-	}
-	
-	struct MinTimeSorter
-	{
-		bool operator () (LarvaPlaner* lhs, LarvaPlaner* rhs)
+
+		void assign(int idAgent, int idJob) const
 		{
-			return lhs->nextlarvatime < rhs->nextlarvatime;
+			if ((idJob < 0) || (idJob >= jobs.size())) {
+				agents[idAgent]->assigned = NULL;
+				return;
+			}
+			LarvaJob* job = jobs[idJob];
+
+			if ((idAgent < 0) || (idAgent >= agents.size())) {
+				job->assigned = NULL;
+				return;
+			}
+			LarvaAgent* agent = agents[idAgent];
+
+			agent->assigned = job;
+			job->assigned = agent;
+			job->update();
+		}
+
+		int numberOfAgents() const
+		{
+			return agents.size();
+		}
+
+		int numberOfJobs() const
+		{
+			return jobs.size();
 		}
 	};
-	
-	std::set<LarvaPlaner*>			reservedlarvas;
-	
-	void createHatch(Unit* u)
-	{
-		reservedlarvas.insert(new LarvaPlaner(u));
-	}
-	
-	void moveLarva(LarvaPrecondition* unit)
-	{
-		if (reservedlarvas.empty()) {
-			unit->time = Precondition::Impossible;
-			return;
-		}
-		
-		auto it = std::min_element(reservedlarvas.begin(), reservedlarvas.end(), MinTimeSorter());
-		(*it)->moveLarva(unit);
-	}
-	
-	bool isHatchery(LarvaPlaner* p, Unit* hatch)
-	{
-		return p->hatch == hatch;
-	}
-	
-	void distributeLarva(Unit* unit)
-	{
-		if (Broodwar->getFrameCount() == 0)
-			return;
 
-		Unit* hatch = unit->getHatchery();
-		auto it = std::find_if(reservedlarvas.begin(), reservedlarvas.end(), std::bind(isHatchery, _1, hatch));
-		if (it == reservedlarvas.end()) {
-			LOG << "Error: Hatchery of larva not found in list.";
-			return;
-		}
-		(*it)->distributeLarva(unit);
-	}
-	
-	void removeHatchery(Unit* unit)
+	struct HatcheryPlaner;
+
+	std::vector<HatcheryPlaner*>    hatcheries;
+
+	struct HatcheryPlaner : public UnitLifetimeObserver<HatcheryPlaner>
 	{
-		auto it = std::find_if(reservedlarvas.begin(), reservedlarvas.end(), std::bind(isHatchery, _1, unit));
-		if (it == reservedlarvas.end()) {
-			LOG << "Error: Destroyed hatchery not found in list.";
-			return;
+		typedef std::vector<LarvaAgent*>		AgentContainer;
+		typedef AgentContainer::iterator  		AgentIterator;
+
+		AgentContainer    	agents;
+		
+		HatcheryPlaner(Unit* u)
+			: UnitLifetimeObserver<HatcheryPlaner>(u)
+		{
+			hatcheries.push_back(this);
 		}
 		
-		LarvaPlaner* old = *it;
-		reservedlarvas.erase(it);
-		for (auto it : old->reserved)
-			moveLarva(it);
-		release(old);
+		HatcheryPlaner(UnitPrecondition* p)
+			: UnitLifetimeObserver<HatcheryPlaner>(p)
+		{
+			hatcheries.push_back(this);
+		}
+		
+		void onRemoveFromList()
+		{
+			Containers::remove(hatcheries, this);
+		}
+		
+		bool distributeLarva(Unit* u);
+		void onUnitDestroyed();
+		void onUpdateOnline();
+		void onUpdateOffline();
+		void updateRest(AgentIterator start, int time);
+		void addJobs();
+	};
+
+	bool hasNoUnit(LarvaAgent* agent)
+	{
+		return agent->larva == NULL;
+	}
+
+	void HatcheryPlaner::onUnitDestroyed()
+	{
+		Containers::remove_if(agents, hasNoUnit);
+	}
+
+	bool checkAgent(LarvaAgent* agent, int* notassigned)
+	{
+		if (agent->remove)
+			return true;
+
+		if (agent->assigned == NULL)
+			++(*notassigned);
+
+		return false;
+	}
+
+	void HatcheryPlaner::addJobs()
+	{
+		int notassigned = 0;
+		Containers::remove_if(agents, std::bind(checkAgent, _1, &notassigned));
+
+		if (notassigned == 0) {
+			if (agents.size() < 100)
+				agents.push_back(new LarvaAgent());
+			else
+				LOG << "More than 100 jobs planed per hatch!";
+		}
+	}
+
+	void HatcheryPlaner::onUpdateOnline()
+	{
+		addJobs();
+		AgentIterator it    = agents.begin();
+		AgentIterator itend = agents.end();
+		while ((it != itend) && ((*it)->larva != NULL))
+			++it;
+		updateRest(it, Broodwar->getFrameCount() + larva_span_time);
+	}
+
+	void HatcheryPlaner::onUpdateOffline()
+	{
+		addJobs();
+		updateRest(agents.begin(), pre->time);
+	}
+
+	void HatcheryPlaner::updateRest(AgentIterator start, int time)
+	{
+		AgentIterator end = agents.end();
+		while (start != end) {
+			(*start)->time  = time;
+			(*start)->larva = NULL;
+			++start;
+			time += larva_span_time;
+		}
+	}
+
+	ProblemType         				problem;
+	HungarianAlgorithm<ProblemType>  	assignment(problem);
+	
+	bool HatcheryPlaner::distributeLarva(Unit* u)
+	{
+		for (auto it : agents)
+			if (it->larva == NULL)
+		{
+			it->larva = u;
+			return true;
+		}
+		
+		LOG << "No agent for larva found, creating new!";
+		LarvaAgent* agent = new LarvaAgent();
+		agents.push_back(agent);
+		agent->larva = u;
+		return true;
+	}
+	
+	bool distributeLarva(Unit* u)
+	{
+		Unit* hatch = u->getHatchery();
+		for (auto planer : hatcheries) {
+			if (planer->unit == hatch)
+		{
+			return planer->distributeLarva(u);
+		}
+		
+		LOG << "Compared " << planer->unit << " with " << hatch << ".";
+		}
+		
+		LOG << "Hatchery for larva not found!";
+		return false;
 	}
 }
 
 UnitPrecondition* getLarva()
 {
-	if (reservedlarvas.empty()) {
-		return NULL;
-	}
-	
-	auto it = std::min_element(reservedlarvas.begin(), reservedlarvas.end(), MinTimeSorter());
-	return (*it)->reserveLarva();
+	return new LarvaPrecondition();
 }
 
 UnitPrecondition* registerHatchery(UnitPrecondition* hatch)
 {
-	LarvaPlaner* planer = new LarvaPlaner(hatch);
-	reservedlarvas.insert(planer);
-	return planer->hatchob;
+	return HatcheryPlaner::createObserver(hatch);
 }
 
 void LarvaCode::onMatchBegin()
 {
 	for (auto it : Broodwar->self()->getUnits())
-		if (it->getType() == UnitTypes::Zerg_Hatchery)
-			createHatch(it);
+		if (it->getType() == UnitTypes::Zerg_Hatchery) {
+			LOG << "Hatchery added.";
+			new HatcheryPlaner(it);
+		}
 }
 
 void LarvaCode::onMatchEnd()
 {
-	VectorHelper::clear_and_delete(reservedlarvas);
+	Containers::clear_and_delete(agents);
+	Containers::clear_and_delete(jobs);
+	Containers::clear_and_delete(hatcheries);
 }
 
 void LarvaCode::onTick()
 {
-	for (auto it : reservedlarvas)
-		it->update();
+	Containers::remove_if(hatcheries, std::mem_fun(&HatcheryPlaner::update));
+
+	agents.update();
+	Containers::remove_if(agents, std::mem_fun(&LarvaAgent::update));
+
+	jobs.update();
+	Containers::remove_if(jobs, std::mem_fun(&LarvaJob::update));
+
+	assignment.execute();
 }
 
 bool LarvaCode::onAssignUnit(BWAPI::Unit* unit)
 {
-	if (unit->getType() == UnitTypes::Zerg_Larva) {
-		distributeLarva(unit);
-		return true;
-	}
-	return false;
-}
-
-void LarvaCode::onUnitDestroy(BWAPI::Unit* unit)
-{
-	Player* self = Broodwar->self();
-	if (unit->getPlayer() != self)
-		return;
-	
-	UnitType ut = unit->getType();
-	if (   (ut == UnitTypes::Zerg_Hatchery)
-	    || (ut == UnitTypes::Zerg_Lair)
-		|| (ut == UnitTypes::Zerg_Hive))
-	{
-		removeHatchery(unit);
-	}
+	return (unit->getType() == UnitTypes::Zerg_Larva) ? distributeLarva(unit) : false;
 }
 
 void LarvaCode::onDrawPlan()
 {
-	for (auto it : reservedlarvas)
-		it->onDrawPlan();
+	//for (auto it : reservedlarvas)
+	//	it->onDrawPlan();
 }
 
 void LarvaCode::onCheckMemoryLeaks()
 {
-	HatcheryObserver::checkObjectsAlive();
-	LarvaPrecondition::checkObjectsAlive();
-	LarvaPlaner::checkObjectsAlive();
+	//LarvaPlaner::checkObjectsAlive();
 }

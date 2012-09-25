@@ -23,17 +23,6 @@ struct UnitObserver : public UnitPrecondition
 		return static_cast<Derived*>(this);
 	}
 	
-	void onFulfilled()
-	{ }
-	
-	/*
-	void onImpossible()
-	{ }
-	*/
-	
-	void onRemoveFromList()
-	{ }
-	
 	bool update()
 	{
 		assert(pre != NULL);
@@ -44,18 +33,15 @@ struct UnitObserver : public UnitPrecondition
 			release(pre);
 			This()->onFulfilled();
 			return true;
-		} /*else if (isImpossible()) {
-			release(pre);
-			This()->onImpossible();
-			if (pre == NULL) {
-				return true;
-			} else {
-				time          = pre->time;
-				pre->wishtime = wishtime;
-				return false;
-			}
-		}*/ else {
+		} else {
 			return false;
 		}
 	}
+	
+	/* Methods to overwrite: */
+	void onFulfilled()
+	{ }
+	
+	void onRemoveFromList()
+	{ }
 };

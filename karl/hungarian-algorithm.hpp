@@ -48,7 +48,12 @@ class HungarianAlgorithm
 		
 		void execute()
 		{
-			impl.prepare(p.numberOfAgents(), p.numberOfJobs());
+			int nAgents = p.numberOfAgents();
+			int nJobs   = p.numberOfJobs();
+			if ((nAgents == 0) && (nJobs == 0))
+				return;
+			
+			impl.prepare(nAgents, nJobs);
 			
 			for (int w=0; w<impl.dim; ++w)
 				for (int j=0; j<impl.dim; ++j)
@@ -56,10 +61,9 @@ class HungarianAlgorithm
 			
 			impl.execute();
 			
-			for (int w=0; w<impl.rows; ++w) {
+			for (int w=0; w<impl.dim; ++w) {
 				int j = impl.matchJobByWorker[w];
-				if (j < impl.cols)
-					p.assign(w, j);
+				p.assign(w, j);
 			}
 		}
 };

@@ -7,6 +7,18 @@
 namespace Containers
 {
 	template <class T>
+	void add(std::vector<T>& container, const T& element)
+	{
+		container.push_back(element);
+	}
+	
+	template <class T>
+	void add(std::set<T>& container, const T& element)
+	{
+		container.insert(element);
+	}
+	
+	template <class T>
 	void remove(std::vector<T>& container, const T& element)
 	{
 		container.erase(std::remove(container.begin(), container.end(), element), container.end());
