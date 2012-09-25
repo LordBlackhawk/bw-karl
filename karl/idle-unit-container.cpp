@@ -87,10 +87,8 @@ void IdleUnitContainerCode::onUnitCreate(BWAPI::Unit* unit)
 	if (CodeList::onAssignUnit(unit))
 		return;
 	
-	if (unit->getType().isWorker()) {
-		useWorker(new UnitPrecondition(unit));
+	if (unit->getType().isWorker() && (Broodwar->getFrameCount() == 0))
 		return;
-	}
 	
 	idleunits.insert(unit);
 }

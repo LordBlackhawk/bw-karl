@@ -24,16 +24,17 @@ void ZergStrategieCode::onMatchBegin()
 	setSupplyMode(Races::Zerg, SupplyMode::Auto);
 	setRequirementsMode(RequirementsMode::Auto);
 
-	for (int k=0; k<10; ++k)
+	for (int k=0; k<5; ++k)
 		useWorker(morphUnit(UnitTypes::Zerg_Drone));
-	//rememberIdle(morphUnit(UnitTypes::Zerg_Overlord));
+	rememberIdle(morphUnit(UnitTypes::Zerg_Overlord));
+	UnitPrecondition* pool = buildUnit(UnitTypes::Zerg_Spawning_Pool).first;
 	
+	for (int k=0; k<5; ++k)
+		useWorker(morphUnit(UnitTypes::Zerg_Drone));
 	buildRefinery(UnitTypes::Zerg_Extractor);
 	
-	morphUnit(UnitTypes::Zerg_Mutalisk);
+	rememberIdle(morphUnit(UnitTypes::Zerg_Mutalisk));
 	
-	/*
-	UnitPrecondition* pool = buildUnit(UnitTypes::Zerg_Spawning_Pool).first;
 	UnitPrecondition* colony = buildUnit(UnitTypes::Zerg_Creep_Colony).first;
 	rememberIdle(morphUnit(colony, UnitTypes::Zerg_Sunken_Colony));
 	
@@ -44,9 +45,7 @@ void ZergStrategieCode::onMatchBegin()
 		rememberIdle(morphUnit(UnitTypes::Zerg_Zergling));
 	
 	UnitPrecondition* hatch = buildUnit(UnitTypes::Zerg_Hatchery, pool).first;
-	rememberIdle(morphUnit(UnitTypes::Zerg_Lair));
 	waittill = hatch;
-	*/
 }
 
 void ZergStrategieCode::onTick()

@@ -60,7 +60,7 @@ namespace
 		void autoBuild(const UnitType& ut)
 		{
 			if ((time > Precondition::Max) && planed.empty()) {
-				LOG << "Building requirement " << ut.getName() << ".";
+				//LOG << "Building requirement " << ut.getName() << ".";
 				rememberIdle(createUnit(ut));
 			}
 		}

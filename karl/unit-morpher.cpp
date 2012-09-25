@@ -108,7 +108,16 @@ namespace
 			}
 			assert(unit != NULL);
 			if (!unit->morph(ut)) {
-				LOG << "Error: Unable to morph unit " << ut.getName() << ": " << Broodwar->getLastError().toString();
+				Error err = Broodwar->getLastError();
+				LOG << "Error: Unable to morph unit " << ut.getName() << ": " << err.toString();
+				if (   (err == Errors::Insufficient_Supply)
+					|| (err == Errors::Insufficient_Minerals)
+					|| (err == Errors::Insufficient_Gas))
+				{
+					status = pending;
+					return;
+				}
+				
 				status = tryagain;
 				return;
 			}
