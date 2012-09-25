@@ -10,6 +10,8 @@
 #include "unit-builder.hpp"
 #include "precondition-helper.hpp"
 #include "log.hpp"
+#include "bwapi-helper.hpp"
+#include "hungarian-algorithm.hpp"
 #include <BWAPI.h>
 #include <BWTA.h>
 #include <algorithm>
@@ -23,34 +25,22 @@ std::vector<Production> estimatedProduction;
 
 namespace
 {
-	BWAPI::Unit* getNearest(std::set<BWAPI::Unit*> units, BWAPI::Position p)
-	{
-		if (units.empty())
-			return NULL;
-		
-		auto it = units.begin();
-		auto itend = units.end();
-		BWAPI::Unit* result = *it;
-		double dis = p.getDistance((*it)->getPosition());
-		++it;
-		
-		while (it != itend)
-		{
-			double newdis = p.getDistance((*it)->getPosition());
-			if (newdis < dis) {
-				result = *it;
-				dis    = newdis;
-			}
-			++it;
-		}
-		
-		return result;
-	}
-	
+	#include "mineral-line-impl.hpp"
+
 	template <class Derived>
 	struct WorkerLine
 	{
+		UnitPrecondition*	pre;
+		Unit*				base;
 		std::set<Unit*> 	worker;
+		
+		WorkerLine(UnitPrecondition* p)
+			: pre(p), base(NULL)
+		{ }
+		
+		WorkerLine(Unit* u)
+			: pre(NULL), base(u)
+		{ }
 		
 		Derived* This()
 		{
@@ -59,7 +49,8 @@ namespace
 		
 		void sendWorker(Unit* w)
 		{
-			w->rightClick(This()->getTarget(w));
+			if (!w->rightClick(This()->getTarget(w)))
+				LOG << "Sending worker, but recieved error: " << Broodwar->getLastError().toString();
 		}
 	
 		void addWorker(Unit* w)
@@ -68,7 +59,7 @@ namespace
 			sendWorker(w);
 		}
 		
-		void onUnitDestroy(Unit* u)
+		void onOwnUnitDestroy(Unit* u)
 		{
 			worker.erase(u);
 		}
@@ -76,6 +67,23 @@ namespace
 		int estimateProduction() const
 		{
 			return 45 * worker.size();
+		}
+		
+		void onActivated()
+		{ }
+		
+		bool update()
+		{
+			if (pre != NULL) {
+				if (!pre->isFulfilled())
+					return false;
+				
+				base = pre->unit;
+				release(pre);
+				This()->onActivated();
+				return true;
+			}
+			return false;
 		}
 		
 		UnitPrecondition* getWorker(const Race& r)
@@ -87,23 +95,28 @@ namespace
 				}
 			return NULL;
 		}
+		
+		Unit* getNearestWorker(const Position& pos)
+		{
+			Unit* result = getNearest(worker, pos);
+			worker.erase(result);
+			return result;
+		}
 	};
 	
 	struct GasLine;
 	
 	struct MineralLine : public WorkerLine<MineralLine>, public ObjectCounter<MineralLine>
 	{
-		UnitPrecondition*		pre;
-		Unit*					base;
 		BWTA::BaseLocation*		location;
 		std::set<GasLine*>		gaslines;
 		
-		MineralLine(Unit* b, BWTA::BaseLocation* l)
-			: pre(NULL), base(b), location(l)
+		MineralLine(UnitPrecondition* p, BWTA::BaseLocation* l)
+			: WorkerLine<MineralLine>(p), location(l)
 		{ }
 		
-		MineralLine(UnitPrecondition* p, BWTA::BaseLocation* l)
-			: pre(p), base(NULL), location(l)
+		MineralLine(Unit* b, BWTA::BaseLocation* l)
+			: WorkerLine<MineralLine>(b), location(l)
 		{ }
 		
 		Unit* getTarget(Unit* w) const
@@ -111,24 +124,9 @@ namespace
 			return getNearest(location->getMinerals(), w->getPosition());
 		}
 		
-		bool update()
+		bool updateActive()
 		{
-			if (pre != NULL) {
-				if (!pre->isFulfilled())
-					return false;
-				
-				base = pre->unit;
-				release(pre);
-			}
-			
 			return !base->exists();
-		}
-		
-		Unit* getNearestWorker(const Position& pos)
-		{
-			Unit* result = getNearest(worker, pos);
-			worker.erase(result);
-			return result;
 		}
 		
 		Unit* getUnusedGeyser() const;
@@ -137,56 +135,49 @@ namespace
 	
 	struct GasLine : public WorkerLine<GasLine>, public ObjectCounter<GasLine>
 	{
-		UnitPrecondition* 	pre;
-		Unit*				refinery;
-		MineralLine*		base;
+		MineralLine*		mineralline;
 		int 				init_count;
 	
 		GasLine(UnitPrecondition* p, MineralLine* b, int c)
-			: pre(p), refinery(NULL), base(b), init_count(c)
+			: WorkerLine<GasLine>(p), mineralline(b), init_count(c)
 		{
-			base->gaslines.insert(this);
+			mineralline->gaslines.insert(this);
 			
 			for (auto it : Broodwar->getStaticGeysers())
 				if (it->getTilePosition() == pre->pos) {
-					refinery = it;
+					base = it;
 					break;
 				}
-			
-			if (refinery == NULL)
-				WARNING << "No Geyser found!";
+
+			if (base == NULL)
+				LOG << "No Geyser found!";
 		}
 		
 		~GasLine()
 		{
-			base->gaslines.erase(this);
+			mineralline->gaslines.erase(this);
 		}
 		
 		Unit* getTarget(Unit* /*w*/) const
 		{
-			return refinery;
+			return base;
 		}
 		
-		bool update()
+		bool updateActive()
 		{
-			if (pre != NULL) {
-				if (!pre->isFulfilled())
-					return false;
-				
-				refinery = pre->unit;
-				release(pre);
-				
-				THIS_DEBUG << "Refinery build!";
-				for (int k=0; k<init_count; ++k)
-					incWorker();
-			}
-
-			return (refinery->getType() == UnitTypes::Resource_Vespene_Geyser);
+			return !base->getType().isRefinery();
+		}
+		
+		void onActivated()
+		{
+			LOG << "Refinery build!";
+			for (int k=0; k<init_count; ++k)
+				incWorker();
 		}
 		
 		void incWorker()
 		{
-			Unit* w = base->getNearestWorker(refinery->getPosition());
+			Unit* w = mineralline->getNearestWorker(base->getPosition());
 			if (w != NULL)
 				addWorker(w);
 			else
@@ -198,7 +189,7 @@ namespace
 	{
 		std::set<Unit*> geysers = location->getGeysers();
 		for (auto it : gaslines)
-			geysers.erase(it->refinery);
+			geysers.erase(it->base);
 		if (geysers.empty())
 			return NULL;
 		return *geysers.begin();
@@ -212,15 +203,16 @@ namespace
 		}
 		return false;
 	}
-
+	
 	std::vector<MineralLine*>		minerallines;
 	std::vector<GasLine*>			gaslines;
-	std::vector<UnitPrecondition*>	newworker;
 	
 	void addWorkerNearestMineralLine(BWAPI::Unit* unit)
 	{
-		if (minerallines.empty())
+		if (minerallines.empty()) {
+			LOG << "minerallines are empty!";
 			return;
+		}
 
 		Position pos      = unit->getPosition();
 		auto it           = minerallines.begin();
@@ -250,12 +242,121 @@ namespace
 		return false;
 	}
 	
+	struct PlanItem
+	{
+		enum { tMineralLine, tGasLine, tIncomingWorker, tOutgoingWorker };
+		int type;
+		union {
+			MineralLine*		mineralline;
+			GasLine*			gasline;
+			UnitPrecondition*	iworker;
+			UnitPrecondition*	oworker;
+		};
+		
+		PlanItem(MineralLine* m)
+			: type(tMineralLine), mineralline(m)
+		{ }
+		
+		PlanItem(GasLine* g)
+			: type(tGasLine), gasline(g)
+		{ }
+		
+		PlanItem(int t, UnitPrecondition* pre)
+			: type(t), iworker(pre)
+		{ }
+		
+		void release()
+		{
+			switch (type)
+			{
+				case tMineralLine:
+					delete mineralline;
+					break;
+				case tGasLine:
+					delete gasline;
+					break;
+				case tIncomingWorker:
+					::release(iworker);
+					break;
+				case tOutgoingWorker:
+					::release(oworker);
+					break;
+			}
+		}
+		
+		bool update()
+		{
+			switch (type)
+			{
+				case tMineralLine:
+					return mineralline->update();
+				case tGasLine:
+					return gasline->update();
+				case tIncomingWorker:
+					return checkWorkerReady(iworker);
+				case tOutgoingWorker:
+					// TODO!!!
+					return false;
+				default:
+					return false;
+			}
+		}
+		
+		int getTime() const
+		{
+			switch (type)
+			{
+				case tMineralLine:
+					return mineralline->pre->time;
+				case tGasLine:
+					return gasline->pre->time;
+				case tIncomingWorker:
+					return iworker->time;
+				case tOutgoingWorker:
+					return oworker->time;
+				default:
+					return Precondition::Impossible;
+			}
+		}
+		
+		bool operator < (const PlanItem& other) const
+		{
+			return (getTime() < other.getTime());
+		}
+		
+		Production estimateProduction(const Production& last) const
+		{
+			Production result;
+			result.time     = getTime();
+			result.minerals = last.minerals;
+			result.gas      = last.gas;
+			switch (type)
+			{
+				case tMineralLine:
+					break;
+				case tGasLine:
+					result.minerals -= 45 * gasline->init_count;
+					result.gas      += 45 * gasline->init_count;
+					break;
+				case tIncomingWorker:
+					result.minerals += 45;
+					break;
+				case tOutgoingWorker:
+					result.minerals -= 45;
+					break;
+			}
+			return result;
+		}
+	};
+
+	std::vector<PlanItem>			plan;
+	
 	int sumEstimatedProduction()
 	{
 		int sum = 0;
 		for (auto it : minerallines)
 			sum += it->estimateProduction();
-		return std::max(1, sum);
+		return sum;
 	}
 	
 	int sumEstimatedGasProduction()
@@ -263,7 +364,7 @@ namespace
 		int sum = 0;
 		for (auto it : gaslines)
 			sum += it->estimateProduction();
-		return std::max(1, sum);
+		return sum;
 	}
 }
 
@@ -279,23 +380,45 @@ void useWorker(UnitPrecondition* unit)
 		return;
 	}
 
-	if (unit->time == 0) {
+	if (unit->isFulfilled()) {
 		THIS_DEBUG << "Sending worker immediately.";
 		useWorker(unit->unit);
+		release(unit);
 		return;
 	}
 	
-	newworker.push_back(unit);
+	plan.push_back(PlanItem(PlanItem::tIncomingWorker, unit));
 }
 
 UnitPrecondition* getWorker(const BWAPI::Race& r)
 {
 	for (auto it : minerallines) {
 		UnitPrecondition* result = it->getWorker(r);
-		if (result != NULL)
-			return result;
+		if (result == NULL)
+			continue;
+		
+		plan.push_back(PlanItem(PlanItem::tOutgoingWorker, result));
+		return result;
 	}
+	
+	/*
+	for (auto it : plan) {
+		UnitPrecondition* result = it->getWorker(r);
+		if (result == NULL)
+			continue;
+		
+		plan.push_back(PlanItem(PlanItem::tOutgoingWorker, result));
+		return result;
+	}
+	*/
+	
 	return NULL;
+}
+
+UnitPrecondition* registerBase(UnitPrecondition* b)
+{
+	// TODO !!!
+	return b;
 }
 
 BuildingPositionPrecondition* getUnusedGeyser(const BWAPI::Race& r)
@@ -317,7 +440,7 @@ void useRefinery(UnitPrecondition* unit, int worker)
 			continue;
 
 		GasLine* gas = new GasLine(unit, it, worker);
-		gaslines.push_back(gas);
+		plan.push_back(PlanItem(gas));
 		return;
 	}
 	
@@ -349,6 +472,7 @@ void MineralLineCode::onMatchBegin()
 		}
 
 	if (depot != NULL) {
+		LOG << "adding starting depot!";
 		auto line = new MineralLine(depot, BWTA::getStartLocation(Broodwar->self()));
 		minerallines.push_back(line);
 		for (auto it : Broodwar->self()->getUnits())
@@ -367,26 +491,43 @@ void MineralLineCode::onMatchEnd()
 {
 	Containers::clear_and_delete(minerallines);
 	Containers::clear_and_delete(gaslines);
-	Containers::clear_and_delete(newworker);
+
+	for (auto it : plan)
+		it.release();
+	plan.clear();
 }
 
 void MineralLineCode::onTick()
 {
-	Containers::remove_if(newworker, checkWorkerReady);
-	Containers::remove_if(minerallines, std::mem_fun(&MineralLine::update));
-	Containers::remove_if(gaslines, std::mem_fun(&GasLine::update));
+	Containers::remove_if(plan,         std::mem_fun_ref(&PlanItem::update));
+	Containers::remove_if(minerallines, std::mem_fun(&MineralLine::updateActive));
+	Containers::remove_if(gaslines,     std::mem_fun(&GasLine::updateActive));
+	
+	std::sort(plan.begin(), plan.end());
 	
 	Production& prod = estimatedProduction[0];
 	prod.minerals = sumEstimatedProduction();
 	prod.gas      = sumEstimatedGasProduction();
+	
+	int index = 1;
+	estimatedProduction.resize(1 + plan.size());
+	for (auto it : plan) {
+		estimatedProduction[index] = it.estimateProduction(estimatedProduction[index-1]);
+		++index;
+	}
+	
+	for (auto& it : estimatedProduction) {
+		it.minerals = std::max(1, it.minerals);
+		it.gas      = std::max(1, it.gas);
+	}
 }
 
 void MineralLineCode::onUnitDestroy(BWAPI::Unit* unit)
 {
 	for (auto it : minerallines)
-		it->onUnitDestroy(unit);
+		it->onOwnUnitDestroy(unit);
 	for (auto it : gaslines)
-		it->onUnitDestroy(unit);
+		it->onOwnUnitDestroy(unit);
 }
 
 void MineralLineCode::onCheckMemoryLeak()

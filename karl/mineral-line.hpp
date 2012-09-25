@@ -17,6 +17,7 @@ extern std::vector<Production> estimatedProduction; // sorted by time.
 void useWorker(BWAPI::Unit* unit);
 void useWorker(UnitPrecondition* unit);
 UnitPrecondition* getWorker(const BWAPI::Race& r);
+UnitPrecondition* registerBase(UnitPrecondition* b);
 
 BuildingPositionPrecondition* getUnusedGeyser(const BWAPI::Race& r);
 void useRefinery(UnitPrecondition* unit, int worker = 3);
