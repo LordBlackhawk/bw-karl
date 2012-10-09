@@ -1,10 +1,10 @@
 // ToDo:
-//  * Estimate after getResources can be improved.
 //  * Add setGasMode(None / Auto)
 
 #include "resources.hpp"
 #include "mineral-line.hpp"
 #include "vector-helper.hpp"
+#include "valuing.hpp"
 #include "utils/debug.h"
 #include <algorithm>
 
@@ -15,29 +15,27 @@ namespace
 	struct ResourcesPreconditionInternal;
 	
 	std::vector<ResourcesPreconditionInternal*> reslist;
-	int sum_m = 0;
-	int sum_g = 0;
+	int indexcounter = 0;
 
 	struct ResourcesPreconditionInternal : public ResourcesPrecondition
 	{
-		ResourcesPreconditionInternal(int t, int m, int g)
-			: ResourcesPrecondition(t, m, g)
+		int index;
+		
+		ResourcesPreconditionInternal(int m, int g)
+			: ResourcesPrecondition(Precondition::Impossible, m, g)
 		{
-			sum_m += minerals;
-			sum_g += gas;
 			reslist.push_back(this);
+			index = ++indexcounter;
 		}
 
 		virtual ~ResourcesPreconditionInternal()
 		{
 			VectorHelper::remove(reslist, this);
-			sum_m -= minerals;
-			sum_g -= gas;
 		}
 		
-		int sortTime() const
+		double sortValue() const
 		{
-			return std::max(time, wishtime);
+			return valueResources(time, wishtime, index);
 		}
 	};
 	
@@ -45,22 +43,14 @@ namespace
 	{
 		bool operator () (ResourcesPreconditionInternal* lhs, ResourcesPreconditionInternal* rhs) const
 		{
-			return lhs->sortTime() < rhs->sortTime();
+			return lhs->sortValue() < rhs->sortValue();
 		}
 	};
 }
 
 ResourcesPrecondition* getResources(int m, int g)
 {
-	Player* self = Broodwar->self();
-	int cur_m = self->minerals();
-	int cur_g = self->gas();
-	
-	if (reslist.empty() && (m <= cur_m) && (g <= cur_g))
-		return new ResourcesPreconditionInternal(0, m, g);
-	
-	int t = reslist.back()->time + 100;
-	return new ResourcesPreconditionInternal(t, m, g);
+	return new ResourcesPreconditionInternal(m, g);
 }
 
 ResourcesPrecondition* getResources(const BWAPI::UnitType& ut)
@@ -68,11 +58,14 @@ ResourcesPrecondition* getResources(const BWAPI::UnitType& ut)
 	return getResources(ut.mineralPrice(), ut.gasPrice());
 }
 
+void ResourcesCode::onMatchBegin()
+{
+	indexcounter = 0;
+}
+
 void ResourcesCode::onMatchEnd()
 {
 	reslist.clear();
-	sum_m = 0;
-	sum_g = 0;
 }
 
 void ResourcesCode::onTick()

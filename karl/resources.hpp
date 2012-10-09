@@ -8,6 +8,7 @@ ResourcesPrecondition* getResources(const BWAPI::UnitType& ut);
 
 struct ResourcesCode : public DefaultCode
 {
+	static void onMatchBegin();
 	static void onMatchEnd();
 	static void onTick();
 };

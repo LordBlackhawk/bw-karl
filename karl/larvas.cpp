@@ -3,12 +3,12 @@
 
 #include "larvas.hpp"
 #include "precondition-helper.hpp"
-#include "unit-observer.hpp"
 #include "object-counter.hpp"
 #include "parallel-vector.hpp"
 #include "hungarian-algorithm.hpp"
 #include "unit-lifetime-observer.hpp"
 #include "container-helper.hpp"
+#include "valuing.hpp"
 #include "utils/debug.h"
 #include <algorithm>
 #include <functional>
@@ -25,7 +25,7 @@ namespace
 	struct LarvaJob;
 	struct LarvaPrecondition;
 
-	struct LarvaAgent
+	struct LarvaAgent : public ObjectCounter<LarvaAgent>
 	{
 		// Data:
 		int         time;
@@ -39,7 +39,7 @@ namespace
 		bool update();
 	};
 
-	struct LarvaJob
+	struct LarvaJob : public ObjectCounter<LarvaJob>
 	{
 		// Data:
 		int                 wishtime;
@@ -54,9 +54,8 @@ namespace
 
 	ParallelVector<LarvaAgent*>         agents;
 	ParallelVector<LarvaJob*>           jobs;
-	//std::vector<LarvaPrecondition*>     preconditions;
 
-	struct LarvaPrecondition : public UnitPrecondition
+	struct LarvaPrecondition : public UnitPrecondition, public ObjectCounter<LarvaPrecondition>
 	{
 		LarvaJob*       job;
 
@@ -64,13 +63,11 @@ namespace
 			: UnitPrecondition(Precondition::Impossible, UnitTypes::Zerg_Larva, Positions::Unknown), job(NULL)
 		{
 			job = new LarvaJob(this);
-			//Containers::add(preconditions, this);
 		}
 
 		~LarvaPrecondition()
 		{
 			job->markRemove();
-			//Containers::add(preconditions, this);
 		}
 	};
 
@@ -87,8 +84,10 @@ namespace
 
 	bool LarvaAgent::update()
 	{
-		if (remove)
+		if (remove) {
+			delete this;
 			return true;
+		}
 
 		if (larva != NULL) {
 			time = 0;
@@ -115,8 +114,10 @@ namespace
 
 	bool LarvaJob::update()
 	{
-		if (pre == NULL)
+		if (pre == NULL) {
+			delete this;
 			return true;
+		}
 
 		wishtime  = pre->wishtime;
 		//wishpos   = pre->wishpos;
@@ -142,17 +143,7 @@ namespace
 			
 			LarvaAgent* agent = agents[idAgent];
 			LarvaJob* job = jobs[idJob];
-			
-			double value = 1000.0;
-			
-			int dt = agent->time - job->wishtime;
-			if (dt > 0)
-				value += 0.1 * dt;
-			
-			if (job->assigned == agent)
-				value -= 10.0;
-			
-			return value;
+			return valueLarvaAssignment(agent->time, job->wishtime, job->assigned == agent);
 		}
 
 		void assign(int idAgent, int idJob) const
@@ -189,7 +180,7 @@ namespace
 
 	std::vector<HatcheryPlaner*>    hatcheries;
 
-	struct HatcheryPlaner : public UnitLifetimeObserver<HatcheryPlaner>
+	struct HatcheryPlaner : public UnitLifetimeObserver<HatcheryPlaner>, public ObjectCounter<HatcheryPlaner>
 	{
 		typedef std::vector<LarvaAgent*>		AgentContainer;
 		typedef AgentContainer::iterator  		AgentIterator;
@@ -370,5 +361,8 @@ void LarvaCode::onDrawPlan()
 
 void LarvaCode::onCheckMemoryLeaks()
 {
-	//LarvaPlaner::checkObjectsAlive();
+	LarvaAgent::checkObjectsAlive();
+	LarvaJob::checkObjectsAlive();
+	LarvaPrecondition::checkObjectsAlive();
+	HatcheryPlaner::checkObjectsAlive();
 }
