@@ -27,6 +27,11 @@ void TerranStrategieCode::onMatchBegin()
 	setRequirementsMode(RequirementsMode::Auto);
 
 	LOG << "Standard terran opening...";
+	for (int k=0; k<4; ++k)
+		trainWorker(UnitTypes::Terran_SCV);
+	
+	buildUnitEx(UnitTypes::Terran_Supply_Depot);
+	
 	for (int k=0; k<10; ++k)
 		trainWorker(UnitTypes::Terran_SCV);
 
