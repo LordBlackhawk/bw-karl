@@ -50,14 +50,14 @@ void TerranStrategieCode::onTick()
 	if (now % 10 != 7)
 		return;
 	
-	if (nextUnitAvaiable(UnitTypes::Terran_Barracks) < now + 100) {
+	if (nextUnitAvaiable(UnitTypes::Terran_Barracks) < now + 500) {
 		if (!academystarted) {
 			buildUnitEx(UnitTypes::Terran_Academy);
 			buildRefinery(UnitTypes::Terran_Refinery);
 			academystarted = true;
 		}
 			
-		for (auto k=0; k<5; ++k)
+		for (auto k=0; k<4; ++k)
 			trainUnitEx(UnitTypes::Terran_Marine);
 		trainUnitEx(UnitTypes::Terran_Medic);
 		trainUnitEx(UnitTypes::Terran_Firebat);
