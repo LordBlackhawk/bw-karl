@@ -12,6 +12,7 @@
 #include <sstream>
 
 using namespace BWAPI;
+using namespace BWAPI::UnitTypes;
 
 namespace {
 	UnitPrecondition* waittill = NULL;
