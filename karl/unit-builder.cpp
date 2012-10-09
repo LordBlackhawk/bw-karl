@@ -7,9 +7,10 @@
 #include "resources.hpp"
 #include "mineral-line.hpp"
 #include "precondition-helper.hpp"
-#include "vector-helper.hpp"
+#include "container-helper.hpp"
 #include "larvas.hpp"
 #include "supply.hpp"
+#include "idle-unit-container.hpp"
 #include "requirements.hpp"
 #include "object-counter.hpp"
 #include "utils/debug.h"
@@ -57,7 +58,7 @@ namespace
 		
 		~UnitBuilderPrecondition()
 		{
-			VectorHelper::remove(list, this);
+			Containers::remove(list, this);
 
 			release(baseunit);
 			release(resources);
@@ -101,6 +102,8 @@ namespace
 				case commanded:
 					time = Broodwar->getFrameCount() + ut.buildTime();
 					if (hasStarted()) {
+						if (ut.getRace() == Races::Protoss)
+							freeWorker();
 						freeResources();
 						status = waiting;
 						LOG << "waiting for building " << ut.getName() << " to finish.";
@@ -112,6 +115,7 @@ namespace
 
 				case waiting:
 					if (isFinished()) {
+						freeWorker();
 						time   = 0;
 						status = finished;
 						LOG << "building " << ut.getName() << " finished.";
@@ -177,6 +181,15 @@ namespace
 		bool isFinished() const
 		{
 			return !unit->isBeingConstructed();
+		}
+		
+		void freeWorker()
+		{
+			if (postworker != NULL) {
+				postworker->time = 0;
+				postworker->unit = worker;
+				postworker = NULL;
+			}
 		}
 
 		void freeResources()
@@ -287,6 +300,13 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType&
 	return buildUnit(pos, ut, extra);
 }
 
+void buildUnitEx(const BWAPI::UnitType& ut)
+{
+	UnitPrecondition* worker = rememberFirst(buildUnit(ut));
+	if (worker != NULL)
+		useWorker(worker);
+}
+
 void UnitBuilderCode::onMatchEnd()
 {
 	list.clear();
@@ -294,7 +314,7 @@ void UnitBuilderCode::onMatchEnd()
 
 void UnitBuilderCode::onTick()
 {
-	VectorHelper::remove_if(list, std::mem_fun(&UnitBuilderPrecondition::updateTime));
+	Containers::remove_if(list, std::mem_fun(&UnitBuilderPrecondition::updateTime));
 }
 
 bool UnitBuilderCode::onAssignUnit(BWAPI::Unit* unit)

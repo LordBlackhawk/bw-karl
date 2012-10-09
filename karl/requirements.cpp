@@ -202,7 +202,7 @@ void RequirementsCode::onMatchBegin()
 {
 	for (auto it : Broodwar->self()->getUnits()) {
 		UnitType ut = it->getType();
-		if (ut == UnitTypes::Zerg_Hatchery)
+		if (ut.isResourceDepot())
 			getOrCreateHandler(ut)->finished.insert(it);
 	}
 }

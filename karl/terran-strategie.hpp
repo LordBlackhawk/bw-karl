@@ -2,8 +2,9 @@
 
 #include "default-code.hpp"
 
-struct MessageDispatchCode : public DefaultCode
+struct TerranStrategieCode : public DefaultCode
 {
 	static void onMatchBegin();
+	static void onMatchEnd();
 	static void onTick();
 };

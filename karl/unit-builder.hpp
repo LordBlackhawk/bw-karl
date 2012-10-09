@@ -8,6 +8,8 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* work
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra = NULL);
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType& ut, Precondition* extra = NULL);
 
+void buildUnitEx(const BWAPI::UnitType& ut);
+
 struct UnitBuilderCode : public DefaultCode
 {
 	static void onMatchEnd();

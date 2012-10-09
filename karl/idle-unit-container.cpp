@@ -7,7 +7,8 @@
 #include "larvas.hpp"
 #include "unit-morpher.hpp"
 #include "unit-builder.hpp"
-#include "vector-helper.hpp"
+#include "unit-trainer.hpp"
+#include "container-helper.hpp"
 #include "utils/debug.h"
 #include <algorithm>
 #include <vector>
@@ -26,6 +27,12 @@ namespace
 	
 	std::vector<UnitPrecondition*>	waitingfor;
 	
+	UnitPrecondition* eraseFromWaiting(UnitPrecondition* r)
+	{
+		Containers::remove(waitingfor, r);
+		return r;
+	}
+	
 	bool updateWaiting(UnitPrecondition* pre)
 	{
 		if (pre->isFulfilled()) {
@@ -41,9 +48,16 @@ UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut)
 {
 	if (ut == UnitTypes::Zerg_Larva)
 		return getLarva();
+	
 	for (auto it : idleunits)
 		if (it->getType() == ut)
 			return createAndErase(it);
+	
+	for (auto it : waitingfor)
+		if (it->ut == ut)
+			return eraseFromWaiting(it);
+	
+	LOG << "No idle unit of type " << ut.getName() << " found.";
 	return NULL;
 }
 
@@ -55,6 +69,22 @@ void rememberIdle(UnitPrecondition* unit)
 	waitingfor.push_back(unit);
 }
 
+UnitPrecondition* rememberFirst(const std::pair<UnitPrecondition*, UnitPrecondition*>& unit)
+{
+	if (unit.first == NULL)
+		LOG << "called rememberFirst with first == NULL.";
+	rememberIdle(unit.first);
+	return unit.second;
+}
+
+UnitPrecondition* rememberSecond(const std::pair<UnitPrecondition*, UnitPrecondition*>& unit)
+{
+	if (unit.second == NULL)
+		LOG << "called rememberSecond with second == NULL.";
+	rememberIdle(unit.second);
+	return unit.first;
+}
+
 UnitPrecondition* createUnit(const BWAPI::UnitType& ut)
 {
 	if (ut.whatBuilds().first.isWorker()) {
@@ -64,19 +94,19 @@ UnitPrecondition* createUnit(const BWAPI::UnitType& ut)
 	} else if (ut.getRace() == Races::Zerg) {
 		return morphUnit(ut);
 	} else {
-		return NULL;
+		return rememberSecond(trainUnit(ut));
 	}
 }
 
 void IdleUnitContainerCode::onMatchEnd()
 {
 	idleunits.clear();
-	VectorHelper::clear_and_delete(waitingfor);
+	Containers::clear_and_delete(waitingfor);
 }
 
 void IdleUnitContainerCode::onTick()
 {
-	VectorHelper::remove_if(waitingfor, updateWaiting);
+	Containers::remove_if(waitingfor, updateWaiting);
 }
 
 void IdleUnitContainerCode::onUnitCreate(BWAPI::Unit* unit)
@@ -91,6 +121,7 @@ void IdleUnitContainerCode::onUnitCreate(BWAPI::Unit* unit)
 		return;
 	
 	idleunits.insert(unit);
+	LOG << "Unit " << unit->getType().getName() << " added to idle units.";
 }
 
 void IdleUnitContainerCode::onUnitDestroy(BWAPI::Unit* unit)

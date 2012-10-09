@@ -268,8 +268,10 @@ namespace
 
 void useWorker(UnitPrecondition* unit)
 {
-	if (unit == NULL)
+	if (unit == NULL) {
+		LOG << "called useWorker with unit == NULL.";
 		return;
+	}
 
 	if (unit->time == 0) {
 		//LOG << "Sending worker immediately.";

@@ -9,7 +9,9 @@
 #include "idle-unit-container.hpp"
 #include "unit-morpher.hpp"
 #include "unit-builder.hpp"
+#include "unit-trainer.hpp"
 #include "zerg-strategie.hpp"
+#include "terran-strategie.hpp"
 #include "hud-code.hpp"
 #include "larvas.hpp"
 #include "requirements.hpp"
@@ -24,9 +26,11 @@ typedef CodeCaller<
 					BuildingPlacerCode,
 					UnitBuilderCode,
 					UnitMorpherCode,
+					UnitTrainerCode,
 					SupplyCode,
 					HUDCode,
 					ZergStrategieCode,
+					TerranStrategieCode,
 					DefaultCode
                   >
         CodeList;

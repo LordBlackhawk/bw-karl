@@ -7,7 +7,7 @@
 #include "supply.hpp"
 #include "idle-unit-container.hpp"
 #include "requirements.hpp"
-#include "vector-helper.hpp"
+#include "container-helper.hpp"
 #include "object-counter.hpp"
 #include "utils/debug.h"
 #include <BWAPI.h>
@@ -42,7 +42,7 @@ namespace
 		
 		~UnitMorphPrecondition()
 		{
-			VectorHelper::remove(list, this);
+			Containers::remove(list, this);
 
 			release(baseunit);
 			release(resources);
@@ -192,7 +192,7 @@ void UnitMorpherCode::onMatchEnd()
 
 void UnitMorpherCode::onTick()
 {
-	VectorHelper::remove_if(list, std::mem_fun(&UnitMorphPrecondition::updateTime));
+	Containers::remove_if(list, std::mem_fun(&UnitMorphPrecondition::updateTime));
 }
 
 void UnitMorpherCode::onDrawPlan()
