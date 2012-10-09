@@ -266,6 +266,11 @@ namespace
 	}
 }
 
+void useWorker(BWAPI::Unit* unit)
+{
+	addWorkerNearestMineralLine(unit);
+}
+
 void useWorker(UnitPrecondition* unit)
 {
 	if (unit == NULL) {
@@ -275,7 +280,7 @@ void useWorker(UnitPrecondition* unit)
 
 	if (unit->time == 0) {
 		//LOG << "Sending worker immediately.";
-		addWorkerNearestMineralLine(unit->unit);
+		useWorker(unit->unit);
 		return;
 	}
 	

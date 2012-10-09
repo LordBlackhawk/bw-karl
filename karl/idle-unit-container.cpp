@@ -61,6 +61,20 @@ UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut)
 	return NULL;
 }
 
+int nextUnitAvaiable(const BWAPI::UnitType& ut)
+{
+	for (auto it : idleunits)
+		if (it->getType() == ut)
+			return 0;
+	
+	int result = Precondition::Impossible;
+	for (auto it : waitingfor)
+		if (it->ut == ut)
+			result = std::min(result, it->time);
+	
+	return result;
+}
+
 void rememberIdle(UnitPrecondition* unit)
 {
 	if (unit == NULL)

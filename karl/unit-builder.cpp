@@ -157,11 +157,14 @@ namespace
 					release(pos);
 					pos = newpos;
 					return;
-				}
-				if (err == Errors::Unit_Not_Owned) {
+				} else if (err == Errors::Unit_Not_Owned) {
 					status = tryagain;
 					baseunit = getWorker(ut.getRace());
 					return;
+				} else if ((err == Errors::Insufficient_Minerals) || (err == Errors::Insufficient_Gas)) {
+					status = pending;
+					useWorker(worker);
+					baseunit = getWorker(ut.getRace());
 				}
 			}
 			status = commanded;
@@ -305,6 +308,20 @@ void buildUnitEx(const BWAPI::UnitType& ut)
 	UnitPrecondition* worker = rememberFirst(buildUnit(ut));
 	if (worker != NULL)
 		useWorker(worker);
+}
+
+int buildUnitPlanSize()
+{
+	return list.size();
+}
+
+int buildUnitPlanSize(const BWAPI::UnitType& ut)
+{
+	int result = 0;
+	for (auto it : list)
+		if (it->ut == ut)
+			++result;
+	return result;
 }
 
 void UnitBuilderCode::onMatchEnd()

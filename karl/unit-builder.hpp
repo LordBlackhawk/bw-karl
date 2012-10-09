@@ -10,6 +10,9 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType&
 
 void buildUnitEx(const BWAPI::UnitType& ut);
 
+int buildUnitPlanSize();
+int buildUnitPlanSize(const BWAPI::UnitType& ut);
+
 struct UnitBuilderCode : public DefaultCode
 {
 	static void onMatchEnd();

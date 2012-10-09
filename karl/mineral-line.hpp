@@ -14,6 +14,7 @@ const int MineralFactor = 1000;
 
 extern std::vector<Production> estimatedProduction; // sorted by time.
 
+void useWorker(BWAPI::Unit* unit);
 void useWorker(UnitPrecondition* unit);
 UnitPrecondition* getWorker(const BWAPI::Race& r);
 

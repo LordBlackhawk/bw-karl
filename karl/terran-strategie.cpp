@@ -15,6 +15,7 @@ using namespace BWAPI;
 
 namespace {
 	UnitPrecondition* waittill = NULL;
+	bool academystarted = false;
 }
 
 void TerranStrategieCode::onMatchBegin()
@@ -30,33 +31,36 @@ void TerranStrategieCode::onMatchBegin()
 		trainWorker(UnitTypes::Terran_SCV);
 
 	buildUnitEx(UnitTypes::Terran_Barracks);
-	buildRefinery(UnitTypes::Terran_Refinery);
 	
-	for (int k=0; k<10; ++k)
+	for (int k=0; k<6; ++k)
 		trainUnitEx(UnitTypes::Terran_Marine);
-		
-	//buildUnitEx(UnitTypes::Terran_Academy);
-
-	//waittill = rememberSecond(trainUnit(UnitTypes::Terran_SCV));
 }
 
 void TerranStrategieCode::onTick()
 {
 	if (Broodwar->self()->getRace() != Races::Terran)
 		return;
-
-	/*
-	if ((waittill == NULL) || (waittill->time == 0)) {
-		rememberIdle(waittill);
 		
-		useWorker(rememberFirst(buildUnit(UnitTypes::Terran_Barracks)));
-		
-		for (int k=0; k<10; ++k)
-			rememberIdle(rememberSecond(trainUnit(UnitTypes::Terran_Marine)));
-		
-		waittill = rememberSecond(trainUnit(UnitTypes::Terran_SCV));
+	int now = Broodwar->getFrameCount();
+	if (now % 10 != 7)
+		return;
+	
+	if (nextUnitAvaiable(UnitTypes::Terran_Barracks) < now + 100) {
+		if (!academystarted) {
+			buildUnitEx(UnitTypes::Terran_Academy);
+			buildRefinery(UnitTypes::Terran_Refinery);
+			academystarted = true;
+		}
+			
+		for (auto k=0; k<5; ++k)
+			trainUnitEx(UnitTypes::Terran_Marine);
+		trainUnitEx(UnitTypes::Terran_Medic);
+		trainUnitEx(UnitTypes::Terran_Firebat);
+	} else if ((Broodwar->self()->minerals() > 400) && (buildUnitPlanSize(UnitTypes::Terran_Barracks) < 1)) {
+		buildUnitEx(UnitTypes::Terran_Barracks);
+		for (int k=0; k<3; ++k)
+			trainWorker(UnitTypes::Terran_SCV);
 	}
-	*/
 }
 
 void TerranStrategieCode::onMatchEnd()

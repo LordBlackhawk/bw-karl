@@ -127,16 +127,14 @@ namespace
 			//LOG << "Sending worker to build " << ut.getName();
 			if (!worker->train(ut)) {
 				auto err = Broodwar->getLastError();
-				/*if (err == Errors::Unit_Busy) {
-					status = tryagain;
-					return;
-				}*/
 				LOG << "Error: Unable to train unit '" << ut.getName() << "': " << err.toString();
-				/*if (err == Errors::Unit_Not_Owned) {
-					status = tryagain;
-					baseunit = getWorker(ut.getRace());
+				if (   (err == Errors::Insufficient_Minerals) 
+					|| (err == Errors::Insufficient_Gas)
+					|| (err == Errors::Insufficient_Supply))
+				{
+					status = pending;
 					return;
-				}*/
+				}
 			}
 			status = commanded;
 			++tries;
