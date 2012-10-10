@@ -142,6 +142,12 @@ namespace
 			reqlist.insert(this);
 		}
 		
+		RequirementsInternal(const UpgradeType& t, int l)
+			: RequirementsPrecondition(t, l)
+		{
+			reqlist.insert(this);
+		}
+		
 		~RequirementsInternal()
 		{
 			reqlist.erase(this);
@@ -150,9 +156,13 @@ namespace
 		void update()
 		{
 			time = 0;
-			for (auto it : ut.requiredUnits()) {
-				int newtime = lookup(ut, it.first);
-				time = std::max(time, newtime);
+			if (ut != UnitTypes::None) {
+				for (auto it : ut.requiredUnits()) {
+					int newtime = lookup(ut, it.first);
+					time = std::max(time, newtime);
+				}
+			} else if (gt != UpgradeTypes::None) {
+				time = lookup(UnitTypes::None, gt.whatsRequired(level));
 			}
 		}
 	};
@@ -163,6 +173,16 @@ namespace
 RequirementsPrecondition* getRequirements(const BWAPI::UnitType& t)
 {
 	return new RequirementsInternal(t);
+}
+
+RequirementsPrecondition* getRequirements(const BWAPI::TechType& /*tt*/)
+{
+	return NULL;
+}
+
+RequirementsPrecondition* getRequirements(const BWAPI::UpgradeType& gt, int level)
+{
+	return new RequirementsInternal(gt, level);
 }
 
 bool isRequirement(const BWAPI::UnitType& t)

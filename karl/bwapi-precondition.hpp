@@ -36,9 +36,15 @@ struct BuildingPositionPrecondition : public Precondition
 struct RequirementsPrecondition : public Precondition
 {
 	BWAPI::UnitType		ut;
+	BWAPI::UpgradeType	gt;
+	int level;
 	
 	RequirementsPrecondition(const BWAPI::UnitType& t)
-		: Precondition(0), ut(t)
+		: Precondition(0), ut(t), gt(BWAPI::UpgradeTypes::None), level(0)
+	{ }
+	
+	RequirementsPrecondition(const BWAPI::UpgradeType& t, int l)
+		: Precondition(0), ut(BWAPI::UnitTypes::None), gt(t), level(l)
 	{ }
 };
 

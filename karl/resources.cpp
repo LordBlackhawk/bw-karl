@@ -58,6 +58,16 @@ ResourcesPrecondition* getResources(const BWAPI::UnitType& ut)
 	return getResources(ut.mineralPrice(), ut.gasPrice());
 }
 
+ResourcesPrecondition* getResources(const BWAPI::TechType& tt)
+{
+	return getResources(tt.mineralPrice(), tt.gasPrice());
+}
+
+ResourcesPrecondition* getResources(const BWAPI::UpgradeType& gt)
+{
+	return getResources(gt.mineralPrice(), gt.gasPrice());
+}
+
 void ResourcesCode::onMatchBegin()
 {
 	indexcounter = 0;

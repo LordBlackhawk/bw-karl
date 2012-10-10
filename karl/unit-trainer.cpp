@@ -114,13 +114,6 @@ namespace
 		{
 			if (baseunit != NULL) {
 				worker = baseunit->unit;
-				if (ut.getRace() != Races::Zerg) {
-					postworker->unit = worker;
-				} else if (ut != UnitTypes::Zerg_Extractor) {
-					unit = worker;
-				} else {
-					// Do nothing, worker will not survive.
-				}
 				release(baseunit);
 			}
 			assert(worker != NULL);

@@ -4,6 +4,8 @@
 #include "bwapi-precondition.hpp"
 
 RequirementsPrecondition* getRequirements(const BWAPI::UnitType& t);
+RequirementsPrecondition* getRequirements(const BWAPI::TechType& tt);
+RequirementsPrecondition* getRequirements(const BWAPI::UpgradeType& gt, int level = 1);
 bool isRequirement(const BWAPI::UnitType& t);
 UnitPrecondition* registerRequirement(UnitPrecondition* unit);
 

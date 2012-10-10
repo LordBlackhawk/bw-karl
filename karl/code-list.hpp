@@ -15,6 +15,7 @@
 #include "hud-code.hpp"
 #include "larvas.hpp"
 #include "requirements.hpp"
+#include "tech-upgrades.hpp"
 
 typedef CodeCaller<
 					MessageDispatchCode,
@@ -27,6 +28,7 @@ typedef CodeCaller<
 					UnitBuilderCode,
 					UnitMorpherCode,
 					UnitTrainerCode,
+					TechCode,
 					SupplyCode,
 					HUDCode,
 					ZergStrategieCode,
