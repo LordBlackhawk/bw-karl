@@ -9,7 +9,7 @@
 #include "unit-builder.hpp"
 #include "unit-trainer.hpp"
 #include "container-helper.hpp"
-#include "utils/debug.h"
+#include "log.hpp"
 #include <algorithm>
 #include <vector>
 

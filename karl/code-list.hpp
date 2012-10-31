@@ -1,6 +1,7 @@
 #pragma once
 
 #include "code-caller.hpp"
+#include "log.hpp"
 #include "message-dispatch.hpp"
 #include "mineral-line.hpp"
 #include "resources.hpp"
@@ -18,6 +19,7 @@
 #include "tech-upgrades.hpp"
 
 typedef CodeCaller<
+					LogCode,
 					MessageDispatchCode,
                     MineralLineCode,
 					ResourcesCode,

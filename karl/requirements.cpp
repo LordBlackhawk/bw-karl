@@ -7,7 +7,7 @@
 #include "unit-observer.hpp"
 #include "object-counter.hpp"
 #include "idle-unit-container.hpp"
-#include "utils/debug.h"
+#include "log.hpp"
 #include <map>
 #include <vector>
 #include <algorithm>

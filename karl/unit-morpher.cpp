@@ -9,7 +9,7 @@
 #include "requirements.hpp"
 #include "container-helper.hpp"
 #include "object-counter.hpp"
-#include "utils/debug.h"
+#include "log.hpp"
 #include <BWAPI.h>
 #include <vector>
 #include <cassert>

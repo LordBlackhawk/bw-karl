@@ -1,6 +1,6 @@
 #include "timer.hpp"
 #include "average-calculator.hpp"
-#include "utils/debug.h"
+#include "log.hpp"
 #include <windows.h>
 
 namespace

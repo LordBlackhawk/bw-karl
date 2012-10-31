@@ -5,7 +5,7 @@
 #include "mineral-line.hpp"
 #include "vector-helper.hpp"
 #include "valuing.hpp"
-#include "utils/debug.h"
+#include "log.hpp"
 #include <algorithm>
 
 using namespace BWAPI;

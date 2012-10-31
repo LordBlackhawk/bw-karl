@@ -5,6 +5,10 @@
 
 struct DefaultCode
 {
+    // Once called at start of program.
+    static void onReadParameter(int /*argc*/, const char** /*argv[]*/, int& /*cur*/)
+    { }
+
 	// Once called before the match begins.
 	static void onMatchBegin()
 	{ }

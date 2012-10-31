@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/debug.h"
+#include "log.hpp"
 #include <typeinfo>
 
 template <class Derived>
@@ -21,7 +21,7 @@ struct ObjectCounter
 	static void checkObjectsAlive(const char* name = typeid(Derived).name())
 	{
 		if (objectsAlive > 0)
-			LOG << "Warning: " << objectsAlive << " instance of " << name << " still alive.";
+			WARNING << objectsAlive << " instance of " << name << " still alive.";
 	}
 };
 

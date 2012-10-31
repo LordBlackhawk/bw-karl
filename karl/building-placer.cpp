@@ -2,7 +2,7 @@
 //  * Do not build into mineral line.
 
 #include "building-placer.hpp"
-#include "utils/array2d.h"
+#include "array2d.hpp"
 #include <BWTA.h>
 
 using namespace BWAPI;

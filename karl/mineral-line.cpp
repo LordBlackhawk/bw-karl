@@ -9,7 +9,7 @@
 #include "building-placer.hpp"
 #include "unit-builder.hpp"
 #include "precondition-helper.hpp"
-#include "utils/debug.h"
+#include "log.hpp"
 #include <BWAPI.h>
 #include <BWTA.h>
 #include <algorithm>

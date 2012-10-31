@@ -12,7 +12,7 @@
 #include "precondition-helper.hpp"
 #include "object-counter.hpp"
 #include "unit-observer.hpp"
-#include "utils/debug.h"
+#include "log.hpp"
 #include <BWAPI.h>
 #include <cassert>
 

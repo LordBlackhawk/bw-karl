@@ -1,6 +1,6 @@
 #pragma once
 
-#include "debug.h"
+#include "log.hpp"
 #include <vector>
 #include <cassert>
 
@@ -57,13 +57,13 @@ class Array2d
 			sizex    = sx;
 			sizey    = sy;
 			elements = std::vector<T>(sizex*sizey, t);
-			LOG << "resizing to " << sizex << "x" << sizey;
+			DEBUG << "resizing to " << sizex << "x" << sizey;
 		}
 		
 		Row operator [] (int index)
 		{
 			if (!((0 <= index) && (index < sizex))) {
-				LOG << "required index is " << index << ", size is " << sizex;
+				WARNING << "required index is " << index << ", size is " << sizex;
 				assert(false);
 			}
 			return Row(*this, index*sizex, 1, sizex);
@@ -72,7 +72,7 @@ class Array2d
 		ConstRow operator [] (int index) const
 		{
 			if (!((0 <= index) && (index < sizex))) {
-				LOG << "required index is " << index << ", size is " << sizex;
+				WARNING << "required index is " << index << ", size is " << sizex;
 				assert(false);
 			}
 			return ConstRow(*this, index*sizex, 1, sizex);

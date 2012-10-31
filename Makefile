@@ -7,7 +7,7 @@ LIBPATH		 = .
 CXX          = g++ -ggdb
 CXXINCLUDES  = -I$(BWAPIPATH) -I$(BOOSTPATH) -I.
 CXXFLAGS     = -Wall -Wextra -O3 --std=c++0x $(CXXINCLUDES)
-CXXLIBS      = -L$(LIBPATH) -lBWAPI -L$(BOOSTPATH)/stage/lib -lboost_program_options-mgw46-mt-1_46_1 -lboost_regex-mgw46-mt-1_46_1
+CXXLIBS      = -L$(LIBPATH) -lBWAPI -L$(BOOSTPATH)/stage/lib
 
 ifdef DEBUG
 CXX         += -ggdb
