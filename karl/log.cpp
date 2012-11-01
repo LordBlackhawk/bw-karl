@@ -24,6 +24,46 @@ void logInternal(const std::string& /*file*/, int /*line*/, const std::string& /
 		;
 }
 
+std::ostream& operator << (std::ostream& stream, const BWAPI::Position& pos)
+{
+    return stream << "(" << pos.x() << ", " << pos.y() << ")";
+}
+
+std::ostream& operator << (std::ostream& stream, const BWAPI::TilePosition& tp)
+{
+    return stream << "TP(" << tp.x() << ", " << tp.y() << ")";
+}
+
+std::ostream& operator << (std::ostream& stream, const BWAPI::Player*& player)
+{
+    return stream << player->getName();
+}
+
+std::ostream& operator << (std::ostream& stream, const BWAPI::UnitType& ut)
+{
+    return stream << ut.getName();
+}
+
+std::ostream& operator << (std::ostream& stream, const BWAPI::TechType& tt)
+{
+    return stream << tt.getName();
+}
+
+std::ostream& operator << (std::ostream& stream, const BWAPI::UpgradeType& gt)
+{
+    return stream << gt.getName();
+}
+
+std::ostream& operator << (std::ostream& stream, const BWAPI::Error& err)
+{
+    return stream << err.toString();
+}
+
+std::ostream& operator << (std::ostream& stream, const BWAPI::Race& race)
+{
+    return stream << race.getName();
+}
+
 void LogCode::onReadParameter(int /*argc*/, const char* argv[], int& cur)
 {
     std::string txt = argv[cur];

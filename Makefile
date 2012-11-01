@@ -7,14 +7,7 @@ LIBPATH		 = .
 CXX          = g++ -ggdb
 CXXINCLUDES  = -I$(BWAPIPATH) -I$(BOOSTPATH) -I.
 CXXFLAGS     = -Wall -Wextra -O3 --std=c++0x $(CXXINCLUDES)
-CXXLIBS      = -L$(LIBPATH) -lBWAPI -L$(BOOSTPATH)/stage/lib
-
-ifdef DEBUG
-CXX         += -ggdb
-CXXLIBS     += -lBWTA-debug
-else
-CXXLIBS     += -lBWTA
-endif
+CXXLIBS      = -L$(LIBPATH) -L$(BOOSTPATH)/stage/lib -lBWAPI -lBWTA
 
 SOURCES      = $(wildcard $(SOURCEPATH)*.cpp)
 OBJECTS		 = $(addprefix $(OBJECTPATH), $(notdir $(SOURCES:.cpp=.o)))

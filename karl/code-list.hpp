@@ -20,11 +20,11 @@
 
 typedef CodeCaller<
 					LogCode,
-					MessageDispatchCode,
                     MineralLineCode,
 					ResourcesCode,
+                    LarvaCode,                  // before MessageDispatchCode!!!
+					MessageDispatchCode,
 					IdleUnitContainerCode,
-					LarvaCode,
 					RequirementsCode,
 					BuildingPlacerCode,
 					UnitBuilderCode,

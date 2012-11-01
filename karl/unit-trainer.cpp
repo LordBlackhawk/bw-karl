@@ -17,6 +17,8 @@
 
 using namespace BWAPI;
 
+#define THIS_DEBUG DEBUG
+
 namespace
 {
 	const int savetime = 27;
@@ -67,7 +69,7 @@ namespace
 					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, supply, requirements, extra)) {
 						start();
 						time = Broodwar->getFrameCount() + ut.buildTime();
-						LOG << "training " << ut.getName() << " started.";
+						THIS_DEBUG << "training " << ut << " started.";
 					}
 					break;
 				
@@ -76,7 +78,7 @@ namespace
 					if (hasStarted()) {
 						freeResources();
 						status = waiting;
-						LOG << "waiting for trained unit '" << ut.getName() << "' to finish.";
+						THIS_DEBUG << "waiting for trained unit '" << ut << "' to finish.";
 					} else {
 						start();
 					}
@@ -87,10 +89,10 @@ namespace
 					if (hasStarted()) {
 						freeResources();
 						status = waiting;
-						LOG << "waiting for trained unit '" << ut.getName() << "' to finish.";
+						THIS_DEBUG << "waiting for trained unit '" << ut << "' to finish.";
 					} else if (Broodwar->getFrameCount() > starttime + savetime) {
 						start();
-						LOG << "unit " << ut.getName() << " restarted (try " << tries << ").";
+						THIS_DEBUG << "unit " << ut << " restarted (try " << tries << ").";
 					}
 					break;
 
@@ -100,7 +102,7 @@ namespace
 						postworker->unit = worker;
 						time   = 0;
 						status = finished;
-						LOG << "unit " << ut.getName() << " finished.";
+						THIS_DEBUG << "unit " << ut << " finished.";
 					}
 					break;
 				
@@ -117,10 +119,10 @@ namespace
 				release(baseunit);
 			}
 			assert(worker != NULL);
-			//LOG << "Sending worker to build " << ut.getName();
+			THIS_DEBUG << "Sending worker to build " << ut;
 			if (!worker->train(ut)) {
 				auto err = Broodwar->getLastError();
-				LOG << "Error: Unable to train unit '" << ut.getName() << "': " << err.toString();
+				WARNING << "Unable to train unit '" << ut << "': " << err;
 				if (   (err == Errors::Insufficient_Minerals) 
 					|| (err == Errors::Insufficient_Gas)
 					|| (err == Errors::Insufficient_Supply))

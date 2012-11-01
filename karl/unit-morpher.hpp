@@ -8,6 +8,9 @@ UnitPrecondition* morphUnit(UnitPrecondition* unit, ResourcesPrecondition* res, 
 UnitPrecondition* morphUnit(UnitPrecondition* unit, const BWAPI::UnitType& ut, Precondition* extra = NULL);
 UnitPrecondition* morphUnit(const BWAPI::UnitType& ut, Precondition* extra = NULL);
 
+void morphWorker(const BWAPI::UnitType& ut);
+void morphUnitEx(const BWAPI::UnitType& ut);
+
 struct UnitMorpherCode : public DefaultCode
 {
 	static void onMatchEnd();

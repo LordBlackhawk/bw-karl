@@ -4,7 +4,7 @@
 //  * Supply blocked units are always behind buildings. Problem?
 
 #include "supply.hpp"
-#include "vector-helper.hpp"
+#include "container-helper.hpp"
 #include "unit-morpher.hpp"
 #include "unit-builder.hpp"
 #include "mineral-line.hpp"
@@ -17,6 +17,8 @@
 #include <cassert>
 
 using namespace BWAPI;
+
+#define THIS_DEBUG DEBUG
 
 namespace
 {
@@ -62,12 +64,12 @@ namespace
 		
 		void removeSupply(SupplyPrecondition* s)
 		{
-			VectorHelper::remove(supply, s);
+			Containers::remove(supply, s);
 		}
 		
 		void buildSupply()
 		{
-			LOG << "buildSupply called.";
+			THIS_DEBUG << "buildSupply called.";
 			if (race == Races::Terran) {
 				auto result = buildUnit(UnitTypes::Terran_Supply_Depot);
 				rememberIdle(result.first);
@@ -164,12 +166,12 @@ namespace
 	
 	void RaceSupply::removeSupplyUnit(SupplyUnitObserver* unit)
 	{
-		VectorHelper::remove(supplyunits, unit);
+		Containers::remove(supplyunits, unit);
 	}
 	
 	void RaceSupply::onTick()
 	{
-		VectorHelper::remove_if(supplyunits, std::mem_fun(&SupplyUnitObserver::update));
+		Containers::remove_if(supplyunits, std::mem_fun(&SupplyUnitObserver::update));
 		std::stable_sort(supplyunits.begin(), supplyunits.end(), PreconditionSorter());
 		
 		Player* self   = Broodwar->self();

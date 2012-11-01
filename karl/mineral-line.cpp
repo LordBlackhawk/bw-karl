@@ -4,7 +4,7 @@
 //  * better implementation of getWorker.
 
 #include "mineral-line.hpp"
-#include "vector-helper.hpp"
+#include "container-helper.hpp"
 #include "object-counter.hpp"
 #include "building-placer.hpp"
 #include "unit-builder.hpp"
@@ -16,6 +16,8 @@
 #include <functional>
 
 using namespace BWAPI;
+
+#define THIS_DEBUG DEBUG
 
 std::vector<Production> estimatedProduction;
 
@@ -152,7 +154,7 @@ namespace
 				}
 			
 			if (refinery == NULL)
-				LOG << "No Geyser found!";
+				WARNING << "No Geyser found!";
 		}
 		
 		~GasLine()
@@ -174,7 +176,7 @@ namespace
 				refinery = pre->unit;
 				release(pre);
 				
-				LOG << "Refinery build!";
+				THIS_DEBUG << "Refinery build!";
 				for (int k=0; k<init_count; ++k)
 					incWorker();
 			}
@@ -188,7 +190,7 @@ namespace
 			if (w != NULL)
 				addWorker(w);
 			else
-				LOG << "No nearest worker!";
+				WARNING << "No nearest worker!";
 		}
 	};
 	
@@ -205,7 +207,6 @@ namespace
 	bool MineralLine::isYourGeyser(const Position& pos) const
 	{
 		for (auto it : location->getGeysers()) {
-			LOG << "pos: " << pos.x() << "," << pos.y() << " =?= " << it->getPosition().x() << "," << it->getPosition().y();
 			if (pos.getDistance(it->getPosition()) < 72.0)
 				return true;
 		}
@@ -241,7 +242,7 @@ namespace
 	bool checkWorkerReady(UnitPrecondition* unit)
 	{
 		if (unit->isFulfilled()) {
-			//LOG << "Sending worker to minerals.";
+			THIS_DEBUG << "Sending worker to minerals.";
 			addWorkerNearestMineralLine(unit->unit);
 			release(unit);
 			return true;
@@ -274,12 +275,12 @@ void useWorker(BWAPI::Unit* unit)
 void useWorker(UnitPrecondition* unit)
 {
 	if (unit == NULL) {
-		LOG << "called useWorker with unit == NULL.";
+		WARNING << "called useWorker with unit == NULL.";
 		return;
 	}
 
 	if (unit->time == 0) {
-		//LOG << "Sending worker immediately.";
+		THIS_DEBUG << "Sending worker immediately.";
 		useWorker(unit->unit);
 		return;
 	}
@@ -320,7 +321,7 @@ void useRefinery(UnitPrecondition* unit, int worker)
 		return;
 	}
 	
-	LOG << "No mineral line for refinery found!";
+	WARNING << "No mineral line for refinery found!";
 }
 
 void buildRefinery(const BWAPI::UnitType& type, int worker)
@@ -364,16 +365,16 @@ void MineralLineCode::onMatchBegin()
 
 void MineralLineCode::onMatchEnd()
 {
-	VectorHelper::clear_and_delete(minerallines);
-	VectorHelper::clear_and_delete(gaslines);
-	VectorHelper::clear_and_delete(newworker);
+	Containers::clear_and_delete(minerallines);
+	Containers::clear_and_delete(gaslines);
+	Containers::clear_and_delete(newworker);
 }
 
 void MineralLineCode::onTick()
 {
-	VectorHelper::remove_if(newworker, checkWorkerReady);
-	VectorHelper::remove_if(minerallines, std::mem_fun(&MineralLine::update));
-	VectorHelper::remove_if(gaslines, std::mem_fun(&GasLine::update));
+	Containers::remove_if(newworker, checkWorkerReady);
+	Containers::remove_if(minerallines, std::mem_fun(&MineralLine::update));
+	Containers::remove_if(gaslines, std::mem_fun(&GasLine::update));
 	
 	Production& prod = estimatedProduction[0];
 	prod.minerals = sumEstimatedProduction();

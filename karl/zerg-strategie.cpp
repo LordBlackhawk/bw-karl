@@ -11,6 +11,7 @@
 #include <sstream>
 
 using namespace BWAPI;
+using namespace UnitTypes;
 
 namespace {
 	Precondition* waittill = NULL;
@@ -25,26 +26,26 @@ void ZergStrategieCode::onMatchBegin()
 	setRequirementsMode(RequirementsMode::Auto);
 
 	for (int k=0; k<5; ++k)
-		useWorker(morphUnit(UnitTypes::Zerg_Drone));
-	rememberIdle(morphUnit(UnitTypes::Zerg_Overlord));
-	rememberIdle(buildUnit(UnitTypes::Zerg_Spawning_Pool).first);
+		morphWorker(Zerg_Drone);
+	morphUnitEx(Zerg_Overlord);
+	buildUnitEx(Zerg_Spawning_Pool);
 	
 	for (int k=0; k<5; ++k)
-		useWorker(morphUnit(UnitTypes::Zerg_Drone));
-	buildRefinery(UnitTypes::Zerg_Extractor);
+		morphWorker(Zerg_Drone);
+	buildRefinery(Zerg_Extractor);
 	
-	rememberIdle(morphUnit(UnitTypes::Zerg_Mutalisk));
+	morphUnitEx(Zerg_Mutalisk);
 	
-	UnitPrecondition* colony = buildUnit(UnitTypes::Zerg_Creep_Colony).first;
-	rememberIdle(morphUnit(colony, UnitTypes::Zerg_Sunken_Colony));
+	UnitPrecondition* colony = buildUnit(Zerg_Creep_Colony).first;
+	rememberIdle(morphUnit(colony, Zerg_Sunken_Colony));
 	
 	for (int k=0; k<5; ++k)
-		useWorker(morphUnit(BWAPI::UnitTypes::Zerg_Drone));
+		morphWorker(Zerg_Drone);
 	
 	for (int k=0; k<10; ++k)
-		rememberIdle(morphUnit(UnitTypes::Zerg_Zergling));
+		morphUnitEx(Zerg_Zergling);
 	
-	UnitPrecondition* hatch = buildUnit(UnitTypes::Zerg_Hatchery).first;
+	UnitPrecondition* hatch = buildUnit(Zerg_Hatchery).first;
 	waittill = hatch;
 }
 
@@ -57,9 +58,9 @@ void ZergStrategieCode::onTick()
 		release(waittill);
 		
 		for (int k=0; k<9; ++k)
-			rememberIdle(morphUnit(UnitTypes::Zerg_Zergling));
+			morphUnitEx(Zerg_Zergling);
 		
-		waittill = morphUnit(UnitTypes::Zerg_Zergling);
+		waittill = morphUnit(Zerg_Zergling);
 	}
 }
 

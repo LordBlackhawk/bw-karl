@@ -3,7 +3,7 @@
 
 #include "resources.hpp"
 #include "mineral-line.hpp"
-#include "vector-helper.hpp"
+#include "container-helper.hpp"
 #include "valuing.hpp"
 #include "log.hpp"
 #include <algorithm>
@@ -30,7 +30,7 @@ namespace
 
 		virtual ~ResourcesPreconditionInternal()
 		{
-			VectorHelper::remove(reslist, this);
+			Containers::remove(reslist, this);
 		}
 		
 		double sortValue() const

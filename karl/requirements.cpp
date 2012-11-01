@@ -2,7 +2,7 @@
 //  *
 
 #include "requirements.hpp"
-#include "vector-helper.hpp"
+#include "container-helper.hpp"
 #include "precondition-helper.hpp"
 #include "unit-observer.hpp"
 #include "object-counter.hpp"
@@ -59,10 +59,8 @@ namespace
 		
 		void autoBuild(const UnitType& ut)
 		{
-			if ((time > Precondition::Max) && planed.empty()) {
-				//LOG << "Building requirement " << ut.getName() << ".";
+			if ((time > Precondition::Max) && planed.empty())
 				rememberIdle(createUnit(ut));
-			}
 		}
 	};
 	
@@ -76,7 +74,7 @@ namespace
 	void ReqUnitInternal::onRemoveFromList()
 	{
 		if (handler != NULL)
-			VectorHelper::remove(handler->planed, this);
+			Containers::remove(handler->planed, this);
 	}
 	
 	void ReqUnitInternal::onFulfilled()
@@ -88,7 +86,7 @@ namespace
 	
 	void RequirementHandler::update(const UnitType& /*ut*/)
 	{
-		VectorHelper::remove_if(planed, std::mem_fun(&ReqUnitInternal::update));
+		Containers::remove_if(planed, std::mem_fun(&ReqUnitInternal::update));
 		
 		if (!finished.empty()) {
 			time = 0;
@@ -229,7 +227,7 @@ void RequirementsCode::onMatchBegin()
 
 void RequirementsCode::onMatchEnd()
 {
-	VectorHelper::clear_and_delete_second(requirements);
+	Containers::clear_and_delete_second(requirements);
 	reqlist.clear();
 }
 

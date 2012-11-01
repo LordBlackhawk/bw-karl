@@ -3,6 +3,7 @@
 
 #include "unit-morpher.hpp"
 #include "precondition-helper.hpp"
+#include "mineral-line.hpp"
 #include "resources.hpp"
 #include "supply.hpp"
 #include "idle-unit-container.hpp"
@@ -53,18 +54,6 @@ namespace
 
 		bool updateTime()
 		{
-			/*if ((Broodwar->getFrameCount() % 100 == 0) && (status == pending)) {
-				std::string reason;
-				if ((baseunit != NULL) && (baseunit->time != 0))
-					reason += " baseunit";
-				if ((resources != NULL) && (resources->time != 0))
-					reason += " resources";
-				if ((supply != NULL) && (supply->time != 0))
-					reason += " supply";
-				if ((extra != NULL) && (extra->time != 0))
-					reason += " extra";
-				LOG << "Morphing " << ut.getName() << " waiting for" << reason << ".";
-			}*/
 			switch (status)
 			{
 				case pending:
@@ -109,14 +98,24 @@ namespace
 			assert(unit != NULL);
 			if (!unit->morph(ut)) {
 				Error err = Broodwar->getLastError();
-				LOG << "Error: Unable to morph unit " << ut.getName() << ": " << err.toString();
+				WARNING << "Unable to morph unit " << ut << ": " << err;
 				if (   (err == Errors::Insufficient_Supply)
 					|| (err == Errors::Insufficient_Minerals)
 					|| (err == Errors::Insufficient_Gas))
 				{
 					status = pending;
 					return;
-				}
+				} else if (err == Errors::Incompatible_UnitType) {
+                    rememberIdle(unit);
+                    baseunit = getIdleUnit(ut.whatBuilds().first);
+                    status = pending;
+                    return;
+                } else if (err == Errors::Unit_Not_Owned) {
+                    unit = NULL;
+                    baseunit = getIdleUnit(ut.whatBuilds().first);
+                    status = pending;
+                    return;
+                }
 				
 				status = tryagain;
 				return;
@@ -183,6 +182,16 @@ UnitPrecondition* morphUnit(const BWAPI::UnitType& ut, Precondition* extra)
 	if (unit == NULL)
 		return NULL;
     return morphUnit(unit, ut, extra);
+}
+
+void morphWorker(const BWAPI::UnitType& ut)
+{
+    useWorker(morphUnit(ut));
+}
+
+void morphUnitEx(const BWAPI::UnitType& ut)
+{
+    rememberIdle(morphUnit(ut));
 }
 
 void UnitMorpherCode::onMatchEnd()

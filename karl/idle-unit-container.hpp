@@ -4,6 +4,7 @@
 #include "bwapi-precondition.hpp"
 
 UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut);
+void rememberIdle(BWAPI::Unit* unit);
 void rememberIdle(UnitPrecondition* unit);
 UnitPrecondition* rememberFirst(const std::pair<UnitPrecondition*, UnitPrecondition*>& unit);
 UnitPrecondition* rememberSecond(const std::pair<UnitPrecondition*, UnitPrecondition*>& unit);

@@ -2,6 +2,8 @@
 
 #include "default-code.hpp"
 
+#include <BWAPI.h>
+
 #include <sstream>
 
 bool logDisplay(const std::string&, int, const std::string&, int);
@@ -41,9 +43,33 @@ class Log
 		std::stringstream stream;
 };
 
+struct LogEater
+{
+    template <class T>
+    LogEater& operator << (const T& t) const
+    {
+        return *this;
+    }
+};
+
 #define WARNING Log(__FILE__, __LINE__, __func__, Log::Warning)
-#define LOG     Log(__FILE__, __LINE__, __func__, Log::Important)
-#define DEBUG   Log(__FILE__, __LINE__, __func__, Log::Debug)
+
+#ifdef NDEBUG
+    #define LOG     LogEater()
+    #define DEBUG   LogEater()
+#else
+    #define LOG     Log(__FILE__, __LINE__, __func__, Log::Important)
+    #define DEBUG   Log(__FILE__, __LINE__, __func__, Log::Debug)
+#endif
+
+std::ostream& operator << (std::ostream& stream, const BWAPI::Position& pos);
+std::ostream& operator << (std::ostream& stream, const BWAPI::TilePosition& tp);
+std::ostream& operator << (std::ostream& stream, const BWAPI::Player*& player);
+std::ostream& operator << (std::ostream& stream, const BWAPI::UnitType& ut);
+std::ostream& operator << (std::ostream& stream, const BWAPI::TechType& tt);
+std::ostream& operator << (std::ostream& stream, const BWAPI::UpgradeType& gt);
+std::ostream& operator << (std::ostream& stream, const BWAPI::Error& err);
+std::ostream& operator << (std::ostream& stream, const BWAPI::Race& race);
 
 struct LogCode : public DefaultCode
 {
