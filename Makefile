@@ -2,12 +2,12 @@ SOURCEPATH	 = karl/
 OBJECTPATH   = out/
 BWAPIPATH    = includes/
 BOOSTPATH    = ../boost_1_46_1
-LIBPATH		 = .
+LIBPATH		 = lib/
 
 CXX          = g++ -ggdb
 CXXINCLUDES  = -I$(BWAPIPATH) -I$(BOOSTPATH) -I.
 CXXFLAGS     = -Wall -Wextra -O3 --std=c++0x $(CXXINCLUDES)
-CXXLIBS      = -L$(LIBPATH) -L$(BOOSTPATH)/stage/lib -lBWAPI -lBWTA
+CXXLIBS      = -L$(LIBPATH) -L$(BOOSTPATH)/stage/lib -lBWAPI -lBWTA -lCGAL -lmpfr -lgmp -lboost_thread-mgw46-mt-1_46_1
 
 SOURCES      = $(wildcard $(SOURCEPATH)*.cpp)
 OBJECTS		 = $(addprefix $(OBJECTPATH), $(notdir $(SOURCES:.cpp=.o)))
