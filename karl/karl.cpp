@@ -51,8 +51,6 @@ int main(int argc, const char* argv[])
 		
 		LOG << "Calling onMatchBegin...";
 		CodeList::onMatchBegin();
-		
-		LOG << "Latency Frames: " << BWAPI::Broodwar->getRemainingLatencyFrames();
 
 		while (Broodwar->isInGame())
 		{
