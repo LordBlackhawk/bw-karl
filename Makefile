@@ -1,28 +1,13 @@
 SOURCEPATH	 = karl/
 OBJECTPATH   = out/
 BWAPIPATH    = includes/
-<<<<<<< HEAD
-LIBPATH		 = .
-=======
 BOOSTPATH    = ../boost_1_46_1
 LIBPATH		 = lib/
->>>>>>> 04be19966008e65c972e5f94060f1398067e8924
 
 CXX          = g++ -ggdb
-CXXINCLUDES  = -I$(BWAPIPATH)  -I.
+CXXINCLUDES  = -I$(BWAPIPATH) -I$(BOOSTPATH) -I.
 CXXFLAGS     = -Wall -Wextra -O3 --std=c++0x $(CXXINCLUDES)
-<<<<<<< HEAD
-CXXLIBS      = -L$(LIBPATH) -lBWAPI 
-
-ifdef DEBUG
-CXX         += -ggdb
-CXXLIBS     += -lBWTA-debug
-else
-CXXLIBS     += -lBWTA
-endif
-=======
 CXXLIBS      = -L$(LIBPATH) -L$(BOOSTPATH)/stage/lib -lBWAPI -lBWTA -lCGAL -lmpfr -lgmp -lboost_thread-mgw46-mt-1_46_1
->>>>>>> 04be19966008e65c972e5f94060f1398067e8924
 
 SOURCES      = $(wildcard $(SOURCEPATH)*.cpp)
 OBJECTS		 = $(addprefix $(OBJECTPATH), $(notdir $(SOURCES:.cpp=.o)))
@@ -65,4 +50,3 @@ cleandep:
 
 clean:
 	rm -rf $(OBJECTPATH) $(EXECUTEABLES) BWTA.log
-

@@ -10,7 +10,6 @@
 #include "idle-unit-container.hpp"
 #include "requirements.hpp"
 #include "object-counter.hpp"
-#include "utils/debug.h"
 #include "mineral-line.hpp"
 #include <BWTA.h>
 #include <algorithm>
