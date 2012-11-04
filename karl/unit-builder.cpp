@@ -136,7 +136,10 @@ namespace
             }
             assert(worker != NULL);
             THIS_DEBUG << "Sending worker to build " << ut;
-            if (!worker->build(pos->pos, ut)) {
+            if (!pos->isExplored()) {
+                worker->rightClick(Position(pos->pos));
+                THIS_DEBUG << "Not scouted? Sending Worker...";
+            } else if (!worker->build(pos->pos, ut)) {
                 auto err = Broodwar->getLastError();
                 if (err == Errors::Unit_Busy) {
                     status = tryagain;
@@ -145,11 +148,13 @@ namespace
                 WARNING << "Error: Unable to build unit " << ut << ": " << err << "\n"
                         << "\t\tfrom " << worker->getType() << " (player " << worker->getPlayer()->getName() << ")";
                 if (err == Errors::Unbuildable_Location) {
-                    BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
-                    release(pos);
-                    status = tryagain;
-                    pos    = newpos;
-                    return;
+                    if (Broodwar->isExplored(pos->pos)) {
+                        BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
+                        release(pos);
+                        status = tryagain;
+                        pos    = newpos;
+                        return;
+                    }
                 } else if (err == Errors::Unit_Not_Owned) {
                     status   = pending;
                     unit     = NULL;

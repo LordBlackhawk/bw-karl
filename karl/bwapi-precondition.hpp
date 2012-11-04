@@ -31,6 +31,16 @@ struct BuildingPositionPrecondition : public Precondition
 	BuildingPositionPrecondition(const BWAPI::UnitType& t, const BWAPI::TilePosition& p)
 		: Precondition(0), ut(t), pos(p)
 	{ }
+    
+    bool isExplored() const
+    {
+        int x = pos.x(), y = pos.y();
+        for (int dx=0; dx<ut.tileWidth(); ++dx)
+            for (int dy=0; dy<ut.tileHeight(); ++dy)
+                if (!BWAPI::Broodwar->isExplored(x+dx, y+dy))
+                    return false;
+        return true;
+    }
 };
 
 struct RequirementsPrecondition : public Precondition

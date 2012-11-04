@@ -7,6 +7,7 @@
 #include "idle-unit-container.hpp"
 #include "requirements.hpp"
 #include "precondition-helper.hpp"
+#include "building-placer.hpp"
 #include "log.hpp"
 #include <sstream>
 
@@ -34,7 +35,9 @@ void ZergStrategieCode::onMatchBegin()
 		morphWorker(Zerg_Drone);
 	buildRefinery(Zerg_Extractor);
 	
-	morphUnitEx(Zerg_Mutalisk);
+    BuildingPositionPrecondition* pos = getNextExpo(Zerg_Hatchery);
+	UnitPrecondition* hatch = buildUnit(pos, Zerg_Hatchery).first;
+	waittill = hatch;
 	
 	UnitPrecondition* colony = buildUnit(Zerg_Creep_Colony).first;
 	rememberIdle(morphUnit(colony, Zerg_Sunken_Colony));
@@ -44,9 +47,6 @@ void ZergStrategieCode::onMatchBegin()
 	
 	for (int k=0; k<10; ++k)
 		morphUnitEx(Zerg_Zergling);
-	
-	UnitPrecondition* hatch = buildUnit(Zerg_Hatchery).first;
-	waittill = hatch;
 }
 
 void ZergStrategieCode::onTick()
@@ -59,6 +59,9 @@ void ZergStrategieCode::onTick()
 		
 		for (int k=0; k<9; ++k)
 			morphUnitEx(Zerg_Zergling);
+            
+        for (int k=0; k<3; ++k)
+            morphUnitEx(Zerg_Mutalisk);
 		
 		waittill = morphUnit(Zerg_Zergling);
 	}

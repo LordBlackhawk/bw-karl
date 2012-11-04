@@ -1,5 +1,5 @@
 // ToDo:
-//  * Bug: Hatchery forgets larvas.
+//  *
 
 #include "larvas.hpp"
 #include "precondition-helper.hpp"
@@ -137,10 +137,11 @@ namespace
     {
         double evaluate(int idAgent, int idJob) const
         {
-            if (idAgent < agents.size()) {
+            if (idAgent >= agents.size()) {
                 return 0.0;
-            } else if (idJob < jobs.size()) {
-                return 0.0;
+            } else if (idJob >= jobs.size()) {
+                LarvaAgent* agent = agents[idAgent];
+                return (agent->time == 0) ? 1e10 : 0.0;
             }
 
             LarvaAgent* agent = agents[idAgent];
@@ -179,14 +180,21 @@ namespace
     };
 
     struct HatcheryPlaner;
+    typedef std::vector<LarvaAgent*>          AgentContainer;
+    typedef AgentContainer::iterator          AgentIterator;
 
     std::vector<HatcheryPlaner*>    hatcheries;
+    AgentContainer                  unassigned_agents;
+    
+    bool isAgentOfHatch(LarvaAgent* agent, Unit* hatch)
+    {
+        if (agent->larva == NULL)
+            return NULL;
+        return (agent->larva->getHatchery() == hatch);
+    }
 
     struct HatcheryPlaner : public UnitLifetimeObserver<HatcheryPlaner>, public ObjectCounter<HatcheryPlaner>
     {
-        typedef std::vector<LarvaAgent*>          AgentContainer;
-        typedef AgentContainer::iterator          AgentIterator;
-
         AgentContainer        agents;
 
         HatcheryPlaner(Unit* u)
@@ -204,6 +212,14 @@ namespace
         void onRemoveFromList()
         {
             Containers::remove(hatcheries, this);
+        }
+        
+        void onUnitReady()
+        {
+            auto itend = unassigned_agents.end();
+            auto it    = std::remove_if(unassigned_agents.begin(), itend, std::bind(isAgentOfHatch, _1, unit));
+            agents.insert(agents.end(), it, itend);
+            unassigned_agents.erase(it, itend);
         }
         
         void onDrawPlan()
@@ -250,6 +266,7 @@ namespace
     void HatcheryPlaner::onUnitDestroyed()
     {
         Containers::remove_if(agents, hasNoUnit);
+        unassigned_agents.insert(unassigned_agents.end(), agents.begin(), agents.end());
     }
 
     bool checkAgent(LarvaAgent* agent, int* notassigned)
@@ -330,9 +347,12 @@ namespace
         {
             return planer->distributeLarva(u);
         }
-
-        WARNING << "Hatchery for larva not found!";
-        return false;
+        
+        THIS_DEBUG << "Hatchery for larva not found, adding to unassigned list.";
+        LarvaAgent* agent = new LarvaAgent();
+        unassigned_agents.push_back(agent);
+        agent->larva = u;
+        return true;
     }
 }
 
@@ -349,10 +369,11 @@ UnitPrecondition* registerHatchery(UnitPrecondition* hatch)
 void LarvaCode::onMatchBegin()
 {
     for (auto it : Broodwar->self()->getUnits())
-        if (it->getType() == UnitTypes::Zerg_Hatchery) {
-            THIS_DEBUG << "Hatchery added.";
-            new HatcheryPlaner(it);
-        }
+        if (it->getType() == UnitTypes::Zerg_Hatchery)
+    {
+        THIS_DEBUG << "Hatchery added.";
+        new HatcheryPlaner(it);
+    }
 }
 
 void LarvaCode::onMatchEnd()
@@ -365,13 +386,16 @@ void LarvaCode::onMatchEnd()
 void LarvaCode::onTick()
 {
     Containers::remove_if(hatcheries, std::mem_fun(&HatcheryPlaner::update));
+    
+    int notassigned = 0;
+    Containers::remove_if(unassigned_agents, std::bind(checkAgent, _1, &notassigned));
 
     agents.update();
     Containers::remove_if(agents, std::mem_fun(&LarvaAgent::update));
 
     jobs.update();
     Containers::remove_if(jobs, std::mem_fun(&LarvaJob::update));
-
+    
     assignment.execute();
 }
 

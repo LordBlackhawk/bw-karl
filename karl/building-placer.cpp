@@ -3,6 +3,7 @@
 
 #include "building-placer.hpp"
 #include "array2d.hpp"
+#include "valuing.hpp"
 #include <BWTA.h>
 
 using namespace BWAPI;
@@ -197,7 +198,39 @@ BuildingPositionPrecondition* getBuildingPosition(const BWAPI::UnitType& ut)
 	return getBuildingPosition(ut, pos);
 }
 
+BuildingPositionPrecondition* getExpoPosition(const BWAPI::UnitType& ut, BWTA::BaseLocation* location)
+{
+    if (location == NULL)
+        return NULL;
+
+    return getBuildingPosition(ut, location->getTilePosition());
+}
+
+BuildingPositionPrecondition* getNextExpo(const BWAPI::UnitType& ut)
+{
+    BWTA::BaseLocation* home = BWTA::getStartLocation(Broodwar->self());
+    BWTA::BaseLocation* bestlocation = NULL;
+    double              bestvalue = -1e10;
+    
+    for (auto it : BWTA::getBaseLocations())
+        if (Broodwar->canBuildHere(NULL, it->getTilePosition(), ut, false))
+    {
+        double newvalue = valueExpo(it, home);
+        if (newvalue > bestvalue) {
+            bestlocation = it;
+            bestvalue    = newvalue;
+        }
+    }
+
+    return getExpoPosition(ut, bestlocation);
+}
+
 void BuildingPlacerCode::onMatchBegin()
 {
 	reserved.resize(Broodwar->mapWidth(), Broodwar->mapHeight(), false);
+    
+    for (auto it : BWTA::getBaseLocations())
+    {
+        reserveTiles(it->getTilePosition(), UnitTypes::Zerg_Hatchery, true);
+    }
 }
