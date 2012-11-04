@@ -16,6 +16,8 @@
 #include "larvas.hpp"
 #include "requirements.hpp"
 #include "tech-upgrades.hpp"
+#include "terran-marines-code.hpp"
+#include "squad.hpp"
 
 typedef CodeCaller<
 					MessageDispatchCode,
@@ -29,6 +31,8 @@ typedef CodeCaller<
 					UnitMorpherCode,
 					UnitTrainerCode,
 					TechCode,
+                    TerranMarinesCode,
+                    SquadCode,
 					SupplyCode,
 					HUDCode,
 					ZergStrategieCode,

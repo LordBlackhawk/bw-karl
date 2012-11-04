@@ -1,13 +1,12 @@
 SOURCEPATH	 = karl/
 OBJECTPATH   = out/
 BWAPIPATH    = includes/
-BOOSTPATH    = ../boost_1_46_1
 LIBPATH		 = .
 
 CXX          = g++ -ggdb
-CXXINCLUDES  = -I$(BWAPIPATH) -I$(BOOSTPATH) -I.
+CXXINCLUDES  = -I$(BWAPIPATH)  -I.
 CXXFLAGS     = -Wall -Wextra -O3 --std=c++0x $(CXXINCLUDES)
-CXXLIBS      = -L$(LIBPATH) -lBWAPI -L$(BOOSTPATH)/stage/lib -lboost_program_options-mgw46-mt-1_46_1 -lboost_regex-mgw46-mt-1_46_1
+CXXLIBS      = -L$(LIBPATH) -lBWAPI 
 
 ifdef DEBUG
 CXX         += -ggdb
@@ -57,3 +56,4 @@ cleandep:
 
 clean:
 	rm -rf $(OBJECTPATH) $(EXECUTEABLES) BWTA.log
+
