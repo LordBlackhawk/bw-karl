@@ -1,5 +1,6 @@
 #pragma once
 
+#include "log.hpp"
 #include "default-code.hpp"
 
 template <class ... List>
@@ -14,6 +15,26 @@ template <class First, class ... List>
 struct CodeCaller<First, List...>
 {
     typedef CodeCaller<List...> Next;
+    
+    static void onReadParameter(int argc, const char* argv[], int& cur)
+    {
+        if (cur >= argc) return;
+        First::onReadParameter(argc, argv, cur);
+        Next::onReadParameter(argc, argv, cur);
+    }
+    
+    static void readParameter(int argc, const char* argv[])
+    {
+        int cur = 1;
+        while (cur < argc) {
+            int backup = cur;
+            onReadParameter(argc, argv, cur);
+            if (backup == cur) {
+                WARNING << "Unknown parameter '" << argv[cur] << "' is ignored.";
+                ++cur;
+            }
+        }
+    }
 	
 	static void onMatchBegin()
 	{

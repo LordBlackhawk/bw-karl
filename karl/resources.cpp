@@ -3,9 +3,9 @@
 
 #include "resources.hpp"
 #include "mineral-line.hpp"
-#include "vector-helper.hpp"
+#include "container-helper.hpp"
 #include "valuing.hpp"
-#include "utils/debug.h"
+#include "log.hpp"
 #include <algorithm>
 
 using namespace BWAPI;
@@ -30,7 +30,7 @@ namespace
 
 		virtual ~ResourcesPreconditionInternal()
 		{
-			VectorHelper::remove(reslist, this);
+			Containers::remove(reslist, this);
 		}
 		
 		double sortValue() const

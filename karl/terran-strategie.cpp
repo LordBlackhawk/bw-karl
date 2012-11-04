@@ -9,7 +9,7 @@
 #include "requirements.hpp"
 #include "tech-upgrades.hpp"
 #include "precondition-helper.hpp"
-#include "utils/debug.h"
+#include "log.hpp"
 #include <sstream>
 
 using namespace BWAPI;

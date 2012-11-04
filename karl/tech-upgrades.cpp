@@ -11,7 +11,7 @@
 #include "mineral-line.hpp"
 #include "requirements.hpp"
 #include "object-counter.hpp"
-#include "utils/debug.h"
+#include "log.hpp"
 #include <algorithm>
 #include <cassert>
 

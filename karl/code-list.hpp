@@ -1,6 +1,7 @@
 #pragma once
 
 #include "code-caller.hpp"
+#include "log.hpp"
 #include "message-dispatch.hpp"
 #include "mineral-line.hpp"
 #include "resources.hpp"
@@ -20,11 +21,12 @@
 #include "squad.hpp"
 
 typedef CodeCaller<
-					MessageDispatchCode,
+					LogCode,
                     MineralLineCode,
 					ResourcesCode,
+                    LarvaCode,                  // before MessageDispatchCode!!!
+					MessageDispatchCode,
 					IdleUnitContainerCode,
-					LarvaCode,
 					RequirementsCode,
 					BuildingPlacerCode,
 					UnitBuilderCode,

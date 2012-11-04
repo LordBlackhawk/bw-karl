@@ -1,6 +1,4 @@
-#include "utils/debug-broodwar.h"
-#include "utils/debug-1.h"
-
+#include "log.hpp"
 #include "timer.hpp"
 #include "code-list.hpp"
 
@@ -19,8 +17,12 @@ void reconnect()
 		Sleep(1000);
 	}
 }
-int main(int /*argc*/, const char** /*argv[]*/)
+
+int main(int argc, const char* argv[])
 {
+	LOG << "Parameter loading...";
+	CodeList::readParameter(argc, argv);
+
 	timerInit();
 	BWAPI::BWAPI_init();
 	LOG << "Connecting...";
@@ -49,13 +51,11 @@ int main(int /*argc*/, const char** /*argv[]*/)
 		
 		LOG << "Calling onMatchBegin...";
 		CodeList::onMatchBegin();
-		
-		LOG1 << "Latency Frames: " << BWAPI::Broodwar->getRemainingLatencyFrames();
 
 		while (Broodwar->isInGame())
 		{
 			timerStart();
-			LOG4 << "Calling onTick...";
+			DEBUG << "Calling onTick...";
 			CodeList::onTick();
 			timerEnd();
 
