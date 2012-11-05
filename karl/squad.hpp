@@ -4,6 +4,8 @@
 #include "bwapi-precondition.hpp"
 
 
+class UnitMicromanagement;
+
 class Squad
 {
 public:
@@ -13,7 +15,8 @@ public:
     
     void defend(BWAPI::Position pos);
     
-    void addUnit(BWAPI::Unit *u);
+    void addUnit(UnitMicromanagement *unit);
+    void addUnit(BWAPI::Unit *unit);
     
     void setName(std::string desc);
     
@@ -25,7 +28,7 @@ public:
     
 private:
     BWAPI::Position defendposition;
-    std::set<BWAPI::Unit*> units;
+    std::set<UnitMicromanagement *> units;
     std::string name;
     //std::multimap<BWAPI::UnitType,BWAPI::Unit*> unitmap;
 };

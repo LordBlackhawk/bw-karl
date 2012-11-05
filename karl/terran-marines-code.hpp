@@ -13,3 +13,6 @@ struct TerranMarinesCode : public DefaultCode
 	static void onDrawPlan();
 	static void onCheckMemoryLeaks();
 };
+
+
+void makeSomethingUsefulWithInfantry(UnitPrecondition *u);

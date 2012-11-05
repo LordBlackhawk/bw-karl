@@ -28,6 +28,15 @@ namespace
     int scoutAttacked=0;
     
     Squad *scoutProtection=NULL,*baseProtection=NULL;
+    
+    std::set<UnitPrecondition*> infantry;
+
+}
+
+
+void makeSomethingUsefulWithInfantry(UnitPrecondition* u)
+{
+    infantry.insert(u);
 }
 
 
@@ -122,10 +131,19 @@ void TerranMarinesCode::onTick()
         scoutProtection->defend(baseProtection->getCenter());
     }
     
-    if(!simpleScout && nextUnitAvaiable(UnitTypes::Terran_Marine)==0 )
+    if(!simpleScout)
     {
-        Broodwar->printf("got a simple scout.");
-        simpleScout=getIdleUnit(UnitTypes::Terran_Marine);
+        for(auto it:infantry)
+        {
+            if(it->ut==UnitTypes::Terran_Marine && it->unit && it->unit->getClientInfo())
+            {
+                Broodwar->printf("got a simple scout.");
+                simpleScout=it;
+                infantry.erase(it);
+                break;
+            }
+        }
+        //simpleScout=getIdleUnit(UnitTypes::Terran_Marine);
     }
     
     if(simpleScout)
@@ -196,27 +214,29 @@ void TerranMarinesCode::onTick()
         }
     }
 
-#define ADD_UNIT(TYPE) \
-    if(nextUnitAvaiable(TYPE)==0)\
-    {\
-        UnitPrecondition *pre=getIdleUnit(TYPE);\
-        \
-        if(baseProtection->getUnitCount(TYPE)<5 || baseProtection->getUnitCount(TYPE)<scoutProtection->getUnitCount(TYPE))\
-        {\
-            Broodwar->printf("adding %s to base protection", TYPE.getName().c_str()); \
-            baseProtection->addUnit(pre->unit);\
-        }\
-        else\
-        {\
-            Broodwar->printf("adding %s to scout protection", TYPE.getName().c_str()); \
-            scoutProtection->addUnit(pre->unit);\
-        }\
-        release(pre);\
-    }\
+
+    for(auto it:infantry)
+    {
+        if(it->unit && it->unit->getClientInfo())
+        {
+            if(baseProtection->getUnitCount(it->ut)<5 || baseProtection->getUnitCount(it->ut)<scoutProtection->getUnitCount(it->ut))
+            {
+                Broodwar->printf("adding %s to base protection", it->ut.getName().c_str());
+                baseProtection->addUnit(it->unit);
+            }
+            else
+            {
+                Broodwar->printf("adding %s to scout protection", it->ut.getName().c_str());
+                scoutProtection->addUnit(it->unit);
+            }
+            release(it);
+            infantry.erase(it);
+            break;
+        }
+    }
     
-    ADD_UNIT(UnitTypes::Terran_Marine);
-    ADD_UNIT(UnitTypes::Terran_Firebat);
-    ADD_UNIT(UnitTypes::Terran_Medic);
+    Broodwar->printf("waiting for %i infantry units",infantry.size());
+    
 }
 
 void TerranMarinesCode::onDrawPlan()

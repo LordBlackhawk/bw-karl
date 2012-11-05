@@ -39,6 +39,12 @@ namespace
     {
         if (pre->isFulfilled()) {
             idleunits.insert(pre->unit);
+            
+            if(!pre->unit)
+                WARNING << "Unit is NULL in precondition";
+            
+            THIS_DEBUG << "Unit " <<(pre->unit?pre->unit->getID():0) <<": " << pre->unit->getType() << " added to idle units.";
+
             delete pre;
             return true;
         }
@@ -63,7 +69,7 @@ UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut)
     return NULL;
 }
 
-int nextUnitAvaiable(const BWAPI::UnitType& ut)
+int nextUnitAvailable(const BWAPI::UnitType& ut)
 {
     for (auto it : idleunits)
         if (it->getType() == ut)
@@ -82,6 +88,7 @@ void rememberIdle(Unit* unit)
     if (unit->getType().isWorker())
         useWorker(unit);
     idleunits.insert(unit);
+    THIS_DEBUG << "Unit " <<unit->getID()<<": " << unit->getType() << " added to idle units.";
 }
 
 void rememberIdle(UnitPrecondition* unit)
@@ -145,7 +152,7 @@ void IdleUnitContainerCode::onUnitCreate(BWAPI::Unit* unit)
         return;
 
     idleunits.insert(unit);
-    THIS_DEBUG << "Unit " << unit->getType() << " added to idle units.";
+    THIS_DEBUG << "Unit " <<unit->getID() <<": " << unit->getType() << " added to idle units.";
 }
 
 void IdleUnitContainerCode::onUnitDestroy(BWAPI::Unit* unit)

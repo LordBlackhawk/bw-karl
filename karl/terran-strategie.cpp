@@ -10,6 +10,7 @@
 #include "tech-upgrades.hpp"
 #include "precondition-helper.hpp"
 #include "log.hpp"
+#include "terran-marines-code.hpp"
 #include <sstream>
 
 using namespace BWAPI;
@@ -40,7 +41,7 @@ void TerranStrategieCode::onMatchBegin()
 	buildUnitEx(Terran_Barracks);
 	
 	for (int k=0; k<6; ++k)
-		trainUnitEx(Terran_Marine);
+		makeSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Marine)));
 }
 
 void TerranStrategieCode::onTick()
@@ -52,7 +53,7 @@ void TerranStrategieCode::onTick()
 	if (now % 10 != 7)
 		return;
 	
-	if (nextUnitAvaiable(Terran_Barracks) < now + 500) {
+	if (nextUnitAvailable(Terran_Barracks) < now + 500) {
 		if (!academystarted) {
 			buildUnitEx(Terran_Academy);
 			buildRefinery(Terran_Refinery);
@@ -62,9 +63,9 @@ void TerranStrategieCode::onTick()
 		}
 			
 		for (auto k=0; k<4; ++k)
-			trainUnitEx(Terran_Marine);
-		trainUnitEx(Terran_Medic);
-		trainUnitEx(Terran_Firebat);
+			makeSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Marine)));
+		makeSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Medic)));
+		makeSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Firebat)));
 	} else if ((Broodwar->self()->minerals() > 400) && (buildUnitPlanSize(Terran_Barracks) < 1)) {
 		buildUnitEx(Terran_Barracks);
 		for (int k=0; k<3; ++k)

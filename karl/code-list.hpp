@@ -19,6 +19,7 @@
 #include "tech-upgrades.hpp"
 #include "terran-marines-code.hpp"
 #include "squad.hpp"
+#include "unit-micromanagement.hpp"
 
 typedef CodeCaller<
 					LogCode,
@@ -26,6 +27,7 @@ typedef CodeCaller<
 					ResourcesCode,
                     LarvaCode,                  // before MessageDispatchCode!!!
 					MessageDispatchCode,
+                    UnitMicromanagementCode,    // before other Code that uses units
 					IdleUnitContainerCode,
 					RequirementsCode,
 					BuildingPlacerCode,

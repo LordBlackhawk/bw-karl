@@ -11,7 +11,7 @@ UnitPrecondition* rememberSecond(const std::pair<UnitPrecondition*, UnitPrecondi
 
 UnitPrecondition* createUnit(const BWAPI::UnitType& ut);
 
-int nextUnitAvaiable(const BWAPI::UnitType& ut);
+int nextUnitAvailable(const BWAPI::UnitType& ut);
 
 struct IdleUnitContainerCode : public DefaultCode
 {

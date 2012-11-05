@@ -5,6 +5,7 @@
 #include "idle-unit-container.hpp"
 #include "precondition-helper.hpp"
 #include "squad.hpp"
+#include "unit-micromanagement.hpp"
 #include "unit-trainer.hpp"
 #include "idle-unit-container.hpp"
 #include "requirements.hpp"
@@ -63,11 +64,19 @@ void SquadCode::onCheckMemoryLeaks()
 
 Squad::Squad()
 {
+        //keep track of all squads around
     squads.insert(this);
 }
 
 Squad::~Squad()
 {
+    for(auto it:units)
+    {
+            //notify all units that this squad no longer exists...
+        it->_assignToSquad(NULL);   
+    }
+    
+        //remove us from the squad list
     squads.erase(this);
 }
 
@@ -108,13 +117,31 @@ void Squad::defend(BWAPI::Position pos)
 }
 
 
+void Squad::addUnit(UnitMicromanagement* u)
+{
+    if(u)
+    {
+        units.insert(u);
+        u->_assignToSquad(this);
+    }
+    else
+        LOG << "Squad::addUnit() called with NULL UnitMicromanagement!!";
+}
+
 void Squad::addUnit(BWAPI::Unit* u)
 {
-
     if(u)
-        units.insert(u);
+    {
+        UnitMicromanagement *um=(UnitMicromanagement*)u->getClientInfo();
+        if(um)
+        {
+            addUnit(um);
+        }
+        else
+            WARNING << "Squad::addUnit() called with unit without UnitMicromanagement!!";
+    }
     else
-        LOG << "Squad::addUnit() called with NULL unit!!";
+        WARNING << "Squad::addUnit() called with NULL unit!!";
 }
 
 void Squad::setName(std::string desc)
