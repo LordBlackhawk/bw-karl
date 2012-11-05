@@ -24,11 +24,23 @@ namespace {
 
 void TerranStrategieCode::onMatchBegin()
 {
-	if (Broodwar->self()->getRace() != Races::Terran)
+    Player* self = Broodwar->self();
+	if (self->getRace() != Races::Terran)
 		return;
 	
 	setSupplyMode(Races::Terran, SupplyMode::Auto);
 	setRequirementsMode(RequirementsMode::Auto);
+    
+    for (auto it : self->getUnits()) {
+        UnitType type = it->getType();
+        if (type.isWorker()) {
+            useWorker(it);
+        } else if (type.isResourceDepot()) {
+            registerBase(it);
+            if (type == Zerg_Hatchery)
+                registerHatchery(it);
+        }
+    }
 
 	LOG << "Standard terran opening...";
     useScout(getWorker(Races::Terran));

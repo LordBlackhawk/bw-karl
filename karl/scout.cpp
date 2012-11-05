@@ -21,9 +21,7 @@ namespace
         
         ScoutInformation(Unit* s)
             : scout(s)
-        {
-            sendScout();
-        }
+        { }
         
         Position getNextPosition()
         {

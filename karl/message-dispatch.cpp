@@ -57,7 +57,7 @@ namespace
 
 void MessageDispatchCode::onMatchBegin()
 {
-	execute();
+	//execute();
 }
 
 void MessageDispatchCode::onTick()

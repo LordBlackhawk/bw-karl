@@ -341,6 +341,7 @@ void buildRefinery(const BWAPI::UnitType& type, int worker)
 
 void MineralLineCode::onMatchBegin()
 {
+    /*
 	Unit* depot = NULL;
 	for (auto it : Broodwar->self()->getUnits())
 		if (it->getType().isResourceDepot()) {
@@ -355,6 +356,7 @@ void MineralLineCode::onMatchBegin()
 			if (it->getType().isWorker())
 				line->addWorker(it);
 	}
+    */
 	
 	estimatedProduction.resize(1);
 	Production& prod = estimatedProduction[0];

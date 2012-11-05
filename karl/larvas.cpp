@@ -368,12 +368,14 @@ UnitPrecondition* registerHatchery(UnitPrecondition* hatch)
 
 void LarvaCode::onMatchBegin()
 {
+    /*
     for (auto it : Broodwar->self()->getUnits())
         if (it->getType() == UnitTypes::Zerg_Hatchery)
     {
         THIS_DEBUG << "Hatchery added.";
         new HatcheryPlaner(it);
     }
+    */
 }
 
 void LarvaCode::onMatchEnd()
