@@ -18,9 +18,7 @@ public:
     void setName(std::string desc);
     
     Squad();
-    
-	virtual ~Squad()
-	{ }
+	virtual ~Squad();
     
     virtual void onTick();
     virtual void onDrawPlan();

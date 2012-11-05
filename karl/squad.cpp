@@ -66,6 +66,11 @@ Squad::Squad()
     squads.insert(this);
 }
 
+Squad::~Squad()
+{
+    squads.erase(this);
+}
+
 BWAPI::Position Squad::getCenter()
 {
     if(units.size()>0)
