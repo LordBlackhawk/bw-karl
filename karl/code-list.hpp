@@ -20,6 +20,7 @@
 #include "terran-marines-code.hpp"
 #include "squad.hpp"
 #include "unit-micromanagement.hpp"
+#include "scout.hpp"
 
 typedef CodeCaller<
 					LogCode,
@@ -39,6 +40,7 @@ typedef CodeCaller<
                     SquadCode,
 					SupplyCode,
 					HUDCode,
+                    ScoutCode,
 					ZergStrategieCode,
 					TerranStrategieCode,
 					DefaultCode

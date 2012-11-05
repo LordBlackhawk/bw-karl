@@ -11,6 +11,7 @@
 #include "precondition-helper.hpp"
 #include "log.hpp"
 #include "terran-marines-code.hpp"
+#include "scout.hpp"
 #include <sstream>
 
 using namespace BWAPI;
@@ -30,6 +31,8 @@ void TerranStrategieCode::onMatchBegin()
 	setRequirementsMode(RequirementsMode::Auto);
 
 	LOG << "Standard terran opening...";
+    useScout(getWorker(Races::Terran));
+    
 	for (int k=0; k<4; ++k)
 		trainWorker(Terran_SCV);
 	
