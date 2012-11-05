@@ -19,15 +19,12 @@ void useWorker(UnitPrecondition* unit);
 UnitPrecondition* getWorker(const BWAPI::Race& r);
 UnitPrecondition* registerBase(UnitPrecondition* b);
 
-BuildingPositionPrecondition* getUnusedGeyser(const BWAPI::Race& r);
-void useRefinery(UnitPrecondition* unit, int worker = 3);
-void buildRefinery(const BWAPI::UnitType& type, int worker = 3);
+bool buildRefinery(const BWAPI::UnitType& type);
 
 struct MineralLineCode : public DefaultCode
 {
 	static void onMatchBegin();
 	static void onMatchEnd();
 	static void onTick();
-	static void onUnitDestroy(BWAPI::Unit* unit);
 	static void onCheckMemoryLeak();
 };

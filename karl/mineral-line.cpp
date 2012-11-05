@@ -1,376 +1,420 @@
 // ToDo:
 //  * estimatedProduction improving by looking into future.
-//  * adding routines for harvesting gas.
-//  * better implementation of getWorker.
 
 #include "mineral-line.hpp"
+#include "idle-unit-container.hpp"
 #include "container-helper.hpp"
+#include "hungarian-algorithm.hpp"
+#include "parallel-vector.hpp"
 #include "object-counter.hpp"
+#include "unit-lifetime-observer.hpp"
+#include "precondition-helper.hpp"
 #include "building-placer.hpp"
 #include "unit-builder.hpp"
-#include "precondition-helper.hpp"
-#include "log.hpp"
 #include "bwapi-helper.hpp"
-#include "hungarian-algorithm.hpp"
-#include <BWAPI.h>
+#include "valuing.hpp"
+#include "log.hpp"
+
 #include <BWTA.h>
+
+#include <vector>
 #include <algorithm>
 #include <functional>
 
 using namespace BWAPI;
+using namespace BWTA;
 
-#define THIS_DEBUG DEBUG
+#define THIS_DEBUG LOG
 
 std::vector<Production> estimatedProduction;
 
 namespace
 {
-	#include "mineral-line-impl.hpp"
+    struct WorkerAgent;
+    struct WorkerJob;
+    struct WorkerPrecondition;
+    struct WorkerLine;
+    
+    ParallelVector<WorkerAgent*>        agents;
+    ParallelVector<WorkerJob*>          jobs;
+    std::vector<WorkerLine*>            lines;
+    
+    struct WorkerAgent : public ObjectCounter<WorkerAgent>
+    {
+        int                 time;
+        Position            pos;
+        Race                race;
+        Unit*               worker;
+        UnitPrecondition*   pre;
+        WorkerJob*          assigned;
+        bool                remove;
+        
+        WorkerAgent(Unit* u)
+            : time(Precondition::Impossible), pos(u->getPosition()), race(u->getType().getRace()), worker(u), 
+              pre(NULL), assigned(NULL), remove(false)
+        {
+            Containers::add(agents, this);
+        }
+        
+        WorkerAgent(UnitPrecondition* p)
+            : time(Precondition::Impossible), pos(p->pos), race(p->ut.getRace()), worker(NULL), 
+              pre(p), assigned(NULL), remove(false)
+        {
+            Containers::add(agents, this);
+        }
+        
+        ~WorkerAgent()
+        {
+            release(pre);
+        }
 
-	template <class Derived>
-	struct WorkerLine
-	{
-		UnitPrecondition*	pre;
-		Unit*				base;
-		std::set<Unit*> 	worker;
-		
-		WorkerLine(UnitPrecondition* p)
-			: pre(p), base(NULL)
-		{ }
-		
-		WorkerLine(Unit* u)
-			: pre(NULL), base(u)
-		{ }
-		
-		Derived* This()
-		{
-			return static_cast<Derived*>(this);
-		}
-		
-		void sendWorker(Unit* w)
-		{
-			if (!w->rightClick(This()->getTarget(w)))
-				LOG << "Sending worker, but recieved error: " << Broodwar->getLastError().toString();
-		}
-	
-		void addWorker(Unit* w)
-		{
-			worker.insert(w);
-			sendWorker(w);
-		}
-		
-		void onOwnUnitDestroy(Unit* u)
-		{
-			worker.erase(u);
-		}
-		
-		int estimateProduction() const
-		{
-			return 45 * worker.size();
-		}
-		
-		void onActivated()
-		{ }
-		
-		bool update()
-		{
-			if (pre != NULL) {
-				if (!pre->isFulfilled())
-					return false;
-				
-				base = pre->unit;
-				release(pre);
-				This()->onActivated();
-				return true;
-			}
-			return false;
-		}
-		
-		UnitPrecondition* getWorker(const Race& r)
-		{
-			for (auto it : worker)
-				if (it->getType().getRace() == r) {
-					worker.erase(it);
-					return new UnitPrecondition(it);
-				}
-			return NULL;
-		}
-		
-		Unit* getNearestWorker(const Position& pos)
-		{
-			Unit* result = getNearest(worker, pos);
-			worker.erase(result);
-			return result;
-		}
-	};
-	
-	struct GasLine;
-	
-	struct MineralLine : public WorkerLine<MineralLine>, public ObjectCounter<MineralLine>
-	{
-		BWTA::BaseLocation*		location;
-		std::set<GasLine*>		gaslines;
-		
-		MineralLine(UnitPrecondition* p, BWTA::BaseLocation* l)
-			: WorkerLine<MineralLine>(p), location(l)
-		{ }
-		
-		MineralLine(Unit* b, BWTA::BaseLocation* l)
-			: WorkerLine<MineralLine>(b), location(l)
-		{ }
-		
-		Unit* getTarget(Unit* w) const
-		{
-			return getNearest(location->getMinerals(), w->getPosition());
-		}
-		
-		bool updateActive()
-		{
-			return !base->exists();
-		}
-		
-		Unit* getUnusedGeyser() const;
-		bool isYourGeyser(const Position& pos) const;
-	};
-	
-	struct GasLine : public WorkerLine<GasLine>, public ObjectCounter<GasLine>
-	{
-		MineralLine*		mineralline;
-		int 				init_count;
-	
-		GasLine(UnitPrecondition* p, MineralLine* b, int c)
-			: WorkerLine<GasLine>(p), mineralline(b), init_count(c)
-		{
-			mineralline->gaslines.insert(this);
-			
-			for (auto it : Broodwar->getStaticGeysers())
-				if (it->getTilePosition() == pre->pos) {
-					base = it;
-					break;
-				}
+        void markRemove()
+        {
+            remove = true;
+        }
+        
+        bool update();
+    };
+    
+    struct WorkerJob : public ObjectCounter<WorkerJob>
+    {
+        int                 wishtime;
+        Position            wishpos;
+        Race                wishrace;
+        WorkerPrecondition* pre;
+        WorkerLine*         line;
+        WorkerAgent*        assigned;
+        bool                remove;
+        
+        WorkerJob(WorkerPrecondition* p);
+        WorkerJob(WorkerLine* l);
+        
+        void markRemove()
+        {
+            if (assigned != NULL) {
+                assigned->markRemove();
+                assigned = NULL;
+            }
+            pre    = NULL;
+            remove = true;
+        }
+        
+        void markRemoveJobOnly()
+        {
+            if (assigned != NULL) {
+                assigned->assigned = NULL;
+                assigned = NULL;
+            }
+            pre    = NULL;
+            remove = true;
+        }
+        
+        void commandWorker(WorkerAgent* agent);
+        bool update();
+    };
+    
+    struct WorkerPrecondition : public UnitPrecondition, public ObjectCounter<WorkerPrecondition>
+    {
+        WorkerJob*      job;
+        
+        WorkerPrecondition(const Race& r)
+            : UnitPrecondition(Precondition::Impossible, r.getWorker(), Positions::Unknown)
+        {
+            job = new WorkerJob(this);
+        }
+        
+        ~WorkerPrecondition()
+        {
+            job->markRemove();
+        }
+    };
+    
+    struct WorkerLine : public UnitLifetimeObserver<WorkerLine>, public ObjectCounter<WorkerLine>
+    {
+        std::vector<WorkerAgent*>       agents;
+        std::vector<WorkerJob*>         jobs;
+        BWTA::BaseLocation*             location;
+        std::set<WorkerLine*>           gaslines;
+        Unit*                           geyser;
+        
+        WorkerLine(BWTA::BaseLocation* l, Unit* u)
+            : UnitLifetimeObserver<WorkerLine>(u), location(l), geyser(NULL)
+        {
+            lines.push_back(this);
+        }
+        
+        WorkerLine(BWTA::BaseLocation* l, UnitPrecondition* p)
+            : UnitLifetimeObserver<WorkerLine>(p), location(l), geyser(NULL)
+        {
+            lines.push_back(this);
+        }
+        
+        WorkerLine(BWTA::BaseLocation* l, UnitPrecondition* p, Unit* g)
+            : UnitLifetimeObserver<WorkerLine>(p), location(l), geyser(g)
+        {
+            lines.push_back(this);
+        }
+        
+        void onRemoveFromList()
+        {
+            Containers::remove(lines, this);
+        }
+        
+        void commandWorker(WorkerAgent* agent);
+        void addJob();
+        void removeJob();
+        void updateMineralLineJobs();
+        void onUnitReady();
+        void onUnitDestroyed();
+        void onUpdateOnline();
+        void onUpdateOffline();
+        Unit* getUnusedGeyser() const;
+    };
+    
+    struct ProblemType
+    {
+        double evaluate(int idAgent, int idJob) const
+        {
+            if (idAgent >= agents.size()) {
+                WorkerJob* job = jobs[idJob];
+                bool isGasJob = false;
+                bool isMineralJob = false;
+                if (job->line != NULL) {
+                    if (job->line->geyser != NULL)
+                        isGasJob = true;
+                    else
+                        isMineralJob = true;
+                }
+                return valueWorkerAssignmentNoAgent(isGasJob, isMineralJob, job->wishtime);
+            } else if (idJob >= jobs.size()) {
+                WorkerAgent* agent = agents[idAgent];
+                return valueWorkerAssignmentNoJob(agent->time);
+            }
 
-			if (base == NULL)
-				LOG << "No Geyser found!";
-		}
-		
-		~GasLine()
-		{
-			mineralline->gaslines.erase(this);
-		}
-		
-		Unit* getTarget(Unit* /*w*/) const
-		{
-			return base;
-		}
-		
-		bool updateActive()
-		{
-			return !base->getType().isRefinery();
-		}
-		
-		void onActivated()
-		{
-			LOG << "Refinery build!";
-			for (int k=0; k<init_count; ++k)
-				incWorker();
-		}
-		
-		void incWorker()
-		{
-			Unit* w = mineralline->getNearestWorker(base->getPosition());
-			if (w != NULL)
-				addWorker(w);
-			else
-				WARNING << "No nearest worker!";
-		}
-	};
-	
-	Unit* MineralLine::getUnusedGeyser() const
-	{
-		std::set<Unit*> geysers = location->getGeysers();
+            WorkerAgent* agent = agents[idAgent];
+            WorkerJob* job = jobs[idJob];
+            
+            bool assigned = false;
+            if (agent->assigned != NULL) {
+                if (agent->assigned->line != NULL) {
+                    assigned = agent->assigned->line == job->line;
+                } else {
+                    assigned = job->assigned == agent;   
+                }
+            }
+            bool isPlanedWorker = agent->pre != NULL;
+            bool isGasJob = false;
+            bool isMineralJob = false;
+            if (job->line != NULL) {
+                if (job->line->geyser != NULL)
+                    isGasJob = true;
+                else
+                    isMineralJob = true;
+            }
+            
+            return valueWorkerAssignment(isPlanedWorker, isGasJob, isMineralJob, 
+                                         agent->time, job->wishtime,
+                                         agent->pos, job->wishpos, assigned);
+        }
+
+        void assign(int idAgent, int idJob) const
+        {
+            if ((idJob < 0) || (idJob >= jobs.size())) {
+                agents[idAgent]->assigned = NULL;
+                return;
+            }
+            WorkerJob* job = jobs[idJob];
+
+            if ((idAgent < 0) || (idAgent >= agents.size())) {
+                job->assigned = NULL;
+                return;
+            }
+            WorkerAgent* agent = agents[idAgent];
+            
+            bool changed = true;
+            if (agent->assigned != NULL) {
+                if (job->line != NULL) {
+                    if (agent->assigned->line == job->line)
+                        changed = false;
+                } else {
+                    changed = false;
+                }
+            }
+
+            agent->assigned = job;
+            job->assigned = agent;
+            job->update();
+
+            if (changed)
+                job->commandWorker(agent);
+        }
+
+        int numberOfAgents() const
+        {
+            return agents.size();
+        }
+
+        int numberOfJobs() const
+        {
+            return jobs.size();
+        }
+    };
+    
+    BaseLocation* checkBaseLocation(const Position& pos)
+    {
+        BaseLocation* location = getNearestBaseLocation(pos);
+        for (auto it : lines)
+            if (it->location == location)
+                return NULL;
+        return location;
+    }
+    
+    bool WorkerAgent::update()
+    {
+        if (remove) {
+            delete this;
+            return true;
+        }
+        
+        if (pre != NULL)
+            if (pre->isFulfilled())
+        {
+            worker = pre->unit;
+            time   = 0;
+            release(pre);
+            if (assigned != NULL)
+                assigned->commandWorker(this);
+        }
+
+        return false;
+    }
+    
+    WorkerJob::WorkerJob(WorkerPrecondition* p)
+        : wishtime(0), wishpos(Positions::Unknown), wishrace(p->ut.getRace()), pre(p), line(NULL), assigned(NULL), remove(false)
+    {
+        Containers::add(jobs, this);
+    }
+    
+    WorkerJob::WorkerJob(WorkerLine* l)
+        : wishtime(0), wishpos(Positions::Unknown), wishrace(Races::Unknown), pre(NULL), line(l), assigned(NULL), remove(false)
+    {
+        Containers::add(jobs, this);
+    }
+    
+    void WorkerJob::commandWorker(WorkerAgent* agent)
+    {
+        if (line != NULL) {
+            line->commandWorker(agent);
+        } else {
+            pre->time = 0;
+            pre->unit = agent->worker;
+        }
+    }
+    
+    bool WorkerJob::update()
+    {
+        if (remove) {
+            delete this;
+            return true;
+        }
+        
+        if (pre != NULL) {
+            wishtime = pre->wishtime;
+            if (assigned != NULL) {
+                pre->time = assigned->time;
+                pre->unit = assigned->worker;
+            } else {
+                pre->time = Precondition::Impossible;
+                pre->unit = NULL;
+            }
+        }
+        
+        return false;
+    }
+    
+    void WorkerLine::commandWorker(WorkerAgent* agent)
+    {
+        Unit* worker = agent->worker;
+        if (worker == NULL)
+            return;
+
+        Unit* target = NULL;
+        if (geyser != NULL) {
+            target = geyser;
+        } else {
+            target = getNearest(location->getMinerals(), worker->getPosition());
+        }
+        worker->rightClick(target);
+    }
+    
+    void WorkerLine::addJob()
+    {
+        jobs.push_back(new WorkerJob(this));
+    }
+    
+    void WorkerLine::removeJob()
+    {
+        if (jobs.empty())
+            return;
+        jobs.back()->markRemoveJobOnly();
+        jobs.erase(jobs.end()-1);
+    }
+    
+    void WorkerLine::updateMineralLineJobs()
+    {
+        auto count = 2 * location->getStaticMinerals().size();
+        while (count > jobs.size())
+            addJob();
+        while (count < jobs.size())
+            removeJob();
+    }
+    
+    void WorkerLine::onUnitReady()
+    {
+        if (geyser != NULL) {
+            for (int k=0; k<3; ++k)
+                addJob();
+            LOG << "created refinery jobs...";
+        } else {
+            updateMineralLineJobs();
+        }
+    }
+    
+    void WorkerLine::onUnitDestroyed()
+    {
+        while (!jobs.empty())
+            removeJob();
+        //delete this;
+    }
+    
+    void WorkerLine::onUpdateOnline()
+    {
+        if (geyser == NULL) {
+            updateMineralLineJobs();
+            Containers::remove_if(gaslines, std::mem_fun(&WorkerLine::update));
+        }
+    }
+    
+    void WorkerLine::onUpdateOffline()
+    { }
+    
+    Unit* WorkerLine::getUnusedGeyser() const
+    {
+        std::set<Unit*> geysers = location->getGeysers();
 		for (auto it : gaslines)
-			geysers.erase(it->base);
+			geysers.erase(it->geyser);
 		if (geysers.empty())
 			return NULL;
 		return *geysers.begin();
-	}
-	
-	bool MineralLine::isYourGeyser(const Position& pos) const
-	{
-		for (auto it : location->getGeysers()) {
-			if (pos.getDistance(it->getPosition()) < 72.0)
-				return true;
-		}
-		return false;
-	}
-	
-	std::vector<MineralLine*>		minerallines;
-	std::vector<GasLine*>			gaslines;
-	
-	void addWorkerNearestMineralLine(BWAPI::Unit* unit)
-	{
-		if (minerallines.empty()) {
-			LOG << "minerallines are empty!";
-			return;
-		}
-
-		Position pos      = unit->getPosition();
-		auto it           = minerallines.begin();
-		auto itend        = minerallines.end();
-		MineralLine* best = *it;
-		double bestdis    = pos.getDistance((*it)->location->getPosition());
-		
-		for (++it; it!=itend; ++it) {
-			double dis = pos.getDistance((*it)->location->getPosition());
-			if (dis < bestdis) {
-				best    = *it;
-				bestdis = dis;
-			}
-		}
-		
-		best->addWorker(unit);
-	}
-	
-	bool checkWorkerReady(UnitPrecondition* unit)
-	{
-		if (unit->isFulfilled()) {
-			THIS_DEBUG << "Sending worker to minerals.";
-			addWorkerNearestMineralLine(unit->unit);
-			release(unit);
-			return true;
-		}
-		return false;
-	}
-	
-	struct PlanItem
-	{
-		enum { tMineralLine, tGasLine, tIncomingWorker, tOutgoingWorker };
-		int type;
-		union {
-			MineralLine*		mineralline;
-			GasLine*			gasline;
-			UnitPrecondition*	iworker;
-			UnitPrecondition*	oworker;
-		};
-		
-		PlanItem(MineralLine* m)
-			: type(tMineralLine), mineralline(m)
-		{ }
-		
-		PlanItem(GasLine* g)
-			: type(tGasLine), gasline(g)
-		{ }
-		
-		PlanItem(int t, UnitPrecondition* pre)
-			: type(t), iworker(pre)
-		{ }
-		
-		void release()
-		{
-			switch (type)
-			{
-				case tMineralLine:
-					delete mineralline;
-					break;
-				case tGasLine:
-					delete gasline;
-					break;
-				case tIncomingWorker:
-					::release(iworker);
-					break;
-				case tOutgoingWorker:
-					::release(oworker);
-					break;
-			}
-		}
-		
-		bool update()
-		{
-			switch (type)
-			{
-				case tMineralLine:
-					return mineralline->update();
-				case tGasLine:
-					return gasline->update();
-				case tIncomingWorker:
-					return checkWorkerReady(iworker);
-				case tOutgoingWorker:
-					// TODO!!!
-					return false;
-				default:
-					return false;
-			}
-		}
-		
-		int getTime() const
-		{
-			switch (type)
-			{
-				case tMineralLine:
-					return mineralline->pre->time;
-				case tGasLine:
-					return gasline->pre->time;
-				case tIncomingWorker:
-					return iworker->time;
-				case tOutgoingWorker:
-					return oworker->time;
-				default:
-					return Precondition::Impossible;
-			}
-		}
-		
-		bool operator < (const PlanItem& other) const
-		{
-			return (getTime() < other.getTime());
-		}
-		
-		Production estimateProduction(const Production& last) const
-		{
-			Production result;
-			result.time     = getTime();
-			result.minerals = last.minerals;
-			result.gas      = last.gas;
-			switch (type)
-			{
-				case tMineralLine:
-					break;
-				case tGasLine:
-					result.minerals -= 45 * gasline->init_count;
-					result.gas      += 45 * gasline->init_count;
-					break;
-				case tIncomingWorker:
-					result.minerals += 45;
-					break;
-				case tOutgoingWorker:
-					result.minerals -= 45;
-					break;
-			}
-			return result;
-		}
-	};
-
-	std::vector<PlanItem>			plan;
-	
-	int sumEstimatedProduction()
-	{
-		int sum = 0;
-		for (auto it : minerallines)
-			sum += it->estimateProduction();
-		return sum;
-	}
-	
-	int sumEstimatedGasProduction()
-	{
-		int sum = 0;
-		for (auto it : gaslines)
-			sum += it->estimateProduction();
-		return sum;
-	}
+    }
+    
+    ProblemType                          problem;
+    HungarianAlgorithm<ProblemType>      assignment(problem);
 }
 
 void useWorker(BWAPI::Unit* unit)
 {
-	addWorkerNearestMineralLine(unit);
+	new WorkerAgent(unit);
 }
 
 void useWorker(UnitPrecondition* unit)
@@ -387,100 +431,66 @@ void useWorker(UnitPrecondition* unit)
 		return;
 	}
 	
-	plan.push_back(PlanItem(PlanItem::tIncomingWorker, unit));
+	new WorkerAgent(unit);
 }
 
 UnitPrecondition* getWorker(const BWAPI::Race& r)
 {
-	for (auto it : minerallines) {
-		UnitPrecondition* result = it->getWorker(r);
-		if (result == NULL)
-			continue;
-		
-		plan.push_back(PlanItem(PlanItem::tOutgoingWorker, result));
-		return result;
-	}
-	
-	/*
-	for (auto it : plan) {
-		UnitPrecondition* result = it->getWorker(r);
-		if (result == NULL)
-			continue;
-		
-		plan.push_back(PlanItem(PlanItem::tOutgoingWorker, result));
-		return result;
-	}
-	*/
-	
-	return NULL;
+    return new WorkerPrecondition(r);
+}
+
+void registerBase(Unit* u)
+{
+    THIS_DEBUG << "Base added.";
+    BWTA::BaseLocation* location = checkBaseLocation(u->getPosition());
+    if (location != NULL)
+        new WorkerLine(location, u);
 }
 
 UnitPrecondition* registerBase(UnitPrecondition* b)
 {
-	// TODO !!!
-	return b;
+    THIS_DEBUG << "Planed Base added.";
+    BWTA::BaseLocation* location = checkBaseLocation(b->pos);
+    if (location != NULL) {
+        return (new WorkerLine(location, b))->pre;
+    } else {
+        return b;
+    }
 }
 
-BuildingPositionPrecondition* getUnusedGeyser(const BWAPI::Race& r)
+bool buildRefinery(const BWAPI::UnitType& type)
 {
-	for (auto it : minerallines) {
+    for (auto it : lines) {
 		Unit* geyser = it->getUnusedGeyser();
 		if (geyser == NULL)
 			continue;
 		
-		return getBuildingPosition(r.getRefinery(), geyser->getTilePosition());
+		BuildingPositionPrecondition* pos = getBuildingPosition(type, geyser->getTilePosition());
+        auto result = buildUnit(pos, type);
+        if (result.first == NULL)
+            continue;
+        
+        if (result.second != NULL)
+            useWorker(result.second);
+
+        WorkerLine* gasline = new WorkerLine(it->location, result.first, geyser);
+        it->gaslines.insert(gasline);
+        return true;
 	}
-	return NULL;
-}
-
-void useRefinery(UnitPrecondition* unit, int worker)
-{
-	for (auto it : minerallines) {
-		if (!it->isYourGeyser(unit->pos))
-			continue;
-
-		GasLine* gas = new GasLine(unit, it, worker);
-		plan.push_back(PlanItem(gas));
-		return;
-	}
-	
-	WARNING << "No mineral line for refinery found!";
-}
-
-void buildRefinery(const BWAPI::UnitType& type, int worker)
-{
-	auto pos = getUnusedGeyser(type.getRace());
-	if (pos == NULL)
-		return;
-	
-	auto result = buildUnit(pos, type);
-	if (result.first == NULL)
-		return;
-	
-	useRefinery(result.first, worker);
-	if (result.second != NULL)
-		useWorker(result.second);
+    
+    return false;
 }
 
 void MineralLineCode::onMatchBegin()
 {
-	Unit* depot = NULL;
-	for (auto it : Broodwar->self()->getUnits())
-		if (it->getType().isResourceDepot()) {
-			depot = it;
-			break;
-		}
-
-	if (depot != NULL) {
-		LOG << "adding starting depot!";
-		auto line = new MineralLine(depot, BWTA::getStartLocation(Broodwar->self()));
-		minerallines.push_back(line);
-		for (auto it : Broodwar->self()->getUnits())
-			if (it->getType().isWorker())
-				line->addWorker(it);
-	}
-	
-	estimatedProduction.resize(1);
+    for (auto it : Broodwar->self()->getUnits()) {
+        if (it->getType().isResourceDepot())
+            registerBase(it);
+        if (it->getType().isWorker())
+            useWorker(it);
+    }
+    
+    estimatedProduction.resize(1);
 	Production& prod = estimatedProduction[0];
 	prod.time     = 0;
 	prod.minerals = 4*45;
@@ -489,49 +499,40 @@ void MineralLineCode::onMatchBegin()
 
 void MineralLineCode::onMatchEnd()
 {
-	Containers::clear_and_delete(minerallines);
-	Containers::clear_and_delete(gaslines);
-
-	for (auto it : plan)
-		it.release();
-	plan.clear();
+    Containers::clear_and_delete(agents);
+    Containers::clear_and_delete(jobs);
+    Containers::clear_and_delete(lines);
 }
 
 void MineralLineCode::onTick()
 {
-	Containers::remove_if(plan,         std::mem_fun_ref(&PlanItem::update));
-	Containers::remove_if(minerallines, std::mem_fun(&MineralLine::updateActive));
-	Containers::remove_if(gaslines,     std::mem_fun(&GasLine::updateActive));
-	
-	std::sort(plan.begin(), plan.end());
-	
-	Production& prod = estimatedProduction[0];
-	prod.minerals = sumEstimatedProduction();
-	prod.gas      = sumEstimatedGasProduction();
-	
-	int index = 1;
-	estimatedProduction.resize(1 + plan.size());
-	for (auto it : plan) {
-		estimatedProduction[index] = it.estimateProduction(estimatedProduction[index-1]);
-		++index;
-	}
-	
-	for (auto& it : estimatedProduction) {
-		it.minerals = std::max(1, it.minerals);
-		it.gas      = std::max(1, it.gas);
-	}
-}
+    for (auto it : agents)
+        if (it->worker != NULL)
+            if (!it->worker->getType().isWorker())
+    {
+        rememberIdle(it->worker);
+        it->markRemove();
+    }
 
-void MineralLineCode::onUnitDestroy(BWAPI::Unit* unit)
-{
-	for (auto it : minerallines)
-		it->onOwnUnitDestroy(unit);
-	for (auto it : gaslines)
-		it->onOwnUnitDestroy(unit);
+    Containers::remove_if(lines, std::mem_fun(&WorkerLine::update));
+
+    agents.update();
+    Containers::remove_if(agents, std::mem_fun(&WorkerAgent::update));
+
+    jobs.update();
+    Containers::remove_if(jobs, std::mem_fun(&WorkerJob::update));
+    
+    if (Broodwar->getFrameCount() % 100 == 0)
+        LOG << "Solving assignment problem with " << agents.size() << " worker and " << jobs.size() << " jobs.";
+    assignment.execute();
+    
+    // ToDo: Estimate Production!
 }
 
 void MineralLineCode::onCheckMemoryLeak()
 {
-	MineralLine::checkObjectsAlive();
-	GasLine::checkObjectsAlive();
+    WorkerAgent::checkObjectsAlive();
+    WorkerJob::checkObjectsAlive();
+    WorkerPrecondition::checkObjectsAlive();
+    WorkerLine::checkObjectsAlive();
 }

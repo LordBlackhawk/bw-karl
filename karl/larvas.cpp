@@ -7,6 +7,7 @@
 #include "parallel-vector.hpp"
 #include "hungarian-algorithm.hpp"
 #include "unit-lifetime-observer.hpp"
+#include "idle-unit-container.hpp"
 #include "container-helper.hpp"
 #include "valuing.hpp"
 #include "log.hpp"
@@ -26,6 +27,9 @@ namespace
     struct LarvaAgent;
     struct LarvaJob;
     struct LarvaPrecondition;
+    
+    ParallelVector<LarvaAgent*>         agents;
+    ParallelVector<LarvaJob*>           jobs;
 
     struct LarvaAgent : public ObjectCounter<LarvaAgent>
     {
@@ -54,9 +58,6 @@ namespace
         bool update();
     };
 
-    ParallelVector<LarvaAgent*>         agents;
-    ParallelVector<LarvaJob*>           jobs;
-
     struct LarvaPrecondition : public UnitPrecondition, public ObjectCounter<LarvaPrecondition>
     {
         LarvaJob*       job;
@@ -74,7 +75,7 @@ namespace
     };
 
     LarvaAgent::LarvaAgent()
-        : time(Precondition::Impossible), pos(Positions::Unknown), larva(NULL), remove(false)
+        : time(Precondition::Impossible), pos(Positions::Unknown), larva(NULL), assigned(NULL), remove(false)
     {
         Containers::add(agents, this);
     }
@@ -267,6 +268,7 @@ namespace
     {
         Containers::remove_if(agents, hasNoUnit);
         unassigned_agents.insert(unassigned_agents.end(), agents.begin(), agents.end());
+        delete this;
     }
 
     bool checkAgent(LarvaAgent* agent, int* notassigned)
@@ -320,7 +322,7 @@ namespace
         }
     }
 
-    ProblemType                         problem;
+    ProblemType                          problem;
     HungarianAlgorithm<ProblemType>      assignment(problem);
 
     bool HatcheryPlaner::distributeLarva(Unit* u)
@@ -385,6 +387,14 @@ void LarvaCode::onMatchEnd()
 
 void LarvaCode::onTick()
 {
+    for (auto it : agents)
+        if (it->larva != NULL)
+            if (it->larva->getType() != UnitTypes::Zerg_Larva)
+    {
+        rememberIdle(it->larva);
+        it->markRemove();
+    }
+    
     Containers::remove_if(hatcheries, std::mem_fun(&HatcheryPlaner::update));
     
     int notassigned = 0;

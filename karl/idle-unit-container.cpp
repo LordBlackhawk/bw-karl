@@ -79,6 +79,11 @@ int nextUnitAvaiable(const BWAPI::UnitType& ut)
 
 void rememberIdle(Unit* unit)
 {
+    if (unit->getPlayer() != Broodwar->self())
+        return;
+    if (!unit->exists())
+        return;
+
     if (unit->getType().isWorker())
         useWorker(unit);
     idleunits.insert(unit);

@@ -54,6 +54,7 @@ void ZergStrategieCode::onTick()
 	if (Broodwar->self()->getRace() != Races::Zerg)
 		return;
 
+    /*
 	if ((waittill == NULL) || (waittill->time == 0)) {
 		release(waittill);
 		
@@ -65,6 +66,7 @@ void ZergStrategieCode::onTick()
 		
 		waittill = morphUnit(Zerg_Zergling);
 	}
+    */
 }
 
 void ZergStrategieCode::onMatchEnd()

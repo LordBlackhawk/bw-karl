@@ -21,7 +21,7 @@ struct UnitLifetimeObserver
 		{
 			if (owner != NULL) {
 				owner->unit = this->unit;
-				owner->onUnitReady();
+				owner->This()->onUnitReady();
 			}
 		}
 	
@@ -34,6 +34,7 @@ struct UnitLifetimeObserver
 	
 	MyPrecondition* 	pre;
 	BWAPI::Unit*		unit;
+    bool                inUpdate;
 	
 	Derived* This()
 	{
@@ -41,11 +42,11 @@ struct UnitLifetimeObserver
 	}
 
 	UnitLifetimeObserver(BWAPI::Unit* u)
-		: pre(NULL), unit(u)
+		: pre(NULL), unit(u), inUpdate(false)
 	{ }
 	
 	UnitLifetimeObserver(UnitPrecondition* p)
-		: pre(new MyPrecondition(this, p)), unit(NULL)
+		: pre(new MyPrecondition(this, p)), unit(NULL), inUpdate(false)
 	{ }
 	
 	static UnitPrecondition* createObserver(UnitPrecondition* p)
@@ -56,25 +57,31 @@ struct UnitLifetimeObserver
 	
 	~UnitLifetimeObserver()
 	{
-		This()->onRemoveFromList();
+        if (!inUpdate)
+            This()->onRemoveFromList();
 	}
 	
 	bool update()
 	{
+        inUpdate = true;
 		if (pre != NULL)
-			pre->update();
+			if (pre->update())
+                pre = NULL;
 		
 		if (unit != NULL) {
 			if (!This()->isAlive()) {
 				This()->onUnitDestroyed();
+                inUpdate = false;
 				return true;
 			}
 			This()->onUpdateOnline();
 		} else if (pre != NULL) {
 			This()->onUpdateOffline();
 		} else {
+            inUpdate = false;
 			return true;
 		}
+        inUpdate = false;
 		return false;
 	}
 	
