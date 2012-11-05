@@ -135,7 +135,7 @@ void TerranMarinesCode::onTick()
     {
         for(auto it:infantry)
         {
-            if(it->ut==UnitTypes::Terran_Marine && it->unit && it->unit->getClientInfo())
+            if(it->ut==UnitTypes::Terran_Marine && it->isFulfilled() && it->unit && it->unit->getClientInfo() && it->unit->exists())
             {
                 Broodwar->printf("got a simple scout.");
                 simpleScout=it;
@@ -217,25 +217,30 @@ void TerranMarinesCode::onTick()
 
     for(auto it:infantry)
     {
-        if(it->unit && it->unit->getClientInfo())
+        if(it->isFulfilled() && it->unit)
         {
-            if(baseProtection->getUnitCount(it->ut)<5 || baseProtection->getUnitCount(it->ut)<scoutProtection->getUnitCount(it->ut))
+            if(it->unit->getClientInfo())
             {
-                Broodwar->printf("adding %s to base protection", it->ut.getName().c_str());
-                baseProtection->addUnit(it->unit);
+                if(baseProtection->getUnitCount(it->ut)<5 || baseProtection->getUnitCount(it->ut)<scoutProtection->getUnitCount(it->ut))
+                {
+                    //Broodwar->printf("adding %s (%i) to base protection", it->ut.getName().c_str(),it->unit->getID());
+                    baseProtection->addUnit(it->unit);
+                }
+                else
+                {
+                    //Broodwar->printf("adding %s (%i) to scout protection", it->ut.getName().c_str(),it->unit->getID());
+                    scoutProtection->addUnit(it->unit);
+                }
+                infantry.erase(it);
+                release(it);
+                break;
             }
             else
-            {
-                Broodwar->printf("adding %s to scout protection", it->ut.getName().c_str());
-                scoutProtection->addUnit(it->unit);
-            }
-            release(it);
-            infantry.erase(it);
-            break;
+                Broodwar->printf("%s ready but no clientinfo yet", it->ut.getName().c_str());
         }
     }
     
-    Broodwar->printf("waiting for %i infantry units",infantry.size());
+    //Broodwar->printf("waiting for %i infantry units",infantry.size());
     
 }
 
