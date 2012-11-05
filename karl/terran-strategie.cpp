@@ -41,7 +41,7 @@ void TerranStrategieCode::onMatchBegin()
 	buildUnitEx(Terran_Barracks);
 	
 	for (int k=0; k<6; ++k)
-		makeSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Marine)));
+		doSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Marine)));
 }
 
 void TerranStrategieCode::onTick()
@@ -63,9 +63,9 @@ void TerranStrategieCode::onTick()
 		}
 			
 		for (auto k=0; k<4; ++k)
-			makeSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Marine)));
-		makeSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Medic)));
-		makeSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Firebat)));
+			doSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Marine)));
+		doSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Medic)));
+		doSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Firebat)));
 	} else if ((Broodwar->self()->minerals() > 400) && (buildUnitPlanSize(Terran_Barracks) < 1)) {
 		buildUnitEx(Terran_Barracks);
 		for (int k=0; k<3; ++k)

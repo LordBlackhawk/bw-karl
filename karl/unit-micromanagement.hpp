@@ -23,6 +23,7 @@ public:
     inline BWAPI::Position getPosition(){return unit->getPosition(); }
     inline BWAPI::UnitType getType(){return unit->getType(); }
     inline BWAPI::UnitType exists(){return unit->exists(); }
+    inline BWAPI::Unit *getUnit(){return unit; }
     
 private:
     friend class Squad;

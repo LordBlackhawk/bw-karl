@@ -11,6 +11,7 @@
 #include "requirements.hpp"
 #include "object-counter.hpp"
 #include "mineral-line.hpp"
+#include "unit-micromanagement.hpp"
 #include <BWTA.h>
 #include <algorithm>
 #include <cassert>
@@ -24,7 +25,7 @@ using namespace BWAPI;
 
 namespace
 {
-    UnitPrecondition *simpleScout=NULL;
+    UnitMicromanagement *simpleScout=NULL;
     int scoutAttacked=0;
     
     Squad *scoutProtection=NULL,*baseProtection=NULL;
@@ -34,7 +35,7 @@ namespace
 }
 
 
-void makeSomethingUsefulWithInfantry(UnitPrecondition* u)
+void doSomethingUsefulWithInfantry(UnitPrecondition* u)
 {
     infantry.insert(u);
 }
@@ -46,7 +47,8 @@ void TerranMarinesCode::onMatchBegin()
 
 void TerranMarinesCode::onMatchEnd()
 {
-    release(simpleScout);
+    simpleScout=0;
+    
     release(scoutProtection);
     release(baseProtection);
 }
@@ -138,7 +140,7 @@ void TerranMarinesCode::onTick()
             if(it->ut==UnitTypes::Terran_Marine && it->isFulfilled() && it->unit && it->unit->getClientInfo() && it->unit->exists())
             {
                 Broodwar->printf("got a simple scout.");
-                simpleScout=it;
+                simpleScout=(UnitMicromanagement*)it->unit->getClientInfo();
                 infantry.erase(it);
                 break;
             }
@@ -148,12 +150,12 @@ void TerranMarinesCode::onTick()
     
     if(simpleScout)
     {
-        Unit *m=simpleScout->unit;
+        BWAPI::Unit *m=simpleScout->getUnit();
         
-        if(!m || !m->exists() || !simpleScout->isFulfilled())
+        if(!simpleScout->exists())
         {
             Broodwar->printf("simple scout lost.");
-            release(simpleScout);
+            simpleScout=0;
             return;
         }
         
@@ -246,9 +248,9 @@ void TerranMarinesCode::onTick()
 
 void TerranMarinesCode::onDrawPlan()
 {
-    if(simpleScout && simpleScout->isFulfilled() && simpleScout->unit)
+    if(simpleScout)
     {
-        Unit *m=simpleScout->unit;
+        Unit *m=simpleScout->getUnit();
         Position pos=m->getPosition(),dest=m->getTargetPosition();
         
         Broodwar->drawLineMap(pos.x(),pos.y(),dest.x(),dest.y(),Colors::Yellow);

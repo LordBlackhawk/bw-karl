@@ -15,4 +15,4 @@ struct TerranMarinesCode : public DefaultCode
 };
 
 
-void makeSomethingUsefulWithInfantry(UnitPrecondition *u);
+void doSomethingUsefulWithInfantry(UnitPrecondition *u);
