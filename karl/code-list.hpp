@@ -21,6 +21,8 @@
 #include "squad.hpp"
 #include "unit-micromanagement.hpp"
 #include "scout.hpp"
+#include "strategie-list.hpp"
+#include "arena.hpp"
 
 typedef CodeCaller<
 					LogCode,
@@ -41,8 +43,10 @@ typedef CodeCaller<
 					SupplyCode,
 					HUDCode,
                     ScoutCode,
-					ZergStrategieCode,
-					TerranStrategieCode,
-					DefaultCode
+                    StrategieList<
+                        TerranStrategieCode,
+                        ZergStrategieCode,
+                        ArenaCode
+                    >
                   >
         CodeList;

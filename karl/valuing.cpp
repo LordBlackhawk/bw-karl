@@ -1,10 +1,52 @@
 #include "valuing.hpp"
+#include "precondition.hpp"
 
 #include <BWAPI.h>
 
 #include <algorithm>
 
 using namespace BWAPI;
+
+// used in mineral-line.cpp for minimization.
+// Important: Value must be positive.
+double valueWorkerAssignment(bool isPlanedWorker, bool isGasJob, bool isMineralJob, int /*time*/, int /*wishtime*/, 
+                             const BWAPI::Position& pos, const BWAPI::Position& wishpos, bool assigned)
+{
+    double result = 0.0;
+    bool isExternal = !(isGasJob || isMineralJob);
+    
+    if (isPlanedWorker && isExternal)
+        result += 10000.0;
+    
+    if (isExternal)
+        result += pos.getDistance(wishpos);
+        
+    if (!assigned)
+        result += 100.0;
+    
+    return result;
+}
+
+double valueWorkerAssignmentNoJob(int time)
+{
+    return (time == 0) ? 1000.0 : 0.0;
+}
+
+double valueWorkerAssignmentNoAgent(bool isGasJob, bool isMineralJob, int wishtime)
+{
+    double result = 0.0;
+    bool isExternal = !(isGasJob || isMineralJob);
+    
+    if (isGasJob)
+        result += 100.0;
+
+    if (isExternal)
+        result += 10000.0;
+    
+    //result += std::fabs(Precondition::Impossible - wishtime);
+    
+    return result;
+}
 
 // used in larvas.cpp for minimization.
 // Important: Value must be positive.

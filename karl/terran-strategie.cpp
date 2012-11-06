@@ -12,37 +12,58 @@
 #include "log.hpp"
 #include "terran-marines-code.hpp"
 #include "scout.hpp"
-#include <sstream>
+#include "larvas.hpp"
+#include <BWTA.h>
 
 using namespace BWAPI;
-using namespace BWAPI::UnitTypes;
+using namespace BWTA;
+using namespace UnitTypes;
 
 namespace {
 	UnitPrecondition* waittill = NULL;
 	bool academystarted = false;
 }
 
-void TerranStrategieCode::onMatchBegin()
+bool TerranStrategieCode::isApplyable()
 {
     Player* self = Broodwar->self();
-	if (self->getRace() != Races::Terran)
-		return;
-	
+    std::map<UnitType, int> units;
+    for (auto it : self->getUnits())
+        units[it->getType()] += 1;
+    
+    if ((units[Terran_SCV] < 1) || (units[Terran_Command_Center] < 1))
+        return false;
+    
+    BaseLocation* home = getStartLocation(self);
+    if (home == NULL)
+        return false;
+    
+    if (home->getGeysers().size() < 1)
+        return false;
+    
+    return true;
+}
+
+void TerranStrategieCode::onMatchBegin()
+{
+    LOG << "Standard terran opening...";
+
 	setSupplyMode(Races::Terran, SupplyMode::Auto);
 	setRequirementsMode(RequirementsMode::Auto);
-    
+ 
+    Player* self = Broodwar->self(); 
     for (auto it : self->getUnits()) {
         UnitType type = it->getType();
         if (type.isWorker()) {
             useWorker(it);
         } else if (type.isResourceDepot()) {
             registerBase(it);
+            rememberIdle(it);
             if (type == Zerg_Hatchery)
                 registerHatchery(it);
         }
     }
 
-	LOG << "Standard terran opening...";
     useScout(getWorker(Races::Terran));
     
 	for (int k=0; k<4; ++k)
@@ -61,9 +82,6 @@ void TerranStrategieCode::onMatchBegin()
 
 void TerranStrategieCode::onTick()
 {
-	if (Broodwar->self()->getRace() != Races::Terran)
-		return;
-		
 	int now = Broodwar->getFrameCount();
 	if (now % 10 != 7)
 		return;

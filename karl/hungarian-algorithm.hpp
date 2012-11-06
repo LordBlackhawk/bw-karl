@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "log.hpp"
+#include "log.hpp"
 
 #include <vector>
 //#include <fstream>
@@ -53,7 +53,7 @@ class HungarianAlgorithm
 		{
 			int nAgents = p.numberOfAgents();
 			int nJobs   = p.numberOfJobs();
-			if ((nAgents == 0) && (nJobs == 0))
+			if ((nAgents == 0) || (nJobs == 0))
 				return;
 
 			impl.prepare(nAgents, nJobs);

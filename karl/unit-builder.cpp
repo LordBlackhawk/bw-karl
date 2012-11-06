@@ -277,6 +277,8 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* work
         first = registerSupplyUnit(first);
     if (isRequirement(ut))
         first = registerRequirement(first);
+    if (ut.isResourceDepot())
+        first = registerBase(first);
     return std::make_pair(first, second);
 }
 

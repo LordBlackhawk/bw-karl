@@ -4,6 +4,7 @@
 #include "bwapi-precondition.hpp"
 
 UnitPrecondition* getLarva();
+void registerHatchery(BWAPI::Unit* u);
 UnitPrecondition* registerHatchery(UnitPrecondition* hatch);
 
 struct LarvaCode : public DefaultCode

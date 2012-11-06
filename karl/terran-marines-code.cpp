@@ -62,67 +62,71 @@ void TerranMarinesCode::onTick()
         baseProtection->setName("base");
 
         BWTA::BaseLocation* base=BWTA::getStartLocation(Broodwar->self());
-        BWTA::BaseLocation* otherbase=NULL;
-        
-        for(auto sl : BWTA::getStartLocations())
-        {
-            if(sl!=base)
-            {
-                otherbase=sl;
-                break;
-            }
-        }
-        
-        if(!otherbase)
-            LOG << "No other base found!";
-        
-        BWTA::Region* region=base->getRegion();
-
-            //only one choke from starting position? follow this path until we reach bigger ground
-        if(region->getChokepoints().size()>1)
-            Broodwar->printf("FIXME: more than one choke from starting point - only protecting the nearest one.");
-        
-        auto ckit=region->getChokepoints().begin();
-        BWTA::Chokepoint *choke=*ckit;
-        
-        
-        ckit++; //find choke closest to otherbase
-        while(ckit!=region->getChokepoints().end())
-        {
-            double currentDistance=BWTA::getGroundDistance((TilePosition)choke->getCenter(),otherbase->getTilePosition());
-            double newDistance=BWTA::getGroundDistance((TilePosition)(*ckit)->getCenter(),otherbase->getTilePosition());
+        if (base != NULL) {
+            BWTA::BaseLocation* otherbase=NULL;
             
-            if(newDistance>0 && newDistance<currentDistance)
+            for(auto sl : BWTA::getStartLocations())
             {
-                choke=*ckit;
+                if(sl!=base)
+                {
+                    otherbase=sl;
+                    break;
+                }
             }
-            ckit++;
-        }
-       
-        LOG << "following choke path";
+            
+            if(!otherbase)
+                LOG << "No other base found!";
+            
+            BWTA::Region* region=base->getRegion();
 
-        if(choke->getRegions().first==region)
-            region=choke->getRegions().second;
-        else 
-            region=choke->getRegions().first;
-
-        while(region->getChokepoints().size()==2)
-        {
-            auto it=region->getChokepoints().begin();
-            if(*it == choke)    //old choke? -> take the other!
+                //only one choke from starting position? follow this path until we reach bigger ground
+            if(region->getChokepoints().size()>1)
+                Broodwar->printf("FIXME: more than one choke from starting point - only protecting the nearest one.");
+            
+            auto ckit=region->getChokepoints().begin();
+            BWTA::Chokepoint *choke=*ckit;
+            
+            
+            ckit++; //find choke closest to otherbase
+            while(ckit!=region->getChokepoints().end())
             {
-                it++;
+                double currentDistance=BWTA::getGroundDistance((TilePosition)choke->getCenter(),otherbase->getTilePosition());
+                double newDistance=BWTA::getGroundDistance((TilePosition)(*ckit)->getCenter(),otherbase->getTilePosition());
+                
+                if(newDistance>0 && newDistance<currentDistance)
+                {
+                    choke=*ckit;
+                }
+                ckit++;
             }
-            choke=*it;
+           
+            LOG << "following choke path";
 
-                //step on to next region
             if(choke->getRegions().first==region)
                 region=choke->getRegions().second;
             else 
                 region=choke->getRegions().first;
-        }
 
-        baseProtection->defend(choke->getCenter());
+            while(region->getChokepoints().size()==2)
+            {
+                auto it=region->getChokepoints().begin();
+                if(*it == choke)    //old choke? -> take the other!
+                {
+                    it++;
+                }
+                choke=*it;
+
+                    //step on to next region
+                if(choke->getRegions().first==region)
+                    region=choke->getRegions().second;
+                else 
+                    region=choke->getRegions().first;
+            }
+
+            baseProtection->defend(choke->getCenter());
+        } else {
+            baseProtection->defend(Position(16*Broodwar->mapWidth(), 16*Broodwar->mapHeight()));
+        }
     }
     
     if(!scoutProtection)
