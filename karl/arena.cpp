@@ -24,9 +24,6 @@ bool ArenaCode::isApplyable()
     if ((units[Terran_Command_Center] > 0) || (units[Zerg_Hatchery] > 0) || (units[Protoss_Nexus] > 0))
         return false;
 
-    if (getRegions().size() > 1)
-        return false;
-
     return true;
 }
 
@@ -41,7 +38,7 @@ void ArenaCode::onMatchBegin()
     for (auto it : self->getUnits())
         onAssignUnit(it);
     
-    squad->defend(squad->getCenter());
+    squad->defend(Position(16*Broodwar->mapWidth(), 16*Broodwar->mapHeight()));
 }
 
 void ArenaCode::onMatchEnd()

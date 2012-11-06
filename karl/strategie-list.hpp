@@ -51,7 +51,7 @@ struct StrategieList<First, List...>
         if (idStrategie == id)
             First::onMatchBegin();
         else
-            Next::onMatchBegin();
+            Next::onMatchBeginInternal();
     }
     
     static void onReadParameter(int argc, const char* argv[], int& cur)
