@@ -12,6 +12,7 @@ class ParallelVector
     public:
         typedef typename std::vector<T>::iterator           iterator;
         typedef typename std::vector<T>::const_iterator     const_iterator;
+        typedef typename std::vector<T>::size_type          size_type;
 
     protected:
         std::vector<T>      items;
@@ -35,7 +36,7 @@ class ParallelVector
 			newitems.clear();
 		}
 
-        int size() const
+        size_type size() const
 		{
 			return items.size();
 		}

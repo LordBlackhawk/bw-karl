@@ -109,7 +109,7 @@ void HUDCode::onTick()
 	if (showfps)
 		Broodwar->drawTextScreen(300, 0, "FPS: %f", Broodwar->getAverageFPS());
 	if (showtiming)
-		Broodwar->drawTextScreen(5, 2, "Reaction time: %.0f / %.0f / %.0f ns", timerMin(), timerAverage(), timerMax());
+		Broodwar->drawTextScreen(5, 2, "Reaction time: %5.0f / %5.0f / %5.0f ns", timerMin(), timerAverage(), timerMax());
 	if (showplan)
 		CodeList::onDrawPlan();
 }

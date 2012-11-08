@@ -66,7 +66,7 @@ class Array2d
 				WARNING << "required index is " << index << ", size is " << sizex;
 				assert(false);
 			}
-			return Row(*this, index*sizex, 1, sizex);
+			return Row(*this, index*sizey, 1, sizey);
 		}
 		
 		ConstRow operator [] (int index) const
@@ -75,7 +75,7 @@ class Array2d
 				WARNING << "required index is " << index << ", size is " << sizex;
 				assert(false);
 			}
-			return ConstRow(*this, index*sizex, 1, sizex);
+			return ConstRow(*this, index*sizey, 1, sizey);
 		}
 		
 		int getWidth() const

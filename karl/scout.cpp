@@ -42,11 +42,8 @@ namespace
         {
             if (!scout->isMoving())
                 sendScout();
-            
-            bool isdead = !scout->exists();
-            if (isdead)
-                delete this;
-            return isdead;
+
+            return !scout->exists();
         }
     };
     
@@ -85,5 +82,5 @@ void ScoutCode::onMatchEnd()
 void ScoutCode::onTick()
 {
     Containers::remove_if(assigned_scouts, isScoutReady);
-    Containers::remove_if(scouts, std::mem_fun(&ScoutInformation::onTick));
+    Containers::remove_if_delete(scouts, std::mem_fun(&ScoutInformation::onTick));
 }

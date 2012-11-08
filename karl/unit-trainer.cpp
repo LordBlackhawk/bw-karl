@@ -100,6 +100,7 @@ namespace
 					if (isFinished()) {
 						postworker->time = 0;
 						postworker->unit = worker;
+                        postworker = NULL;
 						time   = 0;
 						status = finished;
 						THIS_DEBUG << "unit " << ut << " finished.";
@@ -109,6 +110,8 @@ namespace
 				case finished:
 					break;
 			}
+            if (postworker != NULL)
+                postworker->time = time;
 			return (status == finished);
 		}
 
@@ -129,7 +132,13 @@ namespace
 				{
 					status = pending;
 					return;
-				}
+				} else if (err == Errors::Unit_Not_Owned) {
+                    status   = pending;
+                    baseunit = getIdleUnit(ut.whatBuilds().first);
+                    rememberIdle(worker);
+                    worker = NULL;
+                    return;
+                }
 			}
 			status = commanded;
 			++tries;

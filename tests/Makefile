@@ -1,7 +1,7 @@
 OBJECTPATH   = ../out/
 SOURCEPATH   = ../karl/
 BWAPIPATH    = ../includes
-LIBPATH		 = ../
+LIBPATH		 = ../lib/
 EXEPATH		 = ../
 
 ASSIGNMENT-TEST-SOURCES  = hungarian-algorithm.cpp timer.cpp
@@ -9,11 +9,11 @@ ASSIGNMENT-TEST-PSOURCES = $(addprefix $(SOURCEPATH), $(ASSIGNMENT-TEST-SOURCES)
 
 CXX          = g++ -ggdb
 CXXINCLUDES  = -I../ -I$(SOURCEPATH) -I$(BWAPIPATH)
-CXXFLAGS     = -Wall -Wextra -O3 --std=c++0x $(CXXINCLUDES)
+CXXFLAGS     = -Wall -Wextra -O3 -DNDEBUG --std=c++0x $(CXXINCLUDES)
 CXXLIBS      = -L$(LIBPATH) -lBWAPI
 
 $(EXEPATH)assignment-test.exe: assignment-test.cpp $(ASSIGNMENT-TEST-PSOURCES)
-	$(CXX) $(CXXINCLUDES) $(CXXFLAGS) $(CXXLIBS) assignment-test.cpp $(ASSIGNMENT-TEST-PSOURCES) -o $@
+	$(CXX) $(CXXINCLUDES) $(CXXFLAGS) $(CXXLIBS) assignment-test.cpp log.cpp $(ASSIGNMENT-TEST-PSOURCES) -o $@
 	
 assignment: $(EXEPATH)assignment-test.exe
 	$<

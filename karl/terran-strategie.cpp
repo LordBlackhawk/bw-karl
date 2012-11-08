@@ -13,6 +13,7 @@
 #include "terran-marines-code.hpp"
 #include "scout.hpp"
 #include "larvas.hpp"
+#include "building-placer.hpp"
 #include <BWTA.h>
 
 using namespace BWAPI;
@@ -64,18 +65,23 @@ void TerranStrategieCode::onMatchBegin()
         }
     }
 
-    useScout(getWorker(Races::Terran));
+    //useScout(getWorker(Races::Terran));
     
 	for (int k=0; k<4; ++k)
 		trainWorker(Terran_SCV);
 	
 	buildUnitEx(Terran_Supply_Depot);
-	
-	for (int k=0; k<10; ++k)
-		trainWorker(Terran_SCV);
-
 	buildUnitEx(Terran_Barracks);
+    
+    for (int k=0; k<10; ++k)
+		trainWorker(Terran_SCV);
 	
+    LOG << "before base planing...";
+    BuildingPositionPrecondition* pos = getNextExpo(Terran_Command_Center);
+    if (pos != NULL)
+        useWorker(rememberFirst(buildUnit(pos, Terran_Command_Center)));
+    LOG << "after base planing.";
+    
 	for (int k=0; k<6; ++k)
 		doSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Marine)));
 }

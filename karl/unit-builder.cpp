@@ -32,16 +32,16 @@ namespace
     {
         enum StatusType { pending, tryagain, commanded, waiting, finished };
 
-        UnitPrecondition*               baseunit;
-        ResourcesPrecondition*          resources;
+        UnitPrecondition*                 baseunit;
+        ResourcesPrecondition*            resources;
         BuildingPositionPrecondition*     pos;
-        RequirementsPrecondition*        requirements;
-        Precondition*                    extra;
-        StatusType                         status;
-        UnitPrecondition*                postworker;
-        Unit*                            worker;
-        int                             starttime;
-        int                                tries;
+        RequirementsPrecondition*         requirements;
+        Precondition*                     extra;
+        StatusType                        status;
+        UnitPrecondition*                 postworker;
+        Unit*                             worker;
+        int                               starttime;
+        int                               tries;
 
         UnitBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, BuildingPositionPrecondition* p, RequirementsPrecondition* req,
                                 const UnitType& ut, Precondition* e)
@@ -118,6 +118,10 @@ namespace
                 case finished:
                     break;
             }
+            if (postworker != NULL) {
+                int newtime = (ut.getRace() == Races::Protoss) ? time - ut.buildTime() : time;
+                postworker->time = std::max(newtime, Broodwar->getFrameCount()+1);
+            }
             return (status == finished);
         }
 
@@ -134,7 +138,12 @@ namespace
                 }
                 release(baseunit);
             }
-            assert(worker != NULL);
+            if (worker == NULL) {
+                WARNING << "UnitBuilder: Got no worker?!?!";
+                baseunit = getWorker(ut.getRace());
+                status = pending;
+                return;
+            }
             THIS_DEBUG << "Sending worker to build " << ut;
             if (!pos->isExplored()) {
                 worker->rightClick(Position(pos->pos));
@@ -166,6 +175,7 @@ namespace
                     status   = pending;
                     unit     = NULL;
                     baseunit = getWorker(ut.getRace());
+                    return;
                 }
             }
             status = commanded;
@@ -254,9 +264,23 @@ namespace
 
             Broodwar->drawBoxMap(x, y, x + width, y + height, Colors::Green, false);
             Broodwar->drawTextMap(x+2, y+2,  "%s", ut.getName().c_str());
-            Broodwar->drawTextMap(x+2, y+18, "%s", getStatusText());
+            if (status != pending)
+                Broodwar->drawTextMap(x+2, y+18, "%s", getStatusText());
             Broodwar->drawTextMap(x+2, y+34, "at %d", time);
             Broodwar->drawTextMap(x+2, y+50, "wish %d", wishtime);
+            
+            int xvalue = x + 2;
+        #define check(PRE, TEXT)                            \
+            if (PRE != NULL) if (!PRE->isFulfilled()) {     \
+                Broodwar->drawTextMap(xvalue, y+18, (PRE->isImpossible())?"im"#TEXT:"no"#TEXT); \
+                xvalue += 30;                               \
+            }
+            check(baseunit,     Bas);
+            check(resources,    Res);
+            check(pos,          Pos);
+            check(requirements, Req);
+            check(extra,        Exr);
+        #undef check
         }
     };
 }
@@ -292,6 +316,8 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* work
 
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra)
 {
+    if (pos == NULL)
+        return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
     UnitPrecondition* worker = getWorker(ut.getRace());
     if (worker == NULL)
         return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);

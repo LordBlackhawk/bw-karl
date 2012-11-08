@@ -33,7 +33,7 @@ namespace
 			Containers::remove(reslist, this);
 		}
 		
-		double sortValue() const
+		ctype sortValue() const
 		{
 			return valueResources(time, wishtime, index);
 		}
@@ -80,6 +80,9 @@ void ResourcesCode::onMatchEnd()
 
 void ResourcesCode::onTick()
 {
+    //if (rand() % 3 == 0)
+    //    return;
+
 	std::stable_sort(reslist.begin(), reslist.end(), ResourcesSorter());
 
 	Player* self = Broodwar->self();
@@ -89,11 +92,26 @@ void ResourcesCode::onTick()
 	auto it    = reslist.begin();
 	auto itend = reslist.end();
 	while ((it != itend) && ((*it)->minerals <= cur_m) && ((*it)->gas <= cur_g)) {
-		(*it)->time = 0;
+        (*it)->time = 0;
 		cur_m -= (*it)->minerals;
 		cur_g -= (*it)->gas;
 		++it;
 	}
+    auto itbegin = it;
+    
+    for (it=itbegin; it!=itend; ++it)
+        (*it)->time = 1;
+    
+    int rest_m = cur_m;
+    it = itbegin;
+    while ((it != itend) && (rest_m >= 0)) {
+        if ((*it)->minerals <= rest_m && (*it)->gas == 0) {
+            (*it)->time = 0;
+            cur_m -= (*it)->minerals;
+        }
+        rest_m -= (*it)->minerals;
+        ++it;
+    }
 	
 	auto pit    = estimatedProduction.begin();
 	auto pitend = estimatedProduction.end();
@@ -104,7 +122,8 @@ void ResourcesCode::onTick()
 	cur_m *= MineralFactor;
 	cur_g *= MineralFactor;
 	
-	for (; it!=itend; ++it) {
+	for (it=itbegin; it!=itend; ++it) {
+        if ((*it)->time == 0) continue;
 		int esttime;
 		bool cont = true;
 		while (cont) {
@@ -124,10 +143,29 @@ void ResourcesCode::onTick()
 			}
 		}
 		
-		(*it)->time = esttime;
 		int dt = esttime - time;
+        (*it)->time = esttime;
 		cur_m += dt * prod_m - MineralFactor * (*it)->minerals;
 		cur_g += dt * prod_g - MineralFactor * (*it)->gas;
 		time  += dt;
 	}
+}
+
+void ResourcesCode::onDrawPlan()
+{
+    int yvalue = 16;
+    for (auto it : reslist) {
+        if (it->time == 0) {
+            Broodwar->drawTextScreen(460, yvalue, "\x07%d", it->minerals);
+            Broodwar->drawTextScreen(520, yvalue, "\x07%d", it->gas);
+            Broodwar->drawTextScreen(560, yvalue, "\x07--> %d", it->wishtime);
+            yvalue += 16;
+        } else {
+            Broodwar->drawTextScreen(460, yvalue, "\x08%d", it->minerals);
+            Broodwar->drawTextScreen(520, yvalue, "\x08%d", it->gas);
+            Broodwar->drawTextScreen(560, yvalue, "\x08--> %d", it->wishtime);
+            yvalue += 16;
+            //break;
+        }
+    }
 }

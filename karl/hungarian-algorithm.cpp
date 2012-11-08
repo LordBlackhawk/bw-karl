@@ -1,13 +1,21 @@
 #include "hungarian-algorithm.hpp"
 #include "container-helper.hpp"
 #include <limits>
+#include <fstream>
+
+HungarianAlgorithmImpl::ctype HungarianAlgorithmImpl::infty() const
+{
+    return std::numeric_limits<ctype>::max();
+}
 
 void HungarianAlgorithmImpl::prepare(int r, int c)
 {
 	rows = r;
 	cols = c;
 	dim  = std::max(rows, cols);
-	
+    if (dim == 0)
+        return;
+
 	costMatrixElements.resize(dim*dim);
 	labelByWorker.resize(dim);
 	labelByJob.resize(dim);
@@ -17,7 +25,8 @@ void HungarianAlgorithmImpl::prepare(int r, int c)
 	parentWorkerByCommittedJob.resize(dim);
 	matchJobByWorker.resize(dim);
 	matchWorkerByJob.resize(dim);
-	
+
+    Containers::fill(labelByWorker, 0);
 	Containers::fill(matchJobByWorker, -1);
 	Containers::fill(matchWorkerByJob, -1);
 }
@@ -29,6 +38,9 @@ void HungarianAlgorithmImpl::execute()
 	* smallest element, compute an initial non-zero dual feasible solution
 	* and create a greedy matching from workers to jobs of the cost matrix.
 	*/
+    
+    if (dim == 0)
+        return;
 
 	reduce();
 	computeInitialFeasibleSolution();
@@ -39,7 +51,7 @@ void HungarianAlgorithmImpl::execute()
 		initializePhase(w);
 		executePhase();
 		w = fetchUnmatchedWorker();
-	}	
+	}
 }
 
 /**
@@ -50,7 +62,7 @@ void HungarianAlgorithmImpl::execute()
 void HungarianAlgorithmImpl::computeInitialFeasibleSolution()
 {
 	for (int j=0; j<dim; ++j)
-		labelByJob[j] = std::numeric_limits<double>::infinity();
+		labelByJob[j] = infty();
 
 	for (int w=0; w<dim; ++w)
 		for (int j=0; j<dim; ++j)
@@ -81,7 +93,7 @@ void HungarianAlgorithmImpl::executePhase()
 {
 	while (true) {
 		int minSlackWorker = -1, minSlackJob = -1;
-		double minSlackValue = std::numeric_limits<double>::infinity();
+		ctype minSlackValue = infty();
 		for (int j = 0; j < dim; j++) {
 			if (parentWorkerByCommittedJob[j] == -1) {
 				if (minSlackValueByJob[j] < minSlackValue) {
@@ -118,7 +130,7 @@ void HungarianAlgorithmImpl::executePhase()
 			committedWorkers[worker] = true;
 			for (int j = 0; j < dim; j++) {
 				if (parentWorkerByCommittedJob[j] == -1) {
-					double slack = costMatrix(worker, j) - labelByWorker[worker] - labelByJob[j];
+					ctype slack = costMatrix(worker, j) - labelByWorker[worker] - labelByJob[j];
 					if (minSlackValueByJob[j] > slack) {
 						minSlackValueByJob[j] = slack;
 						minSlackWorkerByJob[j] = worker;
@@ -134,8 +146,8 @@ void HungarianAlgorithmImpl::executePhase()
 */
 int HungarianAlgorithmImpl::fetchUnmatchedWorker()
 {
-	int w;
-	for (w=0; w<dim; ++w)
+	int w=0;
+	for (; w<dim; ++w)
 		if (matchJobByWorker[w] == -1)
 			break;
 	return w;
@@ -147,8 +159,8 @@ int HungarianAlgorithmImpl::fetchUnmatchedWorker()
 */
 void HungarianAlgorithmImpl::greedyMatch()
 {
-	for (int w = 0; w < dim; w++)
-		for (int j = 0; j < dim; j++)
+	for (int w=0; w<dim; ++w)
+		for (int j=0; j<dim; ++j)
 	{
 		if (   (matchJobByWorker[w] == -1)
 			&& (matchWorkerByJob[j] == -1)
@@ -172,7 +184,7 @@ void HungarianAlgorithmImpl::initializePhase(int w)
 	Containers::fill(committedWorkers, false);
 	Containers::fill(parentWorkerByCommittedJob, -1);
 	committedWorkers[w] = true;
-	for (int j = 0; j < dim; j++) {
+	for (int j=0; j<dim; ++j) {
 		minSlackValueByJob[j] = costMatrix(w, j) - labelByWorker[w] - labelByJob[j];
 		minSlackWorkerByJob[j] = w;
 	}
@@ -196,7 +208,7 @@ void HungarianAlgorithmImpl::match(int w, int j)
 void HungarianAlgorithmImpl::reduce()
 {
 	for (int w=0; w<dim; ++w) {
-		double min = std::numeric_limits<double>::infinity();
+		ctype min = infty();
 		for (int j=0; j<dim; ++j)
 			if (costMatrix(w, j) < min)
 				min = costMatrix(w, j);
@@ -204,13 +216,13 @@ void HungarianAlgorithmImpl::reduce()
 		for (int j=0; j<dim; ++j)
 			costMatrix(w, j) -= min;
 	}
-	
+
 	for (int j=0; j<dim; ++j) {
-		double min = std::numeric_limits<double>::infinity();
+		ctype min = infty();
 		for (int w=0; w<dim; ++w)
 			if (costMatrix(w, j) < min)
 				min = costMatrix(w, j);
-		
+
 		for (int w=0; w<dim; ++w)
 			costMatrix(w, j) -= min;
 	}
@@ -221,16 +233,51 @@ void HungarianAlgorithmImpl::reduce()
 * committed workers and by subtracting the slack value for committed jobs.
 * In addition, update the minimum slack values appropriately.
 */
-void HungarianAlgorithmImpl::updateLabeling(double slack)
+void HungarianAlgorithmImpl::updateLabeling(ctype slack)
 {
-	for (int w = 0; w < dim; w++)
+	for (int w=0; w<dim; ++w)
 		if (committedWorkers[w])
 			labelByWorker[w] += slack;
 
-	for (int j = 0; j < dim; j++)
+	for (int j=0; j<dim; ++j)
 		if (parentWorkerByCommittedJob[j] != -1) {
 			labelByJob[j] -= slack;
 		} else {
 			minSlackValueByJob[j] -= slack;
 		}
+}
+
+bool HungarianAlgorithmImpl::isValid()
+{
+    for (int w1=0; w1<dim; ++w1) {
+        int j1 = matchJobByWorker[w1];
+        for (int w2=0; w2<dim; ++w2) {
+            int j2 = matchJobByWorker[w2];
+
+            ctype costs = costMatrix(w1, j1) + costMatrix(w2, j2);
+            ctype costx = costMatrix(w1, j2) + costMatrix(w2, j1);
+            if (costs > costx)
+                return false;
+        }
+    }
+    return true;
+}
+
+void HungarianAlgorithmImpl::writeMatrixToFile(const char* filename)
+{
+    std::fstream stream(filename, std::fstream::out);
+    for (int w=0; w<dim; ++w) {
+        for (int j=0; j<dim; ++j)
+            stream << costMatrix(w, j) << ", ";
+        stream << "\n";
+    }
+    stream.close();
+}
+
+void HungarianAlgorithmImpl::writeAssignmentToFile(const char* filename)
+{
+    std::fstream stream(filename, std::fstream::out);
+    for (int w=0; w<dim; ++w)
+        stream << w << "\t " << matchJobByWorker[w] << "\n";
+    stream.close();
 }

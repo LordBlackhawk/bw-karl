@@ -54,10 +54,12 @@ int main(int argc, const char* argv[])
 
 		while (Broodwar->isInGame())
 		{
-			timerStart();
-			DEBUG << "Calling onTick...";
-			CodeList::onTick();
-			timerEnd();
+            if (!Broodwar->isPaused()) {
+                timerStart();
+                DEBUG << "Calling onTick...";
+                CodeList::onTick();
+                timerEnd();
+            }
 
 			BWAPI::BWAPIClient.update();
 			if (!BWAPI::BWAPIClient.isConnected())

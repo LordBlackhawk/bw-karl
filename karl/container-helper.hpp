@@ -48,6 +48,30 @@ namespace Containers
 				++it;
 			}
 	}
+    
+    template <class F>
+    struct DeleteIfTrue
+    {
+        F f;
+        DeleteIfTrue(const F& f_)
+            : f(f_)
+        { }
+        
+        template <class T>
+        bool operator () (const T& t) const
+        {
+            bool result = f(t);
+            if (result)
+                delete t;
+            return result;
+        }
+    };
+    
+    template <class C, class F>
+	void remove_if_delete(C& container, F f)
+	{
+        remove_if(container, DeleteIfTrue<F>(f));
+	}
 	
 	template <class C>
 	void clear_and_delete(C& container)

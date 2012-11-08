@@ -6,6 +6,7 @@
 UnitPrecondition* getLarva();
 void registerHatchery(BWAPI::Unit* u);
 UnitPrecondition* registerHatchery(UnitPrecondition* hatch);
+void registerLarva(BWAPI::Unit* u);
 
 struct LarvaCode : public DefaultCode
 {

@@ -12,6 +12,7 @@
 #include "precondition-helper.hpp"
 #include "object-counter.hpp"
 #include "unit-observer.hpp"
+#include "valuing.hpp"
 #include "log.hpp"
 #include <BWAPI.h>
 #include <cassert>
@@ -22,16 +23,18 @@ using namespace BWAPI;
 
 namespace
 {
+    struct SupplyPreconditionInternal;
 	struct SupplyUnitObserver;
 	
 	struct RaceSupply
 	{
-		BWAPI::Race								race;
-		std::vector<SupplyPrecondition*>		supply;
-		std::vector<SupplyUnitObserver*>		supplyunits;
-		int										remaining;
-		int										remaining_time;
-		int										mode;
+		BWAPI::Race								    race;
+		std::vector<SupplyPreconditionInternal*>    supply;
+		std::vector<SupplyUnitObserver*>		    supplyunits;
+		int										    remaining;
+		int										    remaining_time;
+		int										    mode;
+        int                                         indexcounter;
 		
 		void init(const BWAPI::Race& r)
 		{
@@ -40,6 +43,7 @@ namespace
 			remaining      = self->supplyTotal(race) - self->supplyUsed(race);
 			remaining_time = 0;
 			mode           = SupplyMode::None;
+            indexcounter   = 0;
 		}
 		
 		void reset()
@@ -52,20 +56,8 @@ namespace
 		void addSupplyUnit(SupplyUnitObserver* unit);
 		void removeSupplyUnit(SupplyUnitObserver* unit);
 		
-		void addSupply(SupplyPrecondition* s)
-		{
-			supply.push_back(s);
-			remaining -= s->supply;
-			//fillSupply();
-			if (remaining < 0)
-				remaining_time = Precondition::Impossible;
-			s->time = remaining_time;
-		}
-		
-		void removeSupply(SupplyPrecondition* s)
-		{
-			Containers::remove(supply, s);
-		}
+		void addSupply(SupplyPreconditionInternal* s);
+		void removeSupply(SupplyPreconditionInternal* s);
 		
 		void buildSupply()
 		{
@@ -120,6 +112,8 @@ namespace
 	
 	struct SupplyPreconditionInternal : public SupplyPrecondition, public ObjectCounter<SupplyPreconditionInternal>
 	{
+        int index;
+
 		SupplyPreconditionInternal(const BWAPI::Race& r, int s)
 			: SupplyPrecondition(r, s)
 		{
@@ -142,15 +136,36 @@ namespace
 				zerg_supply.removeSupply(this);
 			}
 		}
+        
+        ctype value() const
+        {
+            return valueSupply(time, wishtime, index);
+        }
 	};
 	
 	struct SupplySorter
 	{
-		bool operator () (SupplyPrecondition* lhs, SupplyPrecondition* rhs)
+		bool operator () (SupplyPreconditionInternal* lhs, SupplyPreconditionInternal* rhs)
 		{
-			return std::max(lhs->time, lhs->wishtime) < std::max(rhs->time, rhs->wishtime);
+            
+			return lhs->value() < rhs->value();
 		}
 	};
+    
+    void RaceSupply::addSupply(SupplyPreconditionInternal* s)
+    {
+        s->index = ++indexcounter;
+        supply.push_back(s);
+        remaining -= s->supply;
+        if (remaining < 0)
+            remaining_time = Precondition::Impossible;
+        s->time = remaining_time;
+    }
+    
+    void RaceSupply::removeSupply(SupplyPreconditionInternal* s)
+    {
+        Containers::remove(supply, s);
+    }
 	
 	void RaceSupply::calcSupplyUnit(SupplyUnitObserver* unit)
 	{
@@ -171,6 +186,9 @@ namespace
 	
 	void RaceSupply::onTick()
 	{
+        if (rand() % 3 == 0)
+            return;
+
 		Containers::remove_if(supplyunits, std::mem_fun(&SupplyUnitObserver::update));
 		std::stable_sort(supplyunits.begin(), supplyunits.end(), PreconditionSorter());
 		

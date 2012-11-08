@@ -30,6 +30,7 @@ namespace
     
     ParallelVector<LarvaAgent*>         agents;
     ParallelVector<LarvaJob*>           jobs;
+    int                                 indexcounter = 0;
 
     struct LarvaAgent : public ObjectCounter<LarvaAgent>
     {
@@ -48,6 +49,7 @@ namespace
     struct LarvaJob : public ObjectCounter<LarvaJob>
     {
         // Data:
+        int                 index;
         int                 wishtime;
         Position            wishpos;
         LarvaPrecondition*  pre;
@@ -87,10 +89,8 @@ namespace
 
     bool LarvaAgent::update()
     {
-        if (remove) {
-            delete this;
+        if (remove)
             return true;
-        }
 
         if (larva != NULL) {
             time = 0;
@@ -104,6 +104,7 @@ namespace
         : wishtime(0), wishpos(Positions::Unknown), pre(p), assigned(NULL)
     {
         Containers::add(jobs, this);
+        index = ++indexcounter;
     }
 
     void LarvaJob::markRemove()
@@ -117,10 +118,8 @@ namespace
 
     bool LarvaJob::update()
     {
-        if (pre == NULL) {
-            delete this;
+        if (pre == NULL)
             return true;
-        }
 
         wishtime  = pre->wishtime;
         //wishpos   = pre->wishpos;
@@ -136,29 +135,29 @@ namespace
 
     struct ProblemType
     {
-        double evaluate(int idAgent, int idJob) const
+        ctype evaluate(int idAgent, int idJob) const
         {
-            if (idAgent >= agents.size()) {
-                return 0.0;
-            } else if (idJob >= jobs.size()) {
+            if (idAgent >= (int) agents.size()) {
+                return 0;
+            } else if (idJob >= (int) jobs.size()) {
                 LarvaAgent* agent = agents[idAgent];
-                return (agent->time == 0) ? 1e10 : 0.0;
+                return (agent->time == 0) ? 1000000 : 0;
             }
 
             LarvaAgent* agent = agents[idAgent];
             LarvaJob* job = jobs[idJob];
-            return valueLarvaAssignment(agent->time, job->wishtime, job->assigned == agent);
+            return valueLarvaAssignment(agent->time, job->wishtime, job->index, job->assigned == agent);
         }
 
         void assign(int idAgent, int idJob) const
         {
-            if ((idJob < 0) || (idJob >= jobs.size())) {
+            if ((idJob < 0) || (idJob >= (int) jobs.size())) {
                 agents[idAgent]->assigned = NULL;
                 return;
             }
             LarvaJob* job = jobs[idJob];
 
-            if ((idAgent < 0) || (idAgent >= agents.size())) {
+            if ((idAgent < 0) || (idAgent >= (int) agents.size())) {
                 job->assigned = NULL;
                 return;
             }
@@ -202,6 +201,7 @@ namespace
             : UnitLifetimeObserver<HatcheryPlaner>(u)
         {
             hatcheries.push_back(this);
+            onUnitReady();
         }
 
         HatcheryPlaner(UnitPrecondition* p)
@@ -268,7 +268,6 @@ namespace
     {
         Containers::remove_if(agents, hasNoUnit);
         unassigned_agents.insert(unassigned_agents.end(), agents.begin(), agents.end());
-        delete this;
     }
 
     bool checkAgent(LarvaAgent* agent, int* notassigned)
@@ -373,16 +372,14 @@ UnitPrecondition* registerHatchery(UnitPrecondition* hatch)
     return HatcheryPlaner::createObserver(hatch);
 }
 
+void registerLarva(BWAPI::Unit* u)
+{
+    distributeLarva(u);
+}
+
 void LarvaCode::onMatchBegin()
 {
-    /*
-    for (auto it : Broodwar->self()->getUnits())
-        if (it->getType() == UnitTypes::Zerg_Hatchery)
-    {
-        THIS_DEBUG << "Hatchery added.";
-        new HatcheryPlaner(it);
-    }
-    */
+    indexcounter = 0;
 }
 
 void LarvaCode::onMatchEnd()
@@ -394,6 +391,9 @@ void LarvaCode::onMatchEnd()
 
 void LarvaCode::onTick()
 {
+    //if (rand() % 3 == 0)
+    //    return;
+
     for (auto it : agents)
         if (it->larva != NULL)
             if (it->larva->getType() != UnitTypes::Zerg_Larva)
@@ -402,16 +402,16 @@ void LarvaCode::onTick()
         it->markRemove();
     }
     
-    Containers::remove_if(hatcheries, std::mem_fun(&HatcheryPlaner::update));
+    Containers::remove_if_delete(hatcheries, std::mem_fun(&HatcheryPlaner::update));
     
     int notassigned = 0;
     Containers::remove_if(unassigned_agents, std::bind(checkAgent, _1, &notassigned));
 
     agents.update();
-    Containers::remove_if(agents, std::mem_fun(&LarvaAgent::update));
+    Containers::remove_if_delete(agents, std::mem_fun(&LarvaAgent::update));
 
     jobs.update();
-    Containers::remove_if(jobs, std::mem_fun(&LarvaJob::update));
+    Containers::remove_if_delete(jobs, std::mem_fun(&LarvaJob::update));
     
     assignment.execute();
 }

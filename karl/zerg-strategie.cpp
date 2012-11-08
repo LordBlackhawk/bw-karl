@@ -58,6 +58,8 @@ void ZergStrategieCode::onMatchBegin()
             if (type == Zerg_Hatchery)
                 registerHatchery(it);
             rememberIdle(it);
+        } else if (type == Zerg_Larva) {
+            registerLarva(it);
         }
     }
 
@@ -71,13 +73,15 @@ void ZergStrategieCode::onMatchBegin()
 	buildRefinery(Zerg_Extractor);
 	
     BuildingPositionPrecondition* pos = getNextExpo(Zerg_Hatchery);
-	UnitPrecondition* hatch = buildUnit(pos, Zerg_Hatchery).first;
-	waittill = hatch;
+    if (pos != NULL) {
+        UnitPrecondition* hatch = buildUnit(pos, Zerg_Hatchery).first;
+        waittill = hatch;
+    }
 	
 	UnitPrecondition* colony = buildUnit(Zerg_Creep_Colony).first;
 	rememberIdle(morphUnit(colony, Zerg_Sunken_Colony));
 	
-	for (int k=0; k<5; ++k)
+	for (int k=0; k<15; ++k)
 		morphWorker(Zerg_Drone);
 	
 	for (int k=0; k<10; ++k)
@@ -86,7 +90,6 @@ void ZergStrategieCode::onMatchBegin()
 
 void ZergStrategieCode::onTick()
 {
-    /*
 	if ((waittill == NULL) || (waittill->time == 0)) {
 		release(waittill);
 		
@@ -98,7 +101,6 @@ void ZergStrategieCode::onTick()
 		
 		waittill = morphUnit(Zerg_Zergling);
 	}
-    */
 }
 
 void ZergStrategieCode::onMatchEnd()

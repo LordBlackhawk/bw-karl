@@ -13,4 +13,5 @@ struct ResourcesCode : public DefaultCode
 	static void onMatchBegin();
 	static void onMatchEnd();
 	static void onTick();
+    static void onDrawPlan();
 };

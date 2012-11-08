@@ -46,7 +46,7 @@ class Log
 struct LogEater
 {
     template <class T>
-    LogEater& operator << (const T& t) const
+    LogEater& operator << (const T& /*t*/)
     {
         return *this;
     }

@@ -5,6 +5,7 @@
 #include "array2d.hpp"
 #include "valuing.hpp"
 #include <BWTA.h>
+#include <limits>
 
 using namespace BWAPI;
 
@@ -146,8 +147,8 @@ namespace
 	
 	void reserveTiles(const TilePosition& position, int width, int height, bool value)
 	{
-		for(int x = position.x(); x < position.x() + width && x < reserved.getWidth(); x++)
-			for(int y = position.y(); y < position.y() + height && y < reserved.getHeight(); y++)
+		for(int x = position.x(); x < position.x() + width && x < reserved.getWidth(); ++x)
+			for(int y = position.y(); y < position.y() + height && y < reserved.getHeight(); ++y)
 				reserved[x][y] = value;
 	}
 	
@@ -210,12 +211,12 @@ BuildingPositionPrecondition* getNextExpo(const BWAPI::UnitType& ut)
 {
     BWTA::BaseLocation* home = BWTA::getStartLocation(Broodwar->self());
     BWTA::BaseLocation* bestlocation = NULL;
-    double              bestvalue = -1e10;
+    ctype               bestvalue = std::numeric_limits<ctype>::min();
     
     for (auto it : BWTA::getBaseLocations())
         if (Broodwar->canBuildHere(NULL, it->getTilePosition(), ut, false))
     {
-        double newvalue = valueExpo(it, home);
+        ctype newvalue = valueExpo(it, home);
         if (newvalue > bestvalue) {
             bestlocation = it;
             bestvalue    = newvalue;

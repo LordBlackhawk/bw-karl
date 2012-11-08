@@ -9,6 +9,7 @@
 #include "unit-builder.hpp"
 #include "unit-trainer.hpp"
 #include "container-helper.hpp"
+#include "precondition-helper.hpp"
 #include "log.hpp"
 #include <algorithm>
 #include <vector>
@@ -45,10 +46,19 @@ namespace
             
             THIS_DEBUG << "Unit " <<(pre->unit?pre->unit->getID():0) <<": " << pre->unit->getType() << " added to idle units.";
 
-            delete pre;
+            release(pre);
             return true;
         }
         return false;
+    }
+    
+    bool searchWorker(Unit* w)
+    {
+        if (!w->getType().isWorker())
+            return false;
+        
+        useWorker(w);
+        return true;
     }
 }
 
@@ -93,7 +103,7 @@ void rememberIdle(Unit* unit)
     if (unit->getType().isWorker())
         useWorker(unit);
     idleunits.insert(unit);
-    THIS_DEBUG << "Unit " <<unit->getID()<<": " << unit->getType() << " added to idle units.";
+    THIS_DEBUG << "Unit " << unit->getID() << ": " << unit->getType() << " added to idle units.";
 }
 
 void rememberIdle(UnitPrecondition* unit)
@@ -143,6 +153,11 @@ void IdleUnitContainerCode::onMatchEnd()
 void IdleUnitContainerCode::onTick()
 {
     Containers::remove_if(waitingfor, updateWaiting);
+    
+    if (Broodwar->getFrameCount() % 30 != 0)
+        return;
+    
+    Containers::remove_if(idleunits, searchWorker);
 }
 
 void IdleUnitContainerCode::onUnitCreate(BWAPI::Unit* unit)

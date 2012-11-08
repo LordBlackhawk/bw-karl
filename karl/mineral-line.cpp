@@ -14,9 +14,8 @@
 #include "bwapi-helper.hpp"
 #include "valuing.hpp"
 #include "log.hpp"
-
 #include <BWTA.h>
-
+#include <sstream>
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -24,7 +23,7 @@
 using namespace BWAPI;
 using namespace BWTA;
 
-#define THIS_DEBUG LOG
+#define THIS_DEBUG DEBUG
 
 std::vector<Production> estimatedProduction;
 
@@ -50,7 +49,7 @@ namespace
         bool                remove;
         
         WorkerAgent(Unit* u)
-            : time(Precondition::Impossible), pos(u->getPosition()), race(u->getType().getRace()), worker(u), 
+            : time(0), pos(u->getPosition()), race(u->getType().getRace()), worker(u), 
               pre(NULL), assigned(NULL), remove(false)
         {
             Containers::add(agents, this);
@@ -68,11 +67,7 @@ namespace
             release(pre);
         }
 
-        void markRemove()
-        {
-            remove = true;
-        }
-        
+        void markRemove();
         bool update();
     };
     
@@ -88,27 +83,8 @@ namespace
         
         WorkerJob(WorkerPrecondition* p);
         WorkerJob(WorkerLine* l);
-        
-        void markRemove()
-        {
-            if (assigned != NULL) {
-                assigned->markRemove();
-                assigned = NULL;
-            }
-            pre    = NULL;
-            remove = true;
-        }
-        
-        void markRemoveJobOnly()
-        {
-            if (assigned != NULL) {
-                assigned->assigned = NULL;
-                assigned = NULL;
-            }
-            pre    = NULL;
-            remove = true;
-        }
-        
+        void markRemoveWithAgent();
+        void markRemoveJobOnly();
         void commandWorker(WorkerAgent* agent);
         bool update();
     };
@@ -125,13 +101,16 @@ namespace
         
         ~WorkerPrecondition()
         {
-            job->markRemove();
+            if (job != NULL) {
+                job->markRemoveWithAgent();
+                job = NULL;
+            }
         }
     };
     
     struct WorkerLine : public UnitLifetimeObserver<WorkerLine>, public ObjectCounter<WorkerLine>
     {
-        std::vector<WorkerAgent*>       agents;
+        //std::vector<WorkerAgent*>       agents;
         std::vector<WorkerJob*>         jobs;
         BWTA::BaseLocation*             location;
         std::set<WorkerLine*>           gaslines;
@@ -157,7 +136,7 @@ namespace
         
         void onRemoveFromList()
         {
-            Containers::remove(lines, this);
+            //assert(false && "Should never be called!");
         }
         
         void commandWorker(WorkerAgent* agent);
@@ -173,10 +152,22 @@ namespace
     
     struct ProblemType
     {
-        double evaluate(int idAgent, int idJob) const
+        bool isOldJob(WorkerAgent* agent, WorkerJob* job) const
         {
-            if (idAgent >= agents.size()) {
-                WorkerJob* job = jobs[idJob];
+            assert(agent != NULL);
+
+            if (agent->assigned == job)
+                return true;
+
+            if ((job == NULL) || (agent->assigned == NULL))
+                return false;
+
+            return (agent->assigned->line == job->line);
+        }
+        
+        ctype valueCombination(WorkerAgent* agent, WorkerJob* job) const
+        {
+            if (agent == NULL) {
                 bool isGasJob = false;
                 bool isMineralJob = false;
                 if (job->line != NULL) {
@@ -186,67 +177,75 @@ namespace
                         isMineralJob = true;
                 }
                 return valueWorkerAssignmentNoAgent(isGasJob, isMineralJob, job->wishtime);
-            } else if (idJob >= jobs.size()) {
-                WorkerAgent* agent = agents[idAgent];
+            }
+            
+            if (job == NULL) {
                 return valueWorkerAssignmentNoJob(agent->time);
             }
-
-            WorkerAgent* agent = agents[idAgent];
-            WorkerJob* job = jobs[idJob];
             
-            bool assigned = false;
-            if (agent->assigned != NULL) {
-                if (agent->assigned->line != NULL) {
-                    assigned = agent->assigned->line == job->line;
-                } else {
-                    assigned = job->assigned == agent;   
-                }
-            }
+            bool isAssigned = isOldJob(agent, job);
             bool isPlanedWorker = agent->pre != NULL;
             bool isGasJob = false;
             bool isMineralJob = false;
+            bool isWorkerIdle = false;
             if (job->line != NULL) {
                 if (job->line->geyser != NULL)
                     isGasJob = true;
                 else
                     isMineralJob = true;
             }
+            if (agent->worker != NULL)
+                isWorkerIdle = agent->worker->isIdle();
             
-            return valueWorkerAssignment(isPlanedWorker, isGasJob, isMineralJob, 
+            return valueWorkerAssignment(isPlanedWorker, isGasJob, isMineralJob, isWorkerIdle,
                                          agent->time, job->wishtime,
-                                         agent->pos, job->wishpos, assigned);
+                                         agent->pos, job->wishpos, isAssigned);
+        }
+    
+        ctype evaluate(int idAgent, int idJob) const
+        {
+            if (idAgent >= (int) agents.size()) {
+                WorkerJob* job = jobs[idJob];
+                return valueCombination(NULL, job);
+            } else if (idJob >= (int) jobs.size()) {
+                WorkerAgent* agent = agents[idAgent];
+                return valueCombination(agent, NULL);
+            } else {
+                WorkerAgent* agent = agents[idAgent];
+                WorkerJob* job = jobs[idJob];
+                return valueCombination(agent, job);
+            }
+        }
+        
+        void doAssign(WorkerAgent* agent, WorkerJob* job) const
+        {
+            bool changed    = !isOldJob(agent, job);
+        
+            agent->assigned = job;
+            if (job != NULL) {
+                job->assigned = agent;
+                job->update();
+            }
+
+            if (changed && (job != NULL))
+                job->commandWorker(agent);
         }
 
         void assign(int idAgent, int idJob) const
         {
-            if ((idJob < 0) || (idJob >= jobs.size())) {
-                agents[idAgent]->assigned = NULL;
+            if ((idJob < 0) || (idJob >= (int) jobs.size())) {
+                WorkerAgent* agent = agents[idAgent];
+                doAssign(agent, NULL);
                 return;
             }
             WorkerJob* job = jobs[idJob];
 
-            if ((idAgent < 0) || (idAgent >= agents.size())) {
+            if ((idAgent < 0) || (idAgent >= (int) agents.size())) {
                 job->assigned = NULL;
                 return;
             }
             WorkerAgent* agent = agents[idAgent];
-            
-            bool changed = true;
-            if (agent->assigned != NULL) {
-                if (job->line != NULL) {
-                    if (agent->assigned->line == job->line)
-                        changed = false;
-                } else {
-                    changed = false;
-                }
-            }
-
-            agent->assigned = job;
-            job->assigned = agent;
-            job->update();
-
-            if (changed)
-                job->commandWorker(agent);
+            doAssign(agent, job);
         }
 
         int numberOfAgents() const
@@ -271,22 +270,31 @@ namespace
     
     bool WorkerAgent::update()
     {
-        if (remove) {
-            delete this;
+        if (remove)
             return true;
-        }
         
-        if (pre != NULL)
-            if (pre->isFulfilled())
-        {
-            worker = pre->unit;
-            time   = 0;
-            release(pre);
-            if (assigned != NULL)
-                assigned->commandWorker(this);
+        if (pre != NULL) {
+            if (pre->isFulfilled()) {
+                worker = pre->unit;
+                time   = 0;
+                release(pre);
+                if (assigned != NULL)
+                    assigned->commandWorker(this);
+            } else {
+                time = pre->time;
+            }
         }
 
         return false;
+    }
+    
+    void WorkerAgent::markRemove()
+    {
+        if (assigned != NULL) {
+            assigned->assigned = NULL;
+            assigned = NULL;
+        }
+        remove = true;
     }
     
     WorkerJob::WorkerJob(WorkerPrecondition* p)
@@ -301,11 +309,38 @@ namespace
         Containers::add(jobs, this);
     }
     
+    void WorkerJob::markRemoveWithAgent()
+    {
+        if (assigned != NULL) {
+            assigned->markRemove();
+            assigned = NULL;
+        }
+        if (pre != NULL) {
+            pre->job = NULL;
+            pre      = NULL;
+        }
+        remove = true;
+    }
+    
+    void WorkerJob::markRemoveJobOnly()
+    {
+        if (assigned != NULL) {
+            assigned->assigned = NULL;
+            assigned = NULL;
+        }
+        if (pre != NULL) {
+            pre->job = NULL;
+            pre      = NULL;
+        }
+        remove = true;
+    }
+    
     void WorkerJob::commandWorker(WorkerAgent* agent)
     {
         if (line != NULL) {
             line->commandWorker(agent);
-        } else {
+        }
+        if (pre != NULL) {
             pre->time = 0;
             pre->unit = agent->worker;
         }
@@ -313,10 +348,8 @@ namespace
     
     bool WorkerJob::update()
     {
-        if (remove) {
-            delete this;
+        if (remove)
             return true;
-        }
         
         if (pre != NULL) {
             wishtime = pre->wishtime;
@@ -340,8 +373,10 @@ namespace
 
         Unit* target = NULL;
         if (geyser != NULL) {
+            //LOG << "Commanded worker " << worker << " to gas!";
             target = geyser;
         } else {
+            //LOG << "Commanded worker " << worker << " to minerals!";
             target = getNearest(location->getMinerals(), worker->getPosition());
         }
         worker->rightClick(target);
@@ -356,8 +391,9 @@ namespace
     {
         if (jobs.empty())
             return;
-        jobs.back()->markRemoveJobOnly();
-        jobs.erase(jobs.end()-1);
+        auto it = jobs.end()-1;
+        (*it)->markRemoveJobOnly();
+        jobs.erase(it);
     }
     
     void WorkerLine::updateMineralLineJobs()
@@ -377,6 +413,7 @@ namespace
             LOG << "created refinery jobs...";
         } else {
             updateMineralLineJobs();
+            LOG << "created base jobs...";
         }
     }
     
@@ -384,7 +421,6 @@ namespace
     {
         while (!jobs.empty())
             removeJob();
-        //delete this;
     }
     
     void WorkerLine::onUpdateOnline()
@@ -441,19 +477,21 @@ UnitPrecondition* getWorker(const BWAPI::Race& r)
 
 void registerBase(Unit* u)
 {
-    THIS_DEBUG << "Base added.";
     BWTA::BaseLocation* location = checkBaseLocation(u->getPosition());
-    if (location != NULL)
+    if (location != NULL) {
+        THIS_DEBUG << "Base added.";
         new WorkerLine(location, u);
+    }
 }
 
 UnitPrecondition* registerBase(UnitPrecondition* b)
 {
-    THIS_DEBUG << "Planed Base added.";
     BWTA::BaseLocation* location = checkBaseLocation(b->pos);
     if (location != NULL) {
+        THIS_DEBUG << "Planed base added.";
         return (new WorkerLine(location, b))->pre;
     } else {
+        THIS_DEBUG << "Registered second base.";
         return b;
     }
 }
@@ -475,6 +513,7 @@ bool buildRefinery(const BWAPI::UnitType& type)
 
         WorkerLine* gasline = new WorkerLine(it->location, result.first, geyser);
         it->gaslines.insert(gasline);
+        rememberIdle(gasline->pre);
         return true;
 	}
     
@@ -483,15 +522,6 @@ bool buildRefinery(const BWAPI::UnitType& type)
 
 void MineralLineCode::onMatchBegin()
 {
-    /*
-    for (auto it : Broodwar->self()->getUnits()) {
-        if (it->getType().isResourceDepot())
-            registerBase(it);
-        if (it->getType().isWorker())
-            useWorker(it);
-    }
-    */
-    
     estimatedProduction.resize(1);
 	Production& prod = estimatedProduction[0];
 	prod.time     = 0;
@@ -508,6 +538,9 @@ void MineralLineCode::onMatchEnd()
 
 void MineralLineCode::onTick()
 {
+    agents.update();
+    jobs.update();
+    
     for (auto it : agents)
         if (it->worker != NULL)
             if (!it->worker->getType().isWorker())
@@ -516,18 +549,22 @@ void MineralLineCode::onTick()
         it->markRemove();
     }
 
-    Containers::remove_if(lines, std::mem_fun(&WorkerLine::update));
-
-    agents.update();
-    Containers::remove_if(agents, std::mem_fun(&WorkerAgent::update));
-
-    jobs.update();
-    Containers::remove_if(jobs, std::mem_fun(&WorkerJob::update));
+    Containers::remove_if_delete(lines,  std::mem_fun(&WorkerLine::update));
+    Containers::remove_if_delete(agents, std::mem_fun(&WorkerAgent::update));
+    Containers::remove_if_delete(jobs,   std::mem_fun(&WorkerJob::update));
     
+    assignment.execute();
+    
+    /*
     if (Broodwar->getFrameCount() % 100 == 0)
         if (jobs.size() > 0 || agents.size() > 0)
-            LOG << "Solving assignment problem with " << agents.size() << " worker and " << jobs.size() << " jobs.";
-    assignment.execute();
+    {
+        LOG << "Solving assignment problem with " << agents.size() << " worker and " << jobs.size() << " jobs.";
+        std::stringstream stream;
+        stream << "matrix-" << Broodwar->getFrameCount() << ".txt";
+        assignment.writeMatrixToFile(stream.str().c_str());
+    }
+    */
     
     // ToDo: Estimate Production!
 }

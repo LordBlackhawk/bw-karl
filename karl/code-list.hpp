@@ -23,9 +23,11 @@
 #include "scout.hpp"
 #include "strategie-list.hpp"
 #include "arena.hpp"
+#include "valuing.hpp"
 
 typedef CodeCaller<
 					LogCode,
+                    ValuingCode,
                     MineralLineCode,
 					ResourcesCode,
                     LarvaCode,                  // before MessageDispatchCode!!!
