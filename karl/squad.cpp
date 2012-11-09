@@ -73,7 +73,7 @@ Squad::~Squad()
     for(auto it:units)
     {
             //notify all units that this squad no longer exists...
-        it->_assignToSquad(NULL);   
+        //it->_assignToSquad(NULL);   
     }
     
         //remove us from the squad list
@@ -82,6 +82,7 @@ Squad::~Squad()
 
 BWAPI::Position Squad::getCenter()
 {
+    
     if(units.size()>0)
     {
         Position ret(0,0);
@@ -116,7 +117,7 @@ void Squad::defend(BWAPI::Position pos)
     defendposition=pos;
 }
 
-
+/*
 void Squad::addUnit(UnitMicromanagement* u)
 {
     if(u)
@@ -127,21 +128,35 @@ void Squad::addUnit(UnitMicromanagement* u)
     else
         LOG << "Squad::addUnit() called with NULL UnitMicromanagement!!";
 }
+*/
 
 void Squad::addUnit(BWAPI::Unit* u)
 {
     if(u)
     {
-        UnitMicromanagement *um=(UnitMicromanagement*)u->getClientInfo();
-        if(um)
-        {
-            addUnit(um);
-        }
-        else
-            WARNING << "Squad::addUnit() called with unit without UnitMicromanagement!!";
+        addUnit(micromanageUnit(u));
+        //UnitMicromanagement *um=(UnitMicromanagement*)u->getClientInfo();
+        //if(um)
+        //{
+        //    addUnit(um);
+        //}
+        //else
+        //    WARNING << "Squad::addUnit() called with unit without UnitMicromanagement!!";
     }
     else
         WARNING << "Squad::addUnit() called with NULL unit!!";
+}
+
+void Squad::addUnit(MicromanagedUnit *microUnit)
+{
+    if(microUnit)
+    {
+        LOG << "Squad "<<name<<" got a new member: "<<microUnit->getType();
+        units.insert(microUnit);
+        //microUnit->_assignToSquad(this);
+    }
+    else
+        WARNING << "Squad::addUnit() called with NULL MicromanagedUnit!!";
 }
 
 void Squad::setName(std::string desc)
@@ -171,14 +186,15 @@ void Squad::onTick()
     {
         if(!(*it)->exists())
         {
+            LOG << "Squad "<<name<<" lost a member: "<<(*it)->getType();
             units.erase(it++);
             continue;
         }
         
-        if((*it)->isIdle())
+        if((*it)->isIdle() || (*it)->getTargetPosition().getDistance(defendposition)>32*3)
         {
             BWAPI::Position p=(*it)->getPosition();
-            if(p.getDistance(defendposition)>10)
+            if(p.getDistance(defendposition)>32*4)
                 (*it)->attack(defendposition);
         }
         it++;

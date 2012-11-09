@@ -25,8 +25,8 @@ using namespace BWAPI;
 
 namespace
 {
-    UnitMicromanagement *simpleScout=NULL;
-    int scoutAttacked=0;
+    //UnitMicromanagement *simpleScout=NULL;
+    //int scoutAttacked=0;
     
     Squad *scoutProtection=NULL,*baseProtection=NULL;
     
@@ -47,7 +47,7 @@ void TerranMarinesCode::onMatchBegin()
 
 void TerranMarinesCode::onMatchEnd()
 {
-    simpleScout=0;
+    //simpleScout=0;
     
     release(scoutProtection);
     release(baseProtection);
@@ -137,6 +137,7 @@ void TerranMarinesCode::onTick()
         scoutProtection->defend(baseProtection->getCenter());
     }
     
+/*
     if(!simpleScout)
     {
         for(auto it:infantry)
@@ -146,6 +147,7 @@ void TerranMarinesCode::onTick()
                 Broodwar->printf("got a simple scout.");
                 simpleScout=(UnitMicromanagement*)it->unit->getClientInfo();
                 infantry.erase(it);
+                release(it);
                 break;
             }
         }
@@ -219,13 +221,13 @@ void TerranMarinesCode::onTick()
             }
         }
     }
-
+*/
 
     for(auto it:infantry)
     {
         if(it->isFulfilled() && it->unit)
         {
-            if(it->unit->getClientInfo())
+            //if(it->unit->getClientInfo())
             {
                 if(baseProtection->getUnitCount(it->ut)<5 || baseProtection->getUnitCount(it->ut)<scoutProtection->getUnitCount(it->ut))
                 {
@@ -241,17 +243,37 @@ void TerranMarinesCode::onTick()
                 release(it);
                 break;
             }
-            else
-                Broodwar->printf("%s ready but no clientinfo yet", it->ut.getName().c_str());
+            //else
+            //    Broodwar->printf("%s ready but no clientinfo yet", it->ut.getName().c_str());
         }
     }
     
+    
+    if(Broodwar->getKeyState(Key::K_MULTIPLY))
+    {
+        if(scoutProtection)
+            scoutProtection->defend(Broodwar->getMousePosition()+Broodwar->getScreenPosition());
+    }
+    if(Broodwar->getKeyState(Key::K_DIVIDE))
+    {
+        if(baseProtection)
+            baseProtection->defend(Broodwar->getMousePosition()+Broodwar->getScreenPosition());
+    }
+    if(Broodwar->getKeyState(Key::K_SUBTRACT))
+    {
+        Broodwar->setLocalSpeed(-1);
+    }
+    if(Broodwar->getKeyState(Key::K_ADD))
+    {
+        Broodwar->setLocalSpeed(5);
+    }
     //Broodwar->printf("waiting for %i infantry units",infantry.size());
     
 }
 
 void TerranMarinesCode::onDrawPlan()
 {
+/*
     if(simpleScout)
     {
         Unit *m=simpleScout->getUnit();
@@ -259,6 +281,18 @@ void TerranMarinesCode::onDrawPlan()
         
         Broodwar->drawLineMap(pos.x(),pos.y(),dest.x(),dest.y(),Colors::Yellow);
     }
+*/
+}
+
+void TerranMarinesCode::onSendText(const std::string& text)
+{
+    /*
+    if(text=="/squad attack")
+    {
+        if(scoutProtection)
+            scoutProtection->defend(Broodwar->getMousePosition()+Broodwar->getScreenPosition());
+    }
+    */
 }
 
 void TerranMarinesCode::onCheckMemoryLeaks()

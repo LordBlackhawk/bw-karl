@@ -2,9 +2,8 @@
 
 #include "default-code.hpp"
 #include "bwapi-precondition.hpp"
+#include "unit-micromanagement.hpp"
 
-
-class UnitMicromanagement;
 
 class Squad
 {
@@ -15,8 +14,9 @@ public:
     
     void defend(BWAPI::Position pos);
     
-    void addUnit(UnitMicromanagement *unit);
+    //void addUnit(UnitMicromanagement *unit);
     void addUnit(BWAPI::Unit *unit);
+    void addUnit(MicromanagedUnit *microUnit);
     
     void setName(std::string desc);
     
@@ -28,9 +28,9 @@ public:
     
 private:
     BWAPI::Position defendposition;
-    std::set<UnitMicromanagement *> units;
+    //std::set<UnitMicromanagement *> units;
     std::string name;
-    //std::multimap<BWAPI::UnitType,BWAPI::Unit*> unitmap;
+    std::set<MicromanagedUnit*> units;
 };
 
 struct SquadCode : public DefaultCode

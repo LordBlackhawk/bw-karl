@@ -12,6 +12,7 @@ struct TerranMarinesCode : public DefaultCode
 	static void onTick();
 	static void onDrawPlan();
 	static void onCheckMemoryLeaks();
+    static void onSendText(const std::string& text);
 };
 
 
