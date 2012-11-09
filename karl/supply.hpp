@@ -19,4 +19,5 @@ struct SupplyCode : public DefaultCode
 	static void onMatchEnd();
     static void onTick();
 	static void onCheckMemoryLeaks();
+    static void onDrawPlan(HUDTextOutput& hud);
 };

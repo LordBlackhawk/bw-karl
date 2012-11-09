@@ -107,3 +107,10 @@ void ZergStrategieCode::onMatchEnd()
 {
 	release(waittill);
 }
+
+void ZergStrategieCode::onBaseMinedOut(BWTA::BaseLocation* /*base*/)
+{
+    BuildingPositionPrecondition* pos = getNextExpo(Zerg_Hatchery);
+    if (pos != NULL)
+        rememberIdle(buildUnit(pos, Zerg_Hatchery).first);
+}

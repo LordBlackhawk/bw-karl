@@ -25,6 +25,15 @@ namespace
     std::set<Squad*> squads;
 
 }
+
+Squad* getSquadByName(const std::string& name)
+{
+    for (auto it : squads)
+        if (it->getName() == name)
+            return it;
+    return NULL;
+}
+
 /////////////////////////////////////
 
 
@@ -45,7 +54,7 @@ void SquadCode::onTick()
     }
 }
 
-void SquadCode::onDrawPlan()
+void SquadCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
     for(auto sq=squads.begin();sq!=squads.end();sq++)
     {
@@ -142,6 +151,11 @@ void Squad::addUnit(BWAPI::Unit* u)
     }
     else
         WARNING << "Squad::addUnit() called with NULL unit!!";
+}
+
+std::string Squad::getName() const
+{
+    return name;
 }
 
 void Squad::setName(std::string desc)

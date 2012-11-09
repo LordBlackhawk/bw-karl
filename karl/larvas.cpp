@@ -421,7 +421,7 @@ bool LarvaCode::onAssignUnit(BWAPI::Unit* unit)
     return (unit->getType() == UnitTypes::Zerg_Larva) ? distributeLarva(unit) : false;
 }
 
-void LarvaCode::onDrawPlan()
+void LarvaCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
     for (auto it : hatcheries)
         it->onDrawPlan();

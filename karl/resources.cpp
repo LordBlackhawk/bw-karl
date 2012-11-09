@@ -6,6 +6,7 @@
 #include "container-helper.hpp"
 #include "valuing.hpp"
 #include "log.hpp"
+#include "circle-buffer.hpp"
 #include <algorithm>
 
 using namespace BWAPI;
@@ -151,8 +152,28 @@ void ResourcesCode::onTick()
 	}
 }
 
-void ResourcesCode::onDrawPlan()
+namespace
 {
+    CircleBuffer<int, 1000> mineralCirc(50);
+    CircleBuffer<int, 1000> gasCirc(0);
+}
+
+void ResourcesCode::onDrawPlan(HUDTextOutput& /*hud*/)
+{
+    Player* self = Broodwar->self();
+    int gat_m = self->gatheredMinerals();
+    int gat_g = self->gatheredGas();
+    int prod_m = gat_m - mineralCirc.get();
+    int prod_g = gat_g - gasCirc.get();
+    mineralCirc.add(gat_m);
+    gasCirc.add(gat_g);
+    
+    Production& prod = estimatedProduction[0];
+    
+    Broodwar->drawTextScreen(440, 16, "\x07%d (%d)", prod.minerals, prod_m);
+    Broodwar->drawTextScreen(520, 16, "\x07%d (%d)", prod.gas,      prod_g);
+
+    /*
     int yvalue = 16;
     for (auto it : reslist) {
         if (it->time == 0) {
@@ -168,4 +189,5 @@ void ResourcesCode::onDrawPlan()
             //break;
         }
     }
+    */
 }

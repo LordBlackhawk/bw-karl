@@ -41,7 +41,7 @@ void UnitMicromanagementCode::onTick()
     }
 }
 
-void UnitMicromanagementCode::onDrawPlan()
+void UnitMicromanagementCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
     for(auto it:units)
     {

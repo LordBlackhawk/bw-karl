@@ -14,7 +14,7 @@ namespace
 
 void ValuingCode::onTick()
 {
-    int frame = Broodwar->getFrameCount();
+    //int frame = Broodwar->getFrameCount();
     //isStrictTick = (frame % 100 < 6);
 }
 

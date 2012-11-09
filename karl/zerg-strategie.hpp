@@ -8,4 +8,5 @@ struct ZergStrategieCode : public DefaultCode
 	static void onMatchBegin();
 	static void onMatchEnd();
 	static void onTick();
+    static void onBaseMinedOut(BWTA::BaseLocation* base);
 };

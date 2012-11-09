@@ -286,7 +286,7 @@ bool UnitTrainerCode::onAssignUnit(BWAPI::Unit* unit)
 	return false;
 }
 
-void UnitTrainerCode::onDrawPlan()
+void UnitTrainerCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
 	//for (auto it : list)
 	//	it->onDrawPlan();

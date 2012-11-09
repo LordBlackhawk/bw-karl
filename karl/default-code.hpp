@@ -1,6 +1,8 @@
 #pragma once
 
+#include "hud-text-output.hpp"
 #include <BWAPI.h>
+#include <BWTA.h>
 #include <string>
 
 struct DefaultCode
@@ -32,7 +34,11 @@ struct DefaultCode
     { }
 
     // Called by hud-code, if plan should be drawn.
-    static void onDrawPlan()
+    static void onDrawPlan(HUDTextOutput& /*hud*/)
+    { }
+    
+    // Called after base is mined out, strategie should overwrite.
+    static void onBaseMinedOut(BWTA::BaseLocation* /*base*/)
     { }
 
     // BWAPI Message.

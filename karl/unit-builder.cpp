@@ -379,7 +379,7 @@ void UnitBuilderCode::onUnitMorph(BWAPI::Unit* unit)
                 return;
 }
 
-void UnitBuilderCode::onDrawPlan()
+void UnitBuilderCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
     for (auto it : list)
         it->onDrawPlan();

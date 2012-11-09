@@ -181,11 +181,19 @@ struct StrategieList<First, List...>
             Next::onCheckMemoryLeaks();
 	}
 	
-	static void onDrawPlan()
+	static void onDrawPlan(HUDTextOutput& hud)
 	{
         if (idStrategie == id)
-            First::onDrawPlan();
+            First::onDrawPlan(hud);
         else
-            Next::onDrawPlan();
+            Next::onDrawPlan(hud);
 	}
+    
+    static void onBaseMinedOut(BWTA::BaseLocation* base)
+    {
+        if (idStrategie == id)
+            First::onBaseMinedOut(base);
+        else
+            Next::onBaseMinedOut(base);
+    }
 };

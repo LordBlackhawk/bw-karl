@@ -304,7 +304,7 @@ void TechCode::onTick()
 	inOnTick = false;
 }
 
-void TechCode::onDrawPlan()
+void TechCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
 	//for (auto it : list)
 	//	it->onDrawPlan();
