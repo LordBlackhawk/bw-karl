@@ -18,6 +18,7 @@ public:
     void addUnit(BWAPI::Unit *unit);
     void addUnit(MicromanagedUnit *microUnit);
     
+    std::string getName() const;
     void setName(std::string desc);
     
     Squad();
@@ -33,11 +34,13 @@ private:
     std::set<MicromanagedUnit*> units;
 };
 
+Squad* getSquadByName(const std::string& name);
+
 struct SquadCode : public DefaultCode
 {
     static void onMatchBegin();
 	static void onMatchEnd();
 	static void onTick();
-	static void onDrawPlan();
+	static void onDrawPlan(HUDTextOutput& hud);
 	static void onCheckMemoryLeaks();
 };

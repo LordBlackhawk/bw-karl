@@ -153,6 +153,12 @@ namespace
                 if (err == Errors::Unit_Busy) {
                     status = tryagain;
                     return;
+                } else if (err == Errors::None) {
+                    BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
+                    release(pos);
+                    status = tryagain;
+                    pos    = newpos;
+                    return;
                 }
                 WARNING << "Error: Unable to build unit " << ut << ": " << err << "\n"
                         << "\t\tfrom " << worker->getType() << " (player " << worker->getPlayer()->getName() << ")";
@@ -379,7 +385,7 @@ void UnitBuilderCode::onUnitMorph(BWAPI::Unit* unit)
                 return;
 }
 
-void UnitBuilderCode::onDrawPlan()
+void UnitBuilderCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
     for (auto it : list)
         it->onDrawPlan();

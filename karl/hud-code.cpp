@@ -5,6 +5,9 @@
 #include "timer.hpp"
 #include "code-list.hpp"
 #include <BWTA.h>
+#include <cstdarg>
+#include <cstdlib>
+#include <cstdio>
 
 using namespace BWAPI;
 
@@ -72,9 +75,9 @@ namespace
 		}
 	}
 	
-	void drawStats()
+	void drawStats(HUDTextOutput& hud)
 	{
-		Broodwar->drawTextScreen(5,16,"I have %d units:", Broodwar->self()->getUnits().size());
+		hud.printf("I have %d units:", Broodwar->self()->getUnits().size());
 		std::map<UnitType, int> unitTypeCounts;
 		for (auto i : Broodwar->self()->getUnits()) {
 			if (unitTypeCounts.find(i->getType())==unitTypeCounts.end()) {
@@ -83,11 +86,8 @@ namespace
 			unitTypeCounts.find(i->getType())->second++;
 		}
 	 
-		int line=2;
-		for (auto i : unitTypeCounts) {
-			Broodwar->drawTextScreen(5,16*line,"- %d %ss", i.second, i.first.getName().c_str());
-			++line;
-		}
+		for (auto i : unitTypeCounts)
+			hud.printf("- %d %ss", i.second, i.first.getName().c_str());
 	}
 
 	bool showterrain = false;
@@ -100,18 +100,22 @@ namespace
 
 void HUDCode::onTick()
 {
+    HUDTextOutput hud;
+
+    if (showtiming) {
+        hud.printf("Current frame: %d", Broodwar->getFrameCount());
+        hud.printf("Reaction time: %5.0f / %5.0f / %5.0f ns", timerMin(), timerAverage(), timerMax());
+    }
 	if (showterrain)
 		drawTerrainData();
 	if (showbullets)
 		drawBullets();
 	if (showstats)
-		drawStats();
+		drawStats(hud);
 	if (showfps)
 		Broodwar->drawTextScreen(300, 0, "FPS: %f", Broodwar->getAverageFPS());
-	if (showtiming)
-		Broodwar->drawTextScreen(5, 2, "Reaction time: %5.0f / %5.0f / %5.0f ns", timerMin(), timerAverage(), timerMax());
 	if (showplan)
-		CodeList::onDrawPlan();
+		CodeList::onDrawPlan(hud);
 }
 
 void HUDCode::onSendText(const std::string& text)
@@ -128,4 +132,17 @@ void HUDCode::onSendText(const std::string& text)
 		showtiming = !showtiming;
 	if (text == "/show plan")
 		showplan = !showplan;
+}
+
+void HUDTextOutput::printf(const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int buffsize = _vscprintf(fmt, ap);
+    char* buffer = (char*)malloc(buffsize+1);
+    vsprintf(buffer, fmt, ap);
+    BWAPI::Broodwar->drawTextScreen(5, 2+16*line, "%s", buffer);
+    free(buffer);
+    va_end(ap);
+    ++line;
 }

@@ -4,9 +4,9 @@ BWAPIPATH    = includes/
 BOOSTPATH    = ../boost_1_46_1
 LIBPATH      = lib/
 
-CXX          = g++ -ggdb
+CXX          = g++
 CXXINCLUDES  = -I$(BWAPIPATH) -I$(BOOSTPATH) -I.
-CXXFLAGS     = -Wall -Wextra -O3 --std=c++0x $(CXXINCLUDES)
+CXXFLAGS     = -ggdb -Wall -Wextra -O3 --std=c++0x $(CXXINCLUDES)
 CXXLIBS      = -L$(LIBPATH) -L$(BOOSTPATH)/stage/lib -lBWAPI -lBWTA -lCGAL -lmpfr -lgmp -lboost_thread-mgw46-mt-1_46_1 -static-libgcc -static-libstdc++
 
 SOURCES      = $(wildcard $(SOURCEPATH)*.cpp)
@@ -34,7 +34,7 @@ echo:
 	@echo $(OBJECTS)
 
 karl.exe: $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) $(CXXLIBS) -o $@
+	$(CXX) $(OBJECTS) $(CXXLIBS) -o $@
 
 $(OBJECTPATH)%.o: $(SOURCEPATH)%.cpp $(OBJECTPATH)%.d
 	$(CXX) $(CXXFLAGS) -c $< -o $@

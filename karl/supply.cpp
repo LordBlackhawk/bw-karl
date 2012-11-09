@@ -32,6 +32,7 @@ namespace
 		std::vector<SupplyPreconditionInternal*>    supply;
 		std::vector<SupplyUnitObserver*>		    supplyunits;
 		int										    remaining;
+        int                                         max;
 		int										    remaining_time;
 		int										    mode;
         int                                         indexcounter;
@@ -41,6 +42,7 @@ namespace
 			race           = r;
 			Player* self   = Broodwar->self();
 			remaining      = self->supplyTotal(race) - self->supplyUsed(race);
+            max            = self->supplyTotal(race);
 			remaining_time = 0;
 			mode           = SupplyMode::None;
             indexcounter   = 0;
@@ -76,6 +78,12 @@ namespace
 		}
 		
 		void onTick();
+        
+        void onDrawPlan()
+        {
+            if (max > 0)
+                Broodwar->drawTextScreen(600, 16, "\x07%d", max / 2);
+        }
 	};
 	
 	RaceSupply terran_supply;
@@ -169,7 +177,9 @@ namespace
 	
 	void RaceSupply::calcSupplyUnit(SupplyUnitObserver* unit)
 	{
-		remaining     += unit->ut.supplyProvided();
+        int value      = unit->ut.supplyProvided();
+		remaining     += value;
+        max           += value;
 		remaining_time = unit->time;
 	}
 	
@@ -186,14 +196,12 @@ namespace
 	
 	void RaceSupply::onTick()
 	{
-        if (rand() % 3 == 0)
-            return;
-
 		Containers::remove_if(supplyunits, std::mem_fun(&SupplyUnitObserver::update));
 		std::stable_sort(supplyunits.begin(), supplyunits.end(), PreconditionSorter());
 		
 		Player* self   = Broodwar->self();
 		remaining      = self->supplyTotal(race) - self->supplyUsed(race);
+        max            = self->supplyTotal(race);
 		remaining_time = 0;
 		auto uit       = supplyunits.begin();
 		auto uitend    = supplyunits.end();
@@ -205,21 +213,19 @@ namespace
 				calcSupplyUnit(*uit);
 				++uit;
 			}
-			if (remaining < 0) {
+			if (remaining < 0)
 				remaining_time = Precondition::Impossible;
-				//fillSupply();
-				//uit = uitend = supplyunits.end();
-			}
 			it->time = remaining_time;
 		}
 		
 		for (; uit!=uitend; ++uit)
 			calcSupplyUnit(*uit);
-		
+            
+        int gameMax = 2*200;
 		switch (mode)
 		{
 			case SupplyMode::Auto:
-				if (remaining < 0)
+				if ((remaining < 0) && (max < gameMax))
 					buildSupply();
 				break;
 			
@@ -282,4 +288,11 @@ void SupplyCode::onCheckMemoryLeaks()
 {
 	SupplyUnitObserver::checkObjectsAlive();
 	SupplyPreconditionInternal::checkObjectsAlive();
+}
+
+void SupplyCode::onDrawPlan(HUDTextOutput& /*hud*/)
+{
+    terran_supply.onDrawPlan();
+    protoss_supply.onDrawPlan();
+    zerg_supply.onDrawPlan();
 }

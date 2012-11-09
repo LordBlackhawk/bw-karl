@@ -214,7 +214,8 @@ BuildingPositionPrecondition* getNextExpo(const BWAPI::UnitType& ut)
     ctype               bestvalue = std::numeric_limits<ctype>::min();
     
     for (auto it : BWTA::getBaseLocations())
-        if (Broodwar->canBuildHere(NULL, it->getTilePosition(), ut, false))
+        if (!it->isIsland())
+            if (Broodwar->canBuildHere(NULL, it->getTilePosition(), ut, false))
     {
         ctype newvalue = valueExpo(it, home);
         if (newvalue > bestvalue) {

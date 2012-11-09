@@ -291,7 +291,6 @@ MicromanagedUnit *micromanageUnit(BWAPI::Unit* unit)
         WARNING << "NULL unit to micromange!";
         return NULL;
     }
-    
     if(unit->getPlayer() != Broodwar->self())
     {
         WARNING << "tried to micromange unit "<<unit<<" we do not own!";
@@ -403,7 +402,7 @@ void UnitMicromanagementCode::onTick()
         if(it->nextThink<=NOW && it->getUnit()->exists())it->onThink();
 }
 
-void UnitMicromanagementCode::onDrawPlan()
+void UnitMicromanagementCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
     for(auto it:unitsTerran_Marine)
     {

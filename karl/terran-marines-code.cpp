@@ -12,6 +12,8 @@
 #include "object-counter.hpp"
 #include "mineral-line.hpp"
 #include "unit-micromanagement.hpp"
+#include "string-helper.hpp"
+#include "container-helper.hpp"
 #include <BWTA.h>
 #include <algorithm>
 #include <cassert>
@@ -48,6 +50,7 @@ void TerranMarinesCode::onMatchBegin()
 void TerranMarinesCode::onMatchEnd()
 {
     //simpleScout=0;
+    Containers::clear_and_delete(infantry);
     
     release(scoutProtection);
     release(baseProtection);
@@ -271,7 +274,7 @@ void TerranMarinesCode::onTick()
     
 }
 
-void TerranMarinesCode::onDrawPlan()
+void TerranMarinesCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
 /*
     if(simpleScout)
@@ -297,4 +300,27 @@ void TerranMarinesCode::onSendText(const std::string& text)
 
 void TerranMarinesCode::onCheckMemoryLeaks()
 {
+}
+
+void TerranMarinesCode::onSendText(const std::string& text)
+{
+    std::vector<std::string> words = splitIntoWords(text);
+    if (words[0] != "/attack")
+        return;
+
+    if (words.size() < 2) {
+        Broodwar->printf("The attack command needs the squad to command as argument.");
+        return;
+    }
+
+    Squad* squad = getSquadByName(words[1]);
+    if (squad == NULL) {
+        Broodwar->printf("Squad '%s' not found!", words[1].c_str());
+        return;
+    }
+    
+    Position pos = Broodwar->getScreenPosition();
+    pos.x() += 320;
+    pos.y() += 200;
+    squad->defend(pos);
 }

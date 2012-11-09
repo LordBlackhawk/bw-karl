@@ -82,7 +82,7 @@ struct UnitMicromanagementCode : public DefaultCode
 	//static void onUnitCreate(BWAPI::Unit* unit);
 	//static void onUnitDestroy(BWAPI::Unit* unit);
 	static void onTick();
-	static void onDrawPlan();
+	static void onDrawPlan(HUDTextOutput& hud);
 	static void onCheckMemoryLeaks();
 };
 

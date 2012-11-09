@@ -18,6 +18,6 @@ struct TechCode : public DefaultCode
 {
 	static void onMatchEnd();
 	static void onTick();
-	static void onDrawPlan();
+	static void onDrawPlan(HUDTextOutput& hud);
 	static void onCheckMemoryLeaks();
 };

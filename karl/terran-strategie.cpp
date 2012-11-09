@@ -14,6 +14,7 @@
 #include "scout.hpp"
 #include "larvas.hpp"
 #include "building-placer.hpp"
+#include "addon-builder.hpp"
 #include <BWTA.h>
 
 using namespace BWAPI;
@@ -76,11 +77,10 @@ void TerranStrategieCode::onMatchBegin()
     for (int k=0; k<10; ++k)
 		trainWorker(Terran_SCV);
 	
-    LOG << "before base planing...";
+    buildUnitEx(Terran_Supply_Depot);
     BuildingPositionPrecondition* pos = getNextExpo(Terran_Command_Center);
     if (pos != NULL)
         useWorker(rememberFirst(buildUnit(pos, Terran_Command_Center)));
-    LOG << "after base planing.";
     
 	for (int k=0; k<6; ++k)
 		doSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Marine)));
@@ -96,6 +96,7 @@ void TerranStrategieCode::onTick()
 		if (!academystarted) {
 			buildUnitEx(Terran_Academy);
 			buildRefinery(Terran_Refinery);
+            buildAddonEx(Terran_Comsat_Station);
 			researchTechEx(TechTypes::Stim_Packs);
 			upgradeTechEx(UpgradeTypes::U_238_Shells);
 			academystarted = true;
@@ -115,4 +116,12 @@ void TerranStrategieCode::onTick()
 void TerranStrategieCode::onMatchEnd()
 {
 	release(waittill);
+}
+
+void TerranStrategieCode::onBaseMinedOut(BWTA::BaseLocation* /*base*/)
+{
+    LOG << "building new base...";
+    BuildingPositionPrecondition* pos = getNextExpo(Terran_Command_Center);
+    if (pos != NULL)
+        useWorker(rememberFirst(buildUnit(pos, Terran_Command_Center)));
 }

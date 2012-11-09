@@ -17,6 +17,8 @@
 
 using namespace BWAPI;
 
+#define THIS_DEBUG DEBUG
+
 namespace
 {
 	const int savetime = 27;
@@ -91,7 +93,7 @@ namespace
 					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, requirements, extra)) {
 						start();
 						time = Broodwar->getFrameCount() + techTime();
-						LOG << "researching " << techName() << " started.";
+						THIS_DEBUG << "researching " << techName() << " started.";
 					}
 					break;
 				
@@ -100,7 +102,7 @@ namespace
 					if (hasStarted()) {
 						freeResources();
 						status = waiting;
-						LOG << "waiting for research '" << techName() << "' to finish.";
+						THIS_DEBUG << "waiting for research '" << techName() << "' to finish.";
 					} else {
 						start();
 					}
@@ -111,10 +113,10 @@ namespace
 					if (hasStarted()) {
 						freeResources();
 						status = waiting;
-						LOG << "waiting for research '" << techName() << "' to finish.";
+						THIS_DEBUG << "waiting for research '" << techName() << "' to finish.";
 					} else if (Broodwar->getFrameCount() > starttime + savetime) {
 						start();
-						LOG << "research " << techName() << " restarted (try " << tries << ").";
+						THIS_DEBUG << "research " << techName() << " restarted (try " << tries << ").";
 					}
 					break;
 
@@ -123,7 +125,7 @@ namespace
 						time   = 0;
 						unit   = worker;
 						status = finished;
-						LOG << "research " << techName() << " finished.";
+						THIS_DEBUG << "research " << techName() << " finished.";
 					}
 					break;
 				
@@ -140,10 +142,9 @@ namespace
 				release(baseunit);
 			}
 			assert(worker != NULL);
-			//LOG << "Sending worker to build " << ut.getName();
 			if (!action()) {
 				auto err = Broodwar->getLastError();
-				LOG << "Error: Unable to research '" << techName() << "': " << err.toString();
+				THIS_DEBUG << "Error: Unable to research '" << techName() << "': " << err.toString();
 				if (   (err == Errors::Insufficient_Minerals) 
 					|| (err == Errors::Insufficient_Gas))
 				{
@@ -304,7 +305,7 @@ void TechCode::onTick()
 	inOnTick = false;
 }
 
-void TechCode::onDrawPlan()
+void TechCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
 	//for (auto it : list)
 	//	it->onDrawPlan();

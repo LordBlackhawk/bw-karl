@@ -204,7 +204,7 @@ void UnitMorpherCode::onTick()
 	Containers::remove_if(list, std::mem_fun(&UnitMorphPrecondition::updateTime));
 }
 
-void UnitMorpherCode::onDrawPlan()
+void UnitMorpherCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
 	for (auto it : list)
 		it->onDrawPlan();

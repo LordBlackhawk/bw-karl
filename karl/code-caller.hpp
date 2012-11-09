@@ -134,9 +134,15 @@ struct CodeCaller<First, List...>
 		Next::onCheckMemoryLeaks();
 	}
 	
-	static void onDrawPlan()
+	static void onDrawPlan(HUDTextOutput& hud)
 	{
-		First::onDrawPlan();
-		Next::onDrawPlan();
+		First::onDrawPlan(hud);
+		Next::onDrawPlan(hud);
 	}
+    
+    static void onBaseMinedOut(BWTA::BaseLocation* base)
+    {
+        First::onBaseMinedOut(base);
+        Next::onBaseMinedOut(base);
+    }
 };

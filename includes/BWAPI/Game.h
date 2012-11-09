@@ -20,6 +20,13 @@
 #include <BWAPI/TechType.h>
 #include <BWAPI/UpgradeType.h>
 #include <BWAPI/Input.h>
+
+#ifdef __GNUC__
+  #define FORMAT_FUNCTION(fa, aa) __attribute__ ((format (printf, fa, aa)))
+#else
+  #define FORMAT_FUNCTION(fa, aa)
+#endif
+
 namespace BWAPI
 {
   class Force;
@@ -266,13 +273,13 @@ namespace BWAPI
     virtual std::set< TilePosition >& getStartLocations() = 0;
 
     /** Prints text on the screen. Text is not sent to other players in multiplayer games. */
-    virtual void printf(const char *format, ...) = 0;
+    virtual void printf(const char *format, ...) FORMAT_FUNCTION(2, 3) = 0;
 
     /** Sends text to other players - as if it were entered in chat. In single player games and replays,
      * this will just print the text on the screen. If the game is a single player match and not a replay,
      * then this function can be used to execute cheat codes, i.e. Broodwar->sendText("show me the money"). */
-    virtual void sendText(const char *format, ...) = 0;
-    virtual void sendTextEx(bool toAllies, const char *format, ...) = 0;
+    virtual void sendText(const char *format, ...) FORMAT_FUNCTION(2, 3) = 0;
+    virtual void sendTextEx(bool toAllies, const char *format, ...) FORMAT_FUNCTION(3, 4) = 0;
 
     /** Used to change the race while in a lobby. Note that there is no onLobbyEnter callback yet, so this
      * function cannot be used at this time. */
@@ -349,10 +356,10 @@ namespace BWAPI
     virtual void setTextSize(int size = 1) = 0;
     /** Draws text on the screen at the given position. Text can be drawn in different colors by using the
      * following control characters: TODO: add image from wiki.*/
-    virtual void drawText(int ctype, int x, int y, const char *format, ...) = 0;
-    virtual void drawTextMap(int x, int y, const char *format, ...) = 0;
-    virtual void drawTextMouse(int x, int y, const char *format, ...) = 0;
-    virtual void drawTextScreen(int x, int y, const char *format, ...) = 0;
+    virtual void drawText(int ctype, int x, int y, const char *format, ...) FORMAT_FUNCTION(5, 6) = 0;
+    virtual void drawTextMap(int x, int y, const char *format, ...) FORMAT_FUNCTION(4, 5) = 0;
+    virtual void drawTextMouse(int x, int y, const char *format, ...) FORMAT_FUNCTION(4, 5) = 0;
+    virtual void drawTextScreen(int x, int y, const char *format, ...) FORMAT_FUNCTION(4, 5) = 0;
 
     /** Draws a box on the screen, with the given color. If isSolid is true, the entire box will be
      * rendered, otherwise just the outline will be drawn. */

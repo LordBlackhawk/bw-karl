@@ -1,9 +1,8 @@
 #pragma once
 
-#include "log.hpp"
+//#include "log.hpp"
 //#include <cstdlib>
 #include <vector>
-//#include <cassert>
 
 struct HungarianAlgorithmImpl
 {

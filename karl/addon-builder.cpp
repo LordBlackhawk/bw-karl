@@ -1,10 +1,9 @@
 // ToDo:
 // *
 
-#include "unit-trainer.hpp"
+#include "addon-builder.hpp"
 #include "resources.hpp"
 #include "idle-unit-container.hpp"
-#include "supply.hpp"
 #include "precondition-helper.hpp"
 #include "container-helper.hpp"
 #include "larvas.hpp"
@@ -23,16 +22,15 @@ namespace
 {
 	const int savetime = 27;
 	
-	struct UnitTrainerPrecondition;
-	std::vector<UnitTrainerPrecondition*> list;
+	struct AddonBuilderPrecondition;
+	std::vector<AddonBuilderPrecondition*> list;
 
-	struct UnitTrainerPrecondition : public UnitPrecondition, public ObjectCounter<UnitTrainerPrecondition>
+	struct AddonBuilderPrecondition : public UnitPrecondition, public ObjectCounter<AddonBuilderPrecondition>
 	{
 		enum StatusType { pending, tryagain, commanded, waiting, finished };
 
 		UnitPrecondition*       		baseunit;
 		ResourcesPrecondition*  		resources;
-		SupplyPrecondition* 			supply;
 		RequirementsPrecondition*		requirements;
 		Precondition*					extra;
 		StatusType 						status;
@@ -41,22 +39,21 @@ namespace
 		int 							starttime;
 		int								tries;
 
-		UnitTrainerPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, SupplyPrecondition* s, RequirementsPrecondition* req, 
+		AddonBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, RequirementsPrecondition* req, 
 								const UnitType& ut, Precondition* e)
-			: UnitPrecondition(1, ut, Position(u->pos)), baseunit(u), resources(r), supply(s), requirements(req), extra(e), status(pending), 
+			: UnitPrecondition(1, ut, Position(u->pos)), baseunit(u), resources(r), requirements(req), extra(e), status(pending), 
 			  postworker(NULL), worker(NULL), starttime(0), tries(0)
 		{
 			updateTime();
 			postworker = new UnitPrecondition(Precondition::Impossible, baseunit->ut, baseunit->pos);
 		}
 		
-		~UnitTrainerPrecondition()
+		~AddonBuilderPrecondition()
 		{
 			Containers::remove(list, this);
 
 			release(baseunit);
 			release(resources);
-			release(supply);
 			release(requirements);
 			release(extra);
 		}
@@ -66,10 +63,10 @@ namespace
 			switch (status)
 			{
 				case pending:
-					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, supply, requirements, extra)) {
+					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, requirements, extra)) {
 						start();
 						time = Broodwar->getFrameCount() + ut.buildTime();
-						THIS_DEBUG << "training " << ut << " started.";
+						THIS_DEBUG << "building addon " << ut << " started.";
 					}
 					break;
 				
@@ -78,7 +75,7 @@ namespace
 					if (hasStarted()) {
 						freeResources();
 						status = waiting;
-						THIS_DEBUG << "waiting for trained unit '" << ut << "' to finish.";
+						THIS_DEBUG << "waiting for addon unit '" << ut << "' to finish.";
 					} else {
 						start();
 					}
@@ -89,7 +86,7 @@ namespace
 					if (hasStarted()) {
 						freeResources();
 						status = waiting;
-						THIS_DEBUG << "waiting for trained unit '" << ut << "' to finish.";
+						THIS_DEBUG << "waiting for addon unit '" << ut << "' to finish.";
 					} else if (Broodwar->getFrameCount() > starttime + savetime) {
 						start();
 						THIS_DEBUG << "unit " << ut << " restarted (try " << tries << ").";
@@ -122,10 +119,10 @@ namespace
 				release(baseunit);
 			}
 			assert(worker != NULL);
-			THIS_DEBUG << "Sending worker to build " << ut;
-			if (!worker->train(ut)) {
+			THIS_DEBUG << "Building addon " << ut;
+			if (!worker->buildAddon(ut)) {
 				auto err = Broodwar->getLastError();
-				WARNING << "Unable to train unit '" << ut << "': " << err;
+				WARNING << "Unable to build addon '" << ut << "': " << err;
 				if (   (err == Errors::Insufficient_Minerals) 
 					|| (err == Errors::Insufficient_Gas)
 					|| (err == Errors::Insufficient_Supply))
@@ -152,13 +149,12 @@ namespace
 		
 		bool isFinished() const
 		{
-			return !worker->isTraining();
+			return !worker->isConstructing();
 		}
 
 		void freeResources()
 		{
 			release(resources);
-			release(supply);
 			release(requirements);
 			release(extra);
 		}
@@ -222,12 +218,12 @@ namespace
 	};
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(UnitPrecondition* worker, ResourcesPrecondition* res, SupplyPrecondition* supply, const BWAPI::UnitType& ut, Precondition* extra)
+std::pair<UnitPrecondition*, UnitPrecondition*> buildAddon(UnitPrecondition* worker, ResourcesPrecondition* res, const BWAPI::UnitType& ut, Precondition* extra)
 {
 	RequirementsPrecondition* req = getRequirements(ut);
 	// req maybe NULL.
 	
-	UnitTrainerPrecondition* result = new UnitTrainerPrecondition(worker, res, supply, req, ut, extra);
+	AddonBuilderPrecondition* result = new AddonBuilderPrecondition(worker, res, req, ut, extra);
     list.push_back(result);
 	
 	UnitPrecondition* first  = result;
@@ -235,50 +231,38 @@ std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(UnitPrecondition* work
     return std::make_pair(first, second);
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(UnitPrecondition* worker, ResourcesPrecondition* res, const BWAPI::UnitType& ut, Precondition* extra)
-{
-	SupplyPrecondition* supply = getSupply(ut);
-	// supply maybe NULL.
-	return trainUnit(worker, res, supply, ut, extra);
-}
-
-std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(ResourcesPrecondition* res, const BWAPI::UnitType& ut, Precondition* extra)
+std::pair<UnitPrecondition*, UnitPrecondition*> buildAddon(ResourcesPrecondition* res, const BWAPI::UnitType& ut, Precondition* extra)
 {
 	UnitPrecondition* worker = getIdleUnit(ut.whatBuilds().first);
 	if (worker == NULL)
 		return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
-	return trainUnit(worker, res, ut, extra);
+	return buildAddon(worker, res, ut, extra);
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(const BWAPI::UnitType& ut, Precondition* extra)
+std::pair<UnitPrecondition*, UnitPrecondition*> buildAddon(const BWAPI::UnitType& ut, Precondition* extra)
 {
 	ResourcesPrecondition* res = getResources(ut);
 	if (res == NULL)
 		return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
-	return trainUnit(res, ut, extra);
+	return buildAddon(res, ut, extra);
 }
 
-void trainUnitEx(const BWAPI::UnitType& ut)
+void buildAddonEx(const BWAPI::UnitType& ut)
 {
-	rememberIdle(rememberSecond(trainUnit(ut)));
+	rememberIdle(rememberSecond(buildAddon(ut)));
 }
 
-void trainWorker(const BWAPI::UnitType& ut)
-{
-	useWorker(rememberSecond(trainUnit(ut)));
-}
-
-void UnitTrainerCode::onMatchEnd()
+void AddonBuilderCode::onMatchEnd()
 {
 	list.clear();
 }
 
-void UnitTrainerCode::onTick()
+void AddonBuilderCode::onTick()
 {
-	Containers::remove_if(list, std::mem_fun(&UnitTrainerPrecondition::updateTime));
+	Containers::remove_if(list, std::mem_fun(&AddonBuilderPrecondition::updateTime));
 }
 
-bool UnitTrainerCode::onAssignUnit(BWAPI::Unit* unit)
+bool AddonBuilderCode::onAssignUnit(BWAPI::Unit* unit)
 {
 	for (auto it : list)
 		if (it->onAssignUnit(unit))
@@ -286,13 +270,13 @@ bool UnitTrainerCode::onAssignUnit(BWAPI::Unit* unit)
 	return false;
 }
 
-void UnitTrainerCode::onDrawPlan(HUDTextOutput& /*hud*/)
+void AddonBuilderCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
 	//for (auto it : list)
 	//	it->onDrawPlan();
 }
 
-void UnitTrainerCode::onCheckMemoryLeaks()
+void AddonBuilderCode::onCheckMemoryLeaks()
 {
-	UnitTrainerPrecondition::checkObjectsAlive();
+	AddonBuilderPrecondition::checkObjectsAlive();
 }
