@@ -287,16 +287,6 @@ void TerranMarinesCode::onDrawPlan(HUDTextOutput& /*hud*/)
 */
 }
 
-void TerranMarinesCode::onSendText(const std::string& text)
-{
-    /*
-    if(text=="/squad attack")
-    {
-        if(scoutProtection)
-            scoutProtection->defend(Broodwar->getMousePosition()+Broodwar->getScreenPosition());
-    }
-    */
-}
 
 void TerranMarinesCode::onCheckMemoryLeaks()
 {
