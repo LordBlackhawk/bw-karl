@@ -14,6 +14,7 @@
 #include "scout.hpp"
 #include "larvas.hpp"
 #include "building-placer.hpp"
+#include "addon-builder.hpp"
 #include <BWTA.h>
 
 using namespace BWAPI;
@@ -95,6 +96,7 @@ void TerranStrategieCode::onTick()
 		if (!academystarted) {
 			buildUnitEx(Terran_Academy);
 			buildRefinery(Terran_Refinery);
+            buildAddonEx(Terran_Comsat_Station);
 			researchTechEx(TechTypes::Stim_Packs);
 			upgradeTechEx(UpgradeTypes::U_238_Shells);
 			academystarted = true;

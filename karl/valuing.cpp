@@ -20,8 +20,10 @@ void ValuingCode::onTick()
 
 // used in mineral-line.cpp for minimization.
 // Important: Value must be positive.
-ctype valueWorkerAssignment(bool isPlanedWorker, bool isGasJob, bool isMineralJob, bool isWorkerIdle, int time, int wishtime, 
-                             const BWAPI::Position& /*pos*/, const BWAPI::Position& /*wishpos*/, bool assigned)
+ctype valueWorkerAssignment(int time, int wishtime,
+                            const BWAPI::Race& race, const BWAPI::Race& wishrace,
+                            const BWAPI::Position& /*pos*/, const BWAPI::Position& /*wishpos*/,
+                            bool isPlanedWorker, bool isGasJob, bool isMineralJob, bool isWorkerIdle, bool assigned)
 {
     ctype result = 0;
     bool isExternal = !(isGasJob || isMineralJob);
@@ -34,6 +36,10 @@ ctype valueWorkerAssignment(bool isPlanedWorker, bool isGasJob, bool isMineralJo
 
     if (isWorkerIdle && isExternal)
         result += 15000;
+    
+    if (wishrace != Races::Unknown)
+        if (race != wishrace)
+            result += 20000;
     
     /*
     if (isExternal)

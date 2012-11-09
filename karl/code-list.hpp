@@ -24,6 +24,7 @@
 #include "strategie-list.hpp"
 #include "arena.hpp"
 #include "valuing.hpp"
+#include "addon-builder.hpp"
 
 typedef CodeCaller<
 					LogCode,
@@ -40,6 +41,7 @@ typedef CodeCaller<
 					UnitMorpherCode,
 					UnitTrainerCode,
 					TechCode,
+                    AddonBuilderCode,
                     TerranMarinesCode,
                     SquadCode,
 					SupplyCode,

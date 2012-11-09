@@ -237,9 +237,10 @@ namespace
             if (agent->worker != NULL)
                 isWorkerIdle = agent->worker->isIdle();
 
-            return valueWorkerAssignment(isPlanedWorker, isGasJob, isMineralJob, isWorkerIdle,
-                                         agent->time, job->wishtime,
-                                         agent->pos, job->wishpos, isAssigned);
+            return valueWorkerAssignment(agent->time, job->wishtime,
+                                         agent->race, job->wishrace,
+                                         agent->pos,  job->wishpos,
+                                         isPlanedWorker, isGasJob, isMineralJob, isWorkerIdle, isAssigned);
         }
 
         ctype evaluate(int idAgent, int idJob) const

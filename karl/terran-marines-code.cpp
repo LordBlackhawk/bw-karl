@@ -150,6 +150,7 @@ void TerranMarinesCode::onTick()
                 Broodwar->printf("got a simple scout.");
                 simpleScout=(UnitMicromanagement*)it->unit->getClientInfo();
                 infantry.erase(it);
+                release(it);
                 break;
             }
         }
