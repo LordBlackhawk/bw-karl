@@ -45,14 +45,15 @@ namespace
 
         UnitBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, BuildingPositionPrecondition* p, RequirementsPrecondition* req,
                                 const UnitType& ut, Precondition* e)
-            : UnitPrecondition(1, ut, Position(p->pos)), baseunit(u), resources(r), pos(p), requirements(req), extra(e), status(pending),
+            : UnitPrecondition(1, ut, Position(p->pos), UnitPrecondition::WithoutAddon),
+              baseunit(u), resources(r), pos(p), requirements(req), extra(e), status(pending),
               postworker(NULL), worker(NULL), starttime(0), tries(0)
         {
             updateTime();
             if (ut.getRace() == Races::Terran) {
-                postworker = new UnitPrecondition(time, baseunit->ut, Position(pos->pos));
+                postworker = new UnitPrecondition(time, baseunit->ut, Position(pos->pos), UnitPrecondition::WithoutAddon);
             } else if (ut.getRace() == Races::Protoss) {
-                postworker = new UnitPrecondition(time - ut.buildTime(), baseunit->ut, Position(pos->pos));
+                postworker = new UnitPrecondition(time - ut.buildTime(), baseunit->ut, Position(pos->pos), UnitPrecondition::WithoutAddon);
             } else {
                 // Zerg worker is consumed.
             }
@@ -74,6 +75,7 @@ namespace
             switch (status)
             {
                 case pending:
+                    baseunit->wishpos = Position(pos->pos);
                     if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, pos, requirements, extra)) {
                         start();
                         time = Broodwar->getFrameCount() + ut.buildTime();

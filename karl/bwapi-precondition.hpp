@@ -47,7 +47,7 @@ struct RequirementsPrecondition : public Precondition
 {
 	BWAPI::UnitType		ut;
 	BWAPI::UpgradeType	gt;
-	int level;
+	int                 level;
 	
 	RequirementsPrecondition(const BWAPI::UnitType& t)
 		: Precondition(0), ut(t), gt(BWAPI::UpgradeTypes::None), level(0)
@@ -60,23 +60,28 @@ struct RequirementsPrecondition : public Precondition
 
 struct UnitPrecondition : public Precondition
 {
+    enum ModifierType { WithAddon, WithoutAddon, WhatEver };
+
     BWAPI::UnitType     ut;
     BWAPI::Position     pos;
+    BWAPI::Position     wishpos;
     BWAPI::Unit*        unit;
+    ModifierType        mod;
 
 	UnitPrecondition()
-		: Precondition(0), unit(NULL)
+		: Precondition(0), pos(BWAPI::Positions::Unknown), wishpos(BWAPI::Positions::Unknown), unit(NULL), mod(WhatEver)
 	{ }
 
     explicit UnitPrecondition(BWAPI::Unit* u)
-		: Precondition(0), ut(u->getType()), pos(u->getPosition()), unit(u)
+		: Precondition(0), ut(u->getType()), pos(u->getPosition()), wishpos(BWAPI::Positions::Unknown), unit(u), 
+          mod((u->getAddon() != NULL) ? WithAddon : WithoutAddon)
 	{ }
 	
-	UnitPrecondition(const BWAPI::UnitType& t, const BWAPI::Position& p, BWAPI::Unit* u)
-        : Precondition(0), ut(t), pos(p), unit(u)
+	UnitPrecondition(const BWAPI::UnitType& t, const BWAPI::Position& p, BWAPI::Unit* u, const ModifierType& mt)
+        : Precondition(0), ut(t), pos(p), wishpos(BWAPI::Positions::Unknown), unit(u), mod(mt)
     { }
 	
-	UnitPrecondition(int time, const BWAPI::UnitType& t, const BWAPI::Position& p)
-        : Precondition(time), ut(t), pos(p), unit(NULL)
+	UnitPrecondition(int time, const BWAPI::UnitType& t, const BWAPI::Position& p, const ModifierType& mt)
+        : Precondition(time), ut(t), pos(p), wishpos(BWAPI::Positions::Unknown), unit(NULL), mod(mt)
     { }
 };

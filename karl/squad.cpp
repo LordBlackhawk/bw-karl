@@ -79,11 +79,11 @@ Squad::Squad()
 
 Squad::~Squad()
 {
-    for(auto it:units)
+    /*for(auto it:units)
     {
             //notify all units that this squad no longer exists...
         //it->_assignToSquad(NULL);   
-    }
+    }*/
     
         //remove us from the squad list
     squads.erase(this);

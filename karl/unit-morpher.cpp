@@ -36,7 +36,8 @@ namespace
 
 		UnitMorphPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, SupplyPrecondition* s, RequirementsPrecondition* v, 
 							  const UnitType& ut, Precondition* e)
-			: UnitPrecondition(ut, u->pos, u->unit), baseunit(u), resources(r), supply(s), requirements(v), extra(e), status(pending)
+			: UnitPrecondition(ut, u->pos, u->unit, UnitPrecondition::WithoutAddon),
+              baseunit(u), resources(r), supply(s), requirements(v), extra(e), status(pending)
 		{
 			updateTime();
 		}
@@ -57,6 +58,7 @@ namespace
 			switch (status)
 			{
 				case pending:
+                    baseunit->wishpos = wishpos;
 					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, supply, requirements, extra)) {
 						start();
 						time = Broodwar->getFrameCount() + ut.buildTime();
@@ -107,12 +109,12 @@ namespace
 					return;
 				} else if (err == Errors::Incompatible_UnitType) {
                     rememberIdle(unit);
-                    baseunit = getIdleUnit(ut.whatBuilds().first);
+                    baseunit = getIdleUnit(ut.whatBuilds().first, UnitPrecondition::WhatEver);
                     status = pending;
                     return;
                 } else if (err == Errors::Unit_Not_Owned) {
                     unit = NULL;
-                    baseunit = getIdleUnit(ut.whatBuilds().first);
+                    baseunit = getIdleUnit(ut.whatBuilds().first, UnitPrecondition::WhatEver);
                     status = pending;
                     return;
                 }
@@ -178,7 +180,7 @@ UnitPrecondition* morphUnit(UnitPrecondition* unit, const BWAPI::UnitType& ut, P
 
 UnitPrecondition* morphUnit(const BWAPI::UnitType& ut, Precondition* extra)
 {
-    UnitPrecondition* unit = getIdleUnit(ut.whatBuilds().first);
+    UnitPrecondition* unit = getIdleUnit(ut.whatBuilds().first, UnitPrecondition::WhatEver);
 	if (unit == NULL)
 		return NULL;
     return morphUnit(unit, ut, extra);

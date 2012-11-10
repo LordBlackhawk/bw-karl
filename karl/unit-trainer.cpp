@@ -25,6 +25,16 @@ namespace
 	
 	struct UnitTrainerPrecondition;
 	std::vector<UnitTrainerPrecondition*> list;
+    
+    UnitPrecondition::ModifierType getAddonModifier(const UnitType& ut)
+    {
+        if (   (ut == UnitTypes::Terran_Siege_Tank_Tank_Mode)
+            || (ut == UnitTypes::Terran_Valkyrie))
+        {
+            return UnitPrecondition::WithAddon;
+        }
+        return UnitPrecondition::WhatEver;
+    }
 
 	struct UnitTrainerPrecondition : public UnitPrecondition, public ObjectCounter<UnitTrainerPrecondition>
 	{
@@ -43,11 +53,12 @@ namespace
 
 		UnitTrainerPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, SupplyPrecondition* s, RequirementsPrecondition* req, 
 								const UnitType& ut, Precondition* e)
-			: UnitPrecondition(1, ut, Position(u->pos)), baseunit(u), resources(r), supply(s), requirements(req), extra(e), status(pending), 
+			: UnitPrecondition(1, ut, Position(u->pos), UnitPrecondition::WithoutAddon),
+              baseunit(u), resources(r), supply(s), requirements(req), extra(e), status(pending), 
 			  postworker(NULL), worker(NULL), starttime(0), tries(0)
 		{
 			updateTime();
-			postworker = new UnitPrecondition(Precondition::Impossible, baseunit->ut, baseunit->pos);
+			postworker = new UnitPrecondition(Precondition::Impossible, baseunit->ut, baseunit->pos, baseunit->mod);
 		}
 		
 		~UnitTrainerPrecondition()
@@ -66,6 +77,7 @@ namespace
 			switch (status)
 			{
 				case pending:
+                    baseunit->wishpos = wishpos;
 					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, supply, requirements, extra)) {
 						start();
 						time = Broodwar->getFrameCount() + ut.buildTime();
@@ -134,7 +146,7 @@ namespace
 					return;
 				} else if (err == Errors::Unit_Not_Owned) {
                     status   = pending;
-                    baseunit = getIdleUnit(ut.whatBuilds().first);
+                    baseunit = getIdleUnit(ut.whatBuilds().first, getAddonModifier(ut));
                     rememberIdle(worker);
                     worker = NULL;
                     return;
@@ -244,7 +256,7 @@ std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(UnitPrecondition* work
 
 std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(ResourcesPrecondition* res, const BWAPI::UnitType& ut, Precondition* extra)
 {
-	UnitPrecondition* worker = getIdleUnit(ut.whatBuilds().first);
+	UnitPrecondition* worker = getIdleUnit(ut.whatBuilds().first, getAddonModifier(ut));
 	if (worker == NULL)
 		return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
 	return trainUnit(worker, res, ut, extra);

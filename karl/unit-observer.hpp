@@ -9,7 +9,7 @@ struct UnitObserver : public UnitPrecondition
 	UnitPrecondition* pre;
 	
 	UnitObserver(UnitPrecondition* p)
-		: UnitPrecondition(p->time, p->ut, p->pos), pre(p)
+		: UnitPrecondition(p->time, p->ut, p->pos, p->mod), pre(p)
 	{ }
 	
 	~UnitObserver()
@@ -27,7 +27,9 @@ struct UnitObserver : public UnitPrecondition
 	{
 		assert(pre != NULL);
 		time          = pre->time;
+        pos           = pre->pos;
 		pre->wishtime = wishtime;
+        pre->wishpos  = wishpos;
 		if (isFulfilled()) {
 			unit = pre->unit;
 			release(pre);

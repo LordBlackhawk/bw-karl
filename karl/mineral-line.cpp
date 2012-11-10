@@ -97,7 +97,7 @@ namespace
         WorkerJob*      job;
 
         WorkerPrecondition(const Race& r)
-            : UnitPrecondition(Precondition::Impossible, r.getWorker(), Positions::Unknown)
+            : UnitPrecondition(Precondition::Impossible, r.getWorker(), Positions::Unknown, UnitPrecondition::WithoutAddon)
         {
             job = new WorkerJob(this);
         }
@@ -326,7 +326,10 @@ namespace
                     assigned->commandWorker(this);
             } else {
                 time = pre->time;
+                pos  = pre->pos;
             }
+        } else {
+            pos = worker->getPosition();
         }
 
         return false;
@@ -352,6 +355,7 @@ namespace
         : wishtime(0), wishpos(Positions::Unknown), wishrace(Races::Unknown), pre(NULL), line(l), assigned(NULL), remove(false)
     {
         Containers::add(jobs, this);
+        wishpos = l->location->getPosition();
     }
 
     void WorkerJob::markRemoveWithAgent()
@@ -404,12 +408,15 @@ namespace
 
         if (pre != NULL) {
             wishtime = pre->wishtime;
+            wishpos  = pre->wishpos;
             if (assigned != NULL) {
                 pre->time = assigned->time;
                 pre->unit = assigned->worker;
+                pre->pos  = assigned->pos;
             } else {
                 pre->time = Precondition::Impossible;
                 pre->unit = NULL;
+                pre->pos  = BWAPI::Positions::Unknown;
             }
         }
 
@@ -567,18 +574,17 @@ bool buildRefinery(const BWAPI::UnitType& type)
 
 		BuildingPositionPrecondition* pos = getBuildingPosition(type, geyser->getTilePosition());
         auto result = buildUnit(pos, type);
-        if (result.first == NULL)
-            continue;
-
         if (result.second != NULL)
             useWorker(result.second);
+
+        if (result.first == NULL)
+            continue;
 
         WorkerLine* gasline = new WorkerLine(it->location, result.first, geyser);
         it->gaslines.insert(gasline);
         rememberIdle(gasline->pre);
         return true;
 	}
-
     return false;
 }
 

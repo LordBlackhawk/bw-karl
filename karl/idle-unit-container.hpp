@@ -3,7 +3,7 @@
 #include "default-code.hpp"
 #include "bwapi-precondition.hpp"
 
-UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut);
+UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut, const UnitPrecondition::ModifierType& mod);
 void rememberIdle(BWAPI::Unit* unit);
 void rememberIdle(UnitPrecondition* unit);
 UnitPrecondition* rememberFirst(const std::pair<UnitPrecondition*, UnitPrecondition*>& unit);

@@ -60,19 +60,39 @@ namespace
         useWorker(w);
         return true;
     }
+    
+    bool fulfillsModifier(Unit* u, const UnitPrecondition::ModifierType& mod)
+    {
+        if (mod == UnitPrecondition::WhatEver)
+            return true;
+        
+        bool hasAddon   = (u->getAddon() != NULL);
+        bool needsAddon = (mod == UnitPrecondition::WithAddon);
+        return (hasAddon == needsAddon);
+    }
+    
+    bool fulfillsModifier(UnitPrecondition* p, const UnitPrecondition::ModifierType& mod)
+    {
+        if (mod == UnitPrecondition::WhatEver)
+            return true;
+        
+        bool hasAddon   = (p->mod == UnitPrecondition::WithAddon);
+        bool needsAddon = (mod    == UnitPrecondition::WithAddon);
+        return (hasAddon == needsAddon);
+    }
 }
 
-UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut)
+UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut, const UnitPrecondition::ModifierType& mod)
 {
     if (ut == UnitTypes::Zerg_Larva)
         return getLarva();
 
     for (auto it : idleunits)
-        if (it->getType() == ut)
+        if ((it->getType() == ut) && (fulfillsModifier(it, mod)))
             return createAndErase(it);
 
     for (auto it : waitingfor)
-        if (it->ut == ut)
+        if ((it->ut == ut) && (fulfillsModifier(it, mod)))
             return eraseFromWaiting(it);
 
     WARNING << "No idle unit of type " << ut << " found.";

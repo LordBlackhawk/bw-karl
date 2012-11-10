@@ -22,7 +22,7 @@ using namespace BWAPI;
 namespace
 {
 	const int savetime = 27;
-	
+
 	struct TechPrecondition;
 	std::vector<TechPrecondition*> list;
 	bool inOnTick = false;
@@ -43,19 +43,21 @@ namespace
 		int								tries;
 
 		TechPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, RequirementsPrecondition* req, const TechType& t, Precondition* e)
-			: UnitPrecondition(1, u->ut, u->pos), baseunit(u), resources(r), requirements(req), extra(e), status(pending), 
+			: UnitPrecondition(1, u->ut, u->pos, u->mod),
+              baseunit(u), resources(r), requirements(req), extra(e), status(pending),
 			  worker(NULL), tt(t), gt(UpgradeTypes::None), starttime(0), tries(0)
 		{
 			updateTime();
 		}
-		
+
 		TechPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, RequirementsPrecondition* req, const UpgradeType& t, Precondition* e)
-			: UnitPrecondition(1, u->ut, u->pos), baseunit(u), resources(r), requirements(req), extra(e), status(pending), 
+			: UnitPrecondition(1, u->ut, u->pos, u->mod),
+              baseunit(u), resources(r), requirements(req), extra(e), status(pending),
 			  worker(NULL), tt(TechTypes::None), gt(t), starttime(0), tries(0)
 		{
 			updateTime();
 		}
-		
+
 		~TechPrecondition()
 		{
 			if (!inOnTick)
@@ -66,7 +68,7 @@ namespace
 			release(requirements);
 			release(extra);
 		}
-		
+
 		int techTime() const
 		{
 			if (tt != TechTypes::None) {
@@ -75,7 +77,7 @@ namespace
 				return gt.upgradeTime();
 			}
 		}
-		
+
 		std::string techName() const
 		{
 			if (tt != TechTypes::None) {
@@ -96,7 +98,7 @@ namespace
 						THIS_DEBUG << "researching " << techName() << " started.";
 					}
 					break;
-				
+
 				case tryagain:
 					time = Broodwar->getFrameCount() + techTime();
 					if (hasStarted()) {
@@ -128,7 +130,7 @@ namespace
 						THIS_DEBUG << "research " << techName() << " finished.";
 					}
 					break;
-				
+
 				case finished:
 					break;
 			}
@@ -145,7 +147,7 @@ namespace
 			if (!action()) {
 				auto err = Broodwar->getLastError();
 				THIS_DEBUG << "Error: Unable to research '" << techName() << "': " << err.toString();
-				if (   (err == Errors::Insufficient_Minerals) 
+				if (   (err == Errors::Insufficient_Minerals)
 					|| (err == Errors::Insufficient_Gas))
 				{
 					status = pending;
@@ -156,7 +158,7 @@ namespace
 			++tries;
 			starttime = Broodwar->getFrameCount();
 		}
-		
+
 		bool action() const
 		{
 			if (tt != TechTypes::None) {
@@ -165,12 +167,12 @@ namespace
 				return worker->upgrade(gt);
 			}
 		}
-		
+
 		bool hasStarted() const
 		{
 			return !isFinished();
 		}
-		
+
 		bool isFinished() const
 		{
 			if (tt != TechTypes::None) {
@@ -186,7 +188,7 @@ namespace
 			release(requirements);
 			release(extra);
 		}
-		
+
 		/*
 		const char* getStatusText() const
 		{
@@ -205,7 +207,7 @@ namespace
 					return "finished";
 			}
 		}
-		
+
 		void onDrawPlan() const
 		{
 			int x, y, width = 32*ut.tileWidth(), height = 32*ut.tileHeight();
@@ -218,7 +220,7 @@ namespace
 				x = p.x() - width/2;
 				y = p.y() - height/2;
 			}
-			
+
 			Broodwar->drawBoxMap(x, y, x + width, y + height, Colors::Green, false);
 			Broodwar->drawTextMap(x+2, y+2,  "%s", ut.getName().c_str());
 			Broodwar->drawTextMap(x+2, y+18, "%s", getStatusText());
@@ -233,10 +235,10 @@ UnitPrecondition* researchTech(UnitPrecondition* worker, ResourcesPrecondition* 
 {
 	RequirementsPrecondition* req = getRequirements(tt);
 	// req maybe NULL.
-	
+
 	TechPrecondition* result = new TechPrecondition(worker, res, req, tt, extra);
     list.push_back(result);
-	
+
 	return result;
 }
 
@@ -250,7 +252,7 @@ UnitPrecondition* researchTech(UnitPrecondition* worker, const BWAPI::TechType& 
 
 UnitPrecondition* researchTech(const BWAPI::TechType& tt, Precondition* extra)
 {
-	UnitPrecondition* worker = getIdleUnit(tt.whatResearches());
+	UnitPrecondition* worker = getIdleUnit(tt.whatResearches(), UnitPrecondition::WhatEver);
 	if (worker == NULL)
 		return NULL;
 	return researchTech(worker, tt, extra);
@@ -260,10 +262,10 @@ UnitPrecondition* upgradeTech(UnitPrecondition* worker, ResourcesPrecondition* r
 {
 	RequirementsPrecondition* req = getRequirements(gt);
 	// req maybe NULL.
-	
+
 	TechPrecondition* result = new TechPrecondition(worker, res, req, gt, extra);
     list.push_back(result);
-	
+
 	return result;
 }
 
@@ -277,7 +279,7 @@ UnitPrecondition* upgradeTech(UnitPrecondition* worker, const BWAPI::UpgradeType
 
 UnitPrecondition* upgradeTech(const BWAPI::UpgradeType& gt, Precondition* extra)
 {
-	UnitPrecondition* worker = getIdleUnit(gt.whatUpgrades());
+	UnitPrecondition* worker = getIdleUnit(gt.whatUpgrades(), UnitPrecondition::WhatEver);
 	if (worker == NULL)
 		return NULL;
 	return upgradeTech(worker, gt, extra);

@@ -49,6 +49,7 @@ bool TerranStrategieCode::isApplyable()
 void TerranStrategieCode::onMatchBegin()
 {
     LOG << "Standard terran opening...";
+    academystarted = false;
 
 	setSupplyMode(Races::Terran, SupplyMode::Auto);
 	setRequirementsMode(RequirementsMode::Auto);
@@ -96,6 +97,7 @@ void TerranStrategieCode::onTick()
 		if (!academystarted) {
 			buildUnitEx(Terran_Academy);
 			buildRefinery(Terran_Refinery);
+            buildAddonEx(Terran_Comsat_Station);
             buildAddonEx(Terran_Comsat_Station);
 			researchTechEx(TechTypes::Stim_Packs);
 			upgradeTechEx(UpgradeTypes::U_238_Shells);

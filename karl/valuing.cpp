@@ -22,7 +22,7 @@ void ValuingCode::onTick()
 // Important: Value must be positive.
 ctype valueWorkerAssignment(int time, int wishtime,
                             const BWAPI::Race& race, const BWAPI::Race& wishrace,
-                            const BWAPI::Position& /*pos*/, const BWAPI::Position& /*wishpos*/,
+                            const BWAPI::Position& pos, const BWAPI::Position& wishpos,
                             bool isPlanedWorker, bool isGasJob, bool isMineralJob, bool isWorkerIdle, bool assigned)
 {
     ctype result = 0;
@@ -40,14 +40,14 @@ ctype valueWorkerAssignment(int time, int wishtime,
     if (wishrace != Races::Unknown)
         if (race != wishrace)
             result += 20000;
-    
-    /*
-    if (isExternal)
-        result += 0.1 * pos.getDistance(wishpos);
-    */
         
     if (!assigned)
         result += 100;
+    
+    if ((pos != Positions::Unknown) && (wishpos != Positions::Unknown)) {
+        double dis = pos.getDistance(wishpos);
+        result += std::max(99, int(dis/32));
+    }
     
     return result;
 }

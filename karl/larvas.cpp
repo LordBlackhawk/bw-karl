@@ -65,7 +65,8 @@ namespace
         LarvaJob*       job;
 
         LarvaPrecondition()
-            : UnitPrecondition(Precondition::Impossible, UnitTypes::Zerg_Larva, Positions::Unknown), job(NULL)
+            : UnitPrecondition(Precondition::Impossible, UnitTypes::Zerg_Larva, Positions::Unknown, UnitPrecondition::WithoutAddon),
+              job(NULL)
         {
             job = new LarvaJob(this);
         }

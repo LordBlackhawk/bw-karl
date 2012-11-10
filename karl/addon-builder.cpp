@@ -41,11 +41,12 @@ namespace
 
 		AddonBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, RequirementsPrecondition* req, 
 								const UnitType& ut, Precondition* e)
-			: UnitPrecondition(1, ut, Position(u->pos)), baseunit(u), resources(r), requirements(req), extra(e), status(pending), 
+			: UnitPrecondition(1, ut, Position(u->pos), UnitPrecondition::WithoutAddon),
+              baseunit(u), resources(r), requirements(req), extra(e), status(pending),
 			  postworker(NULL), worker(NULL), starttime(0), tries(0)
 		{
 			updateTime();
-			postworker = new UnitPrecondition(Precondition::Impossible, baseunit->ut, baseunit->pos);
+			postworker = new UnitPrecondition(Precondition::Impossible, baseunit->ut, baseunit->pos, UnitPrecondition::WithAddon);
 		}
 		
 		~AddonBuilderPrecondition()
@@ -131,7 +132,7 @@ namespace
 					return;
 				} else if (err == Errors::Unit_Not_Owned) {
                     status   = pending;
-                    baseunit = getIdleUnit(ut.whatBuilds().first);
+                    baseunit = getIdleUnit(ut.whatBuilds().first, UnitPrecondition::WithoutAddon);
                     rememberIdle(worker);
                     worker = NULL;
                     return;
@@ -142,8 +143,9 @@ namespace
 			starttime = Broodwar->getFrameCount();
 		}
 		
-		bool hasStarted() const
+		bool hasStarted()
 		{
+            unit = worker->getAddon();
 			return (unit != NULL);
 		}
 		
@@ -157,23 +159,6 @@ namespace
 			release(resources);
 			release(requirements);
 			release(extra);
-		}
-		
-		bool near(const TilePosition& p1, const TilePosition& p2) const
-		{
-			return (std::abs(p1.x() - p2.x()) <= ut.tileWidth()) && (std::abs(p1.y() - p2.y()) <= ut.tileHeight());
-		}
-		
-		bool onAssignUnit(Unit* u)
-		{
-			if ((status != commanded) && (status != tryagain))
-				return false;
-			if (u->getType() != ut)
-				return false;
-			//if (!near(u->getTilePosition(), pos->pos))
-			//	return false;
-			unit = u;
-			return true;
 		}
 		
 		/*
@@ -233,7 +218,7 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildAddon(UnitPrecondition* wor
 
 std::pair<UnitPrecondition*, UnitPrecondition*> buildAddon(ResourcesPrecondition* res, const BWAPI::UnitType& ut, Precondition* extra)
 {
-	UnitPrecondition* worker = getIdleUnit(ut.whatBuilds().first);
+	UnitPrecondition* worker = getIdleUnit(ut.whatBuilds().first, UnitPrecondition::WithoutAddon);
 	if (worker == NULL)
 		return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
 	return buildAddon(worker, res, ut, extra);
@@ -260,14 +245,6 @@ void AddonBuilderCode::onMatchEnd()
 void AddonBuilderCode::onTick()
 {
 	Containers::remove_if(list, std::mem_fun(&AddonBuilderPrecondition::updateTime));
-}
-
-bool AddonBuilderCode::onAssignUnit(BWAPI::Unit* unit)
-{
-	for (auto it : list)
-		if (it->onAssignUnit(unit))
-			return true;
-	return false;
 }
 
 void AddonBuilderCode::onDrawPlan(HUDTextOutput& /*hud*/)
