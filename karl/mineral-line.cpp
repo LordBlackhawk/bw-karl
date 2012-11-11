@@ -137,10 +137,15 @@ namespace
         WorkerLine(BWTA::BaseLocation* l, UnitPrecondition* p, Unit* g)
             : UnitLifetimeObserver<WorkerLine>(p), location(l), geyser(g), mineralfields(0)
         {
-            lines.push_back(this);
-            updateMineralfields();
+            //lines.push_back(this);
         }
-
+        
+        ~WorkerLine()
+        {
+            while (!jobs.empty())
+                removeJob();
+        }
+        
         void onRemoveFromList()
         {
             //assert(false && "Should never be called!");
@@ -505,12 +510,15 @@ namespace
 
     Unit* WorkerLine::getUnusedGeyser() const
     {
+        if (geyser != NULL)
+            return NULL;
+
         std::set<Unit*> geysers = location->getGeysers();
-		for (auto it : gaslines)
-			geysers.erase(it->geyser);
-		if (geysers.empty())
-			return NULL;
-		return *geysers.begin();
+        for (auto it : gaslines)
+            geysers.erase(it->geyser);
+        if (geysers.empty())
+            return NULL;
+        return *geysers.begin();
     }
 
     ProblemType                          problem;
@@ -519,24 +527,24 @@ namespace
 
 void useWorker(BWAPI::Unit* unit)
 {
-	new WorkerAgent(unit);
+    new WorkerAgent(unit);
 }
 
 void useWorker(UnitPrecondition* unit)
 {
-	if (unit == NULL) {
-		WARNING << "called useWorker with unit == NULL.";
-		return;
-	}
+    if (unit == NULL) {
+        WARNING << "called useWorker with unit == NULL.";
+        return;
+    }
 
-	if (unit->isFulfilled()) {
-		THIS_DEBUG << "Sending worker immediately.";
-		useWorker(unit->unit);
-		release(unit);
-		return;
-	}
+    if (unit->isFulfilled()) {
+        THIS_DEBUG << "Sending worker immediately.";
+        useWorker(unit->unit);
+        release(unit);
+        return;
+    }
 
-	new WorkerAgent(unit);
+    new WorkerAgent(unit);
 }
 
 UnitPrecondition* getWorker(const BWAPI::Race& r)
@@ -568,11 +576,14 @@ UnitPrecondition* registerBase(UnitPrecondition* b)
 bool buildRefinery(const BWAPI::UnitType& type)
 {
     for (auto it : lines) {
-		Unit* geyser = it->getUnusedGeyser();
-		if (geyser == NULL)
-			continue;
+        Unit* geyser = it->getUnusedGeyser();
+        if (geyser == NULL)
+            continue;
 
-		BuildingPositionPrecondition* pos = getBuildingPosition(type, geyser->getTilePosition());
+        BuildingPositionPrecondition* pos = getBuildingPosition(type, geyser->getTilePosition());
+        if (pos == NULL)
+            continue;
+
         auto result = buildUnit(pos, type);
         if (result.second != NULL)
             useWorker(result.second);
@@ -580,21 +591,22 @@ bool buildRefinery(const BWAPI::UnitType& type)
         if (result.first == NULL)
             continue;
 
+        THIS_DEBUG << "building refinery at " << pos->pos << ".";
         WorkerLine* gasline = new WorkerLine(it->location, result.first, geyser);
         it->gaslines.insert(gasline);
         rememberIdle(gasline->pre);
         return true;
-	}
+    }
     return false;
 }
 
 void MineralLineCode::onMatchBegin()
 {
     estimatedProduction.resize(1);
-	Production& prod = estimatedProduction[0];
-	prod.time     = 0;
-	prod.minerals = 4*45;
-	prod.gas      = 1;
+    Production& prod = estimatedProduction[0];
+    prod.time     = 0;
+    prod.minerals = 4*45;
+    prod.gas      = 1;
 }
 
 void MineralLineCode::onMatchEnd()

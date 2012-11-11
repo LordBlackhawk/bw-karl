@@ -20,6 +20,8 @@
 
 using namespace BWAPI;
 
+#define THIS_DEBUG DEBUG
+
 namespace
 {
     std::set<Squad*> squads;
@@ -135,7 +137,7 @@ void Squad::addUnit(UnitMicromanagement* u)
         u->_assignToSquad(this);
     }
     else
-        LOG << "Squad::addUnit() called with NULL UnitMicromanagement!!";
+        THIS_DEBUG << "Squad::addUnit() called with NULL UnitMicromanagement!!";
 }
 */
 
@@ -160,7 +162,7 @@ void Squad::addUnit(MicromanagedUnit *microUnit)
 {
     if(microUnit)
     {
-        LOG << "Squad "<<name<<" got a new member: "<<microUnit->getType();
+        THIS_DEBUG << "Squad "<<name<<" got a new member: "<<microUnit->getType();
         units.insert(microUnit);
         //microUnit->_assignToSquad(this);
     }
@@ -200,7 +202,7 @@ void Squad::onTick()
     {
         if(!(*it)->exists())
         {
-            LOG << "Squad "<<name<<" lost a member: "<<(*it)->getType();
+            THIS_DEBUG << "Squad "<<name<<" lost a member: "<<(*it)->getType();
             units.erase(it++);
             continue;
         }

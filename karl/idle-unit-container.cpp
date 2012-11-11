@@ -8,6 +8,7 @@
 #include "unit-morpher.hpp"
 #include "unit-builder.hpp"
 #include "unit-trainer.hpp"
+#include "addon-builder.hpp"
 #include "container-helper.hpp"
 #include "precondition-helper.hpp"
 #include "log.hpp"
@@ -80,6 +81,21 @@ namespace
         bool needsAddon = (mod    == UnitPrecondition::WithAddon);
         return (hasAddon == needsAddon);
     }
+    
+    const char* modToStr(const UnitPrecondition::ModifierType& mod)
+    {
+        switch (mod)
+        {
+            case UnitPrecondition::WithAddon:
+                return "with addon";
+            case UnitPrecondition::WithoutAddon:
+                return "without addon";
+            case UnitPrecondition::WhatEver:
+                return "what ever";
+            default:
+                return "unknown value";
+        }
+    }
 }
 
 UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut, const UnitPrecondition::ModifierType& mod)
@@ -95,7 +111,7 @@ UnitPrecondition* getIdleUnit(const BWAPI::UnitType& ut, const UnitPrecondition:
         if ((it->ut == ut) && (fulfillsModifier(it, mod)))
             return eraseFromWaiting(it);
 
-    WARNING << "No idle unit of type " << ut << " found.";
+    WARNING << "No idle unit of type " << ut << " (" << modToStr(mod) << ") found.";
     return NULL;
 }
 
@@ -152,13 +168,18 @@ UnitPrecondition* rememberSecond(const std::pair<UnitPrecondition*, UnitPrecondi
 
 UnitPrecondition* createUnit(const BWAPI::UnitType& ut)
 {
-    if (ut.whatBuilds().first.isWorker()) {
+    if (ut.isRefinery()) {
+        buildRefinery(ut);
+        return NULL;
+    } else if (ut.whatBuilds().first.isWorker()) {
         auto result = buildUnit(ut);
         if (result.second != NULL)
             useWorker(result.second);
         return result.first;
     } else if (ut.getRace() == Races::Zerg) {
         return morphUnit(ut);
+    } else if (ut.isAddon()) {
+        return rememberSecond(buildAddon(ut));
     } else {
         return rememberSecond(trainUnit(ut));
     }

@@ -21,9 +21,9 @@
 #include <math.h>
 #include <stdlib.h>
 
-
-
 using namespace BWAPI;
+
+#define THIS_DEBUG DEBUG
 
 namespace
 {
@@ -60,7 +60,7 @@ void TerranMarinesCode::onTick()
 {
     if(!baseProtection)
     {
-        LOG << "creating base protection";
+        THIS_DEBUG << "creating base protection";
         baseProtection = new Squad();
         baseProtection->setName("base");
 
@@ -78,7 +78,7 @@ void TerranMarinesCode::onTick()
             }
             
             if(!otherbase)
-                LOG << "No other base found!";
+                THIS_DEBUG << "No other base found!";
             
             BWTA::Region* region=base->getRegion();
 
@@ -103,7 +103,7 @@ void TerranMarinesCode::onTick()
                 ckit++;
             }
            
-            LOG << "following choke path";
+            THIS_DEBUG << "following choke path";
 
             if(choke->getRegions().first==region)
                 region=choke->getRegions().second;
@@ -134,7 +134,7 @@ void TerranMarinesCode::onTick()
     
     if(!scoutProtection)
     {
-        LOG << "creating ScoutProtection";
+        THIS_DEBUG << "creating ScoutProtection";
         scoutProtection = new Squad();
         scoutProtection->setName("scout");
         scoutProtection->defend(baseProtection->getCenter());

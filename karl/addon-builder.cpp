@@ -20,240 +20,252 @@ using namespace BWAPI;
 
 namespace
 {
-	const int savetime = 27;
-	
-	struct AddonBuilderPrecondition;
-	std::vector<AddonBuilderPrecondition*> list;
+    const int savetime = 27;
+    
+    struct AddonBuilderPrecondition;
+    std::vector<AddonBuilderPrecondition*> list;
 
-	struct AddonBuilderPrecondition : public UnitPrecondition, public ObjectCounter<AddonBuilderPrecondition>
-	{
-		enum StatusType { pending, tryagain, commanded, waiting, finished };
+    struct AddonBuilderPrecondition : public UnitPrecondition, public ObjectCounter<AddonBuilderPrecondition>
+    {
+        enum StatusType { pending, tryagain, commanded, waiting, finished };
 
-		UnitPrecondition*       		baseunit;
-		ResourcesPrecondition*  		resources;
-		RequirementsPrecondition*		requirements;
-		Precondition*					extra;
-		StatusType 						status;
-		UnitPrecondition*				postworker;
-		Unit*							worker;
-		int 							starttime;
-		int								tries;
+        UnitPrecondition*               baseunit;
+        ResourcesPrecondition*          resources;
+        RequirementsPrecondition*       requirements;
+        Precondition*                   extra;
+        StatusType                      status;
+        UnitPrecondition*               postworker;
+        Unit*                           worker;
+        int                             starttime;
+        int                             tries;
 
-		AddonBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, RequirementsPrecondition* req, 
-								const UnitType& ut, Precondition* e)
-			: UnitPrecondition(1, ut, Position(u->pos), UnitPrecondition::WithoutAddon),
+        AddonBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, RequirementsPrecondition* req, 
+                                const UnitType& ut, Precondition* e)
+            : UnitPrecondition(1, ut, Position(u->pos), UnitPrecondition::WithoutAddon),
               baseunit(u), resources(r), requirements(req), extra(e), status(pending),
-			  postworker(NULL), worker(NULL), starttime(0), tries(0)
-		{
-			updateTime();
-			postworker = new UnitPrecondition(Precondition::Impossible, baseunit->ut, baseunit->pos, UnitPrecondition::WithAddon);
-		}
-		
-		~AddonBuilderPrecondition()
-		{
-			Containers::remove(list, this);
+              postworker(NULL), worker(NULL), starttime(0), tries(0)
+        {
+            updateTime();
+            postworker = new UnitPrecondition(Precondition::Impossible, baseunit->ut, baseunit->pos, UnitPrecondition::WithAddon);
+        }
+        
+        ~AddonBuilderPrecondition()
+        {
+            Containers::remove(list, this);
 
-			release(baseunit);
-			release(resources);
-			release(requirements);
-			release(extra);
-		}
+            release(baseunit);
+            release(resources);
+            release(requirements);
+            release(extra);
+        }
 
-		bool updateTime()
-		{
-			switch (status)
-			{
-				case pending:
-					if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, requirements, extra)) {
-						start();
-						time = Broodwar->getFrameCount() + ut.buildTime();
-						THIS_DEBUG << "building addon " << ut << " started.";
-					}
-					break;
-				
-				case tryagain:
-					time = Broodwar->getFrameCount() + ut.buildTime();
-					if (hasStarted()) {
-						freeResources();
-						status = waiting;
-						THIS_DEBUG << "waiting for addon unit '" << ut << "' to finish.";
-					} else {
-						start();
-					}
-					break;
+        bool updateTime()
+        {
+            switch (status)
+            {
+                case pending:
+                    if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, requirements, extra)) {
+                        start();
+                        time = Broodwar->getFrameCount() + ut.buildTime();
+                        THIS_DEBUG << "building addon " << ut << " started.";
+                    }
+                    break;
+                
+                case tryagain:
+                    time = Broodwar->getFrameCount() + ut.buildTime();
+                    if (hasStarted()) {
+                        freeResources();
+                        status = waiting;
+                        THIS_DEBUG << "waiting for addon unit '" << ut << "' to finish.";
+                    } else {
+                        start();
+                    }
+                    break;
 
-				case commanded:
-					time = Broodwar->getFrameCount() + ut.buildTime();
-					if (hasStarted()) {
-						freeResources();
-						status = waiting;
-						THIS_DEBUG << "waiting for addon unit '" << ut << "' to finish.";
-					} else if (Broodwar->getFrameCount() > starttime + savetime) {
-						start();
-						THIS_DEBUG << "unit " << ut << " restarted (try " << tries << ").";
-					}
-					break;
+                case commanded:
+                    time = Broodwar->getFrameCount() + ut.buildTime();
+                    if (hasStarted()) {
+                        freeResources();
+                        status = waiting;
+                        THIS_DEBUG << "waiting for addon unit '" << ut << "' to finish.";
+                    } else if (Broodwar->getFrameCount() > starttime + savetime) {
+                        start();
+                        THIS_DEBUG << "unit " << ut << " restarted (try " << tries << ").";
+                    }
+                    break;
 
-				case waiting:
-					if (isFinished()) {
-						postworker->time = 0;
-						postworker->unit = worker;
+                case waiting:
+                    if (isFinished()) {
+                        postworker->time = 0;
+                        postworker->unit = worker;
                         postworker = NULL;
-						time   = 0;
-						status = finished;
-						THIS_DEBUG << "unit " << ut << " finished.";
-					}
-					break;
-				
-				case finished:
-					break;
-			}
+                        time   = 0;
+                        status = finished;
+                        THIS_DEBUG << "unit " << ut << " finished.";
+                    }
+                    break;
+                
+                case finished:
+                    break;
+            }
             if (postworker != NULL)
                 postworker->time = time;
-			return (status == finished);
-		}
+            return (status == finished);
+        }
 
-		void start()
-		{
-			if (baseunit != NULL) {
-				worker = baseunit->unit;
-				release(baseunit);
-			}
-			assert(worker != NULL);
-			THIS_DEBUG << "Building addon " << ut;
-			if (!worker->buildAddon(ut)) {
-				auto err = Broodwar->getLastError();
-				WARNING << "Unable to build addon '" << ut << "': " << err;
-				if (   (err == Errors::Insufficient_Minerals) 
-					|| (err == Errors::Insufficient_Gas)
-					|| (err == Errors::Insufficient_Supply))
-				{
-					status = pending;
-					return;
-				} else if (err == Errors::Unit_Not_Owned) {
+        void start()
+        {
+            if (baseunit != NULL) {
+                worker = baseunit->unit;
+                release(baseunit);
+            }
+            if (worker == NULL) {
+                WARNING << "AddonBuilder(" << ut << "): Got no worker?!?!";
+                baseunit = getIdleUnit(ut.whatBuilds().first, UnitPrecondition::WithoutAddon);
+                status   = (baseunit != NULL) ? pending : finished;
+                return;
+            }
+            THIS_DEBUG << "Building addon " << ut;
+            if (!worker->buildAddon(ut)) {
+                auto err = Broodwar->getLastError();
+                WARNING << "Unable to build addon '" << ut << "': " << err;
+                if (   (err == Errors::Insufficient_Minerals) 
+                    || (err == Errors::Insufficient_Gas)
+                    || (err == Errors::Insufficient_Supply))
+                {
+                    status = pending;
+                    return;
+                } else if (   (err == Errors::Unit_Not_Owned)
+                           || (err == Errors::Insufficient_Tech))
+                {
                     status   = pending;
                     baseunit = getIdleUnit(ut.whatBuilds().first, UnitPrecondition::WithoutAddon);
                     rememberIdle(worker);
                     worker = NULL;
                     return;
                 }
-			}
-			status = commanded;
-			++tries;
-			starttime = Broodwar->getFrameCount();
-		}
-		
-		bool hasStarted()
-		{
+            }
+            status = commanded;
+            ++tries;
+            starttime = Broodwar->getFrameCount();
+        }
+        
+        bool hasStarted()
+        {
             unit = worker->getAddon();
-			return (unit != NULL);
-		}
-		
-		bool isFinished() const
-		{
-			return !worker->isConstructing();
-		}
+            return (unit != NULL);
+        }
+        
+        bool isFinished() const
+        {
+            return !worker->isConstructing();
+        }
 
-		void freeResources()
-		{
-			release(resources);
-			release(requirements);
-			release(extra);
-		}
-		
-		/*
-		const char* getStatusText() const
-		{
-			switch (status)
-			{
-				case pending:
-					return "pending";
-				case tryagain:
-					return "tryagain";
-				case commanded:
-					return "commanded";
-				case waiting:
-					return "waiting";
-				case finished:
-				default:
-					return "finished";
-			}
-		}
-		
-		void onDrawPlan() const
-		{
-			int x, y, width = 32*ut.tileWidth(), height = 32*ut.tileHeight();
-			if (pos != NULL) {
-				Position p(pos->pos);
-				x = p.x();
-				y = p.y();
-			} else {
-				Position p = unit->getPosition();
-				x = p.x() - width/2;
-				y = p.y() - height/2;
-			}
-			
-			Broodwar->drawBoxMap(x, y, x + width, y + height, Colors::Green, false);
-			Broodwar->drawTextMap(x+2, y+2,  "%s", ut.getName().c_str());
-			Broodwar->drawTextMap(x+2, y+18, "%s", getStatusText());
-			Broodwar->drawTextMap(x+2, y+34, "at %d", time);
-			Broodwar->drawTextMap(x+2, y+50, "wish %d", wishtime);
-		}
-		*/
-	};
+        void freeResources()
+        {
+            release(resources);
+            release(requirements);
+            release(extra);
+        }
+        
+        /*
+        const char* getStatusText() const
+        {
+            switch (status)
+            {
+                case pending:
+                    return "pending";
+                case tryagain:
+                    return "tryagain";
+                case commanded:
+                    return "commanded";
+                case waiting:
+                    return "waiting";
+                case finished:
+                default:
+                    return "finished";
+            }
+        }
+        
+        void onDrawPlan() const
+        {
+            int x, y, width = 32*ut.tileWidth(), height = 32*ut.tileHeight();
+            if (pos != NULL) {
+                Position p(pos->pos);
+                x = p.x();
+                y = p.y();
+            } else {
+                Position p = unit->getPosition();
+                x = p.x() - width/2;
+                y = p.y() - height/2;
+            }
+            
+            Broodwar->drawBoxMap(x, y, x + width, y + height, Colors::Green, false);
+            Broodwar->drawTextMap(x+2, y+2,  "%s", ut.getName().c_str());
+            Broodwar->drawTextMap(x+2, y+18, "%s", getStatusText());
+            Broodwar->drawTextMap(x+2, y+34, "at %d", time);
+            Broodwar->drawTextMap(x+2, y+50, "wish %d", wishtime);
+        }
+        */
+    };
 }
 
 std::pair<UnitPrecondition*, UnitPrecondition*> buildAddon(UnitPrecondition* worker, ResourcesPrecondition* res, const BWAPI::UnitType& ut, Precondition* extra)
 {
-	RequirementsPrecondition* req = getRequirements(ut);
-	// req maybe NULL.
-	
-	AddonBuilderPrecondition* result = new AddonBuilderPrecondition(worker, res, req, ut, extra);
+    if ((worker == NULL) || (res == NULL)) {
+        release(worker);
+        release(res);
+        release(extra);
+        return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
+    }
+
+    RequirementsPrecondition* req = getRequirements(ut);
+    // req maybe NULL.
+    
+    AddonBuilderPrecondition* result = new AddonBuilderPrecondition(worker, res, req, ut, extra);
     list.push_back(result);
-	
-	UnitPrecondition* first  = result;
-	UnitPrecondition* second = result->postworker;
+    
+    UnitPrecondition* first  = result;
+    UnitPrecondition* second = result->postworker;
+    if (isRequirement(ut))
+        first = registerRequirement(first);
     return std::make_pair(first, second);
 }
 
 std::pair<UnitPrecondition*, UnitPrecondition*> buildAddon(ResourcesPrecondition* res, const BWAPI::UnitType& ut, Precondition* extra)
 {
-	UnitPrecondition* worker = getIdleUnit(ut.whatBuilds().first, UnitPrecondition::WithoutAddon);
-	if (worker == NULL)
-		return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
-	return buildAddon(worker, res, ut, extra);
+    UnitPrecondition* worker = getIdleUnit(ut.whatBuilds().first, UnitPrecondition::WithoutAddon);
+    return buildAddon(worker, res, ut, extra);
 }
 
 std::pair<UnitPrecondition*, UnitPrecondition*> buildAddon(const BWAPI::UnitType& ut, Precondition* extra)
 {
-	ResourcesPrecondition* res = getResources(ut);
-	if (res == NULL)
-		return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
-	return buildAddon(res, ut, extra);
+    ResourcesPrecondition* res = getResources(ut);
+    return buildAddon(res, ut, extra);
 }
 
 void buildAddonEx(const BWAPI::UnitType& ut)
 {
-	rememberIdle(rememberSecond(buildAddon(ut)));
+    rememberIdle(rememberSecond(buildAddon(ut)));
 }
 
 void AddonBuilderCode::onMatchEnd()
 {
-	list.clear();
+    list.clear();
 }
 
 void AddonBuilderCode::onTick()
 {
-	Containers::remove_if(list, std::mem_fun(&AddonBuilderPrecondition::updateTime));
+    Containers::remove_if(list, std::mem_fun(&AddonBuilderPrecondition::updateTime));
 }
 
 void AddonBuilderCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
-	//for (auto it : list)
-	//	it->onDrawPlan();
+    //for (auto it : list)
+    //    it->onDrawPlan();
 }
 
 void AddonBuilderCode::onCheckMemoryLeaks()
 {
-	AddonBuilderPrecondition::checkObjectsAlive();
+    AddonBuilderPrecondition::checkObjectsAlive();
 }

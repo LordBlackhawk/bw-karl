@@ -9,8 +9,9 @@
 
 #include <BWTA.h>
 
-
 using namespace BWAPI;
+
+#define THIS_DEBUG DEBUG
 
 namespace
 {
@@ -115,7 +116,7 @@ namespace
                 }
                 
                 if(getUnit()->isSelected())
-                    LOG << "issuing attack position";
+                    THIS_DEBUG << "issuing attack position";
                 
                 getUnit()->attack(getTargetPosition());
                 setStatus(MicromanagedUnit::StatusType::moving);
@@ -138,7 +139,7 @@ namespace
 
                         int count=1;
 
-                        //LOG << getType()<<" is attacked - running away";
+                        //THIS_DEBUG << getType()<<" is attacked - running away";
 
                         for(auto it:others)
                         {
@@ -165,7 +166,7 @@ namespace
                     {
                         if(getUnit()->canIssueCommand(UnitCommand::useTech(getUnit(),TechTypes::Stim_Packs)))
                         {
-                            LOG << getType()<<" is using stim packs with "<<getUnit()->getHitPoints()<<"/"<<getType().maxHitPoints()<<" hitpoints and will wait till frame "<<NEXTTHINK;
+                            THIS_DEBUG << getType()<<" is using stim packs with "<<getUnit()->getHitPoints()<<"/"<<getType().maxHitPoints()<<" hitpoints and will wait till frame "<<NEXTTHINK;
                             getUnit()->useTech(TechTypes::Stim_Packs);
                         }
                         return NEXTTHINK;
@@ -215,7 +216,7 @@ namespace
         MicromanagementInformation(BWAPI::Unit *u)
                 : MicromanagedUnit(u,NULL)
         {
-            LOG << "Using default micromanagement for "<<u->getType();
+            THIS_DEBUG << "Using default micromanagement for "<<u->getType();
         }
         
         int onThink()
@@ -229,7 +230,7 @@ namespace
         MicromanagementInformation(BWAPI::Unit *u)
                 : MicromanagedUnit(u,NULL)
         {
-            LOG << "Using marine micromanagement for "<<u->getType();
+            THIS_DEBUG << "Using marine micromanagement for "<<u->getType();
         }
         
         int onThink()
@@ -449,7 +450,7 @@ void UnitMicromanagementCode::onDrawPlan(HUDTextOutput& /*hud*/)
                         +std::string("|");
                 if(it->lastStatusDebugLine!=debugLine)
                 {
-                    LOG << debugLine;
+                    THIS_DEBUG << debugLine;
                     it->lastStatusDebugLine=debugLine;
                 }
             }

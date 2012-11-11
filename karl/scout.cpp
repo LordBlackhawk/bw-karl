@@ -12,6 +12,8 @@
 using namespace BWAPI;
 using namespace BWTA;
 
+#define THIS_DEBUG DEBUG
+
 namespace
 {
     struct ScoutInformation
@@ -34,7 +36,7 @@ namespace
         
         void sendScout()
         {
-            LOG << "Sending scout!";
+            THIS_DEBUG << "Sending scout!";
             scout->rightClick(getNextPosition());
         }
         
@@ -53,7 +55,7 @@ namespace
     bool isScoutReady(UnitPrecondition* pre)
     {
         if (pre->isFulfilled()) {
-            LOG << "Scout finished!";
+            THIS_DEBUG << "Scout finished!";
             scouts.push_back(new ScoutInformation(pre->unit));
             release(pre);
             return true;
@@ -64,7 +66,7 @@ namespace
 
 void useScout(UnitPrecondition* pre)
 {
-    LOG << "Scout assigned!";
+    THIS_DEBUG << "Scout assigned!";
     assigned_scouts.push_back(pre);
 }
 

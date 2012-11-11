@@ -141,7 +141,7 @@ namespace
                 release(baseunit);
             }
             if (worker == NULL) {
-                WARNING << "UnitBuilder: Got no worker?!?!";
+                WARNING << "UnitBuilder(" << ut << "): Got no worker?!?!";
                 baseunit = getWorker(ut.getRace());
                 status = pending;
                 return;
@@ -165,13 +165,15 @@ namespace
                 WARNING << "Error: Unable to build unit " << ut << ": " << err << "\n"
                         << "\t\tfrom " << worker->getType() << " (player " << worker->getPlayer()->getName() << ")";
                 if (err == Errors::Unbuildable_Location) {
-                    if (Broodwar->isExplored(pos->pos)) {
-                        BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
-                        release(pos);
-                        status = tryagain;
-                        pos    = newpos;
+                    BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
+                    if (newpos == NULL) {
+                        status = finished;
                         return;
                     }
+                    release(pos);
+                    status = tryagain;
+                    pos    = newpos;
+                    return;
                 } else if (err == Errors::Unit_Not_Owned) {
                     status   = pending;
                     unit     = NULL;
@@ -295,6 +297,14 @@ namespace
 
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* worker, ResourcesPrecondition* res, BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra)
 {
+    if ((worker == NULL) || (res == NULL) || (pos == NULL)) {
+        release(worker);
+        release(res);
+        release(pos);
+        release(extra);
+        return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
+    }
+    
     RequirementsPrecondition* req = getRequirements(ut);
     // req maybe NULL.
 
@@ -317,26 +327,18 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* work
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* worker, BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra)
 {
     ResourcesPrecondition* res = getResources(ut);
-    if (res == NULL)
-        return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
     return buildUnit(worker, res, pos, ut, extra);
 }
 
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra)
 {
-    if (pos == NULL)
-        return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
     UnitPrecondition* worker = getWorker(ut.getRace());
-    if (worker == NULL)
-        return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
     return buildUnit(worker, pos, ut, extra);
 }
 
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType& ut, Precondition* extra)
 {
     BuildingPositionPrecondition* pos = getBuildingPosition(ut);
-    if (pos == NULL)
-        return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
     return buildUnit(pos, ut, extra);
 }
 

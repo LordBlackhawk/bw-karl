@@ -15,6 +15,8 @@
 #include "larvas.hpp"
 #include "building-placer.hpp"
 #include "addon-builder.hpp"
+#include "bwapi-helper.hpp"
+#include "string-helper.hpp"
 #include <BWTA.h>
 
 using namespace BWAPI;
@@ -22,8 +24,21 @@ using namespace BWTA;
 using namespace UnitTypes;
 
 namespace {
-	UnitPrecondition* waittill = NULL;
-	bool academystarted = false;
+    UnitPrecondition* waittill = NULL;
+    bool academystarted = false;
+    int  stateCounter   = 0;
+    
+    void trainAttackUnit(const UnitType& ut)
+    {
+        doSomethingUsefulWithInfantry(rememberSecond(trainUnit(ut)));
+    }
+    
+    void buildExpo()
+    {
+        BuildingPositionPrecondition* pos = getNextExpo(Terran_Command_Center);
+        if (pos != NULL)
+            useWorker(rememberFirst(buildUnit(pos, Terran_Command_Center)));
+    }
 }
 
 bool TerranStrategieCode::isApplyable()
@@ -50,9 +65,10 @@ void TerranStrategieCode::onMatchBegin()
 {
     LOG << "Standard terran opening...";
     academystarted = false;
+    stateCounter = 0;
 
-	setSupplyMode(Races::Terran, SupplyMode::Auto);
-	setRequirementsMode(RequirementsMode::Auto);
+    setSupplyMode(Races::Terran, SupplyMode::Auto);
+    setRequirementsMode(RequirementsMode::Auto);
  
     Player* self = Broodwar->self(); 
     for (auto it : self->getUnits()) {
@@ -67,63 +83,132 @@ void TerranStrategieCode::onMatchBegin()
         }
     }
 
-    //useScout(getWorker(Races::Terran));
+    for (int k=0; k<4; ++k)
+        trainWorker(Terran_SCV);
     
-	for (int k=0; k<4; ++k)
-		trainWorker(Terran_SCV);
-	
-	buildUnitEx(Terran_Supply_Depot);
-	buildUnitEx(Terran_Barracks);
-    
-    for (int k=0; k<10; ++k)
-		trainWorker(Terran_SCV);
-	
     buildUnitEx(Terran_Supply_Depot);
-    BuildingPositionPrecondition* pos = getNextExpo(Terran_Command_Center);
-    if (pos != NULL)
-        useWorker(rememberFirst(buildUnit(pos, Terran_Command_Center)));
+    buildUnitEx(Terran_Barracks);
     
-	for (int k=0; k<6; ++k)
-		doSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Marine)));
+    for (int k=0; k<5; ++k)
+        trainWorker(Terran_SCV);
+    
+    useScout(rememberSecond(trainUnit(Terran_SCV)));
+    
+    buildUnitEx(Terran_Supply_Depot);
+    buildExpo();
+    
+    for (int k=0; k<5; ++k)
+        trainWorker(Terran_SCV);
+    
+    for (int k=0; k<6; ++k)
+        trainAttackUnit(Terran_Marine);
 }
 
 void TerranStrategieCode::onTick()
 {
-	int now = Broodwar->getFrameCount();
-	if (now % 10 != 7)
-		return;
-	
-	if (nextUnitAvailable(Terran_Barracks) < now + 500) {
-		if (!academystarted) {
-			buildUnitEx(Terran_Academy);
-			buildRefinery(Terran_Refinery);
+    int now = Broodwar->getFrameCount();
+    if (now % 10 != 7)
+        return;
+    
+    if (nextUnitAvailable(Terran_Barracks) < now + 200) {
+        if (!academystarted) {
+            buildUnitEx(Terran_Academy);
+            buildRefinery(Terran_Refinery);
             buildAddonEx(Terran_Comsat_Station);
             buildAddonEx(Terran_Comsat_Station);
-			researchTechEx(TechTypes::Stim_Packs);
-			upgradeTechEx(UpgradeTypes::U_238_Shells);
-			academystarted = true;
-		}
-			
-		for (auto k=0; k<4; ++k)
-			doSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Marine)));
-		doSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Medic)));
-		doSomethingUsefulWithInfantry(rememberSecond(trainUnit(Terran_Firebat)));
-	} else if ((Broodwar->self()->minerals() > 400) && (buildUnitPlanSize(Terran_Barracks) < 1)) {
-		buildUnitEx(Terran_Barracks);
-		for (int k=0; k<3; ++k)
-			trainWorker(Terran_SCV);
-	}
+            researchTechEx(TechTypes::Stim_Packs);
+            upgradeTechEx(UpgradeTypes::U_238_Shells);
+            academystarted = true;
+        }
+
+        for (auto k=0; k<4; ++k)
+            trainAttackUnit(Terran_Marine);
+        trainAttackUnit(Terran_Medic);
+        trainAttackUnit(Terran_Firebat);
+    } else if (nextUnitAvailable(Terran_Factory) < now + 200) {
+        LOG << "building factory units...";
+        trainAttackUnit(Terran_Siege_Tank_Tank_Mode);
+        trainAttackUnit(Terran_Vulture);
+        trainAttackUnit(Terran_Goliath);
+    } else if (nextUnitAvailable(Terran_Starport) < now + 200) {
+        LOG << "building starport units...";
+        trainAttackUnit(Terran_Wraith);
+        trainAttackUnit(Terran_Valkyrie);
+        trainAttackUnit(Terran_Dropship);
+        trainAttackUnit(Terran_Science_Vessel);
+        trainAttackUnit(Terran_Battlecruiser);
+    } else if (   (Broodwar->self()->minerals() > 400)
+               && (buildUnitPlanSize(Terran_Barracks) < 1)
+               && (buildUnitPlanSize(Terran_Factory)  < 1))
+    {
+        switch (++stateCounter)
+        {
+            case 1:
+            case 2:
+                buildUnitEx(Terran_Barracks);
+                for (int k=0; k<3; ++k)
+                    trainWorker(Terran_SCV);
+                break;
+            
+            case 3:
+            case 4:
+            case 5:
+                LOG << "building factory";
+                buildUnitEx(Terran_Factory);
+                buildAddonEx(Terran_Machine_Shop);
+                if (buildRefinery(Terran_Refinery))
+                    LOG << "building additional refinery!";
+                for (int k=0; k<3; ++k)
+                    trainWorker(Terran_SCV);
+                break;
+            
+            case 6:
+                LOG << "building starport";
+                buildUnitEx(Terran_Starport);
+                buildAddonEx(Terran_Control_Tower);
+                break;
+                
+            default:
+                --stateCounter;
+                break;
+        }
+    }
 }
 
 void TerranStrategieCode::onMatchEnd()
 {
-	release(waittill);
+    release(waittill);
 }
 
 void TerranStrategieCode::onBaseMinedOut(BWTA::BaseLocation* /*base*/)
 {
     LOG << "building new base...";
-    BuildingPositionPrecondition* pos = getNextExpo(Terran_Command_Center);
-    if (pos != NULL)
-        useWorker(rememberFirst(buildUnit(pos, Terran_Command_Center)));
+    buildExpo();
+}
+
+void TerranStrategieCode::onSendText(const std::string& text)
+{
+    std::vector<std::string> words = splitIntoWords(text);
+    if (words[0] != "/build")
+        return;
+
+    if (words.size() < 2) {
+        Broodwar->printf("The build command needs the unit type as argument.");
+        return;
+    }
+    
+    if (words[1] == "expo") {
+        buildExpo();
+    } else if (words[1] == "refinery") {
+        if (!buildRefinery(Terran_Refinery))
+            Broodwar->printf("No position for refinery found.");
+    } else {
+        UnitType ut = getUnitTypeByName(words[1]);
+        if (ut == UnitTypes::Unknown) {
+            Broodwar->printf("Unknown unit type: %s", words[1].c_str());
+            return;
+        }
+        
+        rememberIdle(createUnit(ut));
+    }
 }
