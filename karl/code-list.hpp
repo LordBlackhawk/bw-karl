@@ -26,6 +26,8 @@
 #include "arena.hpp"
 #include "valuing.hpp"
 #include "addon-builder.hpp"
+#include "building-flyer.hpp"
+#include "wall-in.hpp"
 
 typedef CodeCaller<
                     ExceptionHandlerCode,
@@ -44,11 +46,13 @@ typedef CodeCaller<
                     UnitTrainerCode,
                     TechCode,
                     AddonBuilderCode,
+                    BuildingFlyerCode,
                     TerranMarinesCode,
                     SquadCode,
                     SupplyCode,
                     HUDCode,
                     ScoutCode,
+                    WallInCode,
                     StrategieList<
                         TerranStrategieCode,
                         ZergStrategieCode,

@@ -354,6 +354,14 @@ void buildUnitEx(const BWAPI::UnitType& ut)
         useWorker(worker);
 }
 
+void buildUnitEx(const BWAPI::UnitType& ut, std::set<BuildingPositionPrecondition*>& places)
+{
+    BuildingPositionPrecondition* pos = getBuildingPosition(ut, places);
+    UnitPrecondition* worker = rememberFirst(buildUnit(pos, ut));
+    if (worker != NULL)
+        useWorker(worker);
+}
+
 int buildUnitPlanSize()
 {
     return list.size();

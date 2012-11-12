@@ -17,6 +17,8 @@
 #include "addon-builder.hpp"
 #include "bwapi-helper.hpp"
 #include "string-helper.hpp"
+#include "building-flyer.hpp"
+#include "wall-in.hpp"
 #include <BWTA.h>
 
 using namespace BWAPI;
@@ -32,7 +34,7 @@ namespace {
     {
         doSomethingUsefulWithInfantry(rememberSecond(trainUnit(ut, debugname)));
     }
-    
+
     void buildExpo()
     {
         BuildingPositionPrecondition* pos = getNextExpo(Terran_Command_Center);
@@ -47,17 +49,17 @@ bool TerranStrategieCode::isApplyable()
     std::map<UnitType, int> units;
     for (auto it : self->getUnits())
         units[it->getType()] += 1;
-    
+
     if ((units[Terran_SCV] < 1) || (units[Terran_Command_Center] < 1))
         return false;
-    
+
     BaseLocation* home = getStartLocation(self);
     if (home == NULL)
         return false;
-    
+
     if (home->getGeysers().size() < 1)
         return false;
-    
+
     return true;
 }
 
@@ -69,8 +71,8 @@ void TerranStrategieCode::onMatchBegin()
 
     setSupplyMode(Races::Terran, SupplyMode::Auto);
     setRequirementsMode(RequirementsMode::Auto);
- 
-    Player* self = Broodwar->self(); 
+
+    Player* self = Broodwar->self();
     for (auto it : self->getUnits()) {
         UnitType type = it->getType();
         if (type.isWorker()) {
@@ -86,8 +88,12 @@ void TerranStrategieCode::onMatchBegin()
     for (int k=0; k<4; ++k)
         trainWorker(Terran_SCV, "Worker (Group 1)");
     
-    buildUnitEx(Terran_Supply_Depot);
-    buildUnitEx(Terran_Barracks);
+    std::set<BuildingPositionPrecondition*> places = designWallIn();
+    buildUnitEx(Terran_Supply_Depot, places);
+    buildUnitEx(Terran_Barracks, places);
+    while (!places.empty())
+        buildUnitEx((*places.begin())->ut, places);
+    //rememberIdle(flyBuilding(rememberSecond(buildUnit(Terran_Barracks)), getBuildingPosition(Terran_Barracks)));
 
     for (int k=0; k<5; ++k)
         trainWorker(Terran_SCV, "Worker (Group 2)");
@@ -96,7 +102,7 @@ void TerranStrategieCode::onMatchBegin()
 
     buildUnitEx(Terran_Supply_Depot);
     buildExpo();
-    
+
     for (int k=0; k<5; ++k)
         trainWorker(Terran_SCV, "Worker (Group 3)");
 
@@ -109,7 +115,7 @@ void TerranStrategieCode::onTick()
     int now = Broodwar->getFrameCount();
     if (now % 10 != 7)
         return;
-    
+
     if (nextUnitAvailable(Terran_Barracks) < now + 200) {
         if (!academystarted)
             buildUnitEx(Terran_Academy);
@@ -151,7 +157,7 @@ void TerranStrategieCode::onTick()
                 for (int k=0; k<3; ++k)
                     trainWorker(Terran_SCV, "Worker (Barracks)");
                 break;
-            
+
             case 3:
             case 4:
             case 5:
@@ -163,13 +169,13 @@ void TerranStrategieCode::onTick()
                 for (int k=0; k<3; ++k)
                     trainWorker(Terran_SCV, "Worker (Factory)");
                 break;
-            
+
             case 6:
                 LOG << "building starport";
                 buildUnitEx(Terran_Starport);
                 buildAddonEx(Terran_Control_Tower);
                 break;
-                
+
             default:
                 --stateCounter;
                 break;
@@ -198,7 +204,7 @@ void TerranStrategieCode::onSendText(const std::string& text)
         Broodwar->printf("The build command needs the unit type as argument.");
         return;
     }
-    
+
     if (words[1] == "expo") {
         buildExpo();
     } else if (words[1] == "refinery") {
@@ -210,7 +216,7 @@ void TerranStrategieCode::onSendText(const std::string& text)
             Broodwar->printf("Unknown unit type: %s", words[1].c_str());
             return;
         }
-        
+
         rememberIdle(createUnit(ut));
     }
 }

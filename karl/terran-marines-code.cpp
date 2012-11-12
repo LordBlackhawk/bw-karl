@@ -39,7 +39,10 @@ namespace
 
 void doSomethingUsefulWithInfantry(UnitPrecondition* u)
 {
-    infantry.insert(u);
+    if (u != NULL)
+        infantry.insert(u);
+    else
+        WARNING << "Called doSomethingUsefulWithInfantry with NULL.";
 }
 
 
