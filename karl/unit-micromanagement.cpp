@@ -9,9 +9,17 @@
 
 #include <BWTA.h>
 
-using namespace BWAPI;
+
+#include <math.h>
+#include <stdlib.h>
+
+
+#define LOG_SELECTED if(getUnit()->isSelected())LOG<<getType()<<"("<<getUnit()->getID()<<"):"
 
 #define THIS_DEBUG DEBUG
+
+using namespace BWAPI;
+
 
 namespace
 {
@@ -23,10 +31,12 @@ namespace
         int defaultWait()
         {
             if(!getUnit()->isIdle())
+            {
+                LOG_SELECTED << "defaultWait: stop.";
                 getUnit()->stop();
+            }
             
             setStatus(MicromanagedUnit::StatusType::idle);
-
             return LATER;
         }
         int defaultMoveToTarget()
@@ -40,6 +50,8 @@ namespace
                     setStatus(MicromanagedUnit::StatusType::idle);
                     return LATER;
                 }
+                
+                LOG_SELECTED << "defaultMoveToTarget: moving to position";
                 getUnit()->move(getTarget()->getPosition());
                 setStatus(MicromanagedUnit::StatusType::moving);
                 return NEXTTHINK;
@@ -65,6 +77,8 @@ namespace
                     setStatus(MicromanagedUnit::StatusType::idle);
                     return LATER;
                 }
+                
+                LOG_SELECTED << "defaultMoveToPosition: moving to position.";
                 getUnit()->move(getTargetPosition());
                 setStatus(MicromanagedUnit::StatusType::moving);
                 return NEXTTHINK;
@@ -105,7 +119,8 @@ namespace
         }
         int defaultAttackPosition()
         {
-            if(getStatus()!=MicromanagedUnit::StatusType::moving || getTargetPosition().getDistance(getUnit()->getTargetPosition())>32*10)
+            if((getStatus()!=MicromanagedUnit::StatusType::moving && getStatus()!=StatusType::runningAway && getStatus()!=StatusType::attacking) 
+                    || getTargetPosition().getDistance(getUnit()->getTargetPosition())>32*10)
             {
                 if(getTargetPosition()==Positions::None||getTargetPosition()==Positions::Invalid||getTargetPosition()==Positions::Unknown)
                 {
@@ -115,68 +130,103 @@ namespace
                     return LATER;
                 }
                 
-                if(getUnit()->isSelected())
-                    THIS_DEBUG << "issuing attack position";
+
+                if(getTargetPosition().getDistance(getPosition())>32)
+                {
+                    LOG_SELECTED << "defaultAttackPosition: issuing attack position.";
+                    getUnit()->attack(getTargetPosition());
+                    setStatus(MicromanagedUnit::StatusType::moving);
+                    return NEXTTHINK;
+                }
                 
-                getUnit()->attack(getTargetPosition());
-                setStatus(MicromanagedUnit::StatusType::moving);
-                return NEXTTHINK;
+                    //reset to idle state
+                if(getStatus()!=StatusType::idle)
+                {
+                    LOG_SELECTED << "defaultAttackPosition: reset to idle state.";
+                    setStatus(StatusType::idle);
+                }
             }
-            else
+            
+            if(getStatus()==StatusType::runningAway && !getUnit()->isUnderAttack())
             {
-                if(getUnit()->isIdle())
-                {
-                    setStatus(MicromanagedUnit::StatusType::idle);
-                    return LATER;
-                }
-
-                if(getUnit()->isUnderAttack())
-                {
-                    if(getUnit()->getHitPoints() <= getType().maxHitPoints()*(1-getCourage()))
-                    {
-                        std::set<Unit*> others=getUnit()->getUnitsInRadius(128);
-                        Position moveTo(0,0);
-
-                        int count=1;
-
-                        //THIS_DEBUG << getType()<<" is attacked - running away";
-
-                        for(auto it:others)
-                        {
-                            if(it->getPlayer()==Broodwar->self() || Broodwar->self()->isAlly(it->getPlayer()))
-                            {
-                                moveTo+=(it->getPosition()-getPosition());
-                            }
-                            else
-                            {
-                                moveTo-=(it->getPosition()-getPosition());
-                            }
-                            count++;
-                        }
-
-                        move(getPosition()+Position(moveTo.x()/count,moveTo.y()/count));
-                        return NEXTTHINK;
-                    }
-                }
-                else if(getUnit()->isAttacking() || getUnit()->isStartingAttack())
-                {
-                    if(!getUnit()->isStimmed() && getUnit()->getStimTimer()==0 && getUnit()->getSpellCooldown()==0
-                            &&( getType()==UnitTypes::Terran_Marine || getType()==UnitTypes::Terran_Firebat) 
-                            && getUnit()->getHitPoints() > getType().maxHitPoints()*(1-getCourage()))
-                    {
-                        if(getUnit()->canIssueCommand(UnitCommand::useTech(getUnit(),TechTypes::Stim_Packs)))
-                        {
-                            THIS_DEBUG << getType()<<" is using stim packs with "<<getUnit()->getHitPoints()<<"/"<<getType().maxHitPoints()<<" hitpoints and will wait till frame "<<NEXTTHINK;
-                            getUnit()->useTech(TechTypes::Stim_Packs);
-                        }
-                        return NEXTTHINK;
-                    }
-                }
-                return NOW;
+                LOG_SELECTED << "defaultAttackPosition: no longer under attack - resuming idle state.";
+                setStatus(MicromanagedUnit::StatusType::idle);
             }
 
-            return LATER;
+            if(getUnit()->isUnderAttack() && getStatus()!=StatusType::runningAway)
+            {
+                if(getUnit()->isAttackFrame())
+                {
+                    LOG_SELECTED << "defaultAttackPosition: attacked during attack frame - waiting for attack to finish.";
+                }
+                else if(getUnit()->isBeingHealed())
+                {
+                    LOG_SELECTED << "defaultAttackPosition: attacked while being healed - staying.";
+                }
+                else if(getUnit()->getHitPoints() > getType().maxHitPoints()*(1-getCourage()))
+                {
+                    LOG_SELECTED << "defaultAttackPosition: attacked but still courageous with "<<getUnit()->getHitPoints()<<"/"<<getType().maxHitPoints()<<" hitpoints left - staying.";
+                }
+                else
+                {
+                    std::set<Unit*> others=getUnit()->getUnitsInRadius(32*8);
+                    Position moveTo(0,0);
+
+                    int count=1;
+
+                    LOG_SELECTED <<"defaultAttackPosition: attacked and only have "<<getUnit()->getHitPoints()<<"/"<<getType().maxHitPoints()<<" hitpoints - running away.";
+
+                    for(auto it:others)
+                    {
+                        if(it->getPlayer()==Broodwar->self() || Broodwar->self()->isAlly(it->getPlayer()))
+                        {
+                            moveTo+=(it->getPosition()-getPosition());
+                        }
+                        else
+                        {
+                            moveTo-=(it->getPosition()-getPosition());
+                        }
+                        count++;
+                    }
+
+                    double len=sqrt((double)(moveTo.x()*moveTo.x()+moveTo.y()+moveTo.y()));
+
+                    if(len>0)
+                    {
+                        moveTo.x()=(moveTo.x()*64)/len;
+                        moveTo.y()=(moveTo.y()*64)/len;
+                    }
+                    setStatus(StatusType::runningAway);
+                    getUnit()->move(getPosition()+Position(moveTo.x(),moveTo.y()));
+                    LOG_SELECTED <<" (running in "<<moveTo.x()<<"/"<<moveTo.y()<<" direction).";
+                    return NEXTTHINK;
+                }
+            }
+            if(getUnit()->isAttacking() || getUnit()->isStartingAttack())
+            {
+                if(!getUnit()->isStimmed() && getUnit()->getStimTimer()==0 && getUnit()->getSpellCooldown()==0
+                        &&( getType()==UnitTypes::Terran_Marine || getType()==UnitTypes::Terran_Firebat) 
+                        && getUnit()->getHitPoints() > getType().maxHitPoints()*(1-getCourage()*0.95))
+                {
+                    if(getUnit()->canIssueCommand(UnitCommand::useTech(getUnit(),TechTypes::Stim_Packs)))
+                    {
+                        LOG_SELECTED <<"defaultAttackPosition: using stim packs with "<<getUnit()->getHitPoints()<<"/"<<getType().maxHitPoints()<<" hitpoints.";
+                        getUnit()->useTech(TechTypes::Stim_Packs);
+                    }
+                    return NEXTTHINK;
+                }
+            }
+            
+            if(getUnit()->isIdle())
+            {
+                LOG_SELECTED << "defaultAttackPosition: unit is idle - waiting.";
+                setStatus(MicromanagedUnit::StatusType::idle);
+                return LATER;
+            }
+
+            return NOW;
         }
+        
         int defaultOnThink()
         {
             switch(goal)
@@ -329,7 +379,7 @@ MicromanagedUnit::MicromanagedUnit()
 }
 
 MicromanagedUnit::MicromanagedUnit(BWAPI::Unit* u,int (*(*f)[MicromanagedUnit::GoalType::unknown])(MicromanagedUnit*,void*))
-    : unit(u),status(StatusType::idle),goal(GoalType::wait),nextThink(NOW),data(),funcs(f),courage(0.2),targetPosition(Positions::None),target(0)
+    : unit(u),status(StatusType::idle),goal(GoalType::wait),nextThink(NOW),data(),funcs(f),courage(0.4),targetPosition(Positions::None),target(0)
 {
     if(!unit)
         WARNING << "MicromanagedUnit created for NULL unit!";
@@ -418,11 +468,11 @@ void UnitMicromanagementCode::onDrawPlan(HUDTextOutput& /*hud*/)
                 switch(it->getGoal())
                 {
                     case MicromanagedUnit::GoalType::attackPosition:
-                        Broodwar->drawLineMap(unit->getPosition().x(),unit->getPosition().y(),it->getTargetPosition().x(),it->getTargetPosition().y(),Colors::Red);
+                        Broodwar->drawLineMap(unit->getPosition().x(),unit->getPosition().y(),unit->getTargetPosition().x(),unit->getTargetPosition().y(),Colors::Red);
                         Broodwar->drawLineMap(unit->getTargetPosition().x(),unit->getTargetPosition().y(),it->getTargetPosition().x(),it->getTargetPosition().y(),Colors::Blue);
                         break;
                     case MicromanagedUnit::GoalType::moveToPosition:
-                        Broodwar->drawLineMap(unit->getPosition().x(),unit->getPosition().y(),it->getTargetPosition().x(),it->getTargetPosition().y(),Colors::Green);
+                        Broodwar->drawLineMap(unit->getPosition().x(),unit->getPosition().y(),unit->getTargetPosition().x(),unit->getTargetPosition().y(),Colors::Green);
                         Broodwar->drawLineMap(unit->getTargetPosition().x(),unit->getTargetPosition().y(),it->getTargetPosition().x(),it->getTargetPosition().y(),Colors::Blue);
                         break;
                     case MicromanagedUnit::GoalType::attackTarget:
@@ -434,20 +484,24 @@ void UnitMicromanagementCode::onDrawPlan(HUDTextOutput& /*hud*/)
                     default:
                         break;
                 }
-                std::string debugLine=std::string()
-                        +std::string("|")+std::string(unit->isAccelerating()?"ACL":"acl")
-                        +std::string("|")+std::string(unit->isBraking()?"BRK":"brk")
-                        +std::string("|")+std::string(unit->isMoving()?"MOV":"mov")
-                        +std::string("|")+std::string(unit->isStartingAttack()?"STRTATT":"strtatt")
-                        +std::string("|")+std::string(unit->isAttackFrame()?"ATTFRM":"attfrm")
-                        +std::string("|")+std::string(unit->isAttacking()?"ATTACK":"attack")
-                        +std::string("|")+std::string(unit->isBeingHealed()?"HEALED":"healed")
-                        +std::string("|")+std::string(unit->isIdle()?"IDLE":"idle")
-                        +std::string("|")+std::string(unit->isInterruptible()?"INTRABLE":"intrable")
-                        +std::string("|")+std::string(unit->isStimmed()?"STIM":"stim")
-                        +std::string("|")+std::string(unit->isStuck()?"STUCK":"stuck")
-                        +std::string("|")+std::string(unit->isUnderAttack()?"UNDRATT":"undratt")
-                        +std::string("|");
+
+                std::stringstream dbg;
+                dbg<<unit->getHitPoints()<<"/"<<unit->getType().maxHitPoints()
+                        <<"|"<<(unit->isAccelerating()?"ACL":"acl")
+                        <<"|"<<(unit->isBraking()?"BRK":"brk")
+                        <<"|"<<(unit->isMoving()?"MOV":"mov")
+                        <<"|"<<(unit->isStartingAttack()?"STRTATT":"STRTATT")
+                        <<"|"<<(unit->isAttackFrame()?"ATTFRM":"attfrm")
+                        <<"|"<<(unit->isAttacking()?"ATTACK":"attack")
+                        <<"|"<<(unit->isBeingHealed()?"HEALED":"healed")
+                        <<"|"<<(unit->isIdle()?"IDLE":"idle")
+                        <<"|"<<(unit->isInterruptible()?"INTRABLE":"intrable")
+                        <<"|"<<(unit->isStimmed()?"STIM":"stim")
+                        <<"|"<<(unit->isStuck()?"STUCK":"stuck")
+                        <<"|"<<(unit->isUnderAttack()?"UNDRATT":"undratt")
+                        <<"|";
+                std::string debugLine;
+                dbg>>debugLine;
                 if(it->lastStatusDebugLine!=debugLine)
                 {
                     THIS_DEBUG << debugLine;
