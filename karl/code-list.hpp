@@ -1,6 +1,7 @@
 #pragma once
 
 #include "code-caller.hpp"
+#include "exception-handler.hpp"
 #include "log.hpp"
 #include "message-dispatch.hpp"
 #include "mineral-line.hpp"
@@ -27,25 +28,26 @@
 #include "addon-builder.hpp"
 
 typedef CodeCaller<
-					LogCode,
+                    ExceptionHandlerCode,
+                    LogCode,
                     ValuingCode,
                     MineralLineCode,
-					ResourcesCode,
+                    ResourcesCode,
                     LarvaCode,                  // before MessageDispatchCode!!!
-					MessageDispatchCode,
+                    MessageDispatchCode,
                     UnitMicromanagementCode,    // before other Code that uses units
-					IdleUnitContainerCode,
-					RequirementsCode,
-					BuildingPlacerCode,
-					UnitBuilderCode,
-					UnitMorpherCode,
-					UnitTrainerCode,
-					TechCode,
+                    IdleUnitContainerCode,
+                    RequirementsCode,
+                    BuildingPlacerCode,
+                    UnitBuilderCode,
+                    UnitMorpherCode,
+                    UnitTrainerCode,
+                    TechCode,
                     AddonBuilderCode,
                     TerranMarinesCode,
                     SquadCode,
-					SupplyCode,
-					HUDCode,
+                    SupplyCode,
+                    HUDCode,
                     ScoutCode,
                     StrategieList<
                         TerranStrategieCode,

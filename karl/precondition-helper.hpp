@@ -12,8 +12,8 @@ struct PreconditionSorter
 
 inline int calcMaxTime(Precondition* first)
 {
-	if (first == NULL)
-		return 0;
+    if (first == NULL)
+        return 0;
     return first->time;
 }
 
@@ -26,8 +26,8 @@ int calcMaxTime(Precondition* first, List... args)
 /*
 inline void setWishTimeSave(int time, int wishtime, Precondition* first)
 {
-	if (first == NULL)
-		return;
+    if (first == NULL)
+        return;
 
     if (first->time == time) {
         first->wishtime = wishtime;
@@ -45,8 +45,8 @@ void setWishTimeSave(int time, int wishtime, Precondition* first, List... args)
 
 inline void setWishTimeTest(int wishtime, Precondition* first)
 {
-	if (first == NULL)
-		return;
+    if (first == NULL)
+        return;
 
     first->wishtime = wishtime;
 }
@@ -65,8 +65,8 @@ struct TestStatus
 
 inline TestStatus::Type getType(int time, int wishtime, Precondition* first)
 {
-	if (first == NULL)
-		return TestStatus::save;
+    if (first == NULL)
+        return TestStatus::save;
 
     if (first->wishtime == wishtime) {
         return TestStatus::test;
@@ -80,10 +80,10 @@ inline TestStatus::Type getType(int time, int wishtime, Precondition* first)
 template <class ... List>
 TestStatus::Type getType(int time, int wishtime, Precondition* first, List... args)
 {
-	TestStatus::Type s = getType(time, wishtime, args...);
-	if (first == NULL) {
-		return s;
-	} else if (first->wishtime == wishtime) {
+    TestStatus::Type s = getType(time, wishtime, args...);
+    if (first == NULL) {
+        return s;
+    } else if (first->wishtime == wishtime) {
         return s;
     } else if (first->wishtime == time-1) {
         return std::max(TestStatus::save, s);
@@ -95,10 +95,10 @@ TestStatus::Type getType(int time, int wishtime, Precondition* first, List... ar
 
 inline void setWishTimeSimple(int wishtime, Precondition* pre)
 {
-	if (pre == NULL)
-		return;
-	
-	pre->wishtime = wishtime;
+    if (pre == NULL)
+        return;
+    
+    pre->wishtime = wishtime;
 }
 
 template <class ... List>
@@ -114,15 +114,15 @@ bool updateTimePreconditions(Precondition* self, int duration, List... args)
     int time = calcMaxTime(args...);
     if (time == 0)
         return true;
-	int oldtime  = self->time - duration;
-	int wishtime = self->wishtime - duration;
+    int oldtime  = self->time - duration;
+    int wishtime = self->wishtime - duration;
     self->time   = time + duration;
 
-	int dt       = std::max(oldtime - time, 1);
-	int subtime  = std::max(time - 10*dt, wishtime);
-	setWishTimeSimple(subtime, args...);
-	
-	/*
+    int dt       = std::max(oldtime - time, 1);
+    int subtime  = std::max(time - 10*dt, wishtime);
+    setWishTimeSimple(subtime, args...);
+    
+    /*
     switch (getType(oldtime, wishtime, args...))
     {
         case TestStatus::test:
@@ -130,14 +130,14 @@ bool updateTimePreconditions(Precondition* self, int duration, List... args)
             break;
 
         case TestStatus::save:
-			setWishTimeSave(time, wishtime, args...);
+            setWishTimeSave(time, wishtime, args...);
             break;
 
         case TestStatus::unknown:
             setWishTimeTest(wishtime, args...);
             break;
     }
-	*/
+    */
 
     return false;
 }
@@ -145,8 +145,8 @@ bool updateTimePreconditions(Precondition* self, int duration, List... args)
 template <class T>
 void release(T*& pre)
 {
-	if (pre != NULL) {
-		delete pre;
-		pre = NULL;
-	}
+    if (pre != NULL) {
+        delete pre;
+        pre = NULL;
+    }
 }

@@ -7,6 +7,10 @@
 
 struct DefaultCode
 {
+    // Once after programm started.
+    static void onProgramStart(const char* /*programname*/)
+    { }
+
     // Once called at start of program.
     static void onReadParameter(int /*argc*/, const char** /*argv[]*/, int& /*cur*/)
     { }
@@ -36,7 +40,7 @@ struct DefaultCode
     // Called by hud-code, if plan should be drawn.
     static void onDrawPlan(HUDTextOutput& /*hud*/)
     { }
-    
+
     // Called after base is mined out, strategie should overwrite.
     static void onBaseMinedOut(BWTA::BaseLocation* /*base*/)
     { }

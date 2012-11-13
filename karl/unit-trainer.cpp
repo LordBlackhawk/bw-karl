@@ -12,6 +12,8 @@
 #include "requirements.hpp"
 #include "object-counter.hpp"
 #include "log.hpp"
+#include <map>
+#include <vector>
 #include <algorithm>
 #include <cassert>
 
@@ -44,7 +46,6 @@ namespace
         ResourcesPrecondition*          resources;
         SupplyPrecondition*             supply;
         RequirementsPrecondition*       requirements;
-        Precondition*                   extra;
         StatusType                      status;
         UnitPrecondition*               postworker;
         Unit*                           worker;
@@ -52,11 +53,12 @@ namespace
         int                             tries;
 
         UnitTrainerPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, SupplyPrecondition* s, RequirementsPrecondition* req, 
-                                const UnitType& ut, Precondition* e)
-            : UnitPrecondition(1, ut, Position(u->pos), UnitPrecondition::WithoutAddon),
-              baseunit(u), resources(r), supply(s), requirements(req), extra(e), status(pending), 
+                                const UnitType& ut, const std::string& dn)
+            : UnitPrecondition(1, ut, Position(u->pos), UnitPrecondition::WithoutAddon, dn),
+              baseunit(u), resources(r), supply(s), requirements(req), status(pending), 
               postworker(NULL), worker(NULL), starttime(0), tries(0)
         {
+            list.push_back(this);
             updateTime();
             postworker = new UnitPrecondition(Precondition::Impossible, baseunit->ut, baseunit->pos, baseunit->mod);
         }
@@ -69,7 +71,6 @@ namespace
             release(resources);
             release(supply);
             release(requirements);
-            release(extra);
         }
 
         bool updateTime()
@@ -78,7 +79,7 @@ namespace
             {
                 case pending:
                     baseunit->wishpos = wishpos;
-                    if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, supply, requirements, extra)) {
+                    if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, supply, requirements)) {
                         start();
                         time = Broodwar->getFrameCount() + ut.buildTime();
                         THIS_DEBUG << "training " << ut << " started.";
@@ -174,7 +175,6 @@ namespace
             release(resources);
             release(supply);
             release(requirements);
-            release(extra);
         }
         
         bool near(const TilePosition& p1, const TilePosition& p2) const
@@ -188,10 +188,14 @@ namespace
                 return false;
             if (u->getType() != ut)
                 return false;
-            //if (!near(u->getTilePosition(), pos->pos))
-            //	return false;
             unit = u;
             return true;
+        }
+        
+        void onDrawPlan(std::map<Position, std::vector<UnitTrainerPrecondition*>>& drawItems)
+        {
+            if (baseunit != NULL)
+                drawItems[baseunit->pos].push_back(this);
         }
         
         /*
@@ -236,54 +240,51 @@ namespace
     };
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(UnitPrecondition* worker, ResourcesPrecondition* res, SupplyPrecondition* supply, const BWAPI::UnitType& ut, Precondition* extra)
+std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(UnitPrecondition* worker, ResourcesPrecondition* res, SupplyPrecondition* supply, const BWAPI::UnitType& ut, const std::string& debugname)
 {
     // supply maybe NULL.
     if ((worker == NULL) || (res == NULL)) {
         release(worker);
         release(res);
         release(supply);
-        release(extra);
         return std::pair<UnitPrecondition*, UnitPrecondition*>(NULL, NULL);
     }
 
     RequirementsPrecondition* req = getRequirements(ut);
     // req maybe NULL.
     
-    UnitTrainerPrecondition* result = new UnitTrainerPrecondition(worker, res, supply, req, ut, extra);
-    list.push_back(result);
-    
+    UnitTrainerPrecondition* result = new UnitTrainerPrecondition(worker, res, supply, req, ut, debugname);
     UnitPrecondition* first  = result;
     UnitPrecondition* second = result->postworker;
     return std::make_pair(first, second);
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(UnitPrecondition* worker, ResourcesPrecondition* res, const BWAPI::UnitType& ut, Precondition* extra)
+std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(UnitPrecondition* worker, ResourcesPrecondition* res, const BWAPI::UnitType& ut, const std::string& debugname)
 {
     SupplyPrecondition* supply = getSupply(ut);
-    return trainUnit(worker, res, supply, ut, extra);
+    return trainUnit(worker, res, supply, ut, debugname);
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(ResourcesPrecondition* res, const BWAPI::UnitType& ut, Precondition* extra)
+std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(ResourcesPrecondition* res, const BWAPI::UnitType& ut, const std::string& debugname)
 {
     UnitPrecondition* worker = getIdleUnit(ut.whatBuilds().first, getAddonModifier(ut));
-    return trainUnit(worker, res, ut, extra);
+    return trainUnit(worker, res, ut, debugname);
 }
 
-std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(const BWAPI::UnitType& ut, Precondition* extra)
+std::pair<UnitPrecondition*, UnitPrecondition*> trainUnit(const BWAPI::UnitType& ut, const std::string& debugname)
 {
     ResourcesPrecondition* res = getResources(ut);
-    return trainUnit(res, ut, extra);
+    return trainUnit(res, ut, debugname);
 }
 
-void trainUnitEx(const BWAPI::UnitType& ut)
+void trainUnitEx(const BWAPI::UnitType& ut, const std::string& debugname)
 {
-    rememberIdle(rememberSecond(trainUnit(ut)));
+    rememberIdle(rememberSecond(trainUnit(ut, debugname)));
 }
 
-void trainWorker(const BWAPI::UnitType& ut)
+void trainWorker(const BWAPI::UnitType& ut, const std::string& debugname)
 {
-    useWorker(rememberSecond(trainUnit(ut)));
+    useWorker(rememberSecond(trainUnit(ut, debugname)));
 }
 
 void UnitTrainerCode::onMatchEnd()
@@ -306,8 +307,25 @@ bool UnitTrainerCode::onAssignUnit(BWAPI::Unit* unit)
 
 void UnitTrainerCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
-    //for (auto it : list)
-    //    it->onDrawPlan();
+    std::map<Position, std::vector<UnitTrainerPrecondition*>> drawItems;
+    for (auto it : list)
+        it->onDrawPlan(drawItems);
+    
+    for (auto it : drawItems) {
+        Position pos = it.first;
+        std::vector<UnitTrainerPrecondition*> queue = it.second;
+        std::sort(queue.begin(), queue.end(), PreconditionSorter());
+        
+        int line = 0;
+        for (auto m : queue) {
+            Broodwar->drawTextMap(pos.x(), pos.y() + 16 * line, "\x07%d %s", m->time, m->debugname.c_str());
+            ++line;
+            if (line >= 3)
+                break;
+        }
+        if (queue.size() > 3)
+            Broodwar->drawTextMap(pos.x(), pos.y() + 16 * line, "\x07... (%d others)", queue.size()-3);
+    }
 }
 
 void UnitTrainerCode::onCheckMemoryLeaks()

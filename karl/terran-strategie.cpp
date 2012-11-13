@@ -27,10 +27,10 @@ namespace {
     UnitPrecondition* waittill = NULL;
     bool academystarted = false;
     int  stateCounter   = 0;
-    
-    void trainAttackUnit(const UnitType& ut)
+
+    void trainAttackUnit(const UnitType& ut, const std::string& debugname = "")
     {
-        doSomethingUsefulWithInfantry(rememberSecond(trainUnit(ut)));
+        doSomethingUsefulWithInfantry(rememberSecond(trainUnit(ut, debugname)));
     }
     
     void buildExpo()
@@ -84,24 +84,24 @@ void TerranStrategieCode::onMatchBegin()
     }
 
     for (int k=0; k<4; ++k)
-        trainWorker(Terran_SCV);
+        trainWorker(Terran_SCV, "Worker (Group 1)");
     
     buildUnitEx(Terran_Supply_Depot);
     buildUnitEx(Terran_Barracks);
-    
+
     for (int k=0; k<5; ++k)
-        trainWorker(Terran_SCV);
-    
-    useScout(rememberSecond(trainUnit(Terran_SCV)));
-    
+        trainWorker(Terran_SCV, "Worker (Group 2)");
+
+    useScout(rememberSecond(trainUnit(Terran_SCV, "Worker (Scout)")));
+
     buildUnitEx(Terran_Supply_Depot);
     buildExpo();
     
     for (int k=0; k<5; ++k)
-        trainWorker(Terran_SCV);
-    
+        trainWorker(Terran_SCV, "Worker (Group 3)");
+
     for (int k=0; k<6; ++k)
-        trainAttackUnit(Terran_Marine);
+        trainAttackUnit(Terran_Marine, "Marine (Initial)");
 }
 
 void TerranStrategieCode::onTick()
@@ -111,8 +111,15 @@ void TerranStrategieCode::onTick()
         return;
     
     if (nextUnitAvailable(Terran_Barracks) < now + 200) {
-        if (!academystarted) {
+        if (!academystarted)
             buildUnitEx(Terran_Academy);
+
+        for (auto k=0; k<4; ++k)
+            trainAttackUnit(Terran_Marine, "Marine (auto)");
+        trainAttackUnit(Terran_Medic, "Medic (auto)");
+        trainAttackUnit(Terran_Firebat, "Firebat (auto)");
+
+        if (!academystarted) {
             buildRefinery(Terran_Refinery);
             buildAddonEx(Terran_Comsat_Station);
             buildAddonEx(Terran_Comsat_Station);
@@ -127,16 +134,16 @@ void TerranStrategieCode::onTick()
         trainAttackUnit(Terran_Firebat);
     } else if (nextUnitAvailable(Terran_Factory) < now + 200) {
         LOG << "building factory units...";
-        trainAttackUnit(Terran_Siege_Tank_Tank_Mode);
-        trainAttackUnit(Terran_Vulture);
-        trainAttackUnit(Terran_Goliath);
+        trainAttackUnit(Terran_Siege_Tank_Tank_Mode, "Siege_Tank (auto)");
+        trainAttackUnit(Terran_Vulture, "Vulture (auto)");
+        trainAttackUnit(Terran_Goliath, "Goliath (auto)");
     } else if (nextUnitAvailable(Terran_Starport) < now + 200) {
         LOG << "building starport units...";
-        trainAttackUnit(Terran_Wraith);
-        trainAttackUnit(Terran_Valkyrie);
-        trainAttackUnit(Terran_Dropship);
-        trainAttackUnit(Terran_Science_Vessel);
-        trainAttackUnit(Terran_Battlecruiser);
+        trainAttackUnit(Terran_Wraith, "Wraith (auto)");
+        trainAttackUnit(Terran_Valkyrie, "Valkyrie (auto)");
+        trainAttackUnit(Terran_Dropship, "Dropship (auto)");
+        trainAttackUnit(Terran_Science_Vessel, "Science Vessel (auto)");
+        trainAttackUnit(Terran_Battlecruiser, "Battlecruiser (auto)");
     } else if (   (Broodwar->self()->minerals() > 400)
                && (buildUnitPlanSize(Terran_Barracks) < 1)
                && (buildUnitPlanSize(Terran_Factory)  < 1))
@@ -147,7 +154,7 @@ void TerranStrategieCode::onTick()
             case 2:
                 buildUnitEx(Terran_Barracks);
                 for (int k=0; k<3; ++k)
-                    trainWorker(Terran_SCV);
+                    trainWorker(Terran_SCV, "Worker (Barracks)");
                 break;
             
             case 3:
@@ -159,7 +166,7 @@ void TerranStrategieCode::onTick()
                 if (buildRefinery(Terran_Refinery))
                     LOG << "building additional refinery!";
                 for (int k=0; k<3; ++k)
-                    trainWorker(Terran_SCV);
+                    trainWorker(Terran_SCV, "Worker (Factory)");
                 break;
             
             case 6:

@@ -34,7 +34,7 @@ namespace
 
         UnitPrecondition*                 baseunit;
         ResourcesPrecondition*            resources;
-        BuildingPositionPrecondition*     pos;
+        BuildingPositionPrecondition*     position;
         RequirementsPrecondition*         requirements;
         Precondition*                     extra;
         StatusType                        status;
@@ -46,14 +46,14 @@ namespace
         UnitBuilderPrecondition(UnitPrecondition* u, ResourcesPrecondition* r, BuildingPositionPrecondition* p, RequirementsPrecondition* req,
                                 const UnitType& ut, Precondition* e)
             : UnitPrecondition(1, ut, Position(p->pos), UnitPrecondition::WithoutAddon),
-              baseunit(u), resources(r), pos(p), requirements(req), extra(e), status(pending),
+              baseunit(u), resources(r), position(p), requirements(req), extra(e), status(pending),
               postworker(NULL), worker(NULL), starttime(0), tries(0)
         {
             updateTime();
             if (ut.getRace() == Races::Terran) {
-                postworker = new UnitPrecondition(time, baseunit->ut, Position(pos->pos), UnitPrecondition::WithoutAddon);
+                postworker = new UnitPrecondition(time, baseunit->ut, Position(position->pos), UnitPrecondition::WithoutAddon);
             } else if (ut.getRace() == Races::Protoss) {
-                postworker = new UnitPrecondition(time - ut.buildTime(), baseunit->ut, Position(pos->pos), UnitPrecondition::WithoutAddon);
+                postworker = new UnitPrecondition(time - ut.buildTime(), baseunit->ut, Position(position->pos), UnitPrecondition::WithoutAddon);
             } else {
                 // Zerg worker is consumed.
             }
@@ -65,7 +65,7 @@ namespace
 
             release(baseunit);
             release(resources);
-            release(pos);
+            release(position);
             release(requirements);
             release(extra);
         }
@@ -75,8 +75,8 @@ namespace
             switch (status)
             {
                 case pending:
-                    baseunit->wishpos = Position(pos->pos);
-                    if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, pos, requirements, extra)) {
+                    baseunit->wishpos = Position(position->pos);
+                    if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, position, requirements, extra)) {
                         start();
                         time = Broodwar->getFrameCount() + ut.buildTime();
                         THIS_DEBUG << "building " << ut << " started.";
@@ -142,55 +142,60 @@ namespace
             }
             if (worker == NULL) {
                 WARNING << "UnitBuilder(" << ut << "): Got no worker?!?!";
-                baseunit = getWorker(ut.getRace());
-                status = pending;
+                newWorker();
                 return;
             }
             THIS_DEBUG << "Sending worker to build " << ut;
-            if (!pos->isExplored()) {
-                worker->rightClick(Position(pos->pos));
+            if (!position->isExplored()) {
+                worker->rightClick(Position(position->pos));
                 THIS_DEBUG << "Not scouted? Sending Worker...";
-            } else if (!worker->build(pos->pos, ut)) {
+            } else if (!worker->build(position->pos, ut)) {
                 auto err = Broodwar->getLastError();
                 if (err == Errors::Unit_Busy) {
                     status = tryagain;
                     return;
                 } else if (err == Errors::None) {
-                    BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
-                    release(pos);
-                    status = tryagain;
-                    pos    = newpos;
+                    newPosition();
                     return;
                 }
                 WARNING << "Error: Unable to build unit " << ut << ": " << err << "\n"
                         << "\t\tfrom " << worker->getType() << " (player " << worker->getPlayer()->getName() << ")";
                 if (err == Errors::Unbuildable_Location) {
-                    BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
-                    if (newpos == NULL) {
-                        status = finished;
-                        return;
-                    }
-                    release(pos);
-                    status = tryagain;
-                    pos    = newpos;
+                    newPosition();
                     return;
                 } else if (err == Errors::Unit_Not_Owned) {
-                    status   = pending;
-                    unit     = NULL;
-                    baseunit = getWorker(ut.getRace());
+                    newWorker();
                     return;
                 } else if ((err == Errors::Insufficient_Minerals) || (err == Errors::Insufficient_Gas)) {
-                    if (worker != NULL)
-                        useWorker(worker);
-                    status   = pending;
-                    unit     = NULL;
-                    baseunit = getWorker(ut.getRace());
+                    newWorker();
                     return;
                 }
             }
             status = commanded;
             ++tries;
             starttime = Broodwar->getFrameCount();
+        }
+        
+        void newPosition()
+        {
+            BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
+            if (newpos == NULL) {
+                status = finished;
+                return;
+            }
+            release(position);
+            status   = tryagain;
+            position = newpos;
+            pos      = Position(position->pos);
+        }
+        
+        void newWorker()
+        {
+            if (worker != NULL)
+                useWorker(worker);
+            status   = pending;
+            unit     = NULL;
+            baseunit = getWorker(ut.getRace());
         }
 
         bool hasStarted() const
@@ -219,7 +224,7 @@ namespace
         void freeResources()
         {
             release(resources);
-            release(pos);
+            release(position);
             release(requirements);
             release(extra);
         }
@@ -235,7 +240,7 @@ namespace
                 return false;
             if (u->getType() != ut)
                 return false;
-            if (!near(u->getTilePosition(), pos->pos))
+            if (!near(u->getTilePosition(), position->pos))
                 return false;
             unit = u;
             return true;
@@ -262,8 +267,8 @@ namespace
         void onDrawPlan() const
         {
             int x, y, width = 32*ut.tileWidth(), height = 32*ut.tileHeight();
-            if (pos != NULL) {
-                Position p(pos->pos);
+            if (position != NULL) {
+                Position p(position->pos);
                 x = p.x();
                 y = p.y();
             } else {
@@ -287,7 +292,7 @@ namespace
             }
             check(baseunit,     Bas);
             check(resources,    Res);
-            check(pos,          Pos);
+            check(position,     Pos);
             check(requirements, Req);
             check(extra,        Exr);
         #undef check
