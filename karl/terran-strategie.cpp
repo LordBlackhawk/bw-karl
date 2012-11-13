@@ -127,11 +127,6 @@ void TerranStrategieCode::onTick()
             upgradeTechEx(UpgradeTypes::U_238_Shells);
             academystarted = true;
         }
-
-        for (auto k=0; k<4; ++k)
-            trainAttackUnit(Terran_Marine);
-        trainAttackUnit(Terran_Medic);
-        trainAttackUnit(Terran_Firebat);
     } else if (nextUnitAvailable(Terran_Factory) < now + 200) {
         LOG << "building factory units...";
         trainAttackUnit(Terran_Siege_Tank_Tank_Mode, "Siege_Tank (auto)");

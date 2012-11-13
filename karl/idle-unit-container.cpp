@@ -224,3 +224,13 @@ void IdleUnitContainerCode::onUnitDestroy(BWAPI::Unit* unit)
 
     idleunits.erase(unit);
 }
+
+void IdleUnitContainerCode::onDrawPlan(HUDTextOutput& /*hud*/)
+{
+    for (auto it : idleunits) {
+        Position pos = it->getPosition();
+        int x = pos.x();
+        int y = pos.y();
+        Broodwar->drawTextMap(x, y,  "\x08idle");
+    }
+}

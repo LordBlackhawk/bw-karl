@@ -31,15 +31,16 @@ namespace
         std::cout << "catch exception of type " << exceptionCodeToString(ExceptionRecord->ExceptionCode)
                   << " (id = " << ExceptionRecord->ExceptionCode << ").\n";
 
-        DebugInfo debuginfo = readDebugInfo(ExceptionRecord->ExceptionAddress);
-        std::cout << "in file '" << debuginfo.file << "' in method '" << debuginfo.method << "':" << debuginfo.line
-                  << " (" << ExceptionRecord->ExceptionAddress << ").\n";
         if (ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION) {
             const char* reason = (ExceptionRecord->ExceptionInformation[0] == 0) ? "read from" :
                                  (ExceptionRecord->ExceptionInformation[0] == 1) ? "write to" : "execute ";
             std::cout << "process tried to " << reason << " " << (void*)ExceptionRecord->ExceptionInformation[1] << ".\n";
         }
-        
+
+        DebugInfo debuginfo = readDebugInfo(ExceptionRecord->ExceptionAddress);
+        std::cout << "\tin file '" << debuginfo.file << "'\n"
+                  << "\tin method '" << debuginfo.method << "':" << debuginfo.line << "\n"
+                  << "\tat address " << ExceptionRecord->ExceptionAddress << "\n";
     }
 
     void printExceptionInfo(EXCEPTION_POINTERS* ExceptionInfo)
@@ -60,11 +61,22 @@ namespace
 
     LONG CALLBACK OurCrashHandler(EXCEPTION_POINTERS* ExceptionInfo)
     {
-        if (inCrashHandlerLevel > 3)
+        if (inCrashHandlerLevel > 1)
             return EXCEPTION_EXECUTE_HANDLER;
+        if (inCrashHandlerLevel == 1) {
+            printStarLine();
+            std::cout << "Exception within exception handling!\n";
+        }
         ++inCrashHandlerLevel;
         printExceptionInfo(ExceptionInfo);
-        printStarLine(); //plotStackTrace(1);
+        /*
+        std::cout << "Esi: " << (void*)ExceptionInfo->ContextRecord->Esi << "\n"
+                  << "Edi: " << (void*)ExceptionInfo->ContextRecord->Edi << "\n"
+                  << "Ebp: " << (void*)ExceptionInfo->ContextRecord->Ebp << "\n"
+                  << "Esp: " << (void*)ExceptionInfo->ContextRecord->Esp << "\n";
+        */
+        //printStarLine();
+        plotStackTrace((void*)ExceptionInfo->ContextRecord->Ebp);
         --inCrashHandlerLevel;
         return EXCEPTION_EXECUTE_HANDLER;
     }
@@ -72,7 +84,13 @@ namespace
 
 void ExceptionHandlerCode::onProgramStart(const char* programname)
 {
-    SetUnhandledExceptionFilter(OurSilentCrashHandler);
-    AddVectoredExceptionHandler(1, OurCrashHandler);
     setDebugInfoFile(programname);
+    SetUnhandledExceptionFilter(&OurSilentCrashHandler);
+    AddVectoredExceptionHandler(1, &OurCrashHandler);
+    
+    /*
+    // Test it:
+    int* p = NULL;
+    *p = 4;
+    */
 }

@@ -15,6 +15,8 @@ struct DebugInfo
   DebugInfo*  inlined;
 
   DebugInfo() : method("??"), file("??"), line(0), inlined(NULL) { }
+  
+  std::string demangledName() const;
 };
 
 void printStarLine();
@@ -22,6 +24,6 @@ void setDebugInfoFile(const char* filename);
 DebugInfo readDebugInfo(void* addr);
 void releaseDebugInfo(DebugInfo& di);
 void getStackTrace(std::vector<DebugInfo>& list);
-void plotStackTrace(int skip = 0);
+void plotStackTrace(void* framepointer = NULL);
 
 #endif

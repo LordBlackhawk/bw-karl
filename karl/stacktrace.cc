@@ -1,5 +1,5 @@
 #include "stacktrace.hpp"
-
+#include "system-helper.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -36,6 +36,9 @@ namespace {
         di.method = buf1;
         di.file   = buf2;
         
+        if (di.method != "??")
+            di.method = demangle("_" + di.method);
+
         return true;
     }
 }
@@ -109,25 +112,20 @@ void printStarLine()
            "**********");
 }
 
-void plotStackTrace(int skip)
+void plotStackTrace(void* framepointer)
 {
   printStarLine();
   printf("Stack Trace:\n");
   printStarLine();
-
-  struct frame *p = (frame*) __builtin_frame_address(0);
-  while (skip > 0) {
-    p = p->frm;
-    --skip;
-  }
   
+  struct frame *p = (frame*) ((framepointer != NULL) ? framepointer : __builtin_frame_address(0));
   int i = 0;
   while (p != NULL) {
     DebugInfo info = readDebugInfo(p->ret);
-    printf("Level %d: Called from %s (%s:%d) at %p.\n", i++, info.method.c_str(), info.file.c_str(), info.line, p->ret);
+    printf("Level %d: Called from %s (%s:%d) at 0x%p.\n", i++, info.method.c_str(), info.file.c_str(), info.line, p->ret);
     DebugInfo* cur = &info;
     while ((cur = cur->inlined) != NULL) {
-        printf("Level %d: Called from %s (%s:%d) at %p [inlined].\n", i++, cur->method.c_str(), cur->file.c_str(), cur->line, p->ret);
+        printf("Level %d: Called from %s (%s:%d) at 0x%p [inlined].\n", i++, cur->method.c_str(), cur->file.c_str(), cur->line, p->ret);
     }
     releaseDebugInfo(info);
     p = p->frm;
