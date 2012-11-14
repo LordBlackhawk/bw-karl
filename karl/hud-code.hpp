@@ -4,6 +4,7 @@
 
 struct HUDCode : public DefaultCode
 {
-	static void onTick();
-	static void onSendText(const std::string& text);
+    static void onTick();
+    static void onPausedTick();
+    static void onSendText(const std::string& text);
 };

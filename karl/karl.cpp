@@ -60,6 +60,9 @@ int main(int argc, const char* argv[])
                 DEBUG << "Calling onTick...";
                 CodeList::onTick();
                 timerEnd();
+            } else {
+                DEBUG << "Calling onPausedTick...";
+                CodeList::onPausedTick();
             }
 
             BWAPI::BWAPIClient.update();

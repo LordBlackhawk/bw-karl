@@ -60,6 +60,12 @@ struct CodeCaller<First, List...>
         First::onTick();
         Next::onTick();
     }
+    
+    static void onPausedTick()
+    {
+        First::onPausedTick();
+        Next::onPausedTick();
+    }
 
     static bool onAssignUnit(BWAPI::Unit* unit)
     {

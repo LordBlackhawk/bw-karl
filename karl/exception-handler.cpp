@@ -1,3 +1,6 @@
+// ToDo:
+//  * Recover from access violation by using setjmp/longjmp.
+
 #include "exception-handler.hpp"
 #include "stacktrace.hpp"
 #include <iostream>

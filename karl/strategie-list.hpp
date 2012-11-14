@@ -82,6 +82,14 @@ struct StrategieList<First, List...>
         else
             Next::onTick();
     }
+    
+    static void onPausedTick()
+    {
+        if (idStrategie == id)
+            First::onPausedTick();
+        else
+            Next::onPausedTick();
+    }
 
     static bool onAssignUnit(BWAPI::Unit* unit)
     {

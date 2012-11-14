@@ -27,6 +27,10 @@ struct DefaultCode
     static void onTick()
     { }
 
+    // Once called per Frame when paused.
+    static void onPausedTick()
+    { }
+
     // Called by idle-unit-container to decide, whether the unit is added to the idle-unit-container. Return true, if this is not the case.
     static bool onAssignUnit(BWAPI::Unit* /*unit*/)
     {

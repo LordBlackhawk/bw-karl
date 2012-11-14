@@ -150,9 +150,20 @@ namespace
             starttime = Broodwar->getFrameCount();
         }
         
+        bool onAssignUnit(Unit* u)
+        {
+            if (worker == NULL)
+                return false;
+
+            if (worker->getAddon() != u)
+                return false;
+                
+            unit = u;
+            return true;
+        }
+        
         bool hasStarted()
         {
-            unit = worker->getAddon();
             return (unit != NULL);
         }
         
@@ -257,6 +268,14 @@ void AddonBuilderCode::onMatchEnd()
 void AddonBuilderCode::onTick()
 {
     Containers::remove_if(list, std::mem_fun(&AddonBuilderPrecondition::updateTime));
+}
+
+bool AddonBuilderCode::onAssignUnit(BWAPI::Unit* unit)
+{
+    for (auto it : list)
+        if (it->onAssignUnit(unit))
+            return true;
+    return false;
 }
 
 void AddonBuilderCode::onDrawPlan(HUDTextOutput& /*hud*/)

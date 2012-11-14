@@ -1,5 +1,6 @@
 // ToDo:
 //  * estimatedProduction improving by looking into future.
+//  * Add setGasMode(None / Auto)
 
 #include "mineral-line.hpp"
 #include "idle-unit-container.hpp"

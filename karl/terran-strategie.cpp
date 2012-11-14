@@ -24,7 +24,6 @@ using namespace BWTA;
 using namespace UnitTypes;
 
 namespace {
-    UnitPrecondition* waittill = NULL;
     bool academystarted = false;
     int  stateCounter   = 0;
 
@@ -178,9 +177,7 @@ void TerranStrategieCode::onTick()
 }
 
 void TerranStrategieCode::onMatchEnd()
-{
-    release(waittill);
-}
+{ }
 
 void TerranStrategieCode::onBaseMinedOut(BWTA::BaseLocation* /*base*/)
 {
