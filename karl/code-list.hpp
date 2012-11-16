@@ -12,8 +12,9 @@
 #include "unit-morpher.hpp"
 #include "unit-builder.hpp"
 #include "unit-trainer.hpp"
-#include "zerg-strategie.hpp"
 #include "terran-strategie.hpp"
+#include "protoss-strategie.hpp"
+#include "zerg-strategie.hpp"
 #include "hud-code.hpp"
 #include "larvas.hpp"
 #include "requirements.hpp"
@@ -26,6 +27,8 @@
 #include "arena.hpp"
 #include "valuing.hpp"
 #include "addon-builder.hpp"
+#include "building-flyer.hpp"
+#include "wall-in.hpp"
 
 typedef CodeCaller<
                     ExceptionHandlerCode,
@@ -44,13 +47,16 @@ typedef CodeCaller<
                     UnitTrainerCode,
                     TechCode,
                     AddonBuilderCode,
+                    BuildingFlyerCode,
                     TerranMarinesCode,
                     SquadCode,
                     SupplyCode,
                     HUDCode,
                     ScoutCode,
+                    WallInCode,
                     StrategieList<
                         TerranStrategieCode,
+                        ProtossStrategieCode,
                         ZergStrategieCode,
                         ArenaCode
                     >

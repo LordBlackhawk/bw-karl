@@ -1,0 +1,13 @@
+#pragma once
+
+#include "default-code.hpp"
+
+struct ProtossStrategieCode : public DefaultCode
+{
+    static bool isApplyable();
+    static void onMatchBegin();
+    static void onMatchEnd();
+    static void onTick();
+    static void onBaseMinedOut(BWTA::BaseLocation* base);
+    static void onSendText(const std::string& text);
+};

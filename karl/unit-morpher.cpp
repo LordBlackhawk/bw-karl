@@ -13,7 +13,6 @@
 #include "log.hpp"
 #include <BWAPI.h>
 #include <vector>
-#include <cassert>
 #include <algorithm>
 
 using namespace BWAPI;
@@ -165,10 +164,8 @@ UnitPrecondition* morphUnit(UnitPrecondition* unit, ResourcesPrecondition* res, 
     list.push_back(result);
 
     UnitPrecondition* first = result;
-    if (ut == UnitTypes::Zerg_Overlord)
-        first = registerSupplyUnit(first);
-    if (isRequirement(ut))
-        first = registerRequirement(first);
+    first = registerSupplyUnit(first);
+    first = registerRequirement(first);
     return first;
 }
 

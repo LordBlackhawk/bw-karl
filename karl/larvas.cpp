@@ -370,6 +370,9 @@ void registerHatchery(BWAPI::Unit* u)
 
 UnitPrecondition* registerHatchery(UnitPrecondition* hatch)
 {
+    if (hatch->ut != UnitTypes::Zerg_Hatchery)
+        return hatch;
+
     return HatcheryPlaner::createObserver(hatch);
 }
 

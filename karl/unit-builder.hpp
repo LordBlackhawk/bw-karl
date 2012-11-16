@@ -9,6 +9,7 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(BuildingPositionPrecon
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType& ut, Precondition* extra = NULL);
 
 void buildUnitEx(const BWAPI::UnitType& ut);
+void buildUnitEx(const BWAPI::UnitType& ut, std::set<BuildingPositionPrecondition*>& places);
 
 int buildUnitPlanSize();
 int buildUnitPlanSize(const BWAPI::UnitType& ut);

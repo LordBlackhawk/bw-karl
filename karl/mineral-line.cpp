@@ -555,6 +555,9 @@ UnitPrecondition* getWorker(const BWAPI::Race& r)
 
 void registerBase(Unit* u)
 {
+    if (!u->getType().isResourceDepot())
+        return;
+
     BWTA::BaseLocation* location = checkBaseLocation(u->getPosition());
     if (location != NULL) {
         THIS_DEBUG << "Base added.";
@@ -564,6 +567,9 @@ void registerBase(Unit* u)
 
 UnitPrecondition* registerBase(UnitPrecondition* b)
 {
+    if (!b->ut.isResourceDepot())
+        return b;
+
     BWTA::BaseLocation* location = checkBaseLocation(b->pos);
     if (location != NULL) {
         THIS_DEBUG << "Planed base added.";

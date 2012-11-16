@@ -1,5 +1,6 @@
 // ToDo:
-//  * Recover from access violation by using setjmp/longjmp.
+//  * Recovery from Access Violation by using setjmp/longjmp.
+//  * Commands "/do NULL", "/do STACK", ... for testing.
 
 #include "exception-handler.hpp"
 #include "stacktrace.hpp"

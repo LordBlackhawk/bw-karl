@@ -13,7 +13,6 @@
 #include "object-counter.hpp"
 #include "log.hpp"
 #include <algorithm>
-#include <cassert>
 
 using namespace BWAPI;
 

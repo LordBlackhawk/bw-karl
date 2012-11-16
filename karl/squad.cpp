@@ -11,9 +11,9 @@
 #include "requirements.hpp"
 #include "object-counter.hpp"
 #include "mineral-line.hpp"
+#include "log.hpp"
 #include <BWTA.h>
 #include <algorithm>
-#include <cassert>
 
 #include <math.h>
 #include <stdlib.h>

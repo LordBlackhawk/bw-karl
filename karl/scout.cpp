@@ -66,6 +66,9 @@ namespace
 
 void useScout(UnitPrecondition* pre)
 {
+    if (pre == NULL)
+        return;
+
     THIS_DEBUG << "Scout assigned!";
     assigned_scouts.push_back(pre);
 }

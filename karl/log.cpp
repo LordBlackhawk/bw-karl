@@ -1,27 +1,27 @@
 #include "log.hpp"
-
+#include "bwapi-helper.hpp"
+#include "stacktrace.hpp"
 #include <BWTA.h>
-
 #include <iostream>
-#include <cmath>
+#include <cstdlib>
 
 using namespace BWAPI;
 using namespace BWTA;
 
 namespace
 {
-	int loglevel = 1;
+    int loglevel = 1;
 }
 
 bool logDisplay(const std::string&, int, const std::string&, int level)
 {
-	return (level <= loglevel);
+    return (level <= loglevel);
 }
 
 void logInternal(const std::string& file, int line, const std::string& functionname,
                  int level, const std::string& txt)
 {
-	std::clog
+    std::clog
             << ((Broodwar != NULL) ? Broodwar->getFrameCount() : -1)
             << ((level == Log::Warning) ? " WARNING" : "")
             << ": "
@@ -74,24 +74,13 @@ std::ostream& operator << (std::ostream& stream, const BWAPI::Race& race)
     return stream << race.getName();
 }
 
-int clockPosition(const BWAPI::Position& pos)
+void assertationFailed(const char* cond, const char* file, int line, const char* func)
 {
-    int x = pos.x() - 16*Broodwar->mapWidth();
-    int y = pos.y() - 16*Broodwar->mapHeight();
-    
-    double pi = 3.14159265;
-    double w  = std::atan2(-(double)y, (double)x);
-    
-    return ((8 + (int)(12.0 * (pi - w) / (2*pi))) % 12) + 1;
-}
-
-int clockPosition(BWAPI::Player* player)
-{
-    BaseLocation* loc = BWTA::getStartLocation(player);
-    if (loc == NULL)
-        return 0;
-    
-    return clockPosition(loc->getPosition());
+    std::stringstream stream;
+    stream << "Condition '" << cond << "' failed.";
+    logInternal(file, line, func, Log::Warning, stream.str());
+    plotStackTrace();
+    abort();
 }
 
 void LogCode::onMatchBegin()

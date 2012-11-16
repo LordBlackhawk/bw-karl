@@ -14,9 +14,9 @@
 #include "unit-micromanagement.hpp"
 #include "string-helper.hpp"
 #include "container-helper.hpp"
+#include "log.hpp"
 #include <BWTA.h>
 #include <algorithm>
-#include <cassert>
 
 #include <math.h>
 #include <stdlib.h>
@@ -39,7 +39,10 @@ namespace
 
 void doSomethingUsefulWithInfantry(UnitPrecondition* u)
 {
-    infantry.insert(u);
+    if (u != NULL)
+        infantry.insert(u);
+    else
+        WARNING << "Called doSomethingUsefulWithInfantry with NULL.";
 }
 
 
