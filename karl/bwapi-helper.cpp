@@ -1,4 +1,6 @@
 #include "bwapi-helper.hpp"
+#include <BWTA.h>
+#include <cmath>
 
 using namespace BWAPI;
 
@@ -52,4 +54,24 @@ BWAPI::Unit* getNearest(const std::set<BWAPI::Unit*>& units, const BWAPI::Positi
     }
 
     return result;
+}
+
+int clockPosition(const BWAPI::Position& pos)
+{
+    int x = pos.x() - 16*Broodwar->mapWidth();
+    int y = pos.y() - 16*Broodwar->mapHeight();
+    
+    double pi = 3.14159265;
+    double w  = std::atan2(-(double)y, (double)x);
+    
+    return ((8 + (int)(12.0 * (pi - w) / (2*pi))) % 12) + 1;
+}
+
+int clockPosition(BWAPI::Player* player)
+{
+    BWTA::BaseLocation* loc = BWTA::getStartLocation(player);
+    if (loc == NULL)
+        return 0;
+    
+    return clockPosition(loc->getPosition());
 }

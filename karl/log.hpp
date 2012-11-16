@@ -1,9 +1,7 @@
 #pragma once
 
 #include "default-code.hpp"
-
 #include <BWAPI.h>
-
 #include <sstream>
 
 bool logDisplay(const std::string&, int, const std::string&, int);
@@ -56,11 +54,15 @@ struct LogEater
 #define NOLOG   LogEater()
 
 #ifdef NDEBUG
-    #define LOG     NOLOG
-    #define DEBUG   NOLOG
+    #define LOG         NOLOG
+    #define DEBUG       NOLOG
+    #define assert(e)   ((void)0)
 #else
-    #define LOG     Log(__FILE__, __LINE__, __func__, Log::Important)
-    #define DEBUG   Log(__FILE__, __LINE__, __func__, Log::Debug)
+    void __MINGW_NOTHROW assertationFailed(const char* cond, const char* file, int line, const char* func) __MINGW_ATTRIB_NORETURN;
+
+    #define LOG         Log(__FILE__, __LINE__, __func__, Log::Important)
+    #define DEBUG       Log(__FILE__, __LINE__, __func__, Log::Debug)
+    #define assert(e)   ((e) ? (void)0 : assertationFailed(#e, __FILE__, __LINE__, __func__))
 #endif
 
 std::ostream& operator << (std::ostream& stream, const BWAPI::Position& pos);

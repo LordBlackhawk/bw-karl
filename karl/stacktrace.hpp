@@ -1,5 +1,4 @@
-#ifndef STACKTRACE_h
-#define STACKTRACE_h
+#pragma once
 
 //! Use "g++ -g ..." to add debugging information to executable.
 
@@ -25,5 +24,3 @@ DebugInfo readDebugInfo(void* addr);
 void releaseDebugInfo(DebugInfo& di);
 void getStackTrace(std::vector<DebugInfo>& list);
 void plotStackTrace(void* framepointer = NULL);
-
-#endif

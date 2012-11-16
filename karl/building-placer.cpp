@@ -4,10 +4,18 @@
 #include "building-placer.hpp"
 #include "array2d.hpp"
 #include "valuing.hpp"
+#include "unit-observer.hpp"
+#include "object-counter.hpp"
+#include "container-helper.hpp"
+#include "log.hpp"
 #include <BWTA.h>
 #include <limits>
+#include <sstream>
+#include <algorithm>
 
 using namespace BWAPI;
+
+#define THIS_DEBUG LOG
 
 int mapWidth = 0;
 int mapHeight = 0;
@@ -15,11 +23,113 @@ Array2d<TileInformation> tileInformations;
 
 namespace
 {
+    template <class F>
+    void callForEnergyTiles(const TilePosition& tp, F f)
+    {
+        //         76543210123456789
+        //      -4 .................
+        //      -3 ..xxxxxxxxxxxx...
+        //      -2 .xxxxxxxxxxxxxx..
+        //      -1 .xxxxxxxxxxxxxxx.
+        //       0 .xxxxxxxxxxxxxxx.
+        //       1 .xxxxxxxxxxxxxxx.
+        //       2 .xxxxxxxxxxxxxxx.
+        //       3 .xxxxxxxxxxxxxx..
+        //       4 ..xxxxxxxxxxxx...
+        //       5 .....xxxxxx......
+        //       6 .................
+        int xoff[] = { -5, -6, -6, -6, -6, -6, -6, -5, -2 };
+        int xlen[] = { 12, 14, 15, 15, 15, 15, 14, 12,  6 };
+        for (int dy=0; dy<9; ++dy) {
+            int y = tp.y() - 3 + dy;
+            if (y >= 0 && y < mapHeight)
+                for (int dx=0; dx<xlen[dy]; ++dx)
+            {
+                int x = tp.x() + xoff[dy] + dx;
+                if (x >= 0 && x < mapWidth) {
+                    TilePosition p(x, y);
+                    f(p);
+                }
+            }
+        }
+    }
+
+    struct SetEnergyTime
+    {
+        void* obj;
+        int newtime;
+        SetEnergyTime(void* o, int nt)
+            : obj(o), newtime(nt)
+        { }
+        void operator () (const TilePosition& pos) const
+        {
+            TileInformation& info = tileInformations[pos];
+            if (info.energyobj == obj) {
+                info.energytime = newtime;
+            } else if (info.energytime > newtime) {
+                info.energyobj  = obj;
+                info.energytime = newtime;
+            }
+        }
+    };
+
+    void setEnergyTime(const TilePosition& pos, void* obj, int newtime)
+    {
+        callForEnergyTiles(pos, SetEnergyTime(obj, newtime));
+    }
+
+    int getPowerTime(const TilePosition& pos, const UnitType& type)
+    {
+        int x = 32 * pos.x() + 16 * type.tileWidth();
+        int y = 32 * pos.y() + 16 * type.tileHeight();
+        TilePosition tp(Position(x, y));
+        TileInformation& info = tileInformations[tp];
+        return info.energytime;
+    }
+
+    struct RangeBuildingObserver;
+    std::vector<RangeBuildingObserver*> rangebuildings;
+
+    struct RangeBuildingObserver : public UnitObserver<RangeBuildingObserver>, public ObjectCounter<RangeBuildingObserver>
+    {
+        RangeBuildingObserver(UnitPrecondition* p)
+            : UnitObserver<RangeBuildingObserver>(p)
+        {
+            rangebuildings.push_back(this);
+        }
+
+        void onRemoveFromList()
+        {
+            Containers::remove(rangebuildings, this);
+        }
+
+        void onUpdate()
+        {
+            setEnergyTime(TilePosition(pos), this, std::min(time, Precondition::Max-1));
+        }
+
+        void onFulfilled()
+        {
+            setEnergyTime(unit->getTilePosition(), unit, 0);
+            /*
+            TilePosition tp = unit->getTilePosition();
+            int px = tp.x(), py = tp.y();
+            std::stringstream stream;
+            stream << "\t\t";
+            for (int y=py-4; y<py+7; ++y) {
+                for (int x=px-7; x<px+10; ++x)
+                    stream << (Broodwar->hasPower(x, y) ? "x" : ".");
+                stream << "\n\t\t";
+            }
+            LOG << "Energy at Frame " << Broodwar->getFrameCount() << "\n" << stream.str();
+            */
+        }
+    };
+
     // the following code is copyed from BWSAL (with minor changes):
 
     const int buildDistance = 1;
-    //Array2d<bool> reserved;
-    
+
     bool isReserved(int x, int y)
     {
         return (tileInformations[x][y].reserved);
@@ -28,25 +138,38 @@ namespace
     bool canBuildHere(const TilePosition& position, const UnitType& type)
     {
         //returns true if we can build this type of unit here. Takes into account reserved tiles.
-        if (!Broodwar->canBuildHere(NULL, position, type))
+        int maxX = position.x() + type.tileWidth();
+        if (maxX >= mapWidth)
             return false;
-        for(int x = position.x(); x < position.x() + type.tileWidth(); x++)
-            for(int y = position.y(); y < position.y() + type.tileHeight(); y++)
-                if (isReserved(x, y))
-                    return false;
+        int maxY = position.y() + type.tileHeight();
+        if (maxY >= mapHeight)
+            return false;
+
+        for(int x=position.x(); x<maxX; ++x)
+            for(int y=position.y(); y<maxY; ++y)
+        {
+            TileInformation& info = tileInformations[x][y];
+            if (info.reserved)
+                return false;
+        }
+        
+        if (type.requiresPsi() && (getPowerTime(position, type) >= Precondition::Max))
+            return false;
+
         return true;
     }
-    
+
     bool buildable(int x, int y)
     {
         //returns true if this tile is currently buildable, takes into account units on tile
-        if (!Broodwar->isBuildable(x,y)) return false;
+        TileInformation& info = tileInformations[x][y];
+        if (!info.buildable) return false;
         for (auto i : BWAPI::Broodwar->getUnitsOnTile(x, y))
             if (i->getType().isBuilding() && !i->isLifted())
                 return false;
         return true;
     }
-    
+
     bool canBuildHereWithSpace(const TilePosition& position, const UnitType& type)
     {
         //returns true if we can build this type of unit here with the specified amount of space.
@@ -61,7 +184,7 @@ namespace
 
         //make sure we leave space for add-ons. These types of units can have addons:
         if (type==UnitTypes::Terran_Command_Center ||
-            type==UnitTypes::Terran_Factory || 
+            type==UnitTypes::Terran_Factory ||
             type==UnitTypes::Terran_Starport ||
             type==UnitTypes::Terran_Science_Facility)
         {
@@ -72,9 +195,9 @@ namespace
         int starty = position.y() - buildDistance;
         if (starty<0) return false;
         int endx = position.x() + width + buildDistance;
-        if (endx>Broodwar->mapWidth()) return false;
+        if (endx>mapWidth) return false;
         int endy = position.y() + height + buildDistance;
-        if (endy>Broodwar->mapHeight()) return false;
+        if (endy>mapHeight) return false;
 
         if (!type.isRefinery()) {
             for(int x = startx; x < endx; x++)
@@ -93,7 +216,7 @@ namespace
                     if (!i->isLifted()) {
                         UnitType type = i->getType();
                         if (type==UnitTypes::Terran_Command_Center ||
-                            type==UnitTypes::Terran_Factory || 
+                            type==UnitTypes::Terran_Factory ||
                             type==UnitTypes::Terran_Starport ||
                             type==UnitTypes::Terran_Science_Facility)
                         {
@@ -104,7 +227,7 @@ namespace
         }
         return true;
     }
-    
+
     TilePosition getBuildLocationNear(const TilePosition& position, const UnitType& type)
     {
         //returns a valid build location near the specified tile position.
@@ -116,10 +239,10 @@ namespace
         bool first = true;
         int dx     = 0;
         int dy     = 1;
-        while (length < Broodwar->mapWidth()) //We'll ride the spiral to the end
+        while (length < mapWidth) //We'll ride the spiral to the end
         {
             //if we can build here, return this tile position
-            if (x >= 0 && x < Broodwar->mapWidth() && y >= 0 && y < Broodwar->mapHeight())
+            if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight)
                 if (canBuildHereWithSpace(TilePosition(x, y), type))
                     return TilePosition(x, y);
 
@@ -153,7 +276,7 @@ namespace
         }
         return TilePositions::None;
     }
-    
+
     void reserveTiles(const TilePosition& position, int width, int height, bool value)
     {
         int upperX = std::min(position.x() + width, mapWidth);
@@ -162,7 +285,7 @@ namespace
             for(int y=position.y(); y<upperY; ++y)
                 tileInformations[x][y].reserved = value;
     }
-    
+
     void reserveTiles(const TilePosition& position, const UnitType& type, bool value)
     {
         int width=type.tileWidth();
@@ -170,27 +293,42 @@ namespace
 
         //make sure we leave space for add-ons. These types of units can have addons:
         if (type==UnitTypes::Terran_Command_Center ||
-            type==UnitTypes::Terran_Factory || 
+            type==UnitTypes::Terran_Factory ||
             type==UnitTypes::Terran_Starport ||
             type==UnitTypes::Terran_Science_Facility)
         {
             width+=2;
         }
-        
+
         reserveTiles(position, width, height, value);
     }
-    
-    struct BuildingPositionInternal : public BuildingPositionPrecondition
+
+    struct BuildingPositionInternal;
+    std::vector<BuildingPositionInternal*> planedbuildings;
+
+    struct BuildingPositionInternal : public BuildingPositionPrecondition, public ObjectCounter<BuildingPositionInternal>
     {
+        bool power;
+
         BuildingPositionInternal(const BWAPI::UnitType& t, const BWAPI::TilePosition& p)
             : BuildingPositionPrecondition(t, p)
         {
+            planedbuildings.push_back(this);
             reserveTiles(pos, ut, true);
+            power = ut.requiresPsi();
+            update();
         }
-        
+
         ~BuildingPositionInternal()
         {
+            Containers::remove(planedbuildings, this);
             reserveTiles(pos, ut, false);
+        }
+
+        void update()
+        {
+            if (power)
+                time = getPowerTime(pos, ut);
         }
     };
 }
@@ -213,7 +351,7 @@ BuildingPositionPrecondition* getBuildingPosition(const BWAPI::UnitType& ut)
 BuildingPositionPrecondition* getBuildingPosition(const BWAPI::UnitType& ut, std::set<BuildingPositionPrecondition*>& places)
 {
     for (auto it : places)
-        if (it->ut == ut) 
+        if (it->ut == ut)
     {
         places.erase(it);
         return it;
@@ -234,7 +372,7 @@ BuildingPositionPrecondition* getNextExpo(const BWAPI::UnitType& ut)
     BWTA::BaseLocation* home = BWTA::getStartLocation(Broodwar->self());
     BWTA::BaseLocation* bestlocation = NULL;
     ctype               bestvalue = std::numeric_limits<ctype>::min();
-    
+
     for (auto it : BWTA::getBaseLocations())
         if (!it->isIsland())
             if (Broodwar->canBuildHere(NULL, it->getTilePosition(), ut, false))
@@ -249,12 +387,20 @@ BuildingPositionPrecondition* getNextExpo(const BWAPI::UnitType& ut)
     return getExpoPosition(ut, bestlocation);
 }
 
+UnitPrecondition* registerRangeBuilding(UnitPrecondition* pre)
+{
+    if (pre->ut != UnitTypes::Protoss_Pylon)
+        return pre;
+
+    return new RangeBuildingObserver(pre);
+}
+
 void BuildingPlacerCode::onMatchBegin()
 {
     mapWidth  = Broodwar->mapWidth();
     mapHeight = Broodwar->mapHeight();
     tileInformations.resize(mapWidth, mapHeight);
-    
+
     for (int x=0; x<mapWidth; ++x)
         for (int y=0; y<mapHeight; ++y)
     {
@@ -266,15 +412,48 @@ void BuildingPlacerCode::onMatchBegin()
             for (int l=0; l<4; ++l)
                 info.subtiles[k][l] = Broodwar->isWalkable(4*x+k, 4*y+l);
     }
-    
+
     for (auto it : BWTA::getBaseLocations())
     {
         reserveTiles(it->getTilePosition(), UnitTypes::Zerg_Hatchery, true);
     }
 }
 
+void BuildingPlacerCode::onMatchEnd()
+{
+    rangebuildings.clear();
+    planedbuildings.clear();
+}
+
+void BuildingPlacerCode::onTick()
+{
+    Containers::remove_if(rangebuildings, std::mem_fun(&RangeBuildingObserver::update));
+    for (auto it : planedbuildings)
+        it->update();
+}
+
+void BuildingPlacerCode::onDrawPlan(HUDTextOutput& /*hud*/)
+{
+    /*
+    for (int x=0; x<mapWidth; ++x)
+        for (int y=0; y<mapHeight; ++y)
+    {
+        TileInformation& info = tileInformations[x][y];
+        if (info.energytime < Precondition::Max) {
+            Broodwar->drawTextMap(32*x+16, 32*y+16, "\x08%d", info.energytime);
+        }
+    }
+    */
+}
+
+void BuildingPlacerCode::onCheckMemoryLeaks()
+{
+    RangeBuildingObserver::checkObjectsAlive();
+    BuildingPositionInternal::checkObjectsAlive();
+}
+
 TileInformation::TileInformation()
-    : buildable(false), reserved(false)
+    : buildable(false), reserved(false), energytime(Precondition::Impossible), energyobj(NULL)
 {
     for (int k=0; k<4; ++k)
         for (int l=0; l<4; ++l)

@@ -1,24 +1,21 @@
 #include "terran-strategie.hpp"
-#include "resources.hpp"
 #include "unit-morpher.hpp"
 #include "unit-builder.hpp"
 #include "unit-trainer.hpp"
 #include "mineral-line.hpp"
-#include "supply.hpp"
 #include "idle-unit-container.hpp"
-#include "requirements.hpp"
 #include "tech-upgrades.hpp"
 #include "precondition-helper.hpp"
 #include "log.hpp"
 #include "terran-marines-code.hpp"
 #include "scout.hpp"
-#include "larvas.hpp"
 #include "building-placer.hpp"
 #include "addon-builder.hpp"
 #include "bwapi-helper.hpp"
 #include "string-helper.hpp"
 #include "building-flyer.hpp"
 #include "wall-in.hpp"
+#include "planing.hpp"
 #include <BWTA.h>
 
 using namespace BWAPI;
@@ -26,7 +23,6 @@ using namespace BWTA;
 using namespace UnitTypes;
 
 namespace {
-    UnitPrecondition* waittill = NULL;
     bool academystarted = false;
     int  stateCounter   = 0;
 
@@ -69,21 +65,7 @@ void TerranStrategieCode::onMatchBegin()
     academystarted = false;
     stateCounter = 0;
 
-    setSupplyMode(Races::Terran, SupplyMode::Auto);
-    setRequirementsMode(RequirementsMode::Auto);
-
-    Player* self = Broodwar->self();
-    for (auto it : self->getUnits()) {
-        UnitType type = it->getType();
-        if (type.isWorker()) {
-            useWorker(it);
-        } else if (type.isResourceDepot()) {
-            registerBase(it);
-            rememberIdle(it);
-            if (type == Zerg_Hatchery)
-                registerHatchery(it);
-        }
-    }
+    initStandardPlaning(Races::Terran);
 
     for (int k=0; k<4; ++k)
         trainWorker(Terran_SCV, "Worker (Group 1)");
@@ -184,9 +166,7 @@ void TerranStrategieCode::onTick()
 }
 
 void TerranStrategieCode::onMatchEnd()
-{
-    release(waittill);
-}
+{ }
 
 void TerranStrategieCode::onBaseMinedOut(BWTA::BaseLocation* /*base*/)
 {

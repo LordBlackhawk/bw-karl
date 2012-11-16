@@ -12,8 +12,9 @@
 #include "unit-morpher.hpp"
 #include "unit-builder.hpp"
 #include "unit-trainer.hpp"
-#include "zerg-strategie.hpp"
 #include "terran-strategie.hpp"
+#include "protoss-strategie.hpp"
+#include "zerg-strategie.hpp"
 #include "hud-code.hpp"
 #include "larvas.hpp"
 #include "requirements.hpp"
@@ -55,6 +56,7 @@ typedef CodeCaller<
                     WallInCode,
                     StrategieList<
                         TerranStrategieCode,
+                        ProtossStrategieCode,
                         ZergStrategieCode,
                         ArenaCode
                     >

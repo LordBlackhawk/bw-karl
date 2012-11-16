@@ -208,6 +208,9 @@ bool isRequirement(const BWAPI::UnitType& t)
 
 UnitPrecondition* registerRequirement(UnitPrecondition* unit)
 {
+    if (!isRequirement(unit->ut))
+        return unit;
+
     return getOrCreateHandler(unit->ut)->registerRequirement(unit);
 }
 

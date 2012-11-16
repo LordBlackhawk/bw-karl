@@ -8,8 +8,11 @@
 struct TileInformation
 {
     bool buildable;
-    bool reserved;
     bool subtiles[4][4];
+    bool reserved;
+    
+    int energytime;
+    void* energyobj;
 
     TileInformation();
     int space(int d);
@@ -25,7 +28,13 @@ BuildingPositionPrecondition* getBuildingPosition(const BWAPI::UnitType& ut, std
 BuildingPositionPrecondition* getExpoPosition(const BWAPI::UnitType& ut, BWTA::BaseLocation* location);
 BuildingPositionPrecondition* getNextExpo(const BWAPI::UnitType& ut);
 
+UnitPrecondition* registerRangeBuilding(UnitPrecondition* pre);
+
 struct BuildingPlacerCode : public DefaultCode
 {
     static void onMatchBegin();
+    static void onMatchEnd();
+    static void onTick();
+    static void onDrawPlan(HUDTextOutput& hud);
+    static void onCheckMemoryLeaks();
 };

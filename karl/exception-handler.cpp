@@ -1,3 +1,7 @@
+// ToDo:
+//  * Recovery from Access Violation.
+//  * Commands "/do NULL", "/do STACK", ... for testing.
+
 #include "exception-handler.hpp"
 #include "stacktrace.hpp"
 #include <iostream>

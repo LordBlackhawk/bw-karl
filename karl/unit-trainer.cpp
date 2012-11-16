@@ -15,7 +15,6 @@
 #include <map>
 #include <vector>
 #include <algorithm>
-#include <cassert>
 
 using namespace BWAPI;
 
@@ -78,7 +77,8 @@ namespace
             switch (status)
             {
                 case pending:
-                    baseunit->wishpos = wishpos;
+                    if (baseunit != NULL)
+                        baseunit->wishpos = wishpos;
                     if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, supply, requirements)) {
                         start();
                         time = Broodwar->getFrameCount() + ut.buildTime();

@@ -15,7 +15,6 @@
 #include "object-counter.hpp"
 #include "log.hpp"
 #include <algorithm>
-#include <cassert>
 
 using namespace BWAPI;
 
@@ -83,7 +82,7 @@ namespace
                     }
                     break;
 
-                case tryagain:
+                
                     time = Broodwar->getFrameCount() + ut.buildTime();
                     if (hasStarted()) {
                         freeResources();
@@ -94,6 +93,7 @@ namespace
                     }
                     break;
 
+                case tryagain:
                 case commanded:
                     time = Broodwar->getFrameCount() + ut.buildTime();
                     if (hasStarted()) {
@@ -101,7 +101,9 @@ namespace
                             freeWorker();
                         freeResources();
                         status = waiting;
-                        THIS_DEBUG << "waiting for building " << ut << " to finish.";
+                        THIS_DEBUG << "waiting for building " << ut << " (" << ut.getRace() << ") to finish.";
+                    } else if (status == tryagain) {
+                        start();
                     } else if (Broodwar->getFrameCount() > starttime + savetime) {
                         start();
                         THIS_DEBUG << "building " << ut << " restarted (try " << tries << ").";
@@ -215,6 +217,7 @@ namespace
         void freeWorker()
         {
             if (postworker != NULL) {
+                THIS_DEBUG << "Worker freed.";
                 postworker->time = 0;
                 postworker->unit = worker;
                 postworker = NULL;
@@ -318,14 +321,13 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* work
 
     UnitPrecondition* first  = result;
     UnitPrecondition* second = result->postworker;
-    if (ut == UnitTypes::Zerg_Hatchery)
-        first = registerHatchery(first);
-    if (ut.supplyProvided() > 0)
-        first = registerSupplyUnit(first);
-    if (isRequirement(ut))
-        first = registerRequirement(first);
-    if (ut.isResourceDepot())
-        first = registerBase(first);
+
+    first = registerHatchery(first);
+    first = registerSupplyUnit(first);
+    first = registerRequirement(first);
+    first = registerBase(first);
+    first = registerRangeBuilding(first);
+
     return std::make_pair(first, second);
 }
 

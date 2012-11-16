@@ -2,7 +2,6 @@
 
 #include "log.hpp"
 #include <vector>
-#include <cassert>
 
 template <class T>
 class Array2d
@@ -76,6 +75,16 @@ class Array2d
                 assert(false);
             }
             return ConstRow(*this, index*sizey, 1, sizey);
+        }
+
+        T& operator [] (const BWAPI::TilePosition& pos)
+        {
+            return (*this)[pos.x()][pos.y()];
+        }
+        
+        T operator [] (const BWAPI::TilePosition& pos) const
+        {
+            return (*this)[pos.x()][pos.y()];
         }
         
         int getWidth() const

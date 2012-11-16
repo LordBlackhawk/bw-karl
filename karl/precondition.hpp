@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cassert>
+#include "log.hpp"
 #include <string>
 
 struct Precondition

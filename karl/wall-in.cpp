@@ -332,7 +332,8 @@ namespace
                 return node;
         }
 
-        assert(false);
+        WARNING << "findNodeInRegion did not find node.";
+        return Node(0,0);
     }
 
     std::set<BWTA::Region*> getRegionsWithinWall(BWTA::Region* region, Chokepoint* cpoint)
