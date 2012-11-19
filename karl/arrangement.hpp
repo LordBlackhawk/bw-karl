@@ -5,8 +5,23 @@
 
 class Arrangement
 {
+    protected:
+        int refcounter;
+
     public:
-        virtual ~Arrangement() = 0;
+        Arrangement(int rc)
+            : refcounter(rc)
+        { }
         
-        virtual void onTick() = 0;
+        void decRef()
+        {
+            --refcounter;
+            if (refcounter == 0)
+                delete this;
+        }
+        
+        virtual ~Arrangement()
+        { }
+
+        virtual BWAPI::TilePosition onTick(int id) = 0;
 };

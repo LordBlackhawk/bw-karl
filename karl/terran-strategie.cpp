@@ -70,7 +70,7 @@ void TerranStrategieCode::onMatchBegin()
     for (int k=0; k<4; ++k)
         trainWorker(Terran_SCV, "Worker (Group 1)");
     
-    std::set<BuildingPositionPrecondition*> places = designWallIn();
+    std::set<BuildingPositionPrecondition*> places;// = designWallIn();
     buildUnitEx(Terran_Supply_Depot, places);
     buildUnitEx(Terran_Barracks, places);
     while (!places.empty())

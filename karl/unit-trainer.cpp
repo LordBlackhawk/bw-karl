@@ -77,8 +77,11 @@ namespace
             switch (status)
             {
                 case pending:
-                    if (baseunit != NULL)
+                    if (baseunit != NULL) {
                         baseunit->wishpos = wishpos;
+                        if (postworker != NULL)
+                            postworker->pos = baseunit->pos;
+                    }
                     if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, supply, requirements)) {
                         start();
                         time = Broodwar->getFrameCount() + ut.buildTime();

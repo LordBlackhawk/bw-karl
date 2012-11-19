@@ -84,12 +84,16 @@ void ProtossStrategieCode::onTick()
         if (stateCounter > 2)
             trainAttackUnit(Protoss_Dragoon, "Dragoon (auto)");
     } else if (   (Broodwar->self()->minerals() > 400)
+               && (buildUnitPlanSize(Protoss_Cybernetics_Core)  < 1)
+               && (buildUnitPlanSize(Protoss_Forge)  < 1)
                && (buildUnitPlanSize(Protoss_Gateway)  < 1))
     {
         switch (++stateCounter)
         {
             case 1:
-            case 3:
+            case 5:
+            case 6:
+            case 7:
                 buildUnitEx(Protoss_Gateway);
                 for (int k=0; k<5; ++k)
                     trainWorker(Protoss_Probe, "Worker (Group 3)");
@@ -102,13 +106,13 @@ void ProtossStrategieCode::onTick()
                     trainWorker(Protoss_Probe, "Worker (Group 3)");
                 break;
             
-            case 4:
+            case 3:
                 buildUnitEx(Protoss_Forge);
                 for (int k=0; k<3; ++k)
                     buildUnitEx(Protoss_Photon_Cannon);
                 break;
             
-            case 5:
+            case 4:
                 buildExpo();
                 break;
             

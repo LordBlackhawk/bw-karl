@@ -7,12 +7,15 @@
 
 struct TileInformation
 {
-    bool buildable;
-    bool subtiles[4][4];
-    bool reserved;
-    
-    int energytime;
-    void* energyobj;
+    bool                            buildable;
+    bool                            subtiles[4][4];
+
+    BuildingPositionPrecondition*   pre;
+    BWAPI::Unit*                    building;
+    int                             energytime;
+    void*                           energyobj;
+    int                             creeptime;
+    void*                           creepobj;
 
     TileInformation();
     int space(int d);
@@ -35,6 +38,10 @@ struct BuildingPlacerCode : public DefaultCode
     static void onMatchBegin();
     static void onMatchEnd();
     static void onTick();
+    static void onUnitCreate(BWAPI::Unit* unit);
+    static void onUnitDestroy(BWAPI::Unit* unit);
+    static void onUnitMorph(BWAPI::Unit* unit);
+    static void onUnitShow(BWAPI::Unit* unit);
     static void onDrawPlan(HUDTextOutput& hud);
     static void onCheckMemoryLeaks();
 };

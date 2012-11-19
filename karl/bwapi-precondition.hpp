@@ -30,8 +30,8 @@ struct BuildingPositionPrecondition : public Precondition
     BWAPI::UnitType     ut;
     BWAPI::TilePosition pos;
 
-    BuildingPositionPrecondition(const BWAPI::UnitType& t, const BWAPI::TilePosition& p)
-        : Precondition(0), ut(t), pos(p)
+    BuildingPositionPrecondition(int it, const BWAPI::UnitType& t, const BWAPI::TilePosition& p)
+        : Precondition(it), ut(t), pos(p)
     { }
     
     bool isExplored() const
