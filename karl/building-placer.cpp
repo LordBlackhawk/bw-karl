@@ -28,53 +28,88 @@ Array2d<TileInformation> tileInformations;
 #include "arrangement-generator.hpp"
 #include "arrangement-conditions.hpp"
 #include "arrangement-selector.hpp"
+#include "arrangement-valuing.hpp"
 #include "bool-lambda-support.hpp"
+#include "int-lambda-support.hpp"
+
+namespace
+{
+    Arrangement* defaultArrangement(const BWAPI::UnitType& type)
+    {
+        using namespace ArrangementGenerator;
+        using namespace ArrangementCondition;
+        using namespace ArrangementSelector;
+        using namespace ArrangementValuing;
+
+        BWTA::BaseLocation* base = BWTA::getStartLocation(BWAPI::Broodwar->self());
+        BWTA::Region* region = base->getRegion();
+        BWAPI::TilePosition center = base->getTilePosition();
+
+        std::set<BWTA::Region*> allset = region->getReachableRegions();
+
+        std::vector<BWTA::Region*> list;
+        list.push_back(region);
+        list.insert(list.end(), allset.begin(), allset.end());
+
+        if (type.requiresPsi()) {
+            return createArrangement(
+                        TilesInRegionList(list),
+                        CheckUnitTilesWithSpace(type, 1, IsBuildable() && !TileHasCreep() && !IsBuilding() && !IsReserved()) && HasPower(type),
+                        TakeMinimum(DistanceTo(center))
+                    );
+        }
+
+        if (type.requiresCreep()) {
+            return createArrangement(
+                        TilesInRegionList(list),
+                        CheckUnitTilesWithSpace(type, 1, IsBuildable() && TileHasCreep() && !IsBuilding() && !IsReserved()),
+                        TakeMinimum(DistanceTo(center))
+                    );
+        }
+
+        return createArrangement(
+                        TilesInRegionList(list),
+                        CheckUnitTilesWithAddonWithSpace(type, 1, IsBuildable() && !TileHasCreep() && !IsBuilding() && !IsReserved()),
+                        TakeMinimum(DistanceTo(center))
+                    );
+    }
+
+    Arrangement* baseArrangement(const BWAPI::UnitType& type)
+    {
+        using namespace ArrangementGenerator;
+        using namespace ArrangementCondition;
+        using namespace ArrangementSelector;
+        using namespace ArrangementValuing;
+
+        BWTA::BaseLocation* base = BWTA::getStartLocation(BWAPI::Broodwar->self());
+        BWTA::Region* region = base->getRegion();
+
+        if (type == UnitTypes::Zerg_Hatchery) {
+            return createArrangement(
+                        BaseLocationTiles(),
+                        CheckUnitTiles(type, IsBuildable() && !IsBuilding() && !IsReserved()) && IsReachable(region),
+                        TakeMaximum(CallValueExpo(base))
+                    );
+        }
+
+        return createArrangement(
+                        BaseLocationTiles(),
+                        CheckUnitTiles(type, IsBuildable() && !TileHasCreep() && !IsBuilding() && !IsReserved()) && IsReachable(region),
+                        TakeMaximum(CallValueExpo(base))
+                    );
+    }
+}
 
 BuildingPositionPrecondition* getBuildingPosition(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos)
 {
-    if (pos == TilePositions::None)
+    if (pos == TilePositions::None || pos == TilePositions::Unknown)
         return NULL;
 
     return new BuildingPositionInternal(ut, pos);
 }
 
-Arrangement* defaultArrangement(const BWAPI::UnitType& type)
-{
-    using namespace ArrangementGenerator;
-    using namespace ArrangementCondition;
-    using namespace ArrangementSelector;
-    
-    BWTA::BaseLocation* base = BWTA::getStartLocation(BWAPI::Broodwar->self());
-    //BWTA::Region* region = base->getRegion();
-    BWAPI::TilePosition center = base->getTilePosition();
-
-    if (type.requiresPsi()) {
-        return createArrangement(
-                    Spiral(center, 25),
-                    CheckUnitTilesWithAddonWithSpace(type, 1, IsBuildable() && !IsBuilding() && !IsReserved()) && HasPower(type),
-                    TakeFirst()
-                );
-    }
-    
-    if (type.requiresCreep()) {
-        return createArrangement(
-                    Spiral(center, 25),
-                    CheckUnitTilesWithAddonWithSpace(type, 1, IsBuildable() && TileHasCreep() && !IsBuilding() && !IsReserved()),
-                    TakeFirst()
-                );
-    }
-    
-    return createArrangement(
-                    Spiral(center, 25),
-                    CheckUnitTilesWithAddonWithSpace(type, 1, IsBuildable() && !IsBuilding() && !IsReserved()),
-                    TakeFirst()
-                );
-}
-
 BuildingPositionPrecondition* getBuildingPosition(const BWAPI::UnitType& ut)
 {
-    /*TilePosition base = BWTA::getStartLocation(Broodwar->self())->getTilePosition();
-    TilePosition pos  = getBuildLocationNear(base, ut);*/
     return new BuildingPositionInternal(ut, defaultArrangement(ut), 0);
 }
 
@@ -99,6 +134,7 @@ BuildingPositionPrecondition* getExpoPosition(const BWAPI::UnitType& ut, BWTA::B
 
 BuildingPositionPrecondition* getNextExpo(const BWAPI::UnitType& ut)
 {
+    /*
     BWTA::BaseLocation* home = BWTA::getStartLocation(Broodwar->self());
     BWTA::BaseLocation* bestlocation = NULL;
     ctype               bestvalue = std::numeric_limits<ctype>::min();
@@ -115,6 +151,8 @@ BuildingPositionPrecondition* getNextExpo(const BWAPI::UnitType& ut)
     }
 
     return getExpoPosition(ut, bestlocation);
+    */
+    return new BuildingPositionInternal(ut, baseArrangement(ut), 0);
 }
 
 UnitPrecondition* registerRangeBuilding(UnitPrecondition* pre)
@@ -133,7 +171,7 @@ namespace
         if (!type.isBuilding())
             return;
         TilePosition pos = unit->getTilePosition();
-        
+
         //LOG << "setBuildingInfo(" << type << ", " << pos << ", " << (value ? "true" : "false") << ")";
 
         int upperX = std::min(pos.x() + type.tileWidth(), mapWidth);
@@ -142,7 +180,7 @@ namespace
             if (unit->getPlayer() == Broodwar->self())
                 if (unit->getAddon() == NULL)
                     upperX = std::min(upperX + 2, mapWidth);
-        
+
         for(int x=pos.x(); x<upperX; ++x)
             for(int y=pos.y(); y<upperY; ++y)
         {
@@ -176,7 +214,7 @@ void BuildingPlacerCode::onMatchBegin()
             for (int l=0; l<4; ++l)
                 info.subtiles[k][l] = Broodwar->isWalkable(4*x+k, 4*y+l);
     }
-    
+
     for (auto it : Broodwar->getAllUnits())
         setBuildingInfo(it, true);
 
@@ -237,6 +275,7 @@ void BuildingPlacerCode::onDrawPlan(HUDTextOutput& /*hud*/)
 
 void BuildingPlacerCode::onCheckMemoryLeaks()
 {
+    Arrangement::checkObjectsAlive();
     RangeBuildingObserver::checkObjectsAlive();
     BuildingPositionInternal::checkObjectsAlive();
 }

@@ -6,7 +6,7 @@ LIBPATH      = lib/
 
 CXX          = g++
 CXXINCLUDES  = -I$(BWAPIPATH) -I$(BOOSTPATH) -I.
-CXXFLAGS     = -ggdb -Wall -Wextra -O3 $(CXXINCLUDES)
+CXXFLAGS     = -ggdb -Wall -Wextra -O0 $(CXXINCLUDES)
 CXXLIBS      = -L$(LIBPATH) -L$(BOOSTPATH)/stage/lib -lBWAPI -lBWTA -lCGAL -lmpfr -lgmp -lboost_thread-mgw46-mt-1_46_1 -static-libgcc -static-libstdc++
 
 SOURCES      = $(wildcard $(SOURCEPATH)*.cpp)

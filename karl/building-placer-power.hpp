@@ -57,7 +57,6 @@ namespace
         callForEnergyTiles(pos, SetEnergyTime(obj, newtime));
     }
 
-    /*
     int getPowerTime(const TilePosition& pos, const UnitType& type)
     {
         int x = 32 * pos.x() + 16 * type.tileWidth();
@@ -66,7 +65,6 @@ namespace
         TileInformation& info = tileInformations[tp];
         return info.energytime;
     }
-    */
 
     struct RangeBuildingObserver;
     std::vector<RangeBuildingObserver*> rangebuildings;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "arrangement.hpp"
+#include "system-helper.hpp"
+#include <typeinfo>
 
 template <class Generator, class Condition, class Selector>
 class ArrangementImpl : public Arrangement
@@ -9,7 +11,7 @@ class ArrangementImpl : public Arrangement
 
     protected:
         enum StatusType { init, searching, finished };
-        
+
         Generator                       gen;
         Condition                       cond;
         Selector                        sel;
@@ -19,29 +21,57 @@ class ArrangementImpl : public Arrangement
 
     public:
         ArrangementImpl(const Generator& g, const Condition& c, const Selector& s)
-            : Arrangement(1), gen(g), cond(c), sel(s), status(init), pos(BWAPI::Positions::Unknown), best(BWAPI::Positions::Unknown)
+            : Arrangement(1), gen(g), cond(c), sel(s), status(init), pos(BWAPI::TilePositions::Unknown), best(BWAPI::TilePositions::Unknown)
         { }
-        
+
         virtual ~ArrangementImpl()
         { }
-        
+
+        virtual void reset()
+        {
+            status = init;
+            pos = best = BWAPI::TilePositions::Unknown;
+        }
+
+        bool condCall(const BWAPI::TilePosition& pos)
+        {
+            if (pos.x() < 0 || pos.x() >= mapWidth || pos.y() < 0 || pos.y() >= mapHeight) {
+                LOG << "Generator '" << demangle(typeid(Generator).name()) << "' returned tile out of range: " << pos;
+                return false;
+            }
+
+            TileInformation& info = tileInformations[pos];
+            return cond(pos, info);
+        }
+
+        bool isBestValid()
+        {
+            if (best == BWAPI::TilePositions::Unknown)
+                return false;
+            return condCall(best);
+        }
+
         virtual BWAPI::TilePosition onTick(int /*id*/)
         {
-            if (status == init)
+            if ((status == finished) && !isBestValid())
+                reset();
+
+            if (status == init) {
+                sel.init();
                 status = gen.init(pos) ? searching : finished;
-            
+            }
+
             if (status == finished)
                 return best;
-            
+
             const int max = 1000;
             int counter = 0;
             while (++counter < max) {
-                TileInformation& info = tileInformations[pos];
-                if (cond(pos, info)) {
-                    bool c = true;
-                    if (sel(pos, c))
+                if (condCall(pos)) {
+                    bool cont = true;
+                    if (sel(pos, cont))
                         best = pos;
-                    if (!c) {
+                    if (!cont) {
                         status = finished;
                         break;
                     }
@@ -51,7 +81,7 @@ class ArrangementImpl : public Arrangement
                     break;
                 }
             }
-            
+
             return best;
         }
 };

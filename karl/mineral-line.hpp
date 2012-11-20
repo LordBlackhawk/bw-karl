@@ -5,9 +5,9 @@
 
 struct Production
 {
-	int time;		// starting time.
-	int minerals;   // in 1/MineralFactor mineral per frame.
-	int gas;		// in 1/MineralFactor gas per frame.
+    int time;       // starting time.
+    int minerals;   // in 1/MineralFactor mineral per frame.
+    int gas;        // in 1/MineralFactor gas per frame.
 };
 
 const int MineralFactor = 1000;
@@ -24,8 +24,8 @@ bool buildRefinery(const BWAPI::UnitType& type);
 
 struct MineralLineCode : public DefaultCode
 {
-	static void onMatchBegin();
-	static void onMatchEnd();
-	static void onTick();
-	static void onCheckMemoryLeak();
+    static void onMatchBegin();
+    static void onMatchEnd();
+    static void onTick();
+    static void onCheckMemoryLeak();
 };

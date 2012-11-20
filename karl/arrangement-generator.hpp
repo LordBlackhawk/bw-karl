@@ -15,12 +15,14 @@ namespace ArrangementGenerator
         {
             lower = BWAPI::TilePosition(mapWidth, mapHeight);
             upper = BWAPI::TilePosition(0,0);
-            for (BWAPI::Position it : region->getPolygon()) {
-                BWAPI::TilePosition pos(it);
-                lower.x() = std::min(lower.x(), pos.x());
-                upper.x() = std::max(upper.x(), pos.x());
-                lower.y() = std::min(lower.y(), pos.y());
-                upper.y() = std::max(upper.y(), pos.y());
+            if (region != NULL) {
+                for (BWAPI::Position it : region->getPolygon()) {
+                    BWAPI::TilePosition pos(it);
+                    lower.x() = std::min(lower.x(), pos.x());
+                    upper.x() = std::max(upper.x(), pos.x());
+                    lower.y() = std::min(lower.y(), pos.y());
+                    upper.y() = std::max(upper.y(), pos.y());
+                }
             }
         }
         bool init(BWAPI::TilePosition& pos) const
@@ -45,6 +47,37 @@ namespace ArrangementGenerator
                 pos.x()  = lower.x();
                 pos.y() += 1;
                 return true;
+            }
+            return false;
+        }
+    };
+    
+    struct TilesInRegionList
+    {
+        std::vector<BWTA::Region*>              list;
+        std::vector<BWTA::Region*>::iterator    cur;
+        TilesInRegion                           impl;
+        TilesInRegionList(const std::vector<BWTA::Region*> l)
+            : list(l), impl(NULL)
+        { }
+        bool init(BWAPI::TilePosition& pos)
+        {
+            cur = list.begin();
+            return nextRegion(pos);
+        }
+        bool next(BWAPI::TilePosition& pos)
+        {
+            if (impl.next(pos))
+                return true;
+            return nextRegion(pos);
+        }
+        bool nextRegion(BWAPI::TilePosition& pos)
+        {
+            while (cur != list.end()) {
+                impl = TilesInRegion(*cur);
+                ++cur;
+                if (impl.init(pos))
+                    return true;
             }
             return false;
         }
@@ -89,6 +122,35 @@ namespace ArrangementGenerator
                 dy = -dummy;
             }
             return (len < maxlen);
+        }
+    };
+    
+    struct BaseLocationTiles
+    {
+        std::set<BWTA::BaseLocation*>               locations;
+        std::set<BWTA::BaseLocation*>::iterator     cur;
+        BaseLocationTiles()
+        {
+            locations = BWTA::getBaseLocations();
+        }
+        bool init(BWAPI::TilePosition& pos)
+        {
+            cur = locations.begin();
+            return check(pos);
+        }
+        bool next(BWAPI::TilePosition& pos)
+        {
+            ++cur;
+            return check(pos);
+        }
+        bool check(BWAPI::TilePosition& pos)
+        {
+            if (cur != locations.end()) {
+                pos = (*cur)->getTilePosition();
+                return true;
+            } else {
+                return false;
+            }
         }
     };
 }

@@ -1,6 +1,6 @@
 #include "log.hpp"
 #include "bwapi-helper.hpp"
-#include "stacktrace.hpp"
+//#include "stacktrace.hpp"
 #include <BWTA.h>
 #include <iostream>
 #include <cstdlib>
@@ -79,7 +79,7 @@ void assertationFailed(const char* cond, const char* file, int line, const char*
     std::stringstream stream;
     stream << "Condition '" << cond << "' failed.";
     logInternal(file, line, func, Log::Warning, stream.str());
-    plotStackTrace();
+    //plotStackTrace();
     abort();
 }
 

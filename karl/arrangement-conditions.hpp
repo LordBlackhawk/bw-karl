@@ -6,8 +6,10 @@
 
 namespace ArrangementCondition
 {
+    typedef std::binary_function<const BWAPI::TilePosition&, const TileInformation&, bool> ConditionFunctionType;
+
     #define DEF(name)                                                                                           \
-        struct name : public std::binary_function<const BWAPI::TilePosition&, const TileInformation&, bool>     \
+        struct name : public ConditionFunctionType                                                              \
         {   bool operator () (const BWAPI::TilePosition& position, const TileInformation& info) const; };       \
         bool name::operator () (const BWAPI::TilePosition& position, const TileInformation& info) const
 
@@ -42,9 +44,35 @@ namespace ArrangementCondition
     }
 
     #undef DEF
+    
+    struct InRegion : public ConditionFunctionType
+    {
+        BWTA::Region* region;
+        InRegion(BWTA::Region* r)
+            : region(r)
+        { }
+        bool operator () (const BWAPI::TilePosition& position, const TileInformation& info) const
+        {
+            (void) info;
+            return (BWTA::getRegion(position) == region);
+        }
+    };
+    
+    struct IsReachable : public ConditionFunctionType
+    {
+        BWTA::Region* region;
+        IsReachable(BWTA::Region* r)
+            : region(r)
+        { }
+        bool operator () (const BWAPI::TilePosition& position, const TileInformation& info) const
+        {
+            (void) info;
+            return region->isReachable(BWTA::getRegion(position));
+        }
+    };
 
     template <class TC>
-    struct CheckNeighbourhoodImpl : public std::binary_function<const BWAPI::TilePosition&, const BWAPI::UnitType&, bool>
+    struct CheckNeighbourhoodImpl : public ConditionFunctionType
     {
         TC tc;
         int lx, rx, ly, ry;

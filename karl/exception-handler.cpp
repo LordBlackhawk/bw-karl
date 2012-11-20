@@ -79,8 +79,8 @@ namespace
                   << "Ebp: " << (void*)ExceptionInfo->ContextRecord->Ebp << "\n"
                   << "Esp: " << (void*)ExceptionInfo->ContextRecord->Esp << "\n";
         */
-        //printStarLine();
-        plotStackTrace((void*)ExceptionInfo->ContextRecord->Ebp);
+        printStarLine();
+        //plotStackTrace((void*)ExceptionInfo->ContextRecord->Ebp);
         --inCrashHandlerLevel;
         return EXCEPTION_EXECUTE_HANDLER;
     }

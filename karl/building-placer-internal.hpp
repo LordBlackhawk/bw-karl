@@ -11,7 +11,7 @@ namespace
     {
         Arrangement* arr;
         int          arr_id;
-        
+
         BuildingPositionInternal(const BWAPI::UnitType& t, const BWAPI::TilePosition& p)
             : BuildingPositionPrecondition(0, t, p), arr(NULL), arr_id(0)
         {
@@ -38,9 +38,20 @@ namespace
             }
         }
 
-        void update()
+        virtual void renew()
         {
             if (arr != NULL) {
+                LOG << "renew position called.";
+                time = 1;
+                arr->reset();
+            }
+        }
+
+        void update()
+        {
+            if ((arr != NULL) && !(time == 0 && wishtime == 0)) {
+                /*if (pos == BWAPI::Positions::Unknown)
+                    LOG << "calling arr->onTick with unknown position.";*/
                 BWAPI::TilePosition newpos = arr->onTick(arr_id);
                 if (newpos != pos) {
                     reserveTiles(false);
@@ -49,10 +60,12 @@ namespace
                     time = (pos == BWAPI::Positions::Unknown) ? 1 : 0;
                 }
             }
-            //if (power)
-            //    time = getPowerTime(pos, ut);
+            if (pos != BWAPI::Positions::Unknown) {
+                if (ut.requiresPsi())
+                    time = getPowerTime(pos, ut);
+            }
         }
-        
+
         void reserveTiles(bool value)
         {
             if (pos == BWAPI::Positions::Unknown)

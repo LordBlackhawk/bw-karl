@@ -74,7 +74,11 @@ namespace
             switch (status)
             {
                 case pending:
-                    baseunit->wishpos = Position(position->pos);
+                    if (position != NULL) {
+                        pos = Position(position->pos);
+                        if (baseunit != NULL)
+                            baseunit->wishpos = Position(position->pos);
+                    }
                     if (updateTimePreconditions(this, ut.buildTime(), baseunit, resources, position, requirements, extra)) {
                         start();
                         time = Broodwar->getFrameCount() + ut.buildTime();
@@ -180,15 +184,9 @@ namespace
         
         void newPosition()
         {
-            BuildingPositionPrecondition* newpos = getBuildingPosition(ut);
-            if (newpos == NULL) {
-                status = finished;
-                return;
-            }
-            release(position);
-            status   = tryagain;
-            position = newpos;
-            pos      = Position(position->pos);
+            position->renew();
+            status = pending;
+            pos    = Positions::Unknown;
         }
         
         void newWorker()
@@ -203,7 +201,7 @@ namespace
         bool hasStarted() const
         {
             if ((ut == UnitTypes::Zerg_Extractor) || (ut.getRace() != Races::Zerg)) {
-                return (unit != NULL); //(postworker->getLastCommand().getType() == BWAPI::UnitCommandTypes::Build);
+                return (unit != NULL);
             } else {
                 return (unit->getType() == ut);
             }
