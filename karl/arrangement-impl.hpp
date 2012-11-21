@@ -18,10 +18,11 @@ class ArrangementImpl : public Arrangement
         StatusType                      status;
         BWAPI::TilePosition             pos;
         BWAPI::TilePosition             best;
+        BuildingPositionInternal*       pre;
 
     public:
         ArrangementImpl(const Generator& g, const Condition& c, const Selector& s)
-            : Arrangement(1), gen(g), cond(c), sel(s), status(init), pos(BWAPI::TilePositions::Unknown), best(BWAPI::TilePositions::Unknown)
+            : gen(g), cond(c), sel(s), status(init), pos(BWAPI::TilePositions::Unknown), best(BWAPI::TilePositions::Unknown), pre(NULL)
         { }
 
         virtual ~ArrangementImpl()
@@ -33,10 +34,21 @@ class ArrangementImpl : public Arrangement
             pos = best = BWAPI::TilePositions::Unknown;
         }
 
+        virtual void registerPrecondition(int /*id*/, BuildingPositionInternal* p)
+        {
+            pre = p;
+        }
+        
+        virtual void releasePrecondition(int /*id*/)
+        {
+            pre = NULL;
+            delete this;
+        }
+
         bool condCall(const BWAPI::TilePosition& pos)
         {
             if (pos.x() < 0 || pos.x() >= mapWidth || pos.y() < 0 || pos.y() >= mapHeight) {
-                LOG << "Generator '" << demangle(typeid(Generator).name()) << "' returned tile out of range: " << pos;
+                WARNING << "Generator '" << demangle(typeid(Generator).name()) << "' returned tile out of range: " << pos;
                 return false;
             }
 
@@ -51,8 +63,9 @@ class ArrangementImpl : public Arrangement
             return condCall(best);
         }
 
-        virtual BWAPI::TilePosition onTick(int /*id*/)
+        virtual void onTick(int /*id*/)
         {
+            pre->setNewPosition(BWAPI::TilePositions::Unknown);
             if ((status == finished) && !isBestValid())
                 reset();
 
@@ -61,8 +74,10 @@ class ArrangementImpl : public Arrangement
                 status = gen.init(pos) ? searching : finished;
             }
 
-            if (status == finished)
-                return best;
+            if (status == finished) {
+                pre->setNewPosition(best);
+                return;
+            }
 
             const int max = 1000;
             int counter = 0;
@@ -82,7 +97,7 @@ class ArrangementImpl : public Arrangement
                 }
             }
 
-            return best;
+            pre->setNewPosition(best);
         }
 };
 

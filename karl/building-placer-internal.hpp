@@ -24,6 +24,7 @@ namespace
             : BuildingPositionPrecondition(1, t, BWAPI::TilePositions::Unknown), arr(a), arr_id(id)
         {
             planedbuildings.push_back(this);
+            arr->registerPrecondition(arr_id, this);
             reserveTiles(true);
             update();
         }
@@ -33,7 +34,7 @@ namespace
             Containers::remove(planedbuildings, this);
             reserveTiles(false);
             if (arr != NULL) {
-                arr->decRef();
+                arr->releasePrecondition(arr_id);
                 arr = NULL;
             }
         }
@@ -42,25 +43,27 @@ namespace
         {
             if (arr != NULL) {
                 LOG << "renew position called.";
-                time = 1;
+                setNewPosition(BWAPI::TilePositions::Unknown);
                 arr->reset();
+            }
+        }
+
+        void setNewPosition(const BWAPI::TilePosition& newpos)
+        {
+            if (newpos != pos) {
+                reserveTiles(false);
+                pos = newpos;
+                reserveTiles(true);
+                time = (pos == BWAPI::TilePositions::Unknown) ? 1 : 0;
             }
         }
 
         void update()
         {
-            if ((arr != NULL) && !(time == 0 && wishtime == 0)) {
-                /*if (pos == BWAPI::Positions::Unknown)
-                    LOG << "calling arr->onTick with unknown position.";*/
-                BWAPI::TilePosition newpos = arr->onTick(arr_id);
-                if (newpos != pos) {
-                    reserveTiles(false);
-                    pos = newpos;
-                    reserveTiles(true);
-                    time = (pos == BWAPI::Positions::Unknown) ? 1 : 0;
-                }
-            }
-            if (pos != BWAPI::Positions::Unknown) {
+            if ((arr != NULL) && !(time == 0 && wishtime == 0))
+                arr->onTick(arr_id);
+
+            if (pos != BWAPI::TilePositions::Unknown) {
                 if (ut.requiresPsi())
                     time = getPowerTime(pos, ut);
             }
@@ -68,7 +71,7 @@ namespace
 
         void reserveTiles(bool value)
         {
-            if (pos == BWAPI::Positions::Unknown)
+            if (pos == BWAPI::TilePositions::Unknown)
                 return;
 
             int upperX = std::min(pos.x() + ut.tileWidth(), mapWidth);

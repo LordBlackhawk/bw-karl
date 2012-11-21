@@ -4,26 +4,19 @@
 #include <BWAPI.h>
 #include <BWTA.h>
 
+namespace
+{
+    struct BuildingPositionInternal;
+}
+
 class Arrangement : public ObjectCounter<Arrangement>
 {
-    protected:
-        int refcounter;
-
     public:
-        Arrangement(int rc)
-            : refcounter(rc)
-        { }
-
-        void decRef()
-        {
-            --refcounter;
-            if (refcounter == 0)
-                delete this;
-        }
-
         virtual ~Arrangement()
         { }
 
+        virtual void releasePrecondition(int id) = 0;
+        virtual void registerPrecondition(int id, BuildingPositionInternal* pre) = 0;
         virtual void reset() = 0;
-        virtual BWAPI::TilePosition onTick(int id) = 0;
+        virtual void onTick(int id) = 0;
 };
