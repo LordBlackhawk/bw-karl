@@ -1,3 +1,9 @@
+// ToDo:
+//  * Put code of dual graph to own file.
+//  * Put code of placement to new arrangement code.
+//  * Rewrite Placement::space by using dimensionLeft/dimensionUp/dimensionRight/dimensionDown.
+//  * Draw dual graph to map to fix bugs.
+
 #include "wall-in.hpp"
 #include "building-placer.hpp"
 #include "log.hpp"
@@ -11,6 +17,22 @@ using namespace BWTA;
 
 namespace
 {
+    // Numbering of building side ('d' used in Placement::space, ...):
+    //          1
+    //       -------
+    //      |       |
+    //    2 |       | 0
+    //      |       |
+    //       -------
+    //          3
+
+    // TilePosition 0,0 with numbering of dual graph nodes and dual graph edges arround:
+    //    0,0------>1,0
+    //      |       |
+    //      |  0,0  |
+    //      V       |
+    //    0,1-------1,1
+
     struct Graph;
     struct Node;
     struct Edge;
@@ -138,7 +160,7 @@ namespace
     struct Node
     {
         int x, y;
-        
+
         Node()
             : x(0), y(0)
         { }
@@ -227,7 +249,7 @@ namespace
     {
         return edge.isWalkable(graph);
     }
-    
+
     std::set<Node> visited_debug;
 
     bool findWay(const Graph& graph, const Node& start, const Node& end)
@@ -257,7 +279,7 @@ namespace
         LOG << "No way found!!!";
         return false;
     }
-    
+
     int placements = 0;
 
     bool searchPlacement(BWTA::Region* region, Graph& graph, const Node& start, const Node& end, int deep = 0)
@@ -303,7 +325,7 @@ namespace
             return true;
         if (additional <= 0)
             return false;
-        
+
         LOG << "increasing placement size.";
 
         graph.placements.push_back(Placement(UnitTypes::Terran_Supply_Depot));
@@ -405,7 +427,7 @@ std::set<BuildingPositionPrecondition*> designWallIn(BWTA::Region* region, Choke
     lastGraph = graph;
     lastStart = start;
     lastEnd   = end;
-    
+
     if (!findWay(graph, start, end)) {
         WARNING << "No way found without buildings!";
         return std::set<BuildingPositionPrecondition*>();
@@ -426,9 +448,9 @@ std::set<BuildingPositionPrecondition*> designWallIn()
 {
     BWTA::Region* home = getStartLocation(Broodwar->self())->getRegion();
     RegionChokepointPairSet pairs = getAllSeperatingPairs(home, home);
-    
+
     LOG << "Found " << pairs.size() << " possible chokepoints for the wall-in.";
-    
+
     std::set<BuildingPositionPrecondition*> result;
     for (auto it : pairs) {
         result = designWallIn(it.first, it.second);

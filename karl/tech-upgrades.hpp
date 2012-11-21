@@ -16,8 +16,8 @@ void upgradeTechEx(const BWAPI::UpgradeType& gt);
 
 struct TechCode : public DefaultCode
 {
-	static void onMatchEnd();
-	static void onTick();
-	static void onDrawPlan(HUDTextOutput& hud);
-	static void onCheckMemoryLeaks();
+    static void onMatchEnd();
+    static void onTick();
+    static void onDrawPlan(HUDTextOutput& hud);
+    static void onCheckMemoryLeaks();
 };

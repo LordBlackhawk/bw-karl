@@ -13,8 +13,8 @@ void morphUnitEx(const BWAPI::UnitType& ut);
 
 struct UnitMorpherCode : public DefaultCode
 {
-	static void onMatchEnd();
+    static void onMatchEnd();
     static void onTick();
-	static void onDrawPlan(HUDTextOutput& hud);
-	static void onCheckMemoryLeaks();
+    static void onDrawPlan(HUDTextOutput& hud);
+    static void onCheckMemoryLeaks();
 };

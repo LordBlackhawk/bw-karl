@@ -20,86 +20,86 @@ class ParallelVector
 
     public:
         ParallelVector()
-		{ }
-		
+        { }
+        
         void update()
-		{
-			if (!newitems.empty()) {
-				items.insert(items.end(), newitems.begin(), newitems.end());
-				newitems.clear();
-			}
-		}
-		
-		void clear()
-		{
-			items.clear();
-			newitems.clear();
-		}
+        {
+            if (!newitems.empty()) {
+                items.insert(items.end(), newitems.begin(), newitems.end());
+                newitems.clear();
+            }
+        }
+        
+        void clear()
+        {
+            items.clear();
+            newitems.clear();
+        }
 
         size_type size() const
-		{
-			return items.size();
-		}
-		
+        {
+            return items.size();
+        }
+        
         iterator begin()
-		{
-			return items.begin();
-		}
-		
+        {
+            return items.begin();
+        }
+        
         const_iterator begin() const
-		{
-			return items.begin();
-		}
-		
+        {
+            return items.begin();
+        }
+        
         iterator end()
-		{
-			return items.end();
-		}
-		
+        {
+            return items.end();
+        }
+        
         const_iterator end() const
-		{
-			return items.end();
-		}
-		
+        {
+            return items.end();
+        }
+        
         void push_back(const T& item)
-		{
-			newitems.push_back(item);
-		}
-		
+        {
+            newitems.push_back(item);
+        }
+        
         T& operator [] (int index)
-		{
-			return items[index];
-		}
-		
+        {
+            return items[index];
+        }
+        
         const T& operator [] (int index) const
-		{
-			return items[index];
-		}
-		
-		void erase(iterator first, iterator last)
-		{
-			items.erase(first, last);
-		}
+        {
+            return items[index];
+        }
+        
+        void erase(iterator first, iterator last)
+        {
+            items.erase(first, last);
+        }
 };
 
 namespace Containers
 {
-	template <class T>
-	void add(ParallelVector<T>& container, const T& element)
-	{
-		container.push_back(element);
-	}
-	
-	template <class T>
-	void remove(ParallelVector<T>& container, const T& element)
-	{
-		container.erase(std::remove(container.begin(), container.end(), element), container.end());
-	}
-	
-	template <class T, class F>
-	void remove_if(ParallelVector<T>& container, F f)
-	{
-		container.erase(std::remove_if(container.begin(), container.end(), f), container.end());
-	}
+    template <class T>
+    void add(ParallelVector<T>& container, const T& element)
+    {
+        container.push_back(element);
+    }
+    
+    template <class T>
+    void remove(ParallelVector<T>& container, const T& element)
+    {
+        container.erase(std::remove(container.begin(), container.end(), element), container.end());
+    }
+    
+    template <class T, class F>
+    void remove_if(ParallelVector<T>& container, F f)
+    {
+        container.erase(std::remove_if(container.begin(), container.end(), f), container.end());
+    }
 }
 

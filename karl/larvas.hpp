@@ -10,10 +10,10 @@ void registerLarva(BWAPI::Unit* u);
 
 struct LarvaCode : public DefaultCode
 {
-	static void onMatchBegin();
-	static void onMatchEnd();
-	static void onTick();
-	static bool onAssignUnit(BWAPI::Unit* unit);
-	static void onDrawPlan(HUDTextOutput& hud);
-	static void onCheckMemoryLeaks(); 
+    static void onMatchBegin();
+    static void onMatchEnd();
+    static void onTick();
+    static bool onAssignUnit(BWAPI::Unit* unit);
+    static void onDrawPlan(HUDTextOutput& hud);
+    static void onCheckMemoryLeaks(); 
 };

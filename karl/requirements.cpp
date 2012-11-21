@@ -31,9 +31,9 @@ namespace
     
     struct RequirementHandler : public ObjectCounter<RequirementHandler>
     {
-        int 							time;
-        std::set<Unit*>					finished;
-        std::vector<ReqUnitInternal*>  	planed;
+        int                             time;
+        std::set<Unit*>                 finished;
+        std::vector<ReqUnitInternal*>   planed;
         
         RequirementHandler()
             : time(1)
@@ -99,7 +99,7 @@ namespace
         }
     }
     
-    std::map<UnitType, RequirementHandler*>	requirements;
+    std::map<UnitType, RequirementHandler*> requirements;
     
     RequirementHandler* getOrCreateHandler(const UnitType& ut)
     {

@@ -1,5 +1,5 @@
 // ToDo:
-//  *
+//  * Remove 'missing larva in new hatchery'-bug.
 
 #include "larvas.hpp"
 #include "precondition-helper.hpp"

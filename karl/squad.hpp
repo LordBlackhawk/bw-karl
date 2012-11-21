@@ -22,7 +22,7 @@ public:
     void setName(std::string desc);
     
     Squad();
-	virtual ~Squad();
+    virtual ~Squad();
     
     virtual void onTick();
     virtual void onDrawPlan();
@@ -39,8 +39,8 @@ Squad* getSquadByName(const std::string& name);
 struct SquadCode : public DefaultCode
 {
     static void onMatchBegin();
-	static void onMatchEnd();
-	static void onTick();
-	static void onDrawPlan(HUDTextOutput& hud);
-	static void onCheckMemoryLeaks();
+    static void onMatchEnd();
+    static void onTick();
+    static void onDrawPlan(HUDTextOutput& hud);
+    static void onCheckMemoryLeaks();
 };

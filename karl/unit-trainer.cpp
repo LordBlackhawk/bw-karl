@@ -1,5 +1,5 @@
 // ToDo:
-// *
+//  * Remove '5 units in stack'-bug.
 
 #include "unit-trainer.hpp"
 #include "resources.hpp"

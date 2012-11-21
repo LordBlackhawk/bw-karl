@@ -1,6 +1,8 @@
 // ToDo:
 //  * Backup unit, if first is attacked.
 //  * Send worker to building location.
+//  * Remove 'Commanded, but doing nothing'-bug.
+//  * Continue correctly if worker dies.
 
 #include "unit-builder.hpp"
 #include "building-placer.hpp"

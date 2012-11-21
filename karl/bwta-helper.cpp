@@ -1,3 +1,6 @@
+// ToDo:
+//  * Learn BWTA blocked chokepoints.
+
 #include "bwta-helper.hpp"
 
 using namespace BWAPI;

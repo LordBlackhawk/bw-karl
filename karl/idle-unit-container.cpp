@@ -1,5 +1,5 @@
 // ToDo:
-//  *
+//  * Use hungarian algorithm to assign idle units.
 
 #include "idle-unit-container.hpp"
 #include "code-list.hpp"

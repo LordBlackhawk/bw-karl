@@ -7,7 +7,7 @@ void useScout(UnitPrecondition* pre);
 
 struct ScoutCode : public DefaultCode
 {
-	static void onMatchBegin();
-	static void onMatchEnd();
-	static void onTick();
+    static void onMatchBegin();
+    static void onMatchEnd();
+    static void onTick();
 };

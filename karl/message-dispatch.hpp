@@ -4,6 +4,6 @@
 
 struct MessageDispatchCode : public DefaultCode
 {
-	static void onMatchBegin();
-	static void onTick();
+    static void onMatchBegin();
+    static void onTick();
 };

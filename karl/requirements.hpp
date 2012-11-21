@@ -11,15 +11,15 @@ UnitPrecondition* registerRequirement(UnitPrecondition* unit);
 
 namespace RequirementsMode
 {
-	enum { None, Auto };
+    enum { None, Auto };
 }
 void setRequirementsMode(int m);
 
 struct RequirementsCode : public DefaultCode
 {
-	static void onMatchBegin();
-	static void onMatchEnd();
-	static void onTick();
-	static void onUnitDestroy(BWAPI::Unit* unit);
-	static void onCheckMemoryLeaks();
+    static void onMatchBegin();
+    static void onMatchEnd();
+    static void onTick();
+    static void onUnitDestroy(BWAPI::Unit* unit);
+    static void onCheckMemoryLeaks();
 };

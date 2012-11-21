@@ -10,48 +10,48 @@ HungarianAlgorithmImpl::ctype HungarianAlgorithmImpl::infty() const
 
 void HungarianAlgorithmImpl::prepare(int r, int c)
 {
-	rows = r;
-	cols = c;
-	dim  = std::max(rows, cols);
+    rows = r;
+    cols = c;
+    dim  = std::max(rows, cols);
     if (dim == 0)
         return;
 
-	costMatrixElements.resize(dim*dim);
-	labelByWorker.resize(dim);
-	labelByJob.resize(dim);
-	minSlackWorkerByJob.resize(dim);
-	minSlackValueByJob.resize(dim);
-	committedWorkers.resize(dim);
-	parentWorkerByCommittedJob.resize(dim);
-	matchJobByWorker.resize(dim);
-	matchWorkerByJob.resize(dim);
+    costMatrixElements.resize(dim*dim);
+    labelByWorker.resize(dim);
+    labelByJob.resize(dim);
+    minSlackWorkerByJob.resize(dim);
+    minSlackValueByJob.resize(dim);
+    committedWorkers.resize(dim);
+    parentWorkerByCommittedJob.resize(dim);
+    matchJobByWorker.resize(dim);
+    matchWorkerByJob.resize(dim);
 
     Containers::fill(labelByWorker, 0);
-	Containers::fill(matchJobByWorker, -1);
-	Containers::fill(matchWorkerByJob, -1);
+    Containers::fill(matchJobByWorker, -1);
+    Containers::fill(matchWorkerByJob, -1);
 }
 
 void HungarianAlgorithmImpl::execute()
 {
-	/*
-	* Heuristics to improve performance: Reduce rows and columns by their
-	* smallest element, compute an initial non-zero dual feasible solution
-	* and create a greedy matching from workers to jobs of the cost matrix.
-	*/
+    /*
+    * Heuristics to improve performance: Reduce rows and columns by their
+    * smallest element, compute an initial non-zero dual feasible solution
+    * and create a greedy matching from workers to jobs of the cost matrix.
+    */
     
     if (dim == 0)
         return;
 
-	reduce();
-	computeInitialFeasibleSolution();
-	greedyMatch();
+    reduce();
+    computeInitialFeasibleSolution();
+    greedyMatch();
 
-	int w = fetchUnmatchedWorker();
-	while (w < dim) {
-		initializePhase(w);
-		executePhase();
-		w = fetchUnmatchedWorker();
-	}
+    int w = fetchUnmatchedWorker();
+    while (w < dim) {
+        initializePhase(w);
+        executePhase();
+        w = fetchUnmatchedWorker();
+    }
 }
 
 /**
@@ -61,13 +61,13 @@ void HungarianAlgorithmImpl::execute()
 */
 void HungarianAlgorithmImpl::computeInitialFeasibleSolution()
 {
-	for (int j=0; j<dim; ++j)
-		labelByJob[j] = infty();
+    for (int j=0; j<dim; ++j)
+        labelByJob[j] = infty();
 
-	for (int w=0; w<dim; ++w)
-		for (int j=0; j<dim; ++j)
-			if (costMatrix(w, j) < labelByJob[j])
-				labelByJob[j] = costMatrix(w, j);
+    for (int w=0; w<dim; ++w)
+        for (int j=0; j<dim; ++j)
+            if (costMatrix(w, j) < labelByJob[j])
+                labelByJob[j] = costMatrix(w, j);
 }
 
 /**
@@ -91,54 +91,54 @@ void HungarianAlgorithmImpl::computeInitialFeasibleSolution()
 */
 void HungarianAlgorithmImpl::executePhase()
 {
-	while (true) {
-		int minSlackWorker = -1, minSlackJob = -1;
-		ctype minSlackValue = infty();
-		for (int j = 0; j < dim; j++) {
-			if (parentWorkerByCommittedJob[j] == -1) {
-				if (minSlackValueByJob[j] < minSlackValue) {
-					minSlackValue = minSlackValueByJob[j];
-					minSlackWorker = minSlackWorkerByJob[j];
-					minSlackJob = j;
-				}
-			}
-		}
-		if (minSlackValue > 0)
-			updateLabeling(minSlackValue);
-		parentWorkerByCommittedJob[minSlackJob] = minSlackWorker;
-		if (matchWorkerByJob[minSlackJob] == -1) {
-			/*
-			* An augmenting path has been found.
-			*/
-			int committedJob = minSlackJob;
-			int parentWorker = parentWorkerByCommittedJob[committedJob];
-			while (true) {
-				int temp = matchJobByWorker[parentWorker];
-				match(parentWorker, committedJob);
-				committedJob = temp;
-				if (committedJob == -1)
-					break;
-				parentWorker = parentWorkerByCommittedJob[committedJob];
-			}
-			return;
-		} else {
-			/*
-			* Update slack values since we increased the size of the
-			* committed workers set.
-			*/
-			int worker = matchWorkerByJob[minSlackJob];
-			committedWorkers[worker] = true;
-			for (int j = 0; j < dim; j++) {
-				if (parentWorkerByCommittedJob[j] == -1) {
-					ctype slack = costMatrix(worker, j) - labelByWorker[worker] - labelByJob[j];
-					if (minSlackValueByJob[j] > slack) {
-						minSlackValueByJob[j] = slack;
-						minSlackWorkerByJob[j] = worker;
-					}
-				}
-			}
-		}
-	}
+    while (true) {
+        int minSlackWorker = -1, minSlackJob = -1;
+        ctype minSlackValue = infty();
+        for (int j = 0; j < dim; j++) {
+            if (parentWorkerByCommittedJob[j] == -1) {
+                if (minSlackValueByJob[j] < minSlackValue) {
+                    minSlackValue = minSlackValueByJob[j];
+                    minSlackWorker = minSlackWorkerByJob[j];
+                    minSlackJob = j;
+                }
+            }
+        }
+        if (minSlackValue > 0)
+            updateLabeling(minSlackValue);
+        parentWorkerByCommittedJob[minSlackJob] = minSlackWorker;
+        if (matchWorkerByJob[minSlackJob] == -1) {
+            /*
+            * An augmenting path has been found.
+            */
+            int committedJob = minSlackJob;
+            int parentWorker = parentWorkerByCommittedJob[committedJob];
+            while (true) {
+                int temp = matchJobByWorker[parentWorker];
+                match(parentWorker, committedJob);
+                committedJob = temp;
+                if (committedJob == -1)
+                    break;
+                parentWorker = parentWorkerByCommittedJob[committedJob];
+            }
+            return;
+        } else {
+            /*
+            * Update slack values since we increased the size of the
+            * committed workers set.
+            */
+            int worker = matchWorkerByJob[minSlackJob];
+            committedWorkers[worker] = true;
+            for (int j = 0; j < dim; j++) {
+                if (parentWorkerByCommittedJob[j] == -1) {
+                    ctype slack = costMatrix(worker, j) - labelByWorker[worker] - labelByJob[j];
+                    if (minSlackValueByJob[j] > slack) {
+                        minSlackValueByJob[j] = slack;
+                        minSlackWorkerByJob[j] = worker;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -146,11 +146,11 @@ void HungarianAlgorithmImpl::executePhase()
 */
 int HungarianAlgorithmImpl::fetchUnmatchedWorker()
 {
-	int w=0;
-	for (; w<dim; ++w)
-		if (matchJobByWorker[w] == -1)
-			break;
-	return w;
+    int w=0;
+    for (; w<dim; ++w)
+        if (matchJobByWorker[w] == -1)
+            break;
+    return w;
 }
 
 /**
@@ -159,16 +159,16 @@ int HungarianAlgorithmImpl::fetchUnmatchedWorker()
 */
 void HungarianAlgorithmImpl::greedyMatch()
 {
-	for (int w=0; w<dim; ++w)
-		for (int j=0; j<dim; ++j)
-	{
-		if (   (matchJobByWorker[w] == -1)
-			&& (matchWorkerByJob[j] == -1)
-			&& (costMatrix(w, j) - labelByWorker[w] - labelByJob[j] == 0))
-		{
-			match(w, j);
-		}
-	}
+    for (int w=0; w<dim; ++w)
+        for (int j=0; j<dim; ++j)
+    {
+        if (   (matchJobByWorker[w] == -1)
+            && (matchWorkerByJob[j] == -1)
+            && (costMatrix(w, j) - labelByWorker[w] - labelByJob[j] == 0))
+        {
+            match(w, j);
+        }
+    }
 }
 
 /**
@@ -181,13 +181,13 @@ void HungarianAlgorithmImpl::greedyMatch()
 */
 void HungarianAlgorithmImpl::initializePhase(int w)
 {
-	Containers::fill(committedWorkers, false);
-	Containers::fill(parentWorkerByCommittedJob, -1);
-	committedWorkers[w] = true;
-	for (int j=0; j<dim; ++j) {
-		minSlackValueByJob[j] = costMatrix(w, j) - labelByWorker[w] - labelByJob[j];
-		minSlackWorkerByJob[j] = w;
-	}
+    Containers::fill(committedWorkers, false);
+    Containers::fill(parentWorkerByCommittedJob, -1);
+    committedWorkers[w] = true;
+    for (int j=0; j<dim; ++j) {
+        minSlackValueByJob[j] = costMatrix(w, j) - labelByWorker[w] - labelByJob[j];
+        minSlackWorkerByJob[j] = w;
+    }
 }
 
 /**
@@ -195,8 +195,8 @@ void HungarianAlgorithmImpl::initializePhase(int w)
 */
 void HungarianAlgorithmImpl::match(int w, int j)
 {
-	matchJobByWorker[w] = j;
-	matchWorkerByJob[j] = w;
+    matchJobByWorker[w] = j;
+    matchWorkerByJob[j] = w;
 }
 
 /**
@@ -207,25 +207,25 @@ void HungarianAlgorithmImpl::match(int w, int j)
 */
 void HungarianAlgorithmImpl::reduce()
 {
-	for (int w=0; w<dim; ++w) {
-		ctype min = infty();
-		for (int j=0; j<dim; ++j)
-			if (costMatrix(w, j) < min)
-				min = costMatrix(w, j);
+    for (int w=0; w<dim; ++w) {
+        ctype min = infty();
+        for (int j=0; j<dim; ++j)
+            if (costMatrix(w, j) < min)
+                min = costMatrix(w, j);
 
-		for (int j=0; j<dim; ++j)
-			costMatrix(w, j) -= min;
-	}
+        for (int j=0; j<dim; ++j)
+            costMatrix(w, j) -= min;
+    }
 
-	for (int j=0; j<dim; ++j) {
-		ctype min = infty();
-		for (int w=0; w<dim; ++w)
-			if (costMatrix(w, j) < min)
-				min = costMatrix(w, j);
+    for (int j=0; j<dim; ++j) {
+        ctype min = infty();
+        for (int w=0; w<dim; ++w)
+            if (costMatrix(w, j) < min)
+                min = costMatrix(w, j);
 
-		for (int w=0; w<dim; ++w)
-			costMatrix(w, j) -= min;
-	}
+        for (int w=0; w<dim; ++w)
+            costMatrix(w, j) -= min;
+    }
 }
 
 /**
@@ -235,16 +235,16 @@ void HungarianAlgorithmImpl::reduce()
 */
 void HungarianAlgorithmImpl::updateLabeling(ctype slack)
 {
-	for (int w=0; w<dim; ++w)
-		if (committedWorkers[w])
-			labelByWorker[w] += slack;
+    for (int w=0; w<dim; ++w)
+        if (committedWorkers[w])
+            labelByWorker[w] += slack;
 
-	for (int j=0; j<dim; ++j)
-		if (parentWorkerByCommittedJob[j] != -1) {
-			labelByJob[j] -= slack;
-		} else {
-			minSlackValueByJob[j] -= slack;
-		}
+    for (int j=0; j<dim; ++j)
+        if (parentWorkerByCommittedJob[j] != -1) {
+            labelByJob[j] -= slack;
+        } else {
+            minSlackValueByJob[j] -= slack;
+        }
 }
 
 bool HungarianAlgorithmImpl::isValid()

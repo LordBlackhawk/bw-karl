@@ -1,5 +1,8 @@
 // ToDo:
 //  * Do not build into mineral line.
+//  * Implement arrangement with multiple buildings, e.g., for wall-in and cannon-rush.
+//  * Take into account creep producing buildings.
+//  * Cluster supply depots.
 
 #include "building-placer.hpp"
 #include "array2d.hpp"
