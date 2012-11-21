@@ -42,6 +42,41 @@ namespace ArrangementCondition
         (void) position;
         return (info.creeptime < Precondition::Max);
     }
+    
+    DEF(NoResourcesNear)
+    {
+        (void) info;
+        int left   = position.x();
+        int top    = position.y();
+
+        for (auto m : Broodwar->getStaticMinerals())
+        {
+            if (Broodwar->isVisible(m->getInitialTilePosition()) ||
+                Broodwar->isVisible(m->getInitialTilePosition().x() + 1, m->getInitialTilePosition().y()))
+            {
+                if (!m->isVisible())
+                    continue; // tile position is visible, but mineral is not => mineral does not exist
+            }
+            if (m->getInitialTilePosition().x() > left - 5 &&
+                m->getInitialTilePosition().y() > top  - 4 &&
+                m->getInitialTilePosition().x() < left + 7 &&
+                m->getInitialTilePosition().y() < top  + 6)
+            {
+                return false;
+            }
+        }
+        for (auto g : Broodwar->getStaticGeysers())
+        {
+            if (g->getInitialTilePosition().x() > left - 7 &&
+                g->getInitialTilePosition().y() > top  - 5 &&
+                g->getInitialTilePosition().x() < left + 7 &&
+                g->getInitialTilePosition().y() < top  + 6)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
     #undef DEF
     

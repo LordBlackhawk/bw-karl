@@ -22,6 +22,9 @@ UnitPrecondition* registerBase(UnitPrecondition* b);
 
 bool buildRefinery(const BWAPI::UnitType& type);
 
+void setGasWorkerPerRefinery(int nw = 3);
+int freeMineralLinePlaces();
+
 struct MineralLineCode : public DefaultCode
 {
     static void onMatchBegin();

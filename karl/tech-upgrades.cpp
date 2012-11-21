@@ -294,6 +294,11 @@ void upgradeTechEx(const BWAPI::UpgradeType& gt)
     rememberIdle(upgradeTech(gt));
 }
 
+int numberOfPlanedTechs()
+{
+    return list.size();
+}
+
 void TechCode::onMatchEnd()
 {
     list.clear();

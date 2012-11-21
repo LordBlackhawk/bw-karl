@@ -36,11 +36,15 @@ void logInternal(const std::string& file, int line, const std::string& functionn
 
 std::ostream& operator << (std::ostream& stream, const BWAPI::Position& pos)
 {
+    if (pos == Positions::Unknown)
+        return stream << "P::Unknown";
     return stream << "(" << pos.x() << ", " << pos.y() << ")";
 }
 
 std::ostream& operator << (std::ostream& stream, const BWAPI::TilePosition& tp)
 {
+    if (tp == TilePositions::Unknown)
+        return stream << "TP::Unknown";
     return stream << "TP(" << tp.x() << ", " << tp.y() << ")";
 }
 

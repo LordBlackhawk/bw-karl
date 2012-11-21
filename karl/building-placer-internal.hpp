@@ -43,7 +43,6 @@ namespace
         {
             if (arr != NULL) {
                 LOG << "renew position called.";
-                setNewPosition(BWAPI::TilePositions::Unknown);
                 arr->reset();
             }
         }

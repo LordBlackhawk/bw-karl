@@ -16,6 +16,8 @@ ctype valueResources(int time, int wishtime, int index);
 ctype valueSupply(int time, int wishtime, int index);
 ctype valueExpo(BWTA::BaseLocation* expo, BWTA::BaseLocation* home);
 
+void setIndexCoeff(int newvalue);
+
 struct ValuingCode : public DefaultCode
 {
     static void onTick();

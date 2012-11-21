@@ -153,6 +153,10 @@ namespace
                 newWorker();
                 return;
             }
+            if (position->pos == TilePositions::Unknown) {
+                status = pending;
+                return;
+            }
             THIS_DEBUG << "Sending worker to build " << ut;
             if (!position->isExplored()) {
                 worker->rightClick(Position(position->pos));
@@ -166,8 +170,8 @@ namespace
                     newPosition();
                     return;
                 }
-                WARNING << "Error: Unable to build unit " << ut << ": " << err << "\n"
-                        << "\t\tfrom " << worker->getType() << " (player " << worker->getPlayer()->getName() << ")";
+                WARNING << "Error: Unable to build unit " << ut << " at " << position->pos << ": " << err << "\n"
+                        << "\t\tfrom " << worker << " " << worker->getType() << " (player " << worker->getPlayer()->getName() << ")";
                 if (err == Errors::Unbuildable_Location) {
                     newPosition();
                     return;

@@ -7,6 +7,7 @@
 #include <BWTA.h>
 
 #include <windows.h>
+#include <time.h>
 
 using namespace BWAPI;
 
@@ -21,6 +22,7 @@ void reconnect()
 int main(int argc, const char* argv[])
 {
     LOG << "Parameter loading...";
+    srand (time(NULL));
     CodeList::onProgramStart(argv[0]);
     CodeList::readParameter(argc, argv);
 

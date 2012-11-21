@@ -1,5 +1,5 @@
 // ToDo:
-//  * LinePrinter class + onPrintLine event to put infos.
+//  *
 
 #include "hud-code.hpp"
 #include "timer.hpp"
@@ -89,13 +89,29 @@ namespace
         for (auto i : unitTypeCounts)
             hud.printf("- %d %ss", i.second, i.first.getName().c_str());
     }
+    
+    void drawUnitInfo(HUDTextOutput& hud)
+    {
+        std::set<Unit*> selectedunits = Broodwar->getSelectedUnits();
+        if (selectedunits.size() != 1)
+            return;
 
-    bool showterrain = false;
-    bool showbullets = false;
-    bool showstats   = false;
-    bool showfps     = true;
-    bool showtiming  = true;
-    bool showplan    = true;
+        Unit* selected = *selectedunits.begin();
+        hud.printf(" ");
+        hud.printf("Selected unit information:");
+        hud.printf(" - ptr: 0x%p", selected);
+        hud.printf(" - type: %s", selected->getType().getName().c_str());
+        hud.printf(" - isIdle: %s", selected->isIdle() ? "true" : "false");
+        // ToDo: add for important informations!
+    }
+
+    bool showterrain  = false;
+    bool showbullets  = false;
+    bool showstats    = false;
+    bool showfps      = true;
+    bool showtiming   = true;
+    bool showplan     = true;
+    bool showunitinfo = true;
 }
 
 void HUDCode::onTick()
@@ -116,6 +132,8 @@ void HUDCode::onTick()
         Broodwar->drawTextScreen(300, 0, "FPS: %f", Broodwar->getAverageFPS());
     if (showplan)
         CodeList::onDrawPlan(hud);
+    if (showunitinfo)
+        drawUnitInfo(hud);
 }
 
 void HUDCode::onPausedTick()

@@ -57,7 +57,7 @@ namespace
     {
         if (!w->getType().isWorker())
             return false;
-        
+
         useWorker(w);
         return true;
     }

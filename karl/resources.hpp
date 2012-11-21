@@ -8,6 +8,9 @@ ResourcesPrecondition* getResources(const BWAPI::UnitType& ut);
 ResourcesPrecondition* getResources(const BWAPI::TechType& tt);
 ResourcesPrecondition* getResources(const BWAPI::UpgradeType& gt);
 
+void setGasOnDemand(bool value);
+int estimateResourcesAt(int time);
+
 struct ResourcesCode : public DefaultCode
 {
     static void onMatchBegin();

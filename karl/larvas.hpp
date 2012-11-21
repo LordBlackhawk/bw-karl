@@ -8,6 +8,8 @@ void registerHatchery(BWAPI::Unit* u);
 UnitPrecondition* registerHatchery(UnitPrecondition* hatch);
 void registerLarva(BWAPI::Unit* u);
 
+int nextFreeLarvaTime();
+
 struct LarvaCode : public DefaultCode
 {
     static void onMatchBegin();

@@ -22,6 +22,8 @@ void initStandardPlaning(const BWAPI::Race& race)
                 registerHatchery(it);
         } else if (type == Zerg_Larva) {
             registerLarva(it);
+        } else {
+            rememberIdle(it);
         }
     }
     

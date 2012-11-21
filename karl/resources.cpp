@@ -69,9 +69,42 @@ ResourcesPrecondition* getResources(const BWAPI::UpgradeType& gt)
     return getResources(gt.mineralPrice(), gt.gasPrice());
 }
 
+namespace
+{
+    bool bGasOnDemand       = false;
+    bool bGasOnDemandActive = false;
+    
+    void checkGasOnDemand()
+    {
+        if (!bGasOnDemand)
+            return;
+
+        int cur    = Broodwar->self()->gas();
+        int needed = 0;
+        for (auto it : reslist)
+            needed += it->gas;
+
+        bool needGas = needed > cur;
+        if (needGas != bGasOnDemandActive) {
+            LOG << "change gas status to " << (needGas ? "" : "not ") << "mining.";
+            setGasWorkerPerRefinery(needGas ? 3 : 0);
+            bGasOnDemandActive = needGas;
+        }
+    }
+}
+
+void setGasOnDemand(bool value)
+{
+    bGasOnDemand       = value;
+    bGasOnDemandActive = false;
+    setGasWorkerPerRefinery(0);
+}
+
 void ResourcesCode::onMatchBegin()
 {
-    indexcounter = 0;
+    indexcounter       = 0;
+    bGasOnDemand       = false;
+    bGasOnDemandActive = false;
 }
 
 void ResourcesCode::onMatchEnd()
@@ -81,6 +114,8 @@ void ResourcesCode::onMatchEnd()
 
 void ResourcesCode::onTick()
 {
+    checkGasOnDemand();
+
     std::stable_sort(reslist.begin(), reslist.end(), ResourcesSorter());
 
     Player* self = Broodwar->self();
@@ -153,6 +188,16 @@ namespace
 {
     CircleBuffer<int, 1000> mineralCirc(50);
     CircleBuffer<int, 1000> gasCirc(0);
+}
+
+int estimateResourcesAt(int time)
+{
+    int result = Broodwar->self()->minerals();
+    Production& prod = estimatedProduction[0];
+    result += ((time - Broodwar->getFrameCount()) * prod.minerals) / 1000;
+    for (auto it : reslist)
+        result -= it->minerals;
+    return result;
 }
 
 void ResourcesCode::onDrawPlan(HUDTextOutput& /*hud*/)

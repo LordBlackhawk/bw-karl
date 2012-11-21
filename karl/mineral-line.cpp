@@ -33,6 +33,8 @@ std::vector<Production> estimatedProduction;
 
 namespace
 {
+    int defaultGasWorkerNumber = 3;
+
     struct WorkerAgent;
     struct WorkerJob;
     struct WorkerPrecondition;
@@ -141,7 +143,12 @@ namespace
         {
             //lines.push_back(this);
         }
-        
+
+        bool isGasReady() const
+        {
+            return (geyser->getPlayer() == Broodwar->self() && geyser->isIdle());
+        }
+
         ~WorkerLine()
         {
             while (!jobs.empty())
@@ -185,6 +192,7 @@ namespace
             return sum;
         }
 
+        void setJobCount(int c);
         void commandWorker(WorkerAgent* agent);
         void releaseWorker(WorkerAgent* agent);
         void addJob();
@@ -468,23 +476,30 @@ namespace
         jobs.erase(it);
     }
 
-    void WorkerLine::updateMineralLineJobs()
+    void WorkerLine::setJobCount(int count)
     {
-        updateMineralfields();
-        auto count = (3 * mineralfields) / 2;
-        if (count < (int) jobs.size())
-            THIS_DEBUG << "reducing mineral jobs to " << count << ".";
-        
+        if (count == (int) jobs.size())
+            return;
+        LOG << "New job count is " << count;
         while (count > (int) jobs.size())
             addJob();
         while (count < (int) jobs.size())
             removeJob();
     }
 
+    void WorkerLine::updateMineralLineJobs()
+    {
+        updateMineralfields();
+        auto count = (3 * mineralfields) / 2;
+        if (count < (int) jobs.size())
+            THIS_DEBUG << "reducing mineral jobs to " << count << ".";
+        setJobCount(count);
+    }
+
     void WorkerLine::onUnitReady()
     {
         if (geyser != NULL) {
-            for (int k=0; k<3; ++k)
+            for (int k=0; k<defaultGasWorkerNumber; ++k)
                 addJob();
             THIS_DEBUG << "created refinery jobs...";
         } else {
@@ -608,8 +623,30 @@ bool buildRefinery(const BWAPI::UnitType& type)
     return false;
 }
 
+int freeMineralLinePlaces()
+{
+    int result = 0;
+    for (auto it : lines)
+    {
+        for (auto jit : it->jobs)
+            if (jit->assigned == NULL)
+                ++result;
+    }
+    return result;
+}
+
+void setGasWorkerPerRefinery(int nw)
+{
+    defaultGasWorkerNumber = nw;
+    for (auto it : lines)
+        for (auto git : it->gaslines)
+            if (git->isGasReady())
+                git->setJobCount(nw);
+}
+
 void MineralLineCode::onMatchBegin()
 {
+    defaultGasWorkerNumber = 3;
     estimatedProduction.resize(1);
     Production& prod = estimatedProduction[0];
     prod.time     = 0;

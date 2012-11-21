@@ -1,5 +1,5 @@
 // ToDo:
-//  * Remove 'missing larva in new hatchery'-bug.
+//  *
 
 #include "larvas.hpp"
 #include "precondition-helper.hpp"
@@ -211,16 +211,11 @@ namespace
             hatcheries.push_back(this);
         }
 
-        void onRemoveFromList()
-        {
-            Containers::remove(hatcheries, this);
-        }
-        
         void onUnitReady()
         {
             auto itend = unassigned_agents.end();
             auto it    = std::remove_if(unassigned_agents.begin(), itend, std::bind(isAgentOfHatch, _1, unit));
-            agents.insert(agents.end(), it, itend);
+            agents.insert(agents.begin(), it, itend);
             unassigned_agents.erase(it, itend);
         }
         
@@ -381,6 +376,16 @@ void registerLarva(BWAPI::Unit* u)
     distributeLarva(u);
 }
 
+int nextFreeLarvaTime()
+{
+    int result = Precondition::Impossible;
+    for (auto it : agents)
+        if (!it->remove)
+            if (it->assigned == NULL)
+                result = std::min(result, it->time);
+    return result;
+}
+
 void LarvaCode::onMatchBegin()
 {
     indexcounter = 0;
@@ -395,12 +400,10 @@ void LarvaCode::onMatchEnd()
 
 void LarvaCode::onTick()
 {
-    //if (rand() % 3 == 0)
-    //    return;
-
     for (auto it : agents)
-        if (it->larva != NULL)
-            if (it->larva->getType() != UnitTypes::Zerg_Larva)
+        if (!it->remove)
+            if (it->larva != NULL)
+                if (it->larva->getType() != UnitTypes::Zerg_Larva)
     {
         rememberIdle(it->larva);
         it->markRemove();

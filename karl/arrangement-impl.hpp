@@ -18,11 +18,13 @@ class ArrangementImpl : public Arrangement
         StatusType                      status;
         BWAPI::TilePosition             pos;
         BWAPI::TilePosition             best;
+        BWAPI::TilePosition             band;
         BuildingPositionInternal*       pre;
 
     public:
         ArrangementImpl(const Generator& g, const Condition& c, const Selector& s)
-            : gen(g), cond(c), sel(s), status(init), pos(BWAPI::TilePositions::Unknown), best(BWAPI::TilePositions::Unknown), pre(NULL)
+            : gen(g), cond(c), sel(s), status(init), pos(BWAPI::TilePositions::Unknown), best(BWAPI::TilePositions::Unknown),
+              band(BWAPI::TilePositions::Unknown), pre(NULL)
         { }
 
         virtual ~ArrangementImpl()
@@ -30,8 +32,12 @@ class ArrangementImpl : public Arrangement
 
         virtual void reset()
         {
-            status = init;
-            pos = best = BWAPI::TilePositions::Unknown;
+            if (status == finished) {
+                status = init;
+                band = best;
+                pos = best = BWAPI::TilePositions::Unknown;
+                pre->setNewPosition(BWAPI::TilePositions::Unknown);
+            }
         }
 
         virtual void registerPrecondition(int /*id*/, BuildingPositionInternal* p)
@@ -51,6 +57,9 @@ class ArrangementImpl : public Arrangement
                 WARNING << "Generator '" << demangle(typeid(Generator).name()) << "' returned tile out of range: " << pos;
                 return false;
             }
+
+            if (band.getDistance(pos) < 3.0)
+                return false;
 
             TileInformation& info = tileInformations[pos];
             return cond(pos, info);

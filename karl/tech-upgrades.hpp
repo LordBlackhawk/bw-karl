@@ -14,6 +14,8 @@ UnitPrecondition* upgradeTech(const BWAPI::UpgradeType& gt, Precondition* extra 
 void researchTechEx(const BWAPI::TechType& tt);
 void upgradeTechEx(const BWAPI::UpgradeType& gt);
 
+int numberOfPlanedTechs();
+
 struct TechCode : public DefaultCode
 {
     static void onMatchEnd();

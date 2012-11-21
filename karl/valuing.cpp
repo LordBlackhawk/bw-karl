@@ -10,6 +10,12 @@ using namespace BWAPI;
 namespace
 {
     bool isStrictTick = false;
+    int indexcoeff = 100;
+}
+
+void setIndexCoeff(int newvalue)
+{
+    indexcoeff = newvalue;
 }
 
 void ValuingCode::onTick()
@@ -103,7 +109,7 @@ ctype valueResources(int time, int wishtime, int index)
     if (isStrictTick)
         return index;
 
-    return 100 * index + std::max(time, wishtime);
+    return indexcoeff * index + std::max(time, wishtime);
 }
 
 // used in supply.cpp for minimization.
@@ -112,7 +118,7 @@ ctype valueSupply(int time, int wishtime, int index)
     if (isStrictTick)
         return index;
 
-    return 100 * index + std::max(time, wishtime);
+    return indexcoeff * index + std::max(time, wishtime);
 }
 
 // used in building-placer.cpp for maximization.

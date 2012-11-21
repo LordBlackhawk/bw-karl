@@ -68,6 +68,12 @@ namespace
                         CheckUnitTilesWithSpace(type, 1, IsBuildable() && TileHasCreep() && !IsBuilding() && !IsReserved()),
                         TakeMinimum(DistanceTo(center))
                     );
+        } else if (type == UnitTypes::Zerg_Hatchery) {
+            return createArrangement(
+                        TilesInRegionList(list),
+                        CheckUnitTilesWithSpace(type, 1, IsBuildable() && !IsBuilding() && !IsReserved()) && NoResourcesNear(),
+                        TakeMinimum(DistanceTo(center))
+                    );
         }
 
         return createArrangement(
