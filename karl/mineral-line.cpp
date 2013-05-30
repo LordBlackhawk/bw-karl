@@ -478,9 +478,6 @@ namespace
 
     void WorkerLine::setJobCount(int count)
     {
-        if (count == (int) jobs.size())
-            return;
-        LOG << "New job count is " << count;
         while (count > (int) jobs.size())
             addJob();
         while (count < (int) jobs.size())

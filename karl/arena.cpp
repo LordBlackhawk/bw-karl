@@ -9,6 +9,8 @@ using namespace BWAPI;
 using namespace BWTA;
 using namespace UnitTypes;
 
+bool isArena = false;
+
 namespace
 {
     Squad*  squad = NULL;
@@ -30,6 +32,7 @@ bool ArenaCode::isApplyable()
 void ArenaCode::onMatchBegin()
 {
     LOG << "Playing arena...";
+    isArena = true;
 
     squad = new Squad();
     squad->setName("arena");
@@ -44,6 +47,7 @@ void ArenaCode::onMatchBegin()
 void ArenaCode::onMatchEnd()
 {
     release(squad);
+    isArena = false;
 }
 
 void ArenaCode::onTick()

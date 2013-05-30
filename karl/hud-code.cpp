@@ -97,11 +97,16 @@ namespace
             return;
 
         Unit* selected = *selectedunits.begin();
+        UnitType stype = selected->getType();
         hud.printf(" ");
         hud.printf("Selected unit information:");
         hud.printf(" - ptr: 0x%p", selected);
-        hud.printf(" - type: %s", selected->getType().getName().c_str());
         hud.printf(" - isIdle: %s", selected->isIdle() ? "true" : "false");
+        hud.printf(" - type: %s", stype.getName().c_str());
+        hud.printf(" - dimensions: %d, %d, %d, %d", stype.dimensionRight(), stype.dimensionUp(), stype.dimensionLeft(), stype.dimensionDown());
+        hud.printf(" - ranges: %d-%d, %d, %d", stype.groundWeapon().minRange(), stype.groundWeapon().maxRange(), stype.seekRange(), stype.sightRange());
+        hud.printf(" - speed: %.2f", stype.topSpeed());
+        hud.printf(" - turn radius: %d", stype.turnRadius());
         // ToDo: add for important informations!
     }
 
@@ -119,6 +124,10 @@ void HUDCode::onTick()
     HUDTextOutput hud;
 
     if (showtiming) {
+        if (isArena) {
+            hud.printf(" ");
+            hud.printf(" ");
+        }
         hud.printf("Current frame: %d", Broodwar->getFrameCount());
         hud.printf("Reaction time: %5.0f / %5.0f / %5.0f ns", timerMin(), timerAverage(), timerMax());
     }

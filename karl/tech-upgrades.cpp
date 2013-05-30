@@ -259,7 +259,11 @@ UnitPrecondition* researchTech(const BWAPI::TechType& tt, Precondition* extra)
 
 UnitPrecondition* upgradeTech(UnitPrecondition* worker, ResourcesPrecondition* res, const BWAPI::UpgradeType& gt, Precondition* extra)
 {
-    RequirementsPrecondition* req = getRequirements(gt);
+    int level = Broodwar->self()->getUpgradeLevel(gt);
+    for (auto it : list)
+        if (it->gt == gt)
+            ++level;
+    RequirementsPrecondition* req = getRequirements(gt, level);
     // req maybe NULL.
 
     TechPrecondition* result = new TechPrecondition(worker, res, req, gt, extra);

@@ -2,6 +2,8 @@
 
 #include "default-code.hpp"
 
+extern bool isArena;
+
 struct ArenaCode : public DefaultCode
 {
     static bool isApplyable();

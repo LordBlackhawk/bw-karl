@@ -3,6 +3,7 @@
 
 #include "resources.hpp"
 #include "mineral-line.hpp"
+#include "arena.hpp"
 #include "container-helper.hpp"
 #include "valuing.hpp"
 #include "log.hpp"
@@ -73,6 +74,7 @@ namespace
 {
     bool bGasOnDemand       = false;
     bool bGasOnDemandActive = false;
+    int lastChange          = 0;
     
     void checkGasOnDemand()
     {
@@ -85,10 +87,13 @@ namespace
             needed += it->gas;
 
         bool needGas = needed > cur;
-        if (needGas != bGasOnDemandActive) {
-            LOG << "change gas status to " << (needGas ? "" : "not ") << "mining.";
+        if (needGas != bGasOnDemandActive)
+            if (lastChange + 10 < Broodwar->getFrameCount())
+        {
+            //LOG << "change gas status to " << (needGas ? "" : "not ") << "mining.";
             setGasWorkerPerRefinery(needGas ? 3 : 0);
             bGasOnDemandActive = needGas;
+            lastChange = Broodwar->getFrameCount();
         }
     }
 }
@@ -202,6 +207,9 @@ int estimateResourcesAt(int time)
 
 void ResourcesCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
+    if (isArena)
+        return;
+
     Player* self = Broodwar->self();
     int gat_m = self->gatheredMinerals();
     int gat_g = self->gatheredGas();
