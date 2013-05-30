@@ -396,6 +396,7 @@ void LarvaCode::onMatchEnd()
     Containers::clear_and_delete(agents);
     Containers::clear_and_delete(jobs);
     Containers::clear_and_delete(hatcheries);
+    unassigned_agents.clear();
 }
 
 void LarvaCode::onTick()
