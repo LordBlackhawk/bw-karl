@@ -7,6 +7,79 @@ using namespace BWTA;
 
 namespace
 {
+    struct UnitTypeInformation
+    {
+        UnitTypeInformation()
+            : built(0), morphed(0), lost(0)
+        { }
+        int built;
+        int morphed;
+        int lost;
+        int alive()
+        {
+            return built - morphed - lost;
+        }
+        void incBuilt()
+        {
+            ++built;
+        }
+        void incLost()
+        {
+            ++lost;
+        }
+        void incMorphed()
+        {
+            ++morphed;
+        }
+    };
+    std::map<UnitType, UnitTypeInformation>     unitTypeMap;
+
+    struct EnemyUnitInformation
+    {
+        Unit* unit;
+        UnitType ut;
+        EnemyUnitInformation(Unit* u)
+            : unit(u), ut(unit->getType())
+        {
+            unitTypeMap[ut].incBuilt();
+        }
+        ~EnemyUnitInformation()
+        {
+            unitTypeMap[ut].incLost();
+        }
+        void show()
+        {
+            if (ut != unit->getType())
+                morph();
+        }
+        void morph()
+        {
+            unitTypeMap[ut].incMorphed();
+            ut = unit->getType();
+            unitTypeMap[ut].incBuilt();
+        }
+    };
+    std::map<Unit*, EnemyUnitInformation*>      cachedEnemyUnits;
+
+    EnemyUnitInformation* lookupEnemyUnit(Unit* unit)
+    {
+        auto it = cachedEnemyUnits.find(unit);
+        if (it != cachedEnemyUnits.end())
+            return it->second;
+        EnemyUnitInformation* result = new EnemyUnitInformation(unit);
+        cachedEnemyUnits[unit] = result;
+        return result;
+    }
+    
+    void removeEnemyUnit(Unit* unit)
+    {
+        auto it = cachedEnemyUnits.find(unit);
+        if (it == cachedEnemyUnits.end())
+            return;
+        delete it->second;
+        cachedEnemyUnits.erase(it);
+    }
+
     bool isBaseScouted(BaseLocation* loc)
     {
         TilePosition tp = loc->getTilePosition();
@@ -15,6 +88,24 @@ namespace
 
     std::map<Player*, BaseLocation*>    playerStartBaseMap;
     std::map<BaseLocation*, Player*>    basePlayerMap;
+    
+    void handleBases(Unit* unit)
+    {
+        UnitType ut = unit->getType();
+        if (!ut.isResourceDepot())
+            return;
+
+        BaseLocation* loc = getNearestBaseLocation(unit->getTilePosition());
+        if (loc == NULL)
+            return;
+
+        Player* owner = unit->getPlayer();
+        if (loc->isStartLocation() && (playerStartBaseMap.count(owner) == 0))
+            playerStartBaseMap[owner] = loc;
+
+        if (basePlayerMap.count(loc) == 0)
+            basePlayerMap[loc] = owner;
+    }
 }
 
 std::set<BaseLocation*> getUnscoutedStartLocations()
@@ -48,6 +139,10 @@ void InformationCode::onMatchEnd()
 {
     playerStartBaseMap.clear();
     basePlayerMap.clear();
+    for (auto it : cachedEnemyUnits)
+        delete it.second;
+    cachedEnemyUnits.clear();
+    unitTypeMap.clear();
 }
 
 void InformationCode::onTick()
@@ -55,28 +150,62 @@ void InformationCode::onTick()
 
 void InformationCode::onUnitCreate(BWAPI::Unit* unit)
 {
-    onUnitShow(unit);
+    handleBases(unit);
+    Player* self = Broodwar->self();
+    if (!unit->getPlayer()->isEnemy(self))
+        return;
+    lookupEnemyUnit(unit);
 }
 
-void InformationCode::onUnitDestroy(BWAPI::Unit* /*unit*/)
+void InformationCode::onUnitDestroy(BWAPI::Unit* unit)
 {
     // Remove destroyed bases!
+    removeEnemyUnit(unit);
 }
 
 void InformationCode::onUnitShow(BWAPI::Unit* unit)
 {
-    UnitType ut = unit->getType();
-    if (!ut.isResourceDepot())
+    handleBases(unit);
+    Player* self = Broodwar->self();
+    if (!unit->getPlayer()->isEnemy(self))
         return;
+    lookupEnemyUnit(unit)->show();
+}
 
-    BaseLocation* loc = getNearestBaseLocation(unit->getTilePosition());
-    if (loc == NULL)
+void InformationCode::onUnitMorph(BWAPI::Unit* unit)
+{
+    Player* self = Broodwar->self();
+    if (!unit->getPlayer()->isEnemy(self))
         return;
+    lookupEnemyUnit(unit)->morph();
+}
 
-    Player* owner = unit->getPlayer();
-    if (loc->isStartLocation() && (playerStartBaseMap.count(owner) == 0))
-        playerStartBaseMap[owner] = loc;
+void InformationCode::onDrawPlan(HUDTextOutput& /*hud*/)
+{
+    const int FIRST_LINE = 60;
+    const int LINE_SEP   = 16;
+    const int FIRST_COL  = 420;
+    const int SECOND_COL = FIRST_COL + 150;
+    const int THIRD_COL  = SECOND_COL + 20;
+    const int FOURTH_COL = THIRD_COL  + 20;
 
-    if (basePlayerMap.count(loc) == 0)
-        basePlayerMap[loc] = owner;
+    Broodwar->drawTextScreen(SECOND_COL, FIRST_LINE, "#");
+    Broodwar->drawTextScreen(THIRD_COL,  FIRST_LINE, "m");
+    Broodwar->drawTextScreen(FOURTH_COL, FIRST_LINE, "X");
+    int line = 1;
+    int minerals = 0, gas = 0;
+    for (auto it : unitTypeMap) {
+        Broodwar->drawTextScreen(FIRST_COL,  FIRST_LINE + LINE_SEP * line, "%s", it.first.c_str());
+        Broodwar->drawTextScreen(SECOND_COL, FIRST_LINE + LINE_SEP * line, "%d", it.second.built);
+        Broodwar->drawTextScreen(THIRD_COL,  FIRST_LINE + LINE_SEP * line, "%d", it.second.morphed);
+        Broodwar->drawTextScreen(FOURTH_COL, FIRST_LINE + LINE_SEP * line, "%d", it.second.lost);
+        ++line;
+
+        minerals += it.first.mineralPrice() * it.second.built;
+        gas      += it.first.gasPrice() * it.second.built;
+    }
+
+    Player* self = Broodwar->self();
+    Broodwar->drawTextScreen(FIRST_COL, FIRST_LINE + LINE_SEP * (line+1), "Sum enemy resources: %d // %d", minerals, gas);
+    Broodwar->drawTextScreen(FIRST_COL, FIRST_LINE + LINE_SEP * (line+2), "Sum own   resources: %d // %d", self->gatheredMinerals() + 600, self->gatheredGas());
 }
