@@ -5,7 +5,7 @@
 template <class T>
 T getRandomSomething(const std::set<T>& list, const T& def = T())
 {
-    if (list.size() <= 0)
+    if (list.empty())
         return def;
 
     int index = rand() % list.size();
@@ -16,4 +16,14 @@ T getRandomSomething(const std::set<T>& list, const T& def = T())
         ++it;
     }
     return *it;
+}
+
+template <class T>
+T getRandomSomething(const std::vector<T>& list, const T& def = T())
+{
+    if (list.empty())
+        return def;
+
+    int index = rand() % list.size();
+    return list[index];
 }

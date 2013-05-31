@@ -29,11 +29,13 @@
 #include "addon-builder.hpp"
 #include "building-flyer.hpp"
 #include "wall-in.hpp"
+#include "information-collector.hpp"
 
 typedef CodeCaller<
                     ExceptionHandlerCode,
                     LogCode,
                     ValuingCode,
+                    InformationCode,
                     MineralLineCode,
                     ResourcesCode,
                     LarvaCode,                  // before MessageDispatchCode!!!

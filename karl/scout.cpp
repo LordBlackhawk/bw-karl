@@ -1,9 +1,10 @@
 #include "scout.hpp"
-#include "bwapi-precondition.hpp"
 #include "container-helper.hpp"
 #include "precondition-helper.hpp"
 #include "log.hpp"
 #include "random-chooser.hpp"
+#include "micro-movement.hpp"
+#include "information-collector.hpp"
 
 #include <BWTA.h>
 #include <vector>
@@ -16,42 +17,42 @@ using namespace BWTA;
 
 namespace
 {
-    struct ScoutInformation
+    struct ScoutInformation : public MicroMovement
     {
-        Unit* scout;
-        // more informations!!!
-        
         ScoutInformation(Unit* s)
-            : scout(s)
+            : MicroMovement(s)
         { }
-        
+
         Position getNextPosition()
         {
-            if (rand() % 2 == 0) {
-                return getRandomSomething(BWTA::getChokepoints())->getCenter();
-            } else {
-                return getRandomSomething(BWTA::getBaseLocations())->getPosition();
-            }
+            std::set<BaseLocation*> locs = getUnscoutedStartLocations();
+            if (locs.empty())
+                locs = getUnscoutedBaseLocations();
+            if (locs.empty())
+                locs = BWTA::getBaseLocations();
+            if (locs.empty())
+                return Positions::Unknown;
+            return getRandomSomething(locs)->getPosition();
         }
-        
-        void sendScout()
-        {
-            THIS_DEBUG << "Sending scout!";
-            scout->rightClick(getNextPosition());
-        }
-        
-        bool onTick()
-        {
-            if (!scout->isMoving())
-                sendScout();
 
-            return !scout->exists();
+        void onMacroTick()
+        {
+            if (!isIdle())
+                return;
+            BaseLocation* enemyBase = getEnemyStartLocation();
+            if (enemyBase == NULL) {
+                THIS_DEBUG << "Sending scout!";
+                moveTo(getNextPosition());
+                return;
+            }
+            THIS_DEBUG << "enemy base found, scouting region!";
+            scoutRegion(currentRegion());
         }
     };
-    
+
     std::vector<UnitPrecondition*>  assigned_scouts;
     std::vector<ScoutInformation*>  scouts;
-    
+
     bool isScoutReady(UnitPrecondition* pre)
     {
         if (pre->isFulfilled()) {

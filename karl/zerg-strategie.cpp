@@ -12,6 +12,7 @@
 #include "planing.hpp"
 #include "log.hpp"
 #include "valuing.hpp"
+#include "scout.hpp"
 #include <BWTA.h>
 #include <sstream>
 
@@ -87,6 +88,7 @@ void ZergStrategieCode::onMatchBegin()
     setGasOnDemand(true);
     setIndexCoeff(1000);
 
+    useScout(morphUnit(Zerg_Drone));
     switch (rand() % 4)
     {
         case 0:
