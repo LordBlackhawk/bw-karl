@@ -76,3 +76,10 @@ BWAPI::TilePosition DualEdge::getRightTile() const
         return TilePosition(x-1, y);
     }
 }
+
+BWAPI::Position DualEdge::getPosition() const
+{
+    Position b = getBeginNode()->getPosition();
+    Position e = getEndNode()->getPosition();
+    return Position((b.x() + e.x())/2, (b.y() + e.y())/2);
+}

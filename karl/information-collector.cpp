@@ -151,11 +151,7 @@ void InformationCode::onMatchBegin()
 {
     Player* self = Broodwar->self();
     for (auto unit : Broodwar->getAllUnits())
-        if (!unit->getPlayer()->isAlly(self)) {
-            lookupEnemyUnit(unit)->show();
-        } else if (unit->getType().isBuilding()) {
-            addUnitToGraph(unit->getType(), unit->getTilePosition());
-        }
+        lookupEnemyUnit(unit)->show();
 }
 
 void InformationCode::onMatchEnd()
@@ -174,41 +170,23 @@ void InformationCode::onTick()
 void InformationCode::onUnitCreate(BWAPI::Unit* unit)
 {
     handleBases(unit);
-    Player* self = Broodwar->self();
-    if (unit->getPlayer()->isAlly(self)) {
-        if (unit->getType().isBuilding())
-            addUnitToGraph(unit->getType(), unit->getTilePosition());
-    } else {
-        lookupEnemyUnit(unit);
-    }
+    lookupEnemyUnit(unit);
 }
 
 void InformationCode::onUnitDestroy(BWAPI::Unit* unit)
 {
     // Remove destroyed bases!
-    Player* self = Broodwar->self();
-    if (unit->getPlayer()->isAlly(self)) {
-        if (unit->getType().isBuilding())
-            removeUnitFromGraph(unit->getType(), unit->getTilePosition());
-    } else {
-        removeEnemyUnit(unit);
-    }
+    removeEnemyUnit(unit);
 }
 
 void InformationCode::onUnitShow(BWAPI::Unit* unit)
 {
     handleBases(unit);
-    Player* self = Broodwar->self();
-    if (unit->getPlayer()->isAlly(self))
-        return;
     lookupEnemyUnit(unit)->show();
 }
 
 void InformationCode::onUnitMorph(BWAPI::Unit* unit)
 {
-    Player* self = Broodwar->self();
-    if (unit->getPlayer()->isAlly(self))
-        return;
     lookupEnemyUnit(unit)->morph();
 }
 

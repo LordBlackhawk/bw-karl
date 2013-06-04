@@ -30,6 +30,12 @@ namespace
             projectToGraph(pos, Direction::W)->width += info.space(2);
             projectToGraph(pos, Direction::S)->width += info.space(3);
         }
+
+        for (int k=0; k<size; ++k) {
+            DualEdge* edge = &(baseEdge[k]);
+            edge->chokepoint = (edge->getBeginNode()->getRegion() == edge->getEndNode()->getRegion())
+                                    ? getNearestChokepoint(edge->getPosition()) : NULL;
+        }
     }
 }
 
@@ -86,6 +92,7 @@ bool indexByEdge(const DualEdge* edge, bool& hor, int& x, int& y);
 
 #include "dual-graph-node.hpp"
 #include "dual-graph-edge.hpp"
+#include "dual-graph-search.hpp"
 #include "dual-graph-test.hpp"
 
 void DualGraphCode::onProgramStart(const char* /*programname*/)
@@ -135,16 +142,16 @@ void DualGraphCode::onDrawPlan(HUDTextOutput& /*hud*/)
     {
         TilePosition pos(x, y);
         DualEdge* edge = projectToGraph(pos, Direction::N);
-        if (edge->width > 15 && edge->width != 64) {
+        if ((edge->width > 15 && edge->width != 64) || (edge->chokepoint != NULL)) {
             Position dp = edge->getBeginNode()->getPosition();
-            Broodwar->drawLineMap(dp.x(), dp.y(), dp.x() + 32, dp.y(), Colors::Grey);
+            Broodwar->drawLineMap(dp.x(), dp.y(), dp.x() + 32, dp.y(), (edge->chokepoint != NULL) ? Colors::Red : Colors::Grey);
             Broodwar->drawTextMap(dp.x() + 14, dp.y() - 4, "%d", edge->width);
         }
 
         edge = projectToGraph(pos, Direction::W);
-        if (edge->width > 15 && edge->width != 64) {
+        if ((edge->width > 15 && edge->width != 64) || (edge->chokepoint != NULL)) {
             Position dp = edge->getBeginNode()->getPosition();
-            Broodwar->drawLineMap(dp.x(), dp.y(), dp.x(), dp.y() + 32, Colors::Grey);
+            Broodwar->drawLineMap(dp.x(), dp.y(), dp.x(), dp.y() + 32, (edge->chokepoint != NULL) ? Colors::Red : Colors::Grey);
             Broodwar->drawTextMap(dp.x() - 4, dp.y() + 14, "%d", edge->width);
         }
     }

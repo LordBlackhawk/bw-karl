@@ -18,6 +18,11 @@ BWAPI::Position DualNode::getPosition() const
     return Position(32*x, 32*y);
 }
 
+BWTA::Region* DualNode::getRegion() const
+{
+    return getRegion(getPosition());
+}
+
 DualNode* projectToGraph(const BWAPI::Position& pos)
 {
     int x = (pos.x() + 16) / 32;

@@ -13,7 +13,9 @@ struct DualEdge;
 
 struct DualNode
 {
+    bool checked;
     BWAPI::Position getPosition() const;
+    BWTA::Region* getRegion() const;
     bool hasEdge(Direction::Type dir) const;
     DualEdge* getEdge(Direction::Type dir) const;
 };
@@ -21,10 +23,12 @@ struct DualNode
 struct DualEdge
 {
     int width;
+    BWTA::Chokepoint* chokepoint;
     DualNode* getBeginNode() const;
     DualNode* getEndNode() const;
     BWAPI::TilePosition getLeftTile() const;
     BWAPI::TilePosition getRightTile() const;
+    BWAPI::Position getPosition() const;
 };
 
 DualNode* projectToGraph(const BWAPI::Position& pos);
