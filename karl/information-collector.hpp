@@ -15,6 +15,7 @@ struct InformationCode : public DefaultCode
     static void onUnitCreate(BWAPI::Unit* unit);
     static void onUnitDestroy(BWAPI::Unit* unit);
     static void onUnitShow(BWAPI::Unit* unit);
+    static void onSendText(const std::string& text);
     static void onDrawPlan(HUDTextOutput& hud);
     static void onUnitMorph(BWAPI::Unit* unit);
 };

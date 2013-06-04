@@ -183,8 +183,21 @@ void ZergStrategieCode::onTick()
 void ZergStrategieCode::onMatchEnd()
 { }
 
+namespace
+{
+    bool showValues = false;
+}
+
+void ZergStrategieCode::onSendText(const std::string& text)
+{
+    if (text == "/show values")
+        showValues = !showValues;
+}
+
 void ZergStrategieCode::onDrawPlan(HUDTextOutput& hud)
 {
+    if (!showValues) return;
+
     int time = Broodwar->getFrameCount();
 
     hud.printf(" ");

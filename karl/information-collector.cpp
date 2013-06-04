@@ -1,5 +1,6 @@
 #include "information-collector.hpp"
 #include "container-helper.hpp"
+#include "dual-graph.hpp"
 #include "log.hpp"
 
 using namespace BWAPI;
@@ -38,25 +39,41 @@ namespace
     {
         Unit* unit;
         UnitType ut;
+        TilePosition pos;
         EnemyUnitInformation(Unit* u)
-            : unit(u), ut(unit->getType())
+            : unit(u), ut(unit->getType()), pos(unit->getTilePosition())
         {
             unitTypeMap[ut].incBuilt();
+            if (ut.isBuilding())
+                addUnitToGraph(ut, pos);
         }
         ~EnemyUnitInformation()
         {
             unitTypeMap[ut].incLost();
+            if (ut.isBuilding())
+                removeUnitFromGraph(ut, pos);
         }
         void show()
         {
-            if (ut != unit->getType())
+            if (ut != unit->getType()) {
                 morph();
+            }
+            if (ut.isBuilding() && (pos != unit->getTilePosition())) {
+                removeUnitFromGraph(ut, pos);
+                pos = unit->getTilePosition();
+                addUnitToGraph(ut, pos);
+            }
         }
         void morph()
         {
+            if (ut.isBuilding())
+                removeUnitFromGraph(ut, pos);
             unitTypeMap[ut].incMorphed();
+            pos = unit->getTilePosition();
             ut = unit->getType();
             unitTypeMap[ut].incBuilt();
+            if (ut.isBuilding())
+                addUnitToGraph(ut, pos);
         }
     };
     std::map<Unit*, EnemyUnitInformation*>      cachedEnemyUnits;
@@ -132,7 +149,13 @@ BWTA::BaseLocation* getEnemyStartLocation()
 
 void InformationCode::onMatchBegin()
 {
-
+    Player* self = Broodwar->self();
+    for (auto unit : Broodwar->getAllUnits())
+        if (!unit->getPlayer()->isAlly(self)) {
+            lookupEnemyUnit(unit)->show();
+        } else if (unit->getType().isBuilding()) {
+            addUnitToGraph(unit->getType(), unit->getTilePosition());
+        }
 }
 
 void InformationCode::onMatchEnd()
@@ -152,22 +175,31 @@ void InformationCode::onUnitCreate(BWAPI::Unit* unit)
 {
     handleBases(unit);
     Player* self = Broodwar->self();
-    if (!unit->getPlayer()->isEnemy(self))
-        return;
-    lookupEnemyUnit(unit);
+    if (unit->getPlayer()->isAlly(self)) {
+        if (unit->getType().isBuilding())
+            addUnitToGraph(unit->getType(), unit->getTilePosition());
+    } else {
+        lookupEnemyUnit(unit);
+    }
 }
 
 void InformationCode::onUnitDestroy(BWAPI::Unit* unit)
 {
     // Remove destroyed bases!
-    removeEnemyUnit(unit);
+    Player* self = Broodwar->self();
+    if (unit->getPlayer()->isAlly(self)) {
+        if (unit->getType().isBuilding())
+            removeUnitFromGraph(unit->getType(), unit->getTilePosition());
+    } else {
+        removeEnemyUnit(unit);
+    }
 }
 
 void InformationCode::onUnitShow(BWAPI::Unit* unit)
 {
     handleBases(unit);
     Player* self = Broodwar->self();
-    if (!unit->getPlayer()->isEnemy(self))
+    if (unit->getPlayer()->isAlly(self))
         return;
     lookupEnemyUnit(unit)->show();
 }
@@ -175,13 +207,26 @@ void InformationCode::onUnitShow(BWAPI::Unit* unit)
 void InformationCode::onUnitMorph(BWAPI::Unit* unit)
 {
     Player* self = Broodwar->self();
-    if (!unit->getPlayer()->isEnemy(self))
+    if (unit->getPlayer()->isAlly(self))
         return;
     lookupEnemyUnit(unit)->morph();
 }
 
+namespace
+{
+    bool showEnemyStats = false;
+}
+
+void InformationCode::onSendText(const std::string& text)
+{
+    if (text == "/show enemystats")
+        showEnemyStats = !showEnemyStats;
+}
+
 void InformationCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
+    if (!showEnemyStats) return;
+
     const int FIRST_LINE = 60;
     const int LINE_SEP   = 16;
     const int FIRST_COL  = 420;
@@ -201,8 +246,10 @@ void InformationCode::onDrawPlan(HUDTextOutput& /*hud*/)
         Broodwar->drawTextScreen(FOURTH_COL, FIRST_LINE + LINE_SEP * line, "%d", it.second.lost);
         ++line;
 
-        minerals += it.first.mineralPrice() * it.second.built;
-        gas      += it.first.gasPrice() * it.second.built;
+        if ((it.first != UnitTypes::Zerg_Larva) && (it.first != UnitTypes::Zerg_Egg)) {
+            minerals += it.first.mineralPrice() * it.second.built;
+            gas      += it.first.gasPrice() * it.second.built;
+        }
     }
 
     Player* self = Broodwar->self();

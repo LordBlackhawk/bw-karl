@@ -30,20 +30,22 @@
 #include "building-flyer.hpp"
 #include "wall-in.hpp"
 #include "information-collector.hpp"
+#include "dual-graph.hpp"
 
 typedef CodeCaller<
                     ExceptionHandlerCode,
                     LogCode,
                     ValuingCode,
-                    InformationCode,
                     MineralLineCode,
                     ResourcesCode,
                     LarvaCode,                  // before MessageDispatchCode!!!
                     MessageDispatchCode,
                     UnitMicromanagementCode,    // before other Code that uses units
+                    BuildingPlacerCode,
+                    DualGraphCode,
+                    InformationCode,
                     IdleUnitContainerCode,
                     RequirementsCode,
-                    BuildingPlacerCode,
                     UnitBuilderCode,
                     UnitMorpherCode,
                     UnitTrainerCode,

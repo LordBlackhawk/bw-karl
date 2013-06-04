@@ -116,7 +116,7 @@ namespace
     bool showfps      = true;
     bool showtiming   = true;
     bool showplan     = true;
-    bool showunitinfo = true;
+    bool showunitinfo = false;
 }
 
 void HUDCode::onTick()
@@ -164,6 +164,8 @@ void HUDCode::onSendText(const std::string& text)
         showtiming = !showtiming;
     if (text == "/show plan")
         showplan = !showplan;
+    if (text == "/show unitinfo")
+        showunitinfo = !showunitinfo;
 }
 
 void HUDTextOutput::printf(const char* fmt, ...)

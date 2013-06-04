@@ -1,5 +1,14 @@
 #pragma once
 
+// Numbering of building side ('d' used in TileInformation::space, ...):
+//          1
+//       -------
+//      |       |
+//    2 |       | 0
+//      |       |
+//       -------
+//          3
+
 namespace
 {
     int spaceHelper(bool b1, bool b2, bool b3, bool b4)
