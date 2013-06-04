@@ -149,7 +149,6 @@ BWTA::BaseLocation* getEnemyStartLocation()
 
 void InformationCode::onMatchBegin()
 {
-    Player* self = Broodwar->self();
     for (auto unit : Broodwar->getAllUnits())
         lookupEnemyUnit(unit)->show();
 }

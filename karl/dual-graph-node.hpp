@@ -20,7 +20,7 @@ BWAPI::Position DualNode::getPosition() const
 
 BWTA::Region* DualNode::getRegion() const
 {
-    return getRegion(getPosition());
+    return BWTA::getRegion(getPosition());
 }
 
 DualNode* projectToGraph(const BWAPI::Position& pos)

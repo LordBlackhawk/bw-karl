@@ -4,6 +4,7 @@
 #include "hud-code.hpp"
 #include "timer.hpp"
 #include "code-list.hpp"
+#include "dual-graph.hpp"
 #include <BWTA.h>
 #include <cstdarg>
 #include <cstdlib>
@@ -55,6 +56,12 @@ namespace
             Position point1 = c->getSides().first;
             Position point2 = c->getSides().second;
             Broodwar->drawLine(CoordinateType::Map,point1.x(),point1.y(),point2.x(),point2.y(),Colors::Red);
+
+            int width = getChokepointWidth(c);
+            if (width < 32) {
+                Position pos = c->getCenter();
+                Broodwar->drawTextMap(pos.x()-12, pos.y()-5, "blocked (%d)", width);
+            }
         }
     }
     

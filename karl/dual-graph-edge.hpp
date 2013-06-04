@@ -55,6 +55,14 @@ DualNode* DualEdge::getEndNode() const
     }
 }
 
+DualNode* DualEdge::getOtherNode(DualNode* node) const
+{
+    DualNode* result = getBeginNode();
+    if (node != result)
+        return result;
+    return getEndNode();
+}
+
 BWAPI::TilePosition DualEdge::getLeftTile() const
 {
     bool hor; int x, y;

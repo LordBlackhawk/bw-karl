@@ -13,6 +13,22 @@ namespace
     int         xsize;
     int         ysize;
 
+    std::set<BWTA::Region*> renewRegions;
+
+    bool isPsyeudoRegion(DualNode* node)
+    {
+        BWTA::Region* region = node->getRegion();
+        if (region == NULL) return true;
+        for (int k=0; k<4; ++k)
+            if (node->hasEdge((Direction::Type)k))
+        {
+            DualEdge* edge = node->getEdge((Direction::Type)k);
+            if ((edge->width >= 16) && (edge->getOtherNode(node)->getRegion() == region))
+                return false;
+        }
+        return true;
+    }
+
     void readDualGraph()
     {
         int size = xsize * (ysize - 1) + (xsize - 1) * ysize;
@@ -33,56 +49,49 @@ namespace
 
         for (int k=0; k<size; ++k) {
             DualEdge* edge = &(baseEdge[k]);
-            edge->chokepoint = (edge->getBeginNode()->getRegion() == edge->getEndNode()->getRegion())
+            DualNode* begin = edge->getBeginNode();
+            DualNode* end = edge->getEndNode();
+            edge->chokepoint = ((edge->width > 0) && (begin->getRegion() != end->getRegion()) && !isPsyeudoRegion(begin) && !isPsyeudoRegion(end))
                                     ? getNearestChokepoint(edge->getPosition()) : NULL;
         }
     }
 }
 
-void addUnitToGraph(const UnitType& ut, const TilePosition& pos)
+void changedUnitInGraph(const UnitType& ut, const TilePosition& pos, bool add)
 {
     int sx = pos.x(), ex = sx + ut.tileWidth()-1;
     int sy = pos.y(), ey = sy + ut.tileHeight()-1;
 
     for (int x=sx; x<=ex; ++x) {
-        projectToGraph(TilePosition(x, sy), Direction::N)->width += 16 * ut.tileHeight() - 32 - ut.dimensionUp();
-        projectToGraph(TilePosition(x, ey), Direction::S)->width += 16 * ut.tileHeight() - 32 - ut.dimensionDown();
+        projectToGraph(TilePosition(x, sy), Direction::N)->width += (add ? +1 : -1) * (16 * ut.tileHeight() - 32 - ut.dimensionUp());
+        projectToGraph(TilePosition(x, ey), Direction::S)->width += (add ? +1 : -1) * (16 * ut.tileHeight() - 32 - ut.dimensionDown());
     }
 
     for (int y=sy; y<=ey; ++y) {
-        projectToGraph(TilePosition(sx, y), Direction::W)->width += 16 * ut.tileWidth() - 32 - ut.dimensionLeft();
-        projectToGraph(TilePosition(ex, y), Direction::O)->width += 16 * ut.tileWidth() - 32 - ut.dimensionRight();
+        projectToGraph(TilePosition(sx, y), Direction::W)->width += (add ? +1 : -1) * (16 * ut.tileWidth() - 32 - ut.dimensionLeft());
+        projectToGraph(TilePosition(ex, y), Direction::O)->width += (add ? +1 : -1) * (16 * ut.tileWidth() - 32 - ut.dimensionRight());
     }
 
     for (int x=sx; x<=ex; ++x)
         for (int y=sy; y<=ey; ++y)
     {
-        if (x != ex) projectToGraph(TilePosition(x, y), Direction::O)->width = 0;
-        if (y != ey) projectToGraph(TilePosition(x, y), Direction::S)->width = 0;
+        if (x != ex) projectToGraph(TilePosition(x, y), Direction::O)->width = add ? 0 : 64;
+        if (y != ey) projectToGraph(TilePosition(x, y), Direction::S)->width = add ? 0 : 64;
     }
+
+    for (int x=sx; x<ex; ++x)
+        for (int y=sy; y<ey; ++y)
+            renewRegions.insert(projectToGraph(Position(32 * x, 32 * y))->getRegion());
+}
+
+void addUnitToGraph(const UnitType& ut, const TilePosition& pos)
+{
+    changedUnitInGraph(ut, pos, true);
 }
 
 void removeUnitFromGraph(const UnitType& ut, const TilePosition& pos)
 {
-    int sx = pos.x(), ex = sx + ut.tileWidth()-1;
-    int sy = pos.y(), ey = sy + ut.tileHeight()-1;
-
-    for (int x=sx; x<=ex; ++x) {
-        projectToGraph(TilePosition(x, sy), Direction::N)->width -= 16 * ut.tileHeight() - 32 - ut.dimensionUp();
-        projectToGraph(TilePosition(x, ey), Direction::S)->width -= 16 * ut.tileHeight() - 32 - ut.dimensionDown();
-    }
-
-    for (int y=sy; y<=ey; ++y) {
-        projectToGraph(TilePosition(sx, y), Direction::W)->width -= 16 * ut.tileWidth() - 32 - ut.dimensionLeft();
-        projectToGraph(TilePosition(ex, y), Direction::O)->width -= 16 * ut.tileWidth() - 32 - ut.dimensionRight();
-    }
-
-    for (int x=sx; x<=ex; ++x)
-        for (int y=sy; y<=ey; ++y)
-    {
-        if (x != ex) projectToGraph(TilePosition(x, y), Direction::O)->width = 64;
-        if (y != ey) projectToGraph(TilePosition(x, y), Direction::S)->width = 64;
-    }
+    changedUnitInGraph(ut, pos, false);
 }
 
 DualNode* nodeByIndex(int x, int y);
@@ -107,6 +116,9 @@ void DualGraphCode::onMatchBegin()
     baseNode = new DualNode[xsize * ysize];
     baseEdge = new DualEdge[xsize * (ysize - 1) + (xsize - 1) * ysize];
     readDualGraph();
+    initChokepointValues();
+    for (auto it : BWTA::getRegions())
+        recalcRegion(it);
 }
 
 void DualGraphCode::onMatchEnd()
@@ -115,6 +127,17 @@ void DualGraphCode::onMatchEnd()
     baseNode = NULL;
     delete baseEdge;
     baseEdge = NULL;
+    chokepointWidths.clear();
+    renewRegions.clear();
+}
+
+void DualGraphCode::onTick()
+{
+    if (!renewRegions.empty()) {
+        auto it = renewRegions.begin();
+        recalcRegion(*it);
+        renewRegions.erase(it);
+    }
 }
 
 namespace
@@ -142,14 +165,14 @@ void DualGraphCode::onDrawPlan(HUDTextOutput& /*hud*/)
     {
         TilePosition pos(x, y);
         DualEdge* edge = projectToGraph(pos, Direction::N);
-        if ((edge->width > 15 && edge->width != 64) || (edge->chokepoint != NULL)) {
+        if ((edge->width >= 15 && edge->width != 64) || (edge->chokepoint != NULL)) {
             Position dp = edge->getBeginNode()->getPosition();
             Broodwar->drawLineMap(dp.x(), dp.y(), dp.x() + 32, dp.y(), (edge->chokepoint != NULL) ? Colors::Red : Colors::Grey);
             Broodwar->drawTextMap(dp.x() + 14, dp.y() - 4, "%d", edge->width);
         }
 
         edge = projectToGraph(pos, Direction::W);
-        if ((edge->width > 15 && edge->width != 64) || (edge->chokepoint != NULL)) {
+        if ((edge->width >= 15 && edge->width != 64) || (edge->chokepoint != NULL)) {
             Position dp = edge->getBeginNode()->getPosition();
             Broodwar->drawLineMap(dp.x(), dp.y(), dp.x(), dp.y() + 32, (edge->chokepoint != NULL) ? Colors::Red : Colors::Grey);
             Broodwar->drawTextMap(dp.x() - 4, dp.y() + 14, "%d", edge->width);

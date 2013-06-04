@@ -26,6 +26,7 @@ struct DualEdge
     BWTA::Chokepoint* chokepoint;
     DualNode* getBeginNode() const;
     DualNode* getEndNode() const;
+    DualNode* getOtherNode(DualNode* node) const;
     BWAPI::TilePosition getLeftTile() const;
     BWAPI::TilePosition getRightTile() const;
     BWAPI::Position getPosition() const;
@@ -37,11 +38,14 @@ DualEdge* projectToGraph(const BWAPI::TilePosition& pos, Direction::Type dir);
 void addUnitToGraph(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos);
 void removeUnitFromGraph(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos);
 
+int getChokepointWidth(BWTA::Chokepoint* chokepoint);
+
 struct DualGraphCode : public DefaultCode
 {
     static void onProgramStart(const char* programname);
     static void onMatchBegin();
     static void onMatchEnd();
+    static void onTick();
     static void onSendText(const std::string& text);
     static void onDrawPlan(HUDTextOutput& hud);
 };
