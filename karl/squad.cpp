@@ -222,7 +222,7 @@ void Squad::onDrawPlan()
 
 void Squad::onTick()
 {
-    for(auto it=units.begin();it!=units.end();)
+   for(auto it=units.begin();it!=units.end();)
     {
         if(!(*it)->exists())
         {
@@ -231,17 +231,44 @@ void Squad::onTick()
             continue;
         }
         
-        if((*it)->isIdle() || (*it)->getTargetPosition().getDistance(defendposition)>32*3)
+        if( ( (*it)->isIdle() &&  (*it)->getTargetPosition().getDistance(defendposition)>8*units.size()/2 )
+                || (*it)->getTargetPosition().getDistance(defendposition)>8*units.size())
         {
             bool done=false;
             
-            for(int dist=0;dist<8*3 && !done;dist++)
+            for(int dist=0;dist<8*units.size() && !done;dist++)
             {
                 for(int i=-dist;i<=dist;i++)
                 {
-                    Position p(defendposition.x()+i,defendposition.y());
+                    Position p;
+                    p=Position(defendposition.x()+i,defendposition.y()-dist);
                     if(isPositionWalkable(p))
                     {
+                    	THIS_DEBUG << "Squad "<<name<<" found free spot at "<<i<<" / "<<(-dist);
+                        (*it)->attack(p);
+                        done=true;
+                        break;
+                    }
+                    p=Position(defendposition.x()+i,defendposition.y()+dist);
+                    if(isPositionWalkable(p))
+                    {
+                    	THIS_DEBUG << "Squad "<<name<<" found free spot at "<<i<<" / "<<(dist);
+                        (*it)->attack(p);
+                        done=true;
+                        break;
+                    }
+                    p=Position(defendposition.x()-dist,defendposition.y()+i);
+                    if(isPositionWalkable(p))
+                    {
+                    	THIS_DEBUG << "Squad "<<name<<" found free spot at "<<(-dist)<<" / "<<i;
+                        (*it)->attack(p);
+                        done=true;
+                        break;
+                    }
+                    p=Position(defendposition.x()+dist,defendposition.y()+i);
+                    if(isPositionWalkable(p))
+                    {
+                    	THIS_DEBUG << "Squad "<<name<<" found free spot at "<<dist<<" / "<<(i);
                         (*it)->attack(p);
                         done=true;
                         break;
@@ -249,6 +276,11 @@ void Squad::onTick()
                 }
             }
             
+            if(!done)
+            {
+            	THIS_DEBUG << "Squad "<<name<<" found no free spot";
+            	(*it)->attack(defendposition);
+            }
             /*
             BWAPI::Position p=(*it)->getPosition();
             if(p.getDistance(defendposition)>32*4)
