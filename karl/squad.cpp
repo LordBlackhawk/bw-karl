@@ -39,6 +39,30 @@ Squad* getSquadByName(const std::string& name)
 /////////////////////////////////////
 
 
+
+bool isPositionWalkable(BWAPI::Position pos)
+{
+	int x(pos.x()), y(pos.y());
+    
+	if(!BWAPI::Broodwar->isWalkable(x/8, y/8))
+        return false;
+	
+	std::set<BWAPI::Unit *> units = BWAPI::Broodwar->getUnitsOnTile(x/32, y/32);
+
+    for(auto it:units)
+	{
+		if(it->getType().isBuilding() 
+                || it->getType().isResourceContainer() 
+                || !it->getType().isFlyer()) 
+		{		
+				return false;
+		}
+	}
+	return true;
+}
+
+
+
 void SquadCode::onMatchBegin()
 {
 }
@@ -209,9 +233,27 @@ void Squad::onTick()
         
         if((*it)->isIdle() || (*it)->getTargetPosition().getDistance(defendposition)>32*3)
         {
+            bool done=false;
+            
+            for(int dist=0;dist<8*3 && !done;dist++)
+            {
+                for(int i=-dist;i<=dist;i++)
+                {
+                    Position p(defendposition.x()+i,defendposition.y());
+                    if(isPositionWalkable(p))
+                    {
+                        (*it)->attack(p);
+                        done=true;
+                        break;
+                    }
+                }
+            }
+            
+            /*
             BWAPI::Position p=(*it)->getPosition();
             if(p.getDistance(defendposition)>32*4)
                 (*it)->attack(defendposition);
+             */
         }
         it++;
     }
