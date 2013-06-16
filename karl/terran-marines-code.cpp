@@ -68,9 +68,12 @@ void TerranMarinesCode::onTick()
         baseProtection->setName("base");
 
         BWTA::BaseLocation* base=BWTA::getStartLocation(Broodwar->self());
-        if (base != NULL) {
-            BWTA::BaseLocation* otherbase=NULL;
-            
+        BWTA::BaseLocation* otherbase=NULL;
+        
+        if(!base)
+            THIS_DEBUG << "No base found!";
+        else
+        {
             for(auto sl : BWTA::getStartLocations())
             {
                 if(sl!=base)
@@ -79,10 +82,15 @@ void TerranMarinesCode::onTick()
                     break;
                 }
             }
-            
-            if(!otherbase)
-                THIS_DEBUG << "No other base found!";
-            
+        }
+
+        if(!otherbase)
+        {
+            THIS_DEBUG << "No other base found!";
+        }
+        
+        if (base && otherbase) 
+        {
             BWTA::Region* region=base->getRegion();
 
                 //only one choke from starting position? follow this path until we reach bigger ground
@@ -129,8 +137,21 @@ void TerranMarinesCode::onTick()
                     region=choke->getRegions().first;
             }
 
-            baseProtection->defend(choke->getCenter());
-        } else {
+            Squad::Line defendLine=Squad::Line(choke->getSides().first,choke->getSides().second);
+            BWAPI::Position sideward(defendLine.getSideward().x()/4,defendLine.getSideward().y()/4);
+            
+                // orientation correct?
+            if(region->getCenter().getDistance(defendLine.getCenter()+defendLine.getForward()) < region->getCenter().getDistance(defendLine.getCenter()-defendLine.getForward()))
+            {
+                baseProtection->defend(Squad::Line(choke->getSides().first+sideward,choke->getSides().second-sideward));
+            }
+            else
+            {
+                baseProtection->defend(Squad::Line(choke->getSides().second-sideward,choke->getSides().first+sideward));
+            }
+        } 
+        else 
+        {
             baseProtection->defend(Position(16*Broodwar->mapWidth(), 16*Broodwar->mapHeight()));
         }
     }
@@ -140,7 +161,7 @@ void TerranMarinesCode::onTick()
         THIS_DEBUG << "creating ScoutProtection";
         scoutProtection = new Squad();
         scoutProtection->setName("scout");
-        scoutProtection->defend(baseProtection->getCenter());
+        scoutProtection->defend(baseProtection->getDefendLine());
     }
     
 /*
@@ -254,17 +275,54 @@ void TerranMarinesCode::onTick()
         }
     }
     
-    
+    static bool K_MULTIPLY_pressed=false;
+    static BWAPI::Position protectScoutPos;
     if(Broodwar->getKeyState(Key::K_MULTIPLY))
     {
-        if(scoutProtection)
-            scoutProtection->defend(Broodwar->getMousePosition()+Broodwar->getScreenPosition());
+        static int timeo=0;
+        if(!K_MULTIPLY_pressed)
+        {
+            protectScoutPos=Broodwar->getMousePosition()+Broodwar->getScreenPosition();
+            K_MULTIPLY_pressed=true;
+        }
+        
+        if(scoutProtection && ((timeo++)%100==0))
+            scoutProtection->defend(protectScoutPos,Broodwar->getMousePosition()+Broodwar->getScreenPosition());
     }
+    else
+    {
+        if(K_MULTIPLY_pressed)
+        {
+            if(scoutProtection)
+                scoutProtection->defend(protectScoutPos,Broodwar->getMousePosition()+Broodwar->getScreenPosition());
+        }
+        K_MULTIPLY_pressed=false;
+    }
+            
+    
+    static bool K_DIVIDE_pressed=false;
+    static BWAPI::Position protectBasePos;
     if(Broodwar->getKeyState(Key::K_DIVIDE))
     {
-        if(baseProtection)
-            baseProtection->defend(Broodwar->getMousePosition()+Broodwar->getScreenPosition());
+        static int timeo=0;
+        if(!K_DIVIDE_pressed)
+        {
+            protectBasePos=Broodwar->getMousePosition()+Broodwar->getScreenPosition();
+            K_DIVIDE_pressed=true;
+        }
+        if(baseProtection && ((timeo++)%100==0))
+            baseProtection->defend(protectBasePos,Broodwar->getMousePosition()+Broodwar->getScreenPosition());
     }
+    else
+    {
+        if(K_DIVIDE_pressed)
+        {
+            if(baseProtection)
+                baseProtection->defend(protectBasePos,Broodwar->getMousePosition()+Broodwar->getScreenPosition());
+        }
+        K_DIVIDE_pressed=false;
+    }
+    
     if(Broodwar->getKeyState(Key::K_SUBTRACT))
     {
         Broodwar->setLocalSpeed(-1);
