@@ -7,6 +7,7 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* work
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(UnitPrecondition* worker, BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra = NULL);
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(BuildingPositionPrecondition* pos, const BWAPI::UnitType& ut, Precondition* extra = NULL);
 std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType& ut, Precondition* extra = NULL);
+std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType& ut, std::set<BuildingPositionPrecondition*>& places);
 
 void buildUnitEx(const BWAPI::UnitType& ut);
 void buildUnitEx(const BWAPI::UnitType& ut, std::set<BuildingPositionPrecondition*>& places);

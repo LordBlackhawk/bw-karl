@@ -70,12 +70,18 @@ void TerranStrategieCode::onMatchBegin()
     for (int k=0; k<4; ++k)
         trainWorker(Terran_SCV, "Worker (Group 1)");
     
-    std::set<BuildingPositionPrecondition*> places;// = designWallIn();
-    buildUnitEx(Terran_Supply_Depot, places);
-    buildUnitEx(Terran_Barracks, places);
-    while (!places.empty())
-        buildUnitEx((*places.begin())->ut, places);
-    //rememberIdle(flyBuilding(rememberSecond(buildUnit(Terran_Barracks)), getBuildingPosition(Terran_Barracks)));
+    bool doWallIn = false;
+    if (doWallIn) {
+        std::set<BuildingPositionPrecondition*> places = designWallIn();
+        buildUnitEx(Terran_Supply_Depot, places);
+        buildUnitEx(Terran_Barracks, places);
+        //rememberIdle(flyBuilding(rememberSecond(buildUnit(Terran_Barracks, places)), getBuildingPosition(Terran_Barracks)));
+        while (!places.empty())
+            buildUnitEx((*places.begin())->ut, places);
+    } else {
+        buildUnitEx(Terran_Supply_Depot);
+        buildUnitEx(Terran_Barracks);
+    }
 
     for (int k=0; k<5; ++k)
         trainWorker(Terran_SCV, "Worker (Group 2)");

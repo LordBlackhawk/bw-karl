@@ -177,7 +177,7 @@ namespace
     void setBuildingInfo(BWAPI::Unit* unit, bool value)
     {
         UnitType type = unit->getType();
-        if (!type.isBuilding())
+        if (!type.isBuilding() && !type.isResourceContainer())
             return;
         TilePosition pos = unit->getTilePosition();
 

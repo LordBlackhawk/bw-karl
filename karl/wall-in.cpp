@@ -1,13 +1,11 @@
 // ToDo:
-//  * Put code of dual graph to own file.
 //  * Put code of placement to new arrangement code.
-//  * Rewrite Placement::space by using dimensionLeft/dimensionUp/dimensionRight/dimensionDown.
-//  * Draw dual graph to map to fix bugs.
 
 #include "wall-in.hpp"
 #include "building-placer.hpp"
 #include "log.hpp"
 #include "bwta-helper.hpp"
+#include "dual-graph.hpp"
 #include <cstdlib>
 #include <set>
 #include <stack>
@@ -17,25 +15,7 @@ using namespace BWTA;
 
 namespace
 {
-    // Numbering of building side ('d' used in Placement::space, ...):
-    //          1
-    //       -------
-    //      |       |
-    //    2 |       | 0
-    //      |       |
-    //       -------
-    //          3
-
-    // TilePosition 0,0 with numbering of dual graph nodes and dual graph edges arround:
-    //    0,0------>1,0
-    //      |       |
-    //      |  0,0  |
-    //      V       |
-    //    0,1-------1,1
-
     struct Graph;
-    struct Node;
-    struct Edge;
 
     struct Placement
     {
@@ -50,21 +30,6 @@ namespace
         {
             return    (pos.x() <= p.x()) && (p.x() < pos.x() + type.tileWidth())
                    && (pos.y() <= p.y()) && (p.y() < pos.y() + type.tileHeight());
-        }
-
-        int space(int d) const
-        {
-            if (type == UnitTypes::Terran_Supply_Depot) {
-                int values[] = { 9, 10, 10, 5 };
-                return values[d];
-            }
-
-            if (type == UnitTypes::Terran_Barracks) {
-                int values[] = { 7, 8, 16, 15 };
-                return values[d];
-            }
-
-            return 0;
         }
 
         bool isBuildable() const
@@ -109,219 +74,98 @@ namespace
         Graph(int lX, int hX, int lY, int hY)
             : minX(lX), maxX(hX), minY(lY), maxY(hY)
         { }
-
-        int space(const TilePosition& pos, int d) const
-        {
-            if (pos.x() < 0 || pos.y() < 0)
-                return 0;
-
-            TileInformation& info = tileInformations[pos.x()][pos.y()];
-            if (!info.buildable) {
-                return info.space(d);
-            } else {
-                for (auto it : placements)
-                    if (it.contains(pos))
-                        return it.space(d);
-                return 32;
-            }
-        }
     };
 
-    struct Edge
+    bool findWay(Graph& graph, BWTA::Chokepoint* chokepoint)
     {
-        int x, y;
-        bool dirx;
-
-        Edge(int x_, int y_, bool dx)
-            : x(x_), y(y_), dirx(dx)
-        { }
-
-        TilePosition getTilePosition(bool left) const
-        {
-            if (left)
-                return TilePosition(x - (dirx ? 1 : 0), y);
-            else
-                return TilePosition(x, y - (dirx ? 0 : 1));
-        }
-
-        int space(const Graph& graph) const
-        {
-            return   graph.space(getTilePosition(true),  dirx ? 3 : 2)
-                   + graph.space(getTilePosition(false), dirx ? 1 : 0);
-        }
-
-        bool isWalkable(const Graph& graph) const
-        {
-            int unitSize = dirx ? graph.unitWidth : graph.unitHeight;
-            return (unitSize < space(graph));
-        }
-    };
-
-    struct Node
-    {
-        int x, y;
-
-        Node()
-            : x(0), y(0)
-        { }
-
-        Node(int x_, int y_)
-            : x(x_), y(y_)
-        { }
-
-        Edge getEdges(int n) const
-        {
-            switch (n)
-            {
-                case 0: return Edge(x,   y,   true);
-                case 1: return Edge(x,   y-1, false);
-                case 2: return Edge(x-1, y,   true);
-                case 3: return Edge(x,   y,   false);
-                default:
-                    WARNING << "Called getEdges with wrong n";
-                    exit(99);
-            }
-        }
-
-        Node getNodeOfEdge(int n) const
-        {
-            switch (n)
-            {
-                case 0: return Node(x+1, y);
-                case 1: return Node(x,   y-1);
-                case 2: return Node(x-1, y);
-                case 3: return Node(x,   y+1);
-                default:
-                    WARNING << "Called getNodeOfEdge with wrong n";
-                    exit(99);
-            }
-        }
-
-        bool isInsideOf(const Placement& p) const
-        {
-            return    (p.pos.x() < x) && (x < p.pos.x() + p.type.tileWidth())
-                   && (p.pos.y() < y) && (y < p.pos.y() + p.type.tileHeight());
-        }
-
-        bool isWithin(const Graph& graph) const
-        {
-            if (!(     (graph.minX <= x) && (x <= graph.maxX)
-                    && (graph.minY <= y) && (y <= graph.maxY)))
-                return false;
-
-            for (auto it : graph.placements)
-                if (isInsideOf(it))
-                    return false;
-
-            return true;
-        }
-
-        bool inRegion(BWTA::Region* region) const
-        {
-            for (int k=x-1; k<=x; ++k)
-                for (int l=y-1; l<=y; ++l)
-                    if (getRegion(TilePosition(k, l)) != region)
-                        return false;
-            return true;
-        }
-
-        bool operator == (const Node& other) const
-        {
-            return (x == other.x) && (y == other.y);
-        }
-
-        bool operator < (const Node& other) const
-        {
-            if (x < other.x)
-                return true;
-            if (x > other.x)
-                return false;
-            return (y < other.y);
-        }
-    };
-
-    bool isWalkable(const Graph& graph, const Node& node)
-    {
-        return node.isWithin(graph);
-    }
-
-    bool isWalkable(const Graph& graph, const Edge& edge)
-    {
-        return edge.isWalkable(graph);
-    }
-
-    std::set<Node> visited_debug;
-
-    bool findWay(const Graph& graph, const Node& start, const Node& end)
-    {
-        std::set<Node> visited;
-        std::stack<Node> stack;
-        stack.push(start);
-        while (!stack.empty())
-        {
-            Node next = stack.top();
-            stack.pop();
-            if (visited.count(next) == 1)
-                continue;
-
-            visited.insert(next);
-            for (int i=0; i<4; ++i) {
-                Edge edge = next.getEdges(i);
-                Node node = next.getNodeOfEdge(i);
-                if (isWalkable(graph, edge) && isWalkable(graph, node)) {
-                    if (node == end)
-                        return true;
-                    stack.push(node);
-                }
-            }
-        }
-        visited_debug = visited;
-        LOG << "No way found!!!";
-        return false;
+        for (auto it : graph.placements)
+            addUnitToGraph(it.type, it.pos);
+        bool result = !calcChokepointBlocked(chokepoint, std::max(graph.unitWidth, graph.unitHeight));
+        for (auto it : graph.placements)
+            removeUnitFromGraph(it.type, it.pos);
+        return result;
     }
 
     int placements = 0;
+    bool searchPlacement(BWTA::Chokepoint* chokepoint, BWTA::Region* region, Graph& graph, int deep = 0);
 
-    bool searchPlacement(BWTA::Region* region, Graph& graph, const Node& start, const Node& end, int deep = 0)
+    bool checkPlacementPossible(BWTA::Chokepoint* chokepoint, BWTA::Region* region, Graph& graph, int deep, int x, int y)
+    {
+        if ((x < 0) || (y < 0))
+            return false;
+
+        Placement& p = graph.placements[deep];
+        int tileWidth = p.type.tileWidth();
+        int tileHeight = p.type.tileHeight();
+        if ((x + tileWidth >= mapWidth) || (y + tileHeight >= mapHeight))
+            return false;
+        
+        p.pos.x() = x;
+        p.pos.y() = y;
+
+        if (!p.isBuildable())
+            return false;
+
+        bool intersection = false;
+        for (int k=0; k<deep; ++k)
+            if (p.intersects(graph.placements[k]))
+        {
+            intersection = true;
+            break;
+        }
+        if (intersection)
+            return false;
+
+        auto regions = chokepoint->getRegions();
+        TilePosition center = TilePosition(regions.first->getCenter());
+        if ((x <= center.x()) && (center.x() <= x + tileWidth) && (y <= center.y()) && (center.y() <= y + tileHeight))
+            return false;
+        center = TilePosition(regions.second->getCenter());
+        if ((x <= center.x()) && (center.x() <= x + tileWidth) && (y <= center.y()) && (center.y() <= y + tileHeight))
+            return false;
+
+        return searchPlacement(chokepoint, region, graph, deep+1);
+    }
+
+    bool searchPlacement(BWTA::Chokepoint* chokepoint, BWTA::Region* region, Graph& graph, int deep)
     {
         if (deep == (int)graph.placements.size()) {
             //LOG << "\tchecking placement...";
             ++placements;
-            return !findWay(graph, start, end);
+            return !findWay(graph, chokepoint);
         }
 
         Placement& p = graph.placements[deep];
-        for (int x=graph.minX+2; x<graph.maxX-p.type.tileWidth()-2; ++x)
-            for (int y=graph.minY+2; y<graph.maxY-p.type.tileHeight()-2; ++y)
-        {
-            p.pos.x() = x;
-            p.pos.y() = y;
-            if (p.getRegion() != region)
-                continue;
-
-            if (!p.isBuildable())
-                continue;
-
-            bool intersection = false;
-            for (int k=0; k<deep; ++k)
-                if (p.intersects(graph.placements[k]))
-            {
-                intersection = true;
-                break;
+        if (deep == 0) {
+            int xsize = graph.maxX - p.type.tileWidth();
+            int ysize = graph.maxY - p.type.tileHeight();
+            for (int x=graph.minX; x<xsize; ++x)
+                for (int y=graph.minY; y<ysize; ++y)
+                    if (checkPlacementPossible(chokepoint, region, graph, deep, x, y)) return true;
+        } else {
+            for (int k=0; k<deep; ++k) {
+                Placement& ps = graph.placements[k];
+                int y1 = ps.pos.y() - p.type.tileHeight();
+                int y2 = ps.pos.y() + ps.type.tileHeight();
+                int x1 = ps.pos.x() - p.type.tileWidth();
+                int x2 = ps.pos.x() + ps.type.tileWidth();
+                for (int x=x1+1; x<x2; ++x) {
+                    if (checkPlacementPossible(chokepoint, region, graph, deep, x, y1)) return true;
+                    if (checkPlacementPossible(chokepoint, region, graph, deep, x, y2)) return true;
+                }
+                for (int y=y1+1; y<y2; ++y) {
+                    if (checkPlacementPossible(chokepoint, region, graph, deep, x1, y)) return true;
+                    if (checkPlacementPossible(chokepoint, region, graph, deep, x2, y)) return true;
+                }
             }
-            if (intersection)
-                continue;
-
-            if (searchPlacement(region, graph, start, end, deep+1))
-                return true;
         }
 
         return false;
     }
 
-    bool searchPlacementIncremental(BWTA::Region* region, Graph& graph, const Node& start, const Node& end, int additional)
+    bool searchPlacementIncremental(BWTA::Chokepoint* chokepoint, BWTA::Region* region, Graph& graph, int additional)
     {
-        if (searchPlacement(region, graph, start, end))
+        if (searchPlacement(chokepoint, region, graph))
             return true;
         if (additional <= 0)
             return false;
@@ -329,33 +173,7 @@ namespace
         LOG << "increasing placement size.";
 
         graph.placements.push_back(Placement(UnitTypes::Terran_Supply_Depot));
-        return searchPlacementIncremental(region, graph, start, end, additional-1);
-    }
-
-    Node findNodeInRegion(const Graph& graph, BWTA::Region* region)
-    {
-        for (int x=graph.minX+1; x<graph.maxX-1; ++x) {
-            Node node(x, graph.minY+1);
-            if (node.inRegion(region))
-                return node;
-
-            node = Node(x, graph.maxY-1);
-            if (node.inRegion(region))
-                return node;
-        }
-
-        for (int y=graph.minY+1; y<graph.maxY-1; ++y) {
-            Node node(graph.minX+1, y);
-            if (node.inRegion(region))
-                return node;
-
-            node = Node(graph.maxX-1, y);
-            if (node.inRegion(region))
-                return node;
-        }
-
-        WARNING << "findNodeInRegion did not find node.";
-        return Node(0,0);
+        return searchPlacementIncremental(chokepoint, region, graph, additional-1);
     }
 
     std::set<BWTA::Region*> getRegionsWithinWall(BWTA::Region* region, Chokepoint* cpoint)
@@ -364,7 +182,7 @@ namespace
         std::stack<BWTA::Region*> stack;
         result.insert(region);
         for (auto it : region->getChokepoints())
-            if (it != cpoint)
+            if ((it != cpoint) && (getChokepointWidth(it) > 16))
                 stack.push(getOtherRegion(it, region));
 
         while (!stack.empty())
@@ -376,7 +194,8 @@ namespace
 
             result.insert(newregion);
             for (auto it : newregion->getChokepoints())
-                stack.push(getOtherRegion(it, newregion));
+                if (getChokepointWidth(it) > 16)
+                    stack.push(getOtherRegion(it, newregion));
         }
 
         return result;
@@ -407,35 +226,27 @@ namespace
         return RegionChokepointPairSet();
     }
 
-    Graph lastGraph;
-    Node  lastStart;
-    Node  lastEnd;
+    std::vector<Graph> allGraphs;
 }
 
 std::set<BuildingPositionPrecondition*> designWallIn(BWTA::Region* region, Chokepoint* cpoint)
 {
     TilePosition pos(cpoint->getCenter());
-    BWTA::Region* other = getOtherRegion(cpoint, region);
-    Graph graph(std::max(0, pos.x() - 9), std::min(pos.x() + 9, mapWidth),
-                std::max(0, pos.y() - 9), std::min(pos.y() + 9, mapHeight));
-    Node start = findNodeInRegion(graph, region);
-    Node end   = findNodeInRegion(graph, other);
+    Graph graph(std::max(0, pos.x() - 7), std::min(pos.x() + 7, mapWidth),
+                std::max(0, pos.y() - 7), std::min(pos.y() + 7, mapHeight));
 
-    graph.unitWidth  = 23;
-    graph.unitHeight = 19;
+    graph.unitWidth  = 18;
+    graph.unitHeight = 18;
+    allGraphs.push_back(graph);
 
-    lastGraph = graph;
-    lastStart = start;
-    lastEnd   = end;
-
-    if (!findWay(graph, start, end)) {
+    if (!findWay(graph, cpoint)) {
         WARNING << "No way found without buildings!";
         return std::set<BuildingPositionPrecondition*>();
     }
 
     graph.placements.push_back(Placement(UnitTypes::Terran_Barracks));
     graph.placements.push_back(Placement(UnitTypes::Terran_Supply_Depot));
-    if (!searchPlacementIncremental(region, graph, start, end, 1))
+    if (!searchPlacementIncremental(cpoint, region, graph, 1))
         return std::set<BuildingPositionPrecondition*>();
 
     std::set<BuildingPositionPrecondition*> result;
@@ -463,24 +274,12 @@ std::set<BuildingPositionPrecondition*> designWallIn()
 
 void WallInCode::onDrawPlan(HUDTextOutput& /*hud*/)
 {
-    /*
-    int x1 = lastGraph.minX*32;
-    int y1 = lastGraph.minY*32;
-    int x2 = lastGraph.maxX*32;
-    int y2 = lastGraph.maxY*32;
-    Broodwar->drawBoxMap(x1, y1, x2, y2, Colors::Green, false);
-
-    int sx = lastStart.x*32;
-    int sy = lastStart.y*32;
-    int ex = lastEnd.x*32;
-    int ey = lastEnd.y*32;
-    Broodwar->drawCircleMap(sx, sy, 5, Colors::Green, true);
-    Broodwar->drawCircleMap(ex, ey, 5, Colors::Red,   true);
-
-    for (auto it : visited_debug) {
-        int x = it.x*32;
-        int y = it.y*32;
-        Broodwar->drawCircleMap(x, y, 3, Colors::Yellow, true);
+    for (auto it : allGraphs) {
+        int x1 = it.minX*32;
+        int y1 = it.minY*32;
+        int x2 = it.maxX*32;
+        int y2 = it.maxY*32;
+        Broodwar->drawBoxMap(x1, y1, x2, y2, Colors::Green, false);
     }
-    */
 }
+

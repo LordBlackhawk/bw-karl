@@ -131,6 +131,12 @@ void DualGraphCode::onMatchEnd()
     renewRegions.clear();
 }
 
+void updateGraph()
+{
+    while (!renewRegions.empty())
+        DualGraphCode::onTick();
+}
+
 void DualGraphCode::onTick()
 {
     if (!renewRegions.empty()) {

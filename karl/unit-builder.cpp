@@ -353,6 +353,12 @@ std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType&
     return buildUnit(pos, ut, extra);
 }
 
+std::pair<UnitPrecondition*, UnitPrecondition*> buildUnit(const BWAPI::UnitType& ut, std::set<BuildingPositionPrecondition*>& places)
+{
+    BuildingPositionPrecondition* pos = getBuildingPosition(ut, places);
+    return buildUnit(pos, ut);
+}
+
 void buildUnitEx(const BWAPI::UnitType& ut)
 {
     UnitPrecondition* worker = rememberFirst(buildUnit(ut));

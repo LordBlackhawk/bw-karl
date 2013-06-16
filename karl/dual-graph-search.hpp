@@ -66,3 +66,26 @@ void recalcRegion(BWTA::Region* region)
         recursiveSetChokepointValue(node, width);
     }
 }
+
+namespace
+{
+    bool getOrCalcChokpointBlocked(BWTA::Region* region, BWTA::Chokepoint* chokepoint, int width)
+    {
+        if (renewRegions.count(region) > 0) {
+            setChokepointValue(chokepoint, region, 0, true);
+            resetChecked();
+            DualNode* node = projectToGraph(region->getCenter());
+            recursiveSetChokepointValue(node, width);
+        }
+        auto it = chokepointWidths.find(chokepoint);
+        assert( it != chokepointWidths.end() );
+        int result = (chokepoint->getRegions().first == region) ? it->second.first : it->second.second;
+        return (result < width);
+    }
+}
+
+bool calcChokepointBlocked(BWTA::Chokepoint* chokepoint, int width)
+{
+    auto regions = chokepoint->getRegions();
+    return getOrCalcChokpointBlocked(regions.first, chokepoint, width) || getOrCalcChokpointBlocked(regions.second, chokepoint, width);
+}

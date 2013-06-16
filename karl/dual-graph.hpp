@@ -38,6 +38,8 @@ DualEdge* projectToGraph(const BWAPI::TilePosition& pos, Direction::Type dir);
 void addUnitToGraph(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos);
 void removeUnitFromGraph(const BWAPI::UnitType& ut, const BWAPI::TilePosition& pos);
 
+void updateGraph();
+bool calcChokepointBlocked(BWTA::Chokepoint* chokepoint, int width);
 int getChokepointWidth(BWTA::Chokepoint* chokepoint);
 
 struct DualGraphCode : public DefaultCode
