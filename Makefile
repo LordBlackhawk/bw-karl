@@ -1,4 +1,4 @@
-LIBRARIES   = utils
+LIBRARIES   = utils engine
 EXECUTABLES = karl tests
 MAKEFLAGS   = -j4
 
@@ -8,6 +8,9 @@ MODULES     = $(LIBRARIES) $(EXECUTABLES)
 MODULEFILES = $(LIBFILES) $(EXEFILES)
 
 all: $(MODULEFILES)
+
+run: karl.exe
+	$<
 
 test: tests.exe
 	@echo ' ##############################################################################'
