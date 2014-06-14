@@ -1,64 +1,35 @@
-SOURCEPATH   = karl/
-OBJECTPATH   = out/
-BWAPIPATH    = includes/
-BOOSTPATH    = ../boost_1_46_1
-LIBPATH      = lib/
+LIBRARIES   = utils
+EXECUTABLES = karl tests
+MAKEFLAGS   = -j4
 
-CXX          = g++
-CXXINCLUDES  = -I$(BWAPIPATH) -I$(BOOSTPATH) -I.
-CXXFLAGS     = -Wall -Wextra -O3 $(CXXINCLUDES)
-CXXLIBS      = -L$(LIBPATH) -L$(BOOSTPATH)/stage/lib -lBWAPI -lBWTA -lCGAL -lmpfr -lgmp -lboost_thread-mgw47-mt-1_46_1 -static-libgcc -static-libstdc++
+LIBFILES    = $(addprefix ./lib/lib, $(addsuffix .a, $(LIBRARIES)))
+EXEFILES    = $(addsuffix .exe, $(EXECUTABLES))
+MODULES     = $(LIBRARIES) $(EXECUTABLES)
+MODULEFILES = $(LIBFILES) $(EXEFILES)
 
-SOURCES      = $(wildcard $(SOURCEPATH)*.cpp)
-OBJECTS      = $(addprefix $(OBJECTPATH), $(notdir $(SOURCES:.cpp=.o)) stacktrace.o) 
-EXECUTEABLES = karl.exe
-DEPS         = $(addprefix $(OBJECTPATH), $(notdir $(SOURCES:.cpp=.d)) stacktrace.d)
+all: $(MODULEFILES)
 
-MEMCHECK     = ../DrMemory-Windows-1.5.0-5/bin/drmemory.exe
+test: tests.exe
+	@echo ' ##############################################################################'
+	@$< -p
 
-all: $(EXECUTEABLES) $(DEPS)
+define LIB_template
+lib/lib$(1).a: .FORCE
+	@$$(MAKE) $$(MAKEFLAGS) -C ./sources/$(1)/ all
+endef
 
-run: karl.exe
-	$<
+define EXE_template
+$(1).exe: $(LIBFILES) .FORCE
+	@$$(MAKE) $$(MAKEFLAGS) -C ./sources/$(1)/ all
+endef
 
-debugrun: karl.exe
-	gdb $<
-
-memcheck: karl.exe
-	$(MEMCHECK) -- $<
-
-echo:
-	@echo "Sources:"
-	@echo $(SOURCES)
-	@echo "Objects:"
-	@echo $(OBJECTS)
-
-karl.exe: $(OBJECTS)
-	$(CXX) $(OBJECTS) $(CXXLIBS) -o $@
-
-$(OBJECTPATH)%.o: $(SOURCEPATH)%.cpp $(OBJECTPATH)%.d
-	$(CXX) --std=c++0x $(CXXFLAGS) -c $< -o $@
-
-$(OBJECTPATH)%.o: $(SOURCEPATH)%.cc $(OBJECTPATH)%.d
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OBJECTPATH)%.d: $(SOURCEPATH)%.cpp
-	@echo 'Calculating Dependencies of "$<"...'
-	@$(CXX) --std=c++0x -I. -MM -MG $< | sed 's,\($*\)\.o[ :]*,$(OBJECTPATH)\1.o $@ : ,g' | sed 's,boost/.*\.hpp,,g' > $@;
-
-$(OBJECTPATH)%.d: $(SOURCEPATH)%.cc
-	@echo 'Calculating Dependencies of "$<"...'
-	@$(CXX) -I. -MM -MG $< | sed 's,\($*\)\.o[ :]*,$(OBJECTPATH)\1.o $@ : ,g' | sed 's,boost/.*\.hpp,,g' > $@;
-    
--include $(DEPS)
-
-$(DEPS): | $(OBJECTPATH)
-
-$(OBJECTPATH):
-	mkdir $(OBJECTPATH)
-
-cleandep:
-	rm -rf $(OBJECTPATH)*.d
+$(foreach lib,$(LIBRARIES),$(eval $(call LIB_template,$(lib))))
+$(foreach exe,$(EXECUTABLES),$(eval $(call EXE_template,$(exe))))
 
 clean:
-	rm -rf $(OBJECTPATH) $(EXECUTEABLES) BWTA.log
+	@for module in $(MODULES); do \
+		$(MAKE) -C ./sources/$$module/ clean ; \
+	done
+	rm $(MODULEFILES)
+
+.FORCE:
