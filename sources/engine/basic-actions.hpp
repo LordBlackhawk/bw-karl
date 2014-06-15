@@ -19,7 +19,7 @@ class FailAction : public AbstractAction
 class TerminateAction : public AbstractAction
 {
     public:
-        TerminateAction(AbstractAction* a, bool c);
+        TerminateAction(AbstractAction* a, bool c, AbstractAction* pre = NULL);
         Status onTick(AbstractExecutionEngine* engine);
 
     protected:

@@ -85,13 +85,15 @@ BOOST_AUTO_TEST_CASE( terminate_do_not_cleanup )
     BOOST_CHECK(isActive(action2));
 }
 
-BOOST_AUTO_TEST_CASE( fail_action )
+BOOST_AUTO_TEST_CASE( fail_action_cleanup )
 {
     auto action = add(new FailAction());
+    auto follow = add(new InfiniteAction(action));
 
     tick();
 
     CHECK_EVENT(Event::ActionFailed, action);
+    CHECK_EVENT(Event::ActionCleanedUp, follow);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

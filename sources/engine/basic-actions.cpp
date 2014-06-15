@@ -18,8 +18,8 @@ FailAction::Status FailAction::onTick(AbstractExecutionEngine* /*engine*/)
     return Failed;
 }
 
-TerminateAction::TerminateAction(AbstractAction* a, bool c)
-    : AbstractAction(NULL), action(a), cleanup(c)
+TerminateAction::TerminateAction(AbstractAction* a, bool c, AbstractAction* pre)
+    : AbstractAction(pre), action(a), cleanup(c)
 { }
 
 TerminateAction::Status TerminateAction::onTick(AbstractExecutionEngine* engine)

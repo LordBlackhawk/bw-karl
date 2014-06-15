@@ -1,5 +1,8 @@
 #include "default-execution-engine.hpp"
 
+DefaultExecutionEngine::DefaultExecutionEngine()
+{ }
+
 void DefaultExecutionEngine::terminateAction(AbstractAction* action, bool cleanup)
 {
     if (allActions.find(action) == allActions.end())

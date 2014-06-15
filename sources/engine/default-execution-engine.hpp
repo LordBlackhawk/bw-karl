@@ -9,13 +9,13 @@
 class DefaultExecutionEngine : public AbstractExecutionEngine
 {
     public:
+        DefaultExecutionEngine();
         void terminateAction(AbstractAction* action, bool cleanup);
         void generateEvent(AbstractAction* action, Event::Type type, int data);
         void addAction(AbstractAction* action);
-        bool isActive(AbstractAction* action) const;
         Event getEvent();
-
         void tick();
+        bool isActive(AbstractAction* action) const;
 
     protected:
         std::set<AbstractAction*>   allActions;

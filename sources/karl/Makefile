@@ -1,6 +1,6 @@
 PROJECTPATH     = ../../
 MAKEFILEPATH    = ../
 MODULENAME      = karl
-MODULEDEPS      = utils
+MODULEDEPS      = utils engine
 
 -include $(MAKEFILEPATH)executable.mk

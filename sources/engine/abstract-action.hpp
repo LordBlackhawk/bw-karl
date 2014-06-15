@@ -38,6 +38,9 @@ class Event
 class AbstractExecutionEngine
 {
     public:
+        virtual ~AbstractExecutionEngine()
+        { }
+
         // Interface to actions:
         virtual void terminateAction(AbstractAction* action, bool cleanup) = 0;
         virtual void generateEvent(AbstractAction* action, Event::Type type, int data) = 0;
@@ -45,4 +48,8 @@ class AbstractExecutionEngine
         // Interface to environment:
         virtual void addAction(AbstractAction* action) = 0;
         virtual Event getEvent() = 0;
+
+        // Interface to user:
+        virtual void tick() = 0;
+        virtual bool isActive(AbstractAction* action) const = 0;
 };
