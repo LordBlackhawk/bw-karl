@@ -11,9 +11,9 @@ class DefaultExecutionEngine : public AbstractExecutionEngine
     public:
         DefaultExecutionEngine();
         void terminateAction(AbstractAction* action, bool cleanup);
-        void generateEvent(AbstractAction* action, Event::Type type, int data);
+        void generateEvent(AbstractEvent* event);
         void addAction(AbstractAction* action);
-        Event getEvent();
+        AbstractEvent* popEvent();
         void tick();
         bool isActive(AbstractAction* action) const;
 
@@ -21,7 +21,7 @@ class DefaultExecutionEngine : public AbstractExecutionEngine
         std::set<AbstractAction*>   allActions;
         std::set<AbstractAction*>   passiveActions;
         std::set<AbstractAction*>   activeActions;
-        std::deque<Event>           events;
+        std::deque<AbstractEvent*>  events;
 
         std::vector<AbstractAction*> findFollowUps(AbstractAction* action);
         void activateFollowUps(AbstractAction* action);

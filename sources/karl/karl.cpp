@@ -1,8 +1,11 @@
+#include "utils/timer.hpp"
+#include "utils/log.hpp"
 #include "engine/default-execution-engine.hpp"
 #include "engine/broodwar-actions.hpp"
 #include "engine/basic-actions.hpp"
-#include "utils/timer.hpp"
-#include "utils/log.hpp"
+#include "engine/broodwar-events.hpp"
+#include "plan/plan-item.hpp"
+#include "expert/worker-expert.hpp"
 
 #include <BWAPI.h>
 #include <BWAPI/Client.h>
@@ -158,6 +161,7 @@ BWAPI::TilePosition getBuildLocationNear(BWAPI::TilePosition position, BWAPI::Un
 AbstractExecutionEngine* prepareExecutionEngine()
 {
     DefaultExecutionEngine* engine = new DefaultExecutionEngine();
+    /*
     AbstractAction* someAction = NULL;
     BWAPI::Unit*    someWorker = NULL;
     for (auto worker : BWAPI::Broodwar->self()->getUnits()) {
@@ -180,7 +184,28 @@ AbstractExecutionEngine* prepareExecutionEngine()
     AbstractAction* trigger = new MineralTrigger(200);
     engine->addAction(trigger);
     engine->addAction(new TerminateAction(someAction, false, trigger));
+    */
     return engine;
+}
+
+Blackboard* prepareBlackboard(AbstractExecutionEngine* engine)
+{
+    Blackboard* blackboard = new Blackboard(engine);
+    blackboard->prepare();
+    blackboard->addExpert(new WorkerExpert());
+    return blackboard;
+}
+
+void sendFrameEvent(AbstractExecutionEngine* engine)
+{
+    BWAPI::Player* self = BWAPI::Broodwar->self();
+    engine->generateEvent(new FrameEvent(BWAPI::Broodwar->getFrameCount(), self->minerals(), self->gas()));
+
+    for (auto event : Broodwar->getEvents())
+        engine->generateEvent(new BroodwarEvent(event));
+
+    for (auto unit : self->getUnits())
+        engine->generateEvent(new UnitEvent(unit, unit->getType(), unit->getPosition()));
 }
 
 int main(int /*argc*/, char* */*argv[]*/)
@@ -216,21 +241,17 @@ int main(int /*argc*/, char* */*argv[]*/)
         Broodwar->enableFlag(Flag::UserInput);
         Broodwar->setLocalSpeed(0);
 
-        //LOG << "Calling onMatchBegin...";
-        //CodeList::onMatchBegin();
         AbstractExecutionEngine* engine = prepareExecutionEngine();
+        Blackboard* blackboard = prepareBlackboard(engine);
 
         while (Broodwar->isInGame())
         {
             if (!Broodwar->isPaused()) {
                 timerStart();
-                //DEBUG << "Calling onTick...";
-                //CodeList::onTick();
+                sendFrameEvent(engine);
+                blackboard->tick();
                 engine->tick();
                 timerEnd();
-            } else {
-                //DEBUG << "Calling onPausedTick...";
-                //CodeList::onPausedTick();
             }
 
             BWAPI::BWAPIClient.update();
@@ -241,13 +262,8 @@ int main(int /*argc*/, char* */*argv[]*/)
             }
         }
 
-        //LOG << "Calling onMatchEnd...";
-        //CodeList::onMatchEnd();
+        delete blackboard;
         delete engine;
-
-        //LOG << "Checking for memory leaks...";
-        //CodeList::onCheckMemoryLeaks();
-
         LOG << "Game ended.\n";
     }
     return 0;

@@ -3,11 +3,14 @@
 #include "engine/default-execution-engine.hpp"
 #include "engine/basic-actions.hpp"
 
-#define CHECK_NOEVENT()     do { BOOST_REQUIRE_EQUAL( engine.getEvent().type, Event::NoEvent ); } while (false)
-#define CHECK_EVENT(_type, _sender)                     \
-    do { Event event = engine.getEvent();               \
-         BOOST_REQUIRE_EQUAL( event.type, _type );      \
-         BOOST_REQUIRE_EQUAL( event.sender, _sender );  \
+#define CHECK_NOEVENT()     do { BOOST_REQUIRE( engine.popEvent() == NULL ); } while (false)
+
+#define CHECK_EVENT(_type, _sender)                                                 \
+    do { ActionEvent* event = dynamic_cast<ActionEvent*>(engine.popEvent());        \
+         BOOST_REQUIRE(event != NULL);                                              \
+         BOOST_REQUIRE_EQUAL( event->type, _type );                                 \
+         BOOST_REQUIRE_EQUAL( event->sender, _sender );                             \
+         delete event;                                                              \
          } while (false)
 
 namespace
@@ -55,8 +58,8 @@ BOOST_AUTO_TEST_CASE( basic )
 
     auto terminate = add(new TerminateAction(inf, false));
     tick();
-    CHECK_EVENT(Event::ActionTerminated, inf);
-    CHECK_EVENT(Event::ActionFinished, terminate);
+    CHECK_EVENT(ActionEvent::ActionTerminated, inf);
+    CHECK_EVENT(ActionEvent::ActionFinished, terminate);
 }
 
 BOOST_AUTO_TEST_CASE( terminate_cleanup )
@@ -67,9 +70,9 @@ BOOST_AUTO_TEST_CASE( terminate_cleanup )
 
     tick();
 
-    CHECK_EVENT(Event::ActionTerminated, action1);
-    CHECK_EVENT(Event::ActionCleanedUp, action2);
-    CHECK_EVENT(Event::ActionFinished, terminate);
+    CHECK_EVENT(ActionEvent::ActionTerminated, action1);
+    CHECK_EVENT(ActionEvent::ActionCleanedUp, action2);
+    CHECK_EVENT(ActionEvent::ActionFinished, terminate);
 }
 
 BOOST_AUTO_TEST_CASE( terminate_do_not_cleanup )
@@ -80,8 +83,8 @@ BOOST_AUTO_TEST_CASE( terminate_do_not_cleanup )
 
     tick();
 
-    CHECK_EVENT(Event::ActionTerminated, action1);
-    CHECK_EVENT(Event::ActionFinished, terminate);
+    CHECK_EVENT(ActionEvent::ActionTerminated, action1);
+    CHECK_EVENT(ActionEvent::ActionFinished, terminate);
     BOOST_CHECK(isActive(action2));
 }
 
@@ -92,8 +95,8 @@ BOOST_AUTO_TEST_CASE( fail_action_cleanup )
 
     tick();
 
-    CHECK_EVENT(Event::ActionFailed, action);
-    CHECK_EVENT(Event::ActionCleanedUp, follow);
+    CHECK_EVENT(ActionEvent::ActionFailed, action);
+    CHECK_EVENT(ActionEvent::ActionCleanedUp, follow);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

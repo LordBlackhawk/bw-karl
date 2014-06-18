@@ -15,7 +15,7 @@ void DefaultExecutionEngine::terminateAction(AbstractAction* action, bool cleanu
         action->onEnd(this);
         activeActions.erase(action);
     }
-    generateEvent(action, Event::ActionTerminated, 0);
+    generateActionEvent(action, ActionEvent::ActionTerminated);
 
     if (cleanup) {
         terminateFollowUps(action);
@@ -24,9 +24,9 @@ void DefaultExecutionEngine::terminateAction(AbstractAction* action, bool cleanu
     }
 }
 
-void DefaultExecutionEngine::generateEvent(AbstractAction* action, Event::Type type, int data)
+void DefaultExecutionEngine::generateEvent(AbstractEvent* event)
 {
-    events.push_back(Event(action, type, data));
+    events.push_back(event);
 }
 
 void DefaultExecutionEngine::addAction(AbstractAction* action)
@@ -45,12 +45,12 @@ bool DefaultExecutionEngine::isActive(AbstractAction* action) const
     return activeActions.find(action) != activeActions.end();
 }
 
-Event DefaultExecutionEngine::getEvent()
+AbstractEvent* DefaultExecutionEngine::popEvent()
 {
     if (events.empty())
-        return Event();
+        return NULL;
 
-    Event event = events.front();
+    AbstractEvent* event = events.front();
     events.pop_front();
     return event;
 }
@@ -63,12 +63,12 @@ void DefaultExecutionEngine::tick()
         if (status == AbstractAction::Status::Finished) {
             allActions.erase(it);
             activeActions.erase(it);
-            generateEvent(it, Event::ActionFinished, 0);
+            generateActionEvent(it, ActionEvent::ActionFinished);
             activateFollowUps(it);
         } else if (status == AbstractAction::Status::Failed) {
             allActions.erase(it);
             activeActions.erase(it);
-            generateEvent(it, Event::ActionFailed, 0);
+            generateActionEvent(it, ActionEvent::ActionFailed);
             terminateFollowUps(it);
         }
     }
@@ -100,7 +100,7 @@ void DefaultExecutionEngine::terminateFollowUps(AbstractAction* action)
         AbstractAction* current = all.back();
         allActions.erase(current);
         passiveActions.erase(current);
-        generateEvent(current, Event::ActionCleanedUp, 0);
+        generateActionEvent(current, ActionEvent::ActionCleanedUp);
 
         all.pop_back();
         std::vector<AbstractAction*> additional = findFollowUps(current);

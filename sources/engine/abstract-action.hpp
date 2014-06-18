@@ -3,6 +3,7 @@
 #include <stddef.h>
 
 class AbstractExecutionEngine;
+class AbstractEventVisitor;
 
 class AbstractAction
 {
@@ -17,39 +18,38 @@ class AbstractAction
         virtual void onEnd(AbstractExecutionEngine* engine);
 };
 
-class Event
+class AbstractEvent
 {
     public:
-        enum Type { NoEvent, ActionFinished, ActionFailed, ActionTerminated, ActionCleanedUp };
+        virtual ~AbstractEvent();
 
+        virtual void acceptVisitor(AbstractEventVisitor* visitor) = 0;
+};
+
+class ActionEvent : public AbstractEvent
+{
+    public:
+        enum Type { ActionFinished, ActionFailed, ActionTerminated, ActionCleanedUp };
         AbstractAction* sender;
         Type            type;
-        int             data;
-
-        inline Event(AbstractAction* s, Type t, int d)
-            : sender(s), type(t), data(d)
-        { }
-
-        inline Event()
-            : sender(NULL), type(NoEvent), data(0)
-        { }
+        ActionEvent(AbstractAction* s, Type t);
+        void acceptVisitor(AbstractEventVisitor* visitor);
 };
 
 class AbstractExecutionEngine
 {
     public:
-        virtual ~AbstractExecutionEngine()
-        { }
+        virtual ~AbstractExecutionEngine();
 
         // Interface to actions:
         virtual void terminateAction(AbstractAction* action, bool cleanup) = 0;
-        virtual void generateEvent(AbstractAction* action, Event::Type type, int data) = 0;
+        virtual void generateEvent(AbstractEvent* event) = 0;
+
+        void generateActionEvent(AbstractAction* action, ActionEvent::Type type);
 
         // Interface to environment:
         virtual void addAction(AbstractAction* action) = 0;
-        virtual Event getEvent() = 0;
-
-        // Interface to user:
+        virtual AbstractEvent* popEvent() = 0;
         virtual void tick() = 0;
         virtual bool isActive(AbstractAction* action) const = 0;
 };

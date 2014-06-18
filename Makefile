@@ -1,4 +1,4 @@
-LIBRARIES   = utils engine
+LIBRARIES   = utils engine plan expert
 EXECUTABLES = karl tests
 MAKEFLAGS   = -j4
 
@@ -34,5 +34,8 @@ clean:
 		$(MAKE) -C ./sources/$$module/ clean ; \
 	done
 	rm $(MODULEFILES)
+
+lines:
+	wc -l sources/*/*.*pp
 
 .FORCE:

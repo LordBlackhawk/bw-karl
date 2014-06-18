@@ -1,6 +1,6 @@
 PROJECTPATH     = ../../
 MAKEFILEPATH    = ../
 MODULENAME      = karl
-MODULEDEPS      = utils engine
+MODULEDEPS      = expert plan engine utils
 
 -include $(MAKEFILEPATH)executable.mk
