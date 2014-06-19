@@ -11,9 +11,9 @@ ifeq ($(NEEDS_TEST_LIBS), yes)
 endif
 
 CXX          = g++
-CXXINCLUDES  = -I$(BWAPIPATH) -I$(BOOSTPATH) -I$(INCLUDEPATH)
+CXXINCLUDES  = -I$(BWAPIPATH) -I$(INCLUDEPATH)
 CXXFLAGS     = -Wall -Wextra -O3 $(CXXINCLUDES)
-CXXLIBS      = -L$(LIBPATH) -L$(BOOSTPATH)/stage/lib $(BOOST_LIBS) -lBWTA -lBWAPI -lCGAL -lmpfr -lgmp -static-libgcc -static-libstdc++
+CXXLIBS      = -L$(LIBPATH) $(BOOST_LIBS) -lBWTA -lBWAPI -lCGAL -lmpfr -lgmp -static-libgcc -static-libstdc++
 
 SOURCES      = $(wildcard $(SOURCEPATH)*.cpp)
 OBJECTS      = $(addprefix $(OBJECTPATH), $(notdir $(SOURCES:.cpp=.o))) 

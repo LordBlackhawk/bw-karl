@@ -237,7 +237,7 @@ int main(int /*argc*/, char* */*argv[]*/)
         BWTA::analyze();
 
         LOG << "Starting match...";
-        Broodwar->sendText("Hello world from Karl 2.0!");
+        Broodwar->sendText("Hello world from Karl 3.0!");
         Broodwar->enableFlag(Flag::UserInput);
         Broodwar->setLocalSpeed(0);
 
