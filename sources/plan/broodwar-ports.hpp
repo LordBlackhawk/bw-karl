@@ -4,26 +4,32 @@
 
 #include <BWAPI.h>
 
+class AbstractAction;
 class ProvideUnitPort;
 class RequireUnitPort;
 
 class ProvideUnitPort : public AbstractPort
 {
     public:
-        ProvideUnitPort(BWAPI::Unit* u);
+        ProvideUnitPort(BWAPI::Unit* u, bool od = false);
         void updateData(BWAPI::UnitType ut, BWAPI::Position p);
         void updateData(RequireUnitPort* port);
 
-        bool isRequirePort() const;
-        void acceptVisitor(AbstractVisitor* visitor);
+        bool isRequirePort() const override;
+        void acceptVisitor(AbstractVisitor* visitor) override;
 
         void connectTo(RequireUnitPort* port);
         void disconnect();
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
 
         inline bool isConnected() const { return connection != NULL; }
         inline BWAPI::Unit* getUnit() const { return unit; }
         inline BWAPI::UnitType getUnitType() const { return unitType; }
         inline BWAPI::Position getPosition() const { return pos; }
+        inline bool isOnDemand() const { return onDemand; }
+
+        inline void setUnit(BWAPI::Unit* u) { unit = u; }
+        inline void setPreviousAction(AbstractAction* action) { previousAction = action; }
 
     protected:
         friend class RequireUnitPort;
@@ -32,6 +38,8 @@ class ProvideUnitPort : public AbstractPort
         BWAPI::Unit*        unit;
         BWAPI::UnitType     unitType;
         BWAPI::Position     pos;
+        bool                onDemand;
+        AbstractAction*     previousAction;
 };
 
 class RequireUnitPort : public AbstractPort
@@ -39,16 +47,17 @@ class RequireUnitPort : public AbstractPort
     public:
         RequireUnitPort(BWAPI::UnitType ut);
 
-        bool isRequirePort() const;
-        void acceptVisitor(AbstractVisitor* visitor);
+        bool isRequirePort() const override;
+        void acceptVisitor(AbstractVisitor* visitor) override;
 
         void updateEstimates();
         void connectTo(ProvideUnitPort* port);
         void disconnect();
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
 
         inline bool isConnected() const { return connection != NULL; }
         inline BWAPI::Unit* getUnit() const { return (connection != NULL) ? connection->unit : NULL; }
-        inline BWAPI::UnitType getUnitType() const { return (connection != NULL) ? connection->unitType : BWAPI::UnitTypes::Unknown; }
+        inline BWAPI::UnitType getUnitType() const { return unitType; }
         inline BWAPI::Position getPosition() const { return (connection != NULL) ? connection->pos : BWAPI::Positions::Unknown; }
 
     protected:

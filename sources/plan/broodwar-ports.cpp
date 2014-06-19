@@ -1,8 +1,9 @@
 #include "broodwar-ports.hpp"
 #include "abstract-visitor.hpp"
+#include "engine/basic-actions.hpp"
 
-ProvideUnitPort::ProvideUnitPort(BWAPI::Unit* u)
-    : connection(NULL), unit(u), unitType(BWAPI::UnitTypes::Unknown), pos(BWAPI::Positions::Unknown)
+ProvideUnitPort::ProvideUnitPort(BWAPI::Unit* u, bool od)
+    : connection(NULL), unit(u), unitType(BWAPI::UnitTypes::Unknown), pos(BWAPI::Positions::Unknown), onDemand(od), previousAction(NULL)
 { }
 
 void ProvideUnitPort::updateData(BWAPI::UnitType ut, BWAPI::Position p)
@@ -26,6 +27,13 @@ bool ProvideUnitPort::isRequirePort() const
 void ProvideUnitPort::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitProvideUnitPort(this);
+}
+
+AbstractAction* ProvideUnitPort::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    if (onDemand)
+        engine->addAction(new TerminateAction(previousAction, false));
+    return previousAction;
 }
 
 void ProvideUnitPort::connectTo(RequireUnitPort* port)
@@ -76,4 +84,12 @@ void RequireUnitPort::disconnect()
         connection->connection = NULL;
         connection = NULL;
     }
+}
+
+AbstractAction* RequireUnitPort::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    if (connection == NULL)
+        return NULL;
+
+    return connection->prepareForExecution(engine);
 }

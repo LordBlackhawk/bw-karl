@@ -5,13 +5,17 @@
 BasicExpert::BasicExpert()
 { }
 
+void BasicExpert::prepare()
+{ }
+
 void BasicExpert::tick(Blackboard* blackboard)
 {
     currentBlackboard = blackboard;
-    prepare();
+    beginTraversal();
     std::vector<AbstractPlanItem*> items = currentBlackboard->getItems();
     for (auto it : items)
         it->acceptVisitor(this);
+    endTraversal();
     currentBlackboard = NULL;
 }
 
@@ -41,7 +45,15 @@ void BasicExpert::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
     visitAbstractPlanItem(item);
 }
 
-void BasicExpert::prepare()
+void BasicExpert::visitBuildPlanItem(BuildPlanItem* item)
+{
+    visitAbstractPlanItem(item);
+}
+
+void BasicExpert::beginTraversal()
+{ }
+
+void BasicExpert::endTraversal()
 { }
 
 void BasicPortExpert::visitAbstractPlanItem(AbstractPlanItem* item)

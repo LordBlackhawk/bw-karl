@@ -1,4 +1,5 @@
 #include "broodwar-actions.hpp"
+#include "utils/log.hpp"
 #include <cstring>
 
 UnitAction::UnitAction(BWAPI::Unit* u, AbstractAction* pre)
@@ -36,6 +37,7 @@ ZergBuildAction::ZergBuildAction(BWAPI::Unit* w, BWAPI::UnitType ut, BWAPI::Tile
 
 void ZergBuildAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
+    LOG << "ZergBuildAction begin...";
     unit->stop();
 }
 
@@ -65,6 +67,8 @@ ZergBuildAction::Status ZergBuildAction::onTick(AbstractExecutionEngine* /*engin
         return Running;
     if (err == BWAPI::Errors::Insufficient_Gas)
         return Running;
+    if (err == BWAPI::Errors::Unit_Busy)
+        return Running;
     /*
     if (err == BWAPI::Errors::Unreachable_Location)
         return Failed;
@@ -73,11 +77,13 @@ ZergBuildAction::Status ZergBuildAction::onTick(AbstractExecutionEngine* /*engin
     if (err == BWAPI::Errors::Insufficient_Tech)
         return Failed;
     */
+    LOG << "ZergBuildAction failed with " << err.toString();
     return Failed;
 }
 
 void ZergBuildAction::onEnd(AbstractExecutionEngine* /*engine*/)
 {
+    LOG << "ZergBuildAction finished.";
     // If the unit still exists and the building is not yet finished, abort.
     if (unit->exists()) {
         if (unit->isBeingConstructed()) {

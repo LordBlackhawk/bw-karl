@@ -2,9 +2,16 @@
 
 #include "basic-expert.hpp"
 
+#include <set>
+
 class WorkerExpert : public BasicPortExpert
 {
     public:
-        void visitAbstractPlanItem(AbstractPlanItem* item);
-        void visitProvideUnitPort(ProvideUnitPort* port);
+        void visitProvideUnitPort(ProvideUnitPort* port) override;
+        void visitRequireUnitPort(RequireUnitPort* port) override;
+
+        void endTraversal() override;
+
+    protected:
+        std::set<ProvideUnitPort*>  providePorts;
 };

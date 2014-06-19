@@ -29,7 +29,7 @@ bool OwnUnitPlanItem::prepareForExecution(AbstractExecutionEngine* /*engine*/)
 }
 
 GatherMineralsPlanItem::GatherMineralsPlanItem(BWAPI::Unit* m, ProvideUnitPort* provider)
-    : requireUnit(BWAPI::UnitTypes::Zerg_Drone), provideUnit(NULL), mineral(m)
+    : requireUnit(BWAPI::UnitTypes::Zerg_Drone), provideUnit(NULL, true), mineral(m)
 {
     ports.push_back(&requireUnit);
     ports.push_back(&provideUnit);
@@ -47,7 +47,7 @@ void GatherMineralsPlanItem::updateEstimates()
     requireUnit.updateEstimates();
     AbstractPlanItem::updateEstimates();
 
-    int newvalue = estimatedStartTime + INFINITE_TIME;
+    int newvalue = estimatedStartTime;
     if (newvalue != provideUnit.estimatedTime) {
         provideUnit.estimatedTime = newvalue;
         LOG << "Update endTime to " << newvalue;
@@ -57,6 +57,38 @@ void GatherMineralsPlanItem::updateEstimates()
 bool GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
     provideUnit.updateData(&requireUnit);
-    engine->addAction(new CollectMineralsAction(requireUnit.getUnit(), mineral, NULL));
+    AbstractAction* action = new CollectMineralsAction(requireUnit.getUnit(), mineral, requireUnit.prepareForExecution(engine));
+    provideUnit.setPreviousAction(action);
+    engine->addAction(action);
+    return true;
+}
+
+BuildPlanItem::BuildPlanItem(BWAPI::UnitType ut, BWAPI::TilePosition p)
+    : requireUnit(ut.whatBuilds().first), provideUnit(NULL), unitType(ut), pos(p)
+{
+    ports.push_back(&requireUnit);
+    ports.push_back(&provideUnit);
+    provideUnit.updateData(unitType, BWAPI::Position(pos));
+}
+
+void BuildPlanItem::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitBuildPlanItem(this);
+}
+
+void BuildPlanItem::updateEstimates()
+{
+    requireUnit.updateEstimates();
+    AbstractPlanItem::updateEstimates();
+    provideUnit.estimatedTime = estimatedStartTime + unitType.buildTime();
+}
+
+bool BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    BWAPI::Unit* unit = requireUnit.getUnit();
+    provideUnit.setUnit(unit);
+    AbstractAction* action = new ZergBuildAction(unit, unitType, pos, requireUnit.prepareForExecution(engine));
+    engine->addAction(action);
+    provideUnit.setPreviousAction(action);
     return true;
 }

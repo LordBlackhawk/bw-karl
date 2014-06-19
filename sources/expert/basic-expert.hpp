@@ -8,17 +8,20 @@ class BasicExpert : public AbstractExpert, public AbstractVisitor
     public:
         BasicExpert();
 
-        void tick(Blackboard* blackboard);
+        void prepare() override;
+        void tick(Blackboard* blackboard) override;
 
         virtual void visitAbstractPort(AbstractPort* port);
-        void visitProvideUnitPort(ProvideUnitPort* port);
-        void visitRequireUnitPort(RequireUnitPort* port);
+        void visitProvideUnitPort(ProvideUnitPort* port) override;
+        void visitRequireUnitPort(RequireUnitPort* port) override;
 
         virtual void visitAbstractPlanItem(AbstractPlanItem* item);
-        void visitOwnUnitPlanItem(OwnUnitPlanItem* item);
-        void visitGatherMineralPlanItem(GatherMineralsPlanItem* item);
+        void visitOwnUnitPlanItem(OwnUnitPlanItem* item) override;
+        void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) override;
+        void visitBuildPlanItem(BuildPlanItem* item) override;
 
-        virtual void prepare();
+        virtual void beginTraversal();
+        virtual void endTraversal();
 
     protected:
         Blackboard* currentBlackboard;
@@ -29,4 +32,3 @@ class BasicPortExpert : public BasicExpert
     public:
         void visitAbstractPlanItem(AbstractPlanItem* item);
 };
-

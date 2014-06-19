@@ -46,6 +46,7 @@ class AbstractPlanItem
 class AbstractExpert
 {
     public:
+        virtual void prepare() = 0;
         virtual void tick(Blackboard* blackboard) = 0;
 };
 

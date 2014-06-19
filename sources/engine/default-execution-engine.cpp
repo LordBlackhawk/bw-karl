@@ -61,11 +61,13 @@ void DefaultExecutionEngine::tick()
     for (auto it : copy) {
         AbstractAction::Status status = it->onTick(this);
         if (status == AbstractAction::Status::Finished) {
+            it->onEnd(this);
             allActions.erase(it);
             activeActions.erase(it);
             generateActionEvent(it, ActionEvent::ActionFinished);
             activateFollowUps(it);
         } else if (status == AbstractAction::Status::Failed) {
+            it->onEnd(this);
             allActions.erase(it);
             activeActions.erase(it);
             generateActionEvent(it, ActionEvent::ActionFailed);

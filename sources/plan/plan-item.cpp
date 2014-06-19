@@ -69,6 +69,9 @@ namespace
 void Blackboard::prepare()
 {
     informations.self = BWAPI::Broodwar->self();
+
+    for (auto it : experts)
+        it->prepare();
 }
 
 void Blackboard::recalculateEstimatedTimes()
