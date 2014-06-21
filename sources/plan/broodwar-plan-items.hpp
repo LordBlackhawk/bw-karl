@@ -9,39 +9,49 @@ class OwnUnitPlanItem : public AbstractPlanItem
         void updateData(BWAPI::UnitType ut, BWAPI::Position p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        bool prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        void removeFinished(AbstractAction* action) override;
 
     protected:
         ProvideUnitPort provideUnit;
 };
 
-class GatherMineralsPlanItem : public AbstractPlanItem
+class AbstractSimpleUnitPlanItem : public AbstractPlanItem
+{
+    public:
+        RequireUnitPort     requireUnit;
+        ProvideUnitPort     provideUnit;
+
+        AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool od = false);
+
+        void updateEstimates() override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        void removeFinished(AbstractAction* action) override;
+};
+
+class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
         GatherMineralsPlanItem(BWAPI::Unit* m, ProvideUnitPort* provider = NULL);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates() override;
-        bool prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
     protected:
-        RequireUnitPort     requireUnit;
-        ProvideUnitPort     provideUnit;
         BWAPI::Unit*        mineral;
 };
 
-class BuildPlanItem : public AbstractPlanItem
+class BuildPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
         BuildPlanItem(BWAPI::UnitType ut, BWAPI::TilePosition p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates() override;
-        bool prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
     protected:
-        RequireUnitPort     requireUnit;
-        ProvideUnitPort     provideUnit;
         BWAPI::UnitType     unitType;
         BWAPI::TilePosition pos;
 };

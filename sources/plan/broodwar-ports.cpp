@@ -6,6 +6,11 @@ ProvideUnitPort::ProvideUnitPort(BWAPI::Unit* u, bool od)
     : connection(NULL), unit(u), unitType(BWAPI::UnitTypes::Unknown), pos(BWAPI::Positions::Unknown), onDemand(od), previousAction(NULL)
 { }
 
+ProvideUnitPort::~ProvideUnitPort()
+{
+    disconnect();
+}
+
 void ProvideUnitPort::updateData(BWAPI::UnitType ut, BWAPI::Position p)
 {
     unitType    = ut;
@@ -22,6 +27,11 @@ void ProvideUnitPort::updateData(RequireUnitPort* port)
 bool ProvideUnitPort::isRequirePort() const
 {
     return false;
+}
+
+bool ProvideUnitPort::isActiveConnection() const
+{
+    return isActive() && isConnected() && connection->isActive();
 }
 
 void ProvideUnitPort::acceptVisitor(AbstractVisitor* visitor)
@@ -53,9 +63,19 @@ RequireUnitPort::RequireUnitPort(BWAPI::UnitType ut)
     : connection(NULL), unitType(ut)
 { }
 
+RequireUnitPort::~RequireUnitPort()
+{
+    disconnect();
+}
+
 bool RequireUnitPort::isRequirePort() const
 {
     return true;
+}
+
+bool RequireUnitPort::isActiveConnection() const
+{
+    return isActive() && isConnected() && connection->isActive();
 }
 
 void RequireUnitPort::acceptVisitor(AbstractVisitor* visitor)
@@ -84,6 +104,11 @@ void RequireUnitPort::disconnect()
         connection->connection = NULL;
         connection = NULL;
     }
+}
+
+void RequireUnitPort::bridge(ProvideUnitPort* port)
+{
+    connection->connectTo(port->connection);
 }
 
 AbstractAction* RequireUnitPort::prepareForExecution(AbstractExecutionEngine* engine)

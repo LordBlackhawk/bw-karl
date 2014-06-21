@@ -8,5 +8,5 @@ typedef int Time;
 
 inline bool isImpossibleTime(Time time)
 {
-    return (time < INFINITE_TIME/2);
+    return (time >= INFINITE_TIME/2);
 }

@@ -2,6 +2,7 @@ LIBRARIES   = utils engine plan expert
 EXECUTABLES = karl tests
 MAKEFLAGS   = -j4
 
+BASEOUTPATH = ./out/
 LIBFILES    = $(addprefix ./lib/lib, $(addsuffix .a, $(LIBRARIES)))
 EXEFILES    = $(addsuffix .exe, $(EXECUTABLES))
 MODULES     = $(LIBRARIES) $(EXECUTABLES)
@@ -30,9 +31,7 @@ $(foreach lib,$(LIBRARIES),$(eval $(call LIB_template,$(lib))))
 $(foreach exe,$(EXECUTABLES),$(eval $(call EXE_template,$(exe))))
 
 clean:
-	@for module in $(MODULES); do \
-		$(MAKE) -C ./sources/$$module/ clean ; \
-	done
+	rm -rf $(BASEOUTPATH)
 	rm $(MODULEFILES)
 
 lines:

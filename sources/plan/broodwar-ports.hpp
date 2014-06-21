@@ -12,10 +12,12 @@ class ProvideUnitPort : public AbstractPort
 {
     public:
         ProvideUnitPort(BWAPI::Unit* u, bool od = false);
+        ~ProvideUnitPort();
         void updateData(BWAPI::UnitType ut, BWAPI::Position p);
         void updateData(RequireUnitPort* port);
 
         bool isRequirePort() const override;
+        bool isActiveConnection() const override;
         void acceptVisitor(AbstractVisitor* visitor) override;
 
         void connectTo(RequireUnitPort* port);
@@ -46,13 +48,16 @@ class RequireUnitPort : public AbstractPort
 {
     public:
         RequireUnitPort(BWAPI::UnitType ut);
+        ~RequireUnitPort();
 
         bool isRequirePort() const override;
+        bool isActiveConnection() const override;
         void acceptVisitor(AbstractVisitor* visitor) override;
 
         void updateEstimates();
         void connectTo(ProvideUnitPort* port);
         void disconnect();
+        void bridge(ProvideUnitPort* port);
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
 
         inline bool isConnected() const { return connection != NULL; }

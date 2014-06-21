@@ -145,7 +145,10 @@ OpeningExpert::OpeningExpert()
 
 void OpeningExpert::prepare()
 {
-    BWAPI::TilePosition startPos = BWTA::getStartLocation(BWAPI::Broodwar->self())->getTilePosition();
+    BWTA::BaseLocation* base = BWTA::getStartLocation(BWAPI::Broodwar->self());
+    if (base == NULL)
+        return;
+    BWAPI::TilePosition startPos = base->getTilePosition();
     poolPos = getBuildLocationNear(startPos, BWAPI::UnitTypes::Zerg_Spawning_Pool, 1);
 }
 

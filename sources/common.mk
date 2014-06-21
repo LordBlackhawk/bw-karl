@@ -9,8 +9,11 @@ $(OBJECTPATH)%.d: $(SOURCEPATH)%.cpp
 
 $(DEPS): | $(OBJECTPATH)
 
-$(OBJECTPATH):
+$(OBJECTPATH): | $(BASEOUTPATH)
 	mkdir $(OBJECTPATH)
+
+$(BASEOUTPATH):
+	mkdir $(BASEOUTPATH)
 
 cleandep:
 	rm -rf $(OBJECTPATH)*.d

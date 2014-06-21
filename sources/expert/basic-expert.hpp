@@ -30,5 +30,10 @@ class BasicExpert : public AbstractExpert, public AbstractVisitor
 class BasicPortExpert : public BasicExpert
 {
     public:
-        void visitAbstractPlanItem(AbstractPlanItem* item);
+        BasicPortExpert();
+
+        void visitAbstractPlanItem(AbstractPlanItem* item) override;
+
+    protected:
+        AbstractPlanItem* currentPlanItem;
 };

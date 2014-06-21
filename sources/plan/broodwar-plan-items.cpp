@@ -23,16 +23,46 @@ void OwnUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitOwnUnitPlanItem(this);
 }
 
-bool OwnUnitPlanItem::prepareForExecution(AbstractExecutionEngine* /*engine*/)
+AbstractAction* OwnUnitPlanItem::prepareForExecution(AbstractExecutionEngine* /*engine*/)
 {
     assert(false && "OwnUnitPlanItem should not be called for prepareForExecution.");
+    return NULL;
 }
 
-GatherMineralsPlanItem::GatherMineralsPlanItem(BWAPI::Unit* m, ProvideUnitPort* provider)
-    : requireUnit(BWAPI::UnitTypes::Zerg_Drone), provideUnit(NULL, true), mineral(m)
+void OwnUnitPlanItem::removeFinished(AbstractAction* /*action*/)
+{
+    assert(false && "Own UnitPlanItem should not be called for removeFinished.");
+}
+
+AbstractSimpleUnitPlanItem::AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool od)
+    : requireUnit(ut), provideUnit(NULL, od)
 {
     ports.push_back(&requireUnit);
     ports.push_back(&provideUnit);
+}
+
+void AbstractSimpleUnitPlanItem::updateEstimates()
+{
+    requireUnit.updateEstimates();
+    AbstractPlanItem::updateEstimates();
+}
+
+AbstractAction* AbstractSimpleUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    BWAPI::Unit* unit = requireUnit.getUnit();
+    provideUnit.setUnit(unit);
+    return requireUnit.prepareForExecution(engine);
+}
+
+void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
+{
+    requireUnit.bridge(&provideUnit);
+}
+
+GatherMineralsPlanItem::GatherMineralsPlanItem(BWAPI::Unit* m, ProvideUnitPort* provider)
+    : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone, true), mineral(m)
+{
+    provideUnit.updateData(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown);
     if (provider != NULL)
         requireUnit.connectTo(provider);
 }
@@ -44,8 +74,7 @@ void GatherMineralsPlanItem::acceptVisitor(AbstractVisitor* visitor)
 
 void GatherMineralsPlanItem::updateEstimates()
 {
-    requireUnit.updateEstimates();
-    AbstractPlanItem::updateEstimates();
+    AbstractSimpleUnitPlanItem::updateEstimates();
 
     int newvalue = estimatedStartTime;
     if (newvalue != provideUnit.estimatedTime) {
@@ -54,20 +83,18 @@ void GatherMineralsPlanItem::updateEstimates()
     }
 }
 
-bool GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
-    provideUnit.updateData(&requireUnit);
-    AbstractAction* action = new CollectMineralsAction(requireUnit.getUnit(), mineral, requireUnit.prepareForExecution(engine));
+    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
+    AbstractAction* action = new CollectMineralsAction(requireUnit.getUnit(), mineral, req);
     provideUnit.setPreviousAction(action);
     engine->addAction(action);
-    return true;
+    return action;
 }
 
 BuildPlanItem::BuildPlanItem(BWAPI::UnitType ut, BWAPI::TilePosition p)
-    : requireUnit(ut.whatBuilds().first), provideUnit(NULL), unitType(ut), pos(p)
+    : AbstractSimpleUnitPlanItem(ut.whatBuilds().first), unitType(ut), pos(p)
 {
-    ports.push_back(&requireUnit);
-    ports.push_back(&provideUnit);
     provideUnit.updateData(unitType, BWAPI::Position(pos));
 }
 
@@ -78,17 +105,15 @@ void BuildPlanItem::acceptVisitor(AbstractVisitor* visitor)
 
 void BuildPlanItem::updateEstimates()
 {
-    requireUnit.updateEstimates();
-    AbstractPlanItem::updateEstimates();
+    AbstractSimpleUnitPlanItem::updateEstimates();
     provideUnit.estimatedTime = estimatedStartTime + unitType.buildTime();
 }
 
-bool BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+AbstractAction* BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
-    BWAPI::Unit* unit = requireUnit.getUnit();
-    provideUnit.setUnit(unit);
-    AbstractAction* action = new ZergBuildAction(unit, unitType, pos, requireUnit.prepareForExecution(engine));
+    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
+    AbstractAction* action = new ZergBuildAction(requireUnit.getUnit(), unitType, pos, req);
     engine->addAction(action);
     provideUnit.setPreviousAction(action);
-    return true;
+    return action;
 }

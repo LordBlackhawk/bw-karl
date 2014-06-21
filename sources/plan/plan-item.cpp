@@ -4,6 +4,7 @@
 #include "engine/broodwar-events.hpp"
 #include "utils/log.hpp"
 #include <algorithm>
+#include <cassert>
 
 AbstractPort::AbstractPort()
     : estimatedTime(INFINITE_TIME)
@@ -27,12 +28,27 @@ void AbstractPlanItem::updateEstimates()
             estimatedStartTime = std::max(estimatedStartTime, it->estimatedTime);
 }
 
+void AbstractPlanItem::setActive()
+{
+    estimatedStartTime = ACTIVE_TIME;
+    for (auto it : ports)
+        it->estimatedTime = ACTIVE_TIME;
+}
+
+AbstractExpert::~AbstractExpert()
+{ }
+
 Blackboard::Blackboard(AbstractExecutionEngine* e)
     : engine(e)
 { }
 
 Blackboard::~Blackboard()
-{ }
+{
+    for (auto it : items)
+        delete it;
+    for (auto it : experts)
+        delete it;
+}
 
 void Blackboard::addItem(AbstractPlanItem* item)
 {
@@ -42,6 +58,11 @@ void Blackboard::addItem(AbstractPlanItem* item)
 void Blackboard::removeItem(AbstractPlanItem* item)
 {
     items.erase(std::remove(items.begin(), items.end(), item), items.end());
+}
+
+bool Blackboard::includeItem(AbstractPlanItem* item)
+{
+    return (std::find(items.begin(), items.end(), item) != items.end());
 }
 
 void Blackboard::addExpert(AbstractExpert* expert)
@@ -103,13 +124,25 @@ void Blackboard::tick()
     const Time timeHorizont = getLastUpdateTime() + 10;
     for (auto it : items)
         if (!it->isActive() && (it->estimatedStartTime < timeHorizont))
-            if (it->prepareForExecution(engine))
-                it->estimatedStartTime = -1;
+    {
+        AbstractAction* action = it->prepareForExecution(engine);
+        if (action != NULL) {
+            actionMap[action] = it;
+            it->setActive();
+        }
+    }
 }
 
-void Blackboard::visitActionEvent(ActionEvent* /*event*/)
+void Blackboard::visitActionEvent(ActionEvent* event)
 {
-    // ToDo
+    auto it = actionMap.find(event->sender);
+    if (it != actionMap.end()) {
+        it->second->removeFinished(event->sender);
+        removeItem(it->second);
+        delete it->second;
+        actionMap.erase(it);
+    }
+    delete event->sender;
 }
 
 void Blackboard::visitFrameEvent(FrameEvent* event)

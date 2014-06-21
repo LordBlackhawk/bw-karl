@@ -56,8 +56,21 @@ void BasicExpert::beginTraversal()
 void BasicExpert::endTraversal()
 { }
 
+BasicPortExpert::BasicPortExpert()
+    : currentPlanItem(NULL)
+{ }
+
 void BasicPortExpert::visitAbstractPlanItem(AbstractPlanItem* item)
 {
-    for (auto it : item->ports)
-        it->acceptVisitor(this);
+    currentPlanItem = item;
+    if (item->isActive()) {
+        // Do not visit active connection to avoid mistakes.
+        for (auto it : item->ports)
+            if (!it->isActiveConnection() && !it->isRequirePort())
+                it->acceptVisitor(this);
+    } else {
+        for (auto it : item->ports)
+            it->acceptVisitor(this);
+    }
+    currentPlanItem = NULL;
 }

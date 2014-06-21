@@ -6,6 +6,7 @@
 #include <vector>
 #include <set>
 
+class AbstractAction;
 class AbstractExecutionEngine;
 class AbstractVisitor;
 class Blackboard;
@@ -17,10 +18,12 @@ class AbstractPort
 
         AbstractPort();
 
+        inline bool isActive() const { return (estimatedTime == ACTIVE_TIME); }
         inline bool isImpossible() const { return isImpossibleTime(estimatedTime); }
         inline bool operator < (const AbstractPort& rhs) const { return estimatedTime < rhs.estimatedTime; }
 
         virtual ~AbstractPort();
+        virtual bool isActiveConnection() const = 0;
         virtual bool isRequirePort() const = 0;
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
 };
@@ -33,19 +36,23 @@ class AbstractPlanItem
 
         AbstractPlanItem();
 
-        inline bool isActive() const { return estimatedStartTime < 0; }
+        inline bool isActive() const { return (estimatedStartTime == ACTIVE_TIME); }
         inline bool isImpossible() const { return isImpossibleTime(estimatedStartTime); }
         inline bool operator < (const AbstractPlanItem& rhs) const { return estimatedStartTime < rhs.estimatedStartTime; }
+
+        void setActive();
 
         virtual ~AbstractPlanItem();
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
         virtual void updateEstimates();
-        virtual bool prepareForExecution(AbstractExecutionEngine* engine) = 0;
+        virtual AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) = 0;
+        virtual void removeFinished(AbstractAction* action) = 0;
 };
 
 class AbstractExpert
 {
     public:
+        virtual ~AbstractExpert();
         virtual void prepare() = 0;
         virtual void tick(Blackboard* blackboard) = 0;
 };
@@ -63,6 +70,7 @@ class Blackboard : public AbstractEventVisitor
 
         void addItem(AbstractPlanItem* item);
         void removeItem(AbstractPlanItem* item);
+        bool includeItem(AbstractPlanItem* item); // for test propose only
 
         void addExpert(AbstractExpert* expert);
         void removeExpert(AbstractExpert* expert);
@@ -77,9 +85,10 @@ class Blackboard : public AbstractEventVisitor
         void visitUnitEvent(UnitEvent* event);
 
     protected:
-        AbstractExecutionEngine*                    engine;
-        std::vector<AbstractPlanItem*>              items;
-        std::vector<AbstractExpert*>                experts;
-        BlackboardInformations                      informations;
-        std::map<BWAPI::Unit*, AbstractPlanItem*>   unitBoundaries;
+        AbstractExecutionEngine*                        engine;
+        std::vector<AbstractPlanItem*>                  items;
+        std::vector<AbstractExpert*>                    experts;
+        BlackboardInformations                          informations;
+        std::map<BWAPI::Unit*, AbstractPlanItem*>       unitBoundaries;
+        std::map<AbstractAction*, AbstractPlanItem*>    actionMap;
 };
