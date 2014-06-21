@@ -1,7 +1,7 @@
 -include $(MAKEFILEPATH)variables.mk
 
 EXENAME         = $(PROJECTPATH)$(MODULENAME).exe
-MODULEDEPSFILES = $(addprefix $(LIBPATH)lib, $(addsuffix .a, $(MODULEDEPS)))
+MODULEDEPSFILES = $(addprefix $(LIBPATH)lib, $(addsuffix .a, $(MODULEDEPS) $(COMPLETEDEPS)))
 
 all: $(EXENAME)
 

@@ -36,6 +36,7 @@ void DefaultExecutionEngine::addAction(AbstractAction* action)
         passiveActions.insert(action);
     } else {
         action->precondition = NULL;
+        action->onBegin(this);
         activeActions.insert(action);
     }
 }

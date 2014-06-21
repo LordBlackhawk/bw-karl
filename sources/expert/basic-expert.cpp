@@ -13,7 +13,7 @@ bool BasicExpert::isApplicable(Blackboard* /*blackboard*/)
 void BasicExpert::prepare()
 { }
 
-void BasicExpert::tick(Blackboard* blackboard)
+bool BasicExpert::tick(Blackboard* blackboard)
 {
     currentBlackboard = blackboard;
     beginTraversal();
@@ -22,6 +22,7 @@ void BasicExpert::tick(Blackboard* blackboard)
         it->acceptVisitor(this);
     endTraversal();
     currentBlackboard = NULL;
+    return true;
 }
 
 void BasicExpert::visitAbstractPort(AbstractPort* /*port*/)

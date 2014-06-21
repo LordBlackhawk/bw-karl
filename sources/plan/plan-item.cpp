@@ -113,12 +113,15 @@ void Blackboard::tick()
         event = engine->popEvent();
     }
 
-    // 2. Recalculate estimatedTimes
-    recalculateEstimatedTimes();
+    // 2. Experts may change the plan
+    experts.erase(std::remove_if(experts.begin(), experts.end(), [&] (AbstractExpert* expert)
+            {
+                recalculateEstimatedTimes();
+                return !expert->tick(this);
+            }), experts.end());
 
-    // 3. Experts may change the plan
-    for (auto it : experts)
-        it->tick(this);
+    // 3. Recalculate estimatedTimes
+    recalculateEstimatedTimes();
 
     // 4. Execute actions which are planed soon
     const Time timeHorizont = getLastUpdateTime() + 10;

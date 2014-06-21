@@ -1,4 +1,5 @@
 #include "expert-registrar.hpp"
+#include "secure-expert.hpp"
 #include <algorithm>
 
 namespace
@@ -29,6 +30,6 @@ void ExpertRegistrar::preapreBlackboard(Blackboard* blackboard)
 {
     for (auto it : instance()) {
         if (it.second.isApplicable(blackboard))
-            blackboard->addExpert(it.second.createInstance());
+            blackboard->addExpert(new SecureExpert(it.first, it.second.createInstance()));
     }
 }

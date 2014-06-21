@@ -7,6 +7,8 @@
 class WorkerExpert : public BasicPortExpert
 {
     public:
+        bool tick(Blackboard* blackboard) override;
+
         void visitProvideUnitPort(ProvideUnitPort* port) override;
         void visitRequireUnitPort(RequireUnitPort* port) override;
 

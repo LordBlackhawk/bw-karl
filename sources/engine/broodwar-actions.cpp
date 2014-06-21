@@ -37,7 +37,7 @@ ZergBuildAction::ZergBuildAction(BWAPI::Unit* w, BWAPI::UnitType ut, BWAPI::Tile
 
 void ZergBuildAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
-    LOG << "ZergBuildAction begin...";
+    //LOG << "ZergBuildAction begin...";
     unit->stop();
 }
 
@@ -83,7 +83,7 @@ ZergBuildAction::Status ZergBuildAction::onTick(AbstractExecutionEngine* /*engin
 
 void ZergBuildAction::onEnd(AbstractExecutionEngine* /*engine*/)
 {
-    LOG << "ZergBuildAction finished.";
+    //LOG << "ZergBuildAction finished.";
     // If the unit still exists and the building is not yet finished, abort.
     if (unit->exists()) {
         if (unit->isBeingConstructed()) {

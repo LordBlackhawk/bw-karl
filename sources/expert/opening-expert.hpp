@@ -8,7 +8,7 @@ class OpeningExpert final : public BasicExpert
         OpeningExpert();
 
         void prepare() override;
-        void tick(Blackboard* blackboard) override;
+        bool tick(Blackboard* blackboard) override;
 
     protected:
         BWAPI::TilePosition poolPos;

@@ -18,12 +18,12 @@ test: tests.exe
 	@$< -p
 
 define LIB_template
-lib/lib$(1).a: .FORCE
+lib/lib$(1).a: .FORCE | $(BASEOUTPATH)
 	@$$(MAKE) $$(MAKEFLAGS) -C ./sources/$(1)/ all
 endef
 
 define EXE_template
-$(1).exe: $(LIBFILES) .FORCE
+$(1).exe: $(LIBFILES) .FORCE | $(BASEOUTPATH)
 	@$$(MAKE) $$(MAKEFLAGS) -C ./sources/$(1)/ all
 endef
 
@@ -36,5 +36,8 @@ clean:
 
 lines:
 	wc -l sources/*/*.*pp
+
+$(BASEOUTPATH):
+	mkdir $(BASEOUTPATH)
 
 .FORCE:

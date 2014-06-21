@@ -79,7 +79,7 @@ void GatherMineralsPlanItem::updateEstimates()
     int newvalue = estimatedStartTime;
     if (newvalue != provideUnit.estimatedTime) {
         provideUnit.estimatedTime = newvalue;
-        LOG << "Update endTime to " << newvalue;
+        //LOG << "Update endTime to " << newvalue;
     }
 }
 

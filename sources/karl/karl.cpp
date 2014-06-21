@@ -1,3 +1,4 @@
+#include "utils/myseh.hpp"
 #include "utils/timer.hpp"
 #include "utils/log.hpp"
 #include "engine/default-execution-engine.hpp"
@@ -49,8 +50,10 @@ void sendFrameEvent(AbstractExecutionEngine* engine)
         engine->generateEvent(new UnitEvent(unit, unit->getType(), unit->getPosition()));
 }
 
-int main(int /*argc*/, char* */*argv[]*/)
+int main(int /*argc*/, char* argv[])
 {
+    seh::Registrar handler(argv[0], "./logs/");
+
     LOG << "Parameter loading...";
     srand(time(NULL));
     timerInit();
@@ -60,52 +63,56 @@ int main(int /*argc*/, char* */*argv[]*/)
 
     LOG << "Connecting...";
     reconnect();
-    while(true)
-    {
-        LOG << "Waiting to enter match...";
-        while (!Broodwar->isInGame())
+    try {
+        while(true)
         {
-            BWAPI::BWAPIClient.update();
-            if (!BWAPI::BWAPIClient.isConnected())
+            LOG << "Waiting to enter match...";
+            while (!Broodwar->isInGame())
             {
-                LOG << "Reconnecting...";
-                reconnect();
-            }
-        }
-
-        LOG << "Reading terran information...";
-        BWTA::readMap();
-        BWTA::analyze();
-
-        LOG << "Starting match...";
-        Broodwar->sendText("Hello world from Karl 3.0!");
-        Broodwar->enableFlag(Flag::UserInput);
-        Broodwar->setLocalSpeed(0);
-
-        AbstractExecutionEngine* engine = prepareExecutionEngine();
-        Blackboard* blackboard = prepareBlackboard(engine);
-
-        while (Broodwar->isInGame())
-        {
-            if (!Broodwar->isPaused()) {
-                timerStart();
-                sendFrameEvent(engine);
-                blackboard->tick();
-                engine->tick();
-                timerEnd();
+                BWAPI::BWAPIClient.update();
+                if (!BWAPI::BWAPIClient.isConnected())
+                {
+                    LOG << "Reconnecting...";
+                    reconnect();
+                }
             }
 
-            BWAPI::BWAPIClient.update();
-            if (!BWAPI::BWAPIClient.isConnected())
+            LOG << "Reading terran information...";
+            BWTA::readMap();
+            BWTA::analyze();
+
+            LOG << "Starting match...";
+            Broodwar->sendText("Hello world from Karl 3.0!");
+            Broodwar->enableFlag(Flag::UserInput);
+            Broodwar->setLocalSpeed(0);
+
+            AbstractExecutionEngine* engine = prepareExecutionEngine();
+            Blackboard* blackboard = prepareBlackboard(engine);
+
+            while (Broodwar->isInGame())
             {
-                LOG << "Reconnecting...";
-                reconnect();
-            }
-        }
+                if (!Broodwar->isPaused()) {
+                    timerStart();
+                    sendFrameEvent(engine);
+                    blackboard->tick();
+                    engine->tick();
+                    timerEnd();
+                }
 
-        delete blackboard;
-        delete engine;
-        LOG << "Game ended.\n";
+                BWAPI::BWAPIClient.update();
+                if (!BWAPI::BWAPIClient.isConnected())
+                {
+                    LOG << "Reconnecting...";
+                    reconnect();
+                }
+            }
+
+            LOG << "Game ended.\n";
+            delete blackboard;
+            delete engine;
+        }
+    } catch (std::exception e) {
+        LOG << "Catch exception: " << e.what();
     }
     return 0;
 }

@@ -54,7 +54,7 @@ class AbstractExpert
     public:
         virtual ~AbstractExpert();
         virtual void prepare() = 0;
-        virtual void tick(Blackboard* blackboard) = 0;
+        virtual bool tick(Blackboard* blackboard) = 0; // returns false if it should be removed.
 };
 
 class Blackboard : public AbstractEventVisitor

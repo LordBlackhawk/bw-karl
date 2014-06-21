@@ -155,14 +155,13 @@ void OpeningExpert::prepare()
     poolPos = getBuildLocationNear(startPos, BWAPI::UnitTypes::Zerg_Spawning_Pool, 1);
 }
 
-void OpeningExpert::tick(Blackboard* blackboard)
+bool OpeningExpert::tick(Blackboard* blackboard)
 {
     if (poolPos == BWAPI::TilePositions::Unknown)
-        return;
+        return true;
 
     blackboard->addItem(new BuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool, poolPos));
-    LOG << "Pool added.";
+    //LOG << "Pool added.";
 
-    blackboard->removeExpert(this);
-    delete this;
+    return false;
 }
