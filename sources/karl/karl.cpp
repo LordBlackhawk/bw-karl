@@ -3,8 +3,7 @@
 #include "engine/default-execution-engine.hpp"
 #include "engine/broodwar-events.hpp"
 #include "plan/plan-item.hpp"
-#include "expert/worker-expert.hpp"
-#include "expert/opening-expert.hpp"
+#include "expert/expert-registrar.hpp"
 
 #include <BWAPI.h>
 #include <BWAPI/Client.h>
@@ -33,8 +32,7 @@ AbstractExecutionEngine* prepareExecutionEngine()
 Blackboard* prepareBlackboard(AbstractExecutionEngine* engine)
 {
     Blackboard* blackboard = new Blackboard(engine);
-    blackboard->addExpert(new WorkerExpert());
-    blackboard->addExpert(new OpeningExpert());
+    ExpertRegistrar::preapreBlackboard(blackboard);
     blackboard->prepare();
     return blackboard;
 }

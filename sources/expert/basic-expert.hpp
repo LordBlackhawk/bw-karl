@@ -23,6 +23,8 @@ class BasicExpert : public AbstractExpert, public AbstractVisitor
         virtual void beginTraversal();
         virtual void endTraversal();
 
+        static bool isApplicable(Blackboard* blackboard);
+
     protected:
         Blackboard* currentBlackboard;
 };

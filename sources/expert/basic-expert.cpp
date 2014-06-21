@@ -5,6 +5,11 @@
 BasicExpert::BasicExpert()
 { }
 
+bool BasicExpert::isApplicable(Blackboard* /*blackboard*/)
+{
+    return true;
+}
+
 void BasicExpert::prepare()
 { }
 

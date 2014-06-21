@@ -1,7 +1,10 @@
 #include "worker-expert.hpp"
+#include "expert-registrar.hpp"
 #include "plan/broodwar-plan-items.hpp"
 #include "utils/log.hpp"
 #include <BWTA.h>
+
+REGISTER_EXPERT(WorkerExpert)
 
 void WorkerExpert::visitProvideUnitPort(ProvideUnitPort* port)
 {
