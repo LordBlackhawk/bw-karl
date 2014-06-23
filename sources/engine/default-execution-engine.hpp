@@ -24,6 +24,7 @@ class DefaultExecutionEngine : public AbstractExecutionEngine
         std::deque<AbstractEvent*>  events;
 
         std::vector<AbstractAction*> findFollowUps(AbstractAction* action);
+        void setPreconditionOfFollowUps(AbstractAction* action, AbstractAction* newprecondition);
         void activateFollowUps(AbstractAction* action);
         void terminateFollowUps(AbstractAction* action);
 };

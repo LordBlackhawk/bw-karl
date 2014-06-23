@@ -99,4 +99,20 @@ BOOST_AUTO_TEST_CASE( fail_action_cleanup )
     CHECK_EVENT(ActionEvent::ActionCleanedUp, follow);
 }
 
+BOOST_AUTO_TEST_CASE( terminate_middle_action )
+{
+    auto action1 = add(new InfiniteAction());
+    auto action2 = add(new InfiniteAction(action1));
+    auto action3 = add(new InfiniteAction(action2));
+    auto terminate = add(new TerminateAction(action2, false));
+
+    tick();
+
+    CHECK_EVENT(ActionEvent::ActionTerminated, action2);
+    CHECK_EVENT(ActionEvent::ActionFinished, terminate);
+    BOOST_CHECK(isActive(action1));
+    BOOST_CHECK(!isActive(action3));
+    BOOST_CHECK(action3->precondition == action1);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

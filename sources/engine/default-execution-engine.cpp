@@ -20,7 +20,11 @@ void DefaultExecutionEngine::terminateAction(AbstractAction* action, bool cleanu
     if (cleanup) {
         terminateFollowUps(action);
     } else {
-        activateFollowUps(action);
+        if (action->precondition != NULL) {
+            setPreconditionOfFollowUps(action, action->precondition);
+        } else {
+            activateFollowUps(action);
+        }
     }
 }
 
@@ -86,13 +90,24 @@ std::vector<AbstractAction*> DefaultExecutionEngine::findFollowUps(AbstractActio
     return result;
 }
 
+void DefaultExecutionEngine::setPreconditionOfFollowUps(AbstractAction* action, AbstractAction* newprecondition)
+{
+    for (auto it : passiveActions)
+        if (it->precondition == action)
+            it->precondition = newprecondition;
+}
+
 void DefaultExecutionEngine::activateFollowUps(AbstractAction* action)
 {
-    std::vector<AbstractAction*> result = findFollowUps(action);
-    for (auto it : result) {
-        passiveActions.erase(it);
-        it->onBegin(this);
-        activeActions.insert(it);
+    auto it = passiveActions.begin();
+    while (it != passiveActions.end()) {
+        if ((*it)->precondition == action) {
+            (*it)->onBegin(this);
+            activeActions.insert(*it);
+            it = passiveActions.erase(it);
+        } else {
+            ++it;
+        }
     }
 }
 
