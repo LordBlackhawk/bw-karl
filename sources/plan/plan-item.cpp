@@ -35,6 +35,13 @@ void AbstractPlanItem::setActive()
         it->estimatedTime = ACTIVE_TIME;
 }
 
+void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
+{
+    estimatedStartTime = INFINITE_TIME;
+    for (auto it : ports)
+        it->estimatedTime = INFINITE_TIME;
+}
+
 AbstractExpert::~AbstractExpert()
 { }
 
@@ -140,9 +147,17 @@ void Blackboard::visitActionEvent(ActionEvent* event)
 {
     auto it = actionMap.find(event->sender);
     if (it != actionMap.end()) {
-        it->second->removeFinished(event->sender);
-        removeItem(it->second);
-        delete it->second;
+        switch (event->type)
+        {
+            case ActionEvent::ActionFinished:
+                it->second->removeFinished(event->sender);
+                removeItem(it->second);
+                delete it->second;
+                break;
+            default:
+                it->second->setErrorState(event->sender);
+                break;
+        }
         actionMap.erase(it);
     }
     delete event->sender;

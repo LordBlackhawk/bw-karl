@@ -41,6 +41,7 @@ class AbstractPlanItem
         inline bool operator < (const AbstractPlanItem& rhs) const { return estimatedStartTime < rhs.estimatedStartTime; }
 
         void setActive();
+        void setErrorState(AbstractAction* action);
 
         virtual ~AbstractPlanItem();
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
