@@ -93,8 +93,9 @@ AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEng
 }
 
 BuildPlanItem::BuildPlanItem(BWAPI::UnitType ut, BWAPI::TilePosition p)
-    : AbstractSimpleUnitPlanItem(ut.whatBuilds().first), unitType(ut), pos(p)
+    : AbstractSimpleUnitPlanItem(ut.whatBuilds().first), resources(ut.mineralPrice(), ut.gasPrice()), unitType(ut), pos(p)
 {
+    ports.push_back(&resources);
     provideUnit.updateData(unitType, BWAPI::Position(pos));
 }
 

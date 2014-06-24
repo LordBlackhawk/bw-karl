@@ -14,6 +14,7 @@ class BasicExpert : public AbstractExpert, public AbstractVisitor
         virtual void visitAbstractPort(AbstractPort* port);
         void visitProvideUnitPort(ProvideUnitPort* port) override;
         void visitRequireUnitPort(RequireUnitPort* port) override;
+        void visitResourcePort(ResourcePort* port) override;
 
         virtual void visitAbstractPlanItem(AbstractPlanItem* item);
         void visitOwnUnitPlanItem(OwnUnitPlanItem* item) override;

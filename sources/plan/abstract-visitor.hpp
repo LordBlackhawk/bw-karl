@@ -2,6 +2,7 @@
 
 class ProvideUnitPort;
 class RequireUnitPort;
+class ResourcePort;
 
 class OwnUnitPlanItem;
 class GatherMineralsPlanItem;
@@ -12,6 +13,7 @@ class AbstractVisitor
     public:
         virtual void visitProvideUnitPort(ProvideUnitPort* port) = 0;
         virtual void visitRequireUnitPort(RequireUnitPort* port) = 0;
+        virtual void visitResourcePort(ResourcePort* port) = 0;
 
         virtual void visitOwnUnitPlanItem(OwnUnitPlanItem* item) = 0;
         virtual void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) = 0;

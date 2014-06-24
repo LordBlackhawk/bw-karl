@@ -118,3 +118,22 @@ AbstractAction* RequireUnitPort::prepareForExecution(AbstractExecutionEngine* en
 
     return connection->prepareForExecution(engine);
 }
+
+ResourcePort::ResourcePort(int m, int g)
+    : minerals(m), gas(g)
+{ }
+
+bool ResourcePort::isRequirePort() const
+{
+    return true;
+}
+
+bool ResourcePort::isActiveConnection() const
+{
+    return isActive();
+}
+
+void ResourcePort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitResourcePort(this);
+}

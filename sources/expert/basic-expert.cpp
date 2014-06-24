@@ -38,6 +38,11 @@ void BasicExpert::visitRequireUnitPort(RequireUnitPort* port)
     visitAbstractPort(port);
 }
 
+void BasicExpert::visitResourcePort(ResourcePort* port)
+{
+    visitAbstractPort(port);
+}
+
 void BasicExpert::visitAbstractPlanItem(AbstractPlanItem* /*item*/)
 { }
 

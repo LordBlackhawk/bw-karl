@@ -69,3 +69,20 @@ class RequireUnitPort : public AbstractPort
         ProvideUnitPort*    connection;
         BWAPI::UnitType     unitType;
 };
+
+class ResourcePort : public AbstractPort
+{
+    public:
+        ResourcePort(int m, int g);
+
+        bool isRequirePort() const override;
+        bool isActiveConnection() const override;
+        void acceptVisitor(AbstractVisitor* visitor) override;
+
+        inline int getMinerals() const { return minerals; }
+        inline int getGas() const { return gas; }
+
+    protected:
+        int minerals;
+        int gas;
+};

@@ -45,6 +45,8 @@ class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
 class BuildPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
+        ResourcePort        resources;
+
         BuildPlanItem(BWAPI::UnitType ut, BWAPI::TilePosition p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
