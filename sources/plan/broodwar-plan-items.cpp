@@ -2,8 +2,7 @@
 #include "abstract-visitor.hpp"
 #include "engine/broodwar-actions.hpp"
 #include "utils/log.hpp"
-
-#include <cassert>
+#include "utils/assert-throw.hpp"
 
 OwnUnitPlanItem::OwnUnitPlanItem(BWAPI::Unit* u)
     : provideUnit(u)

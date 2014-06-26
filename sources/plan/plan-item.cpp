@@ -3,8 +3,8 @@
 #include "engine/abstract-action.hpp"
 #include "engine/broodwar-events.hpp"
 #include "utils/log.hpp"
+#include "utils/assert-throw.hpp"
 #include <algorithm>
-#include <cassert>
 
 AbstractPort::AbstractPort()
     : estimatedTime(INFINITE_TIME)
