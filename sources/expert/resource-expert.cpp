@@ -12,7 +12,8 @@ void ResourceExpert::visitResourcePort(ResourcePort* port)
 
 void ResourceExpert::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
 {
-    worker.push_back(item);
+    if (!item->isImpossible())
+        worker.push_back(item);
 }
 
 void ResourceExpert::endTraversal()
@@ -32,14 +33,14 @@ void ResourceExpert::simulate()
     auto itWorker = worker.begin();
     for (auto itResources : resources) {
         int neededMinerals = itResources->getMinerals();
-        auto calcTime = [&] () {
-                if (activeMineralWorker == 0)
-                    return INFINITE_TIME;
-                return Time((neededMinerals - currentMinerals) / (activeMineralWorker * mineralFactor));
-            };
-    
-        Time finishTime = calcTime();
-        while ((itWorker != worker.end()) && (finishTime > (*itWorker)->estimatedStartTime)) {
+        Time finishTime = INFINITE_TIME;
+        while (true) {
+            if (activeMineralWorker > 0) {
+                finishTime = currentTime + Time((neededMinerals - currentMinerals) / (activeMineralWorker * mineralFactor));
+            }
+            if ((itWorker == worker.end()) || (finishTime <= (*itWorker)->estimatedStartTime))
+                break;
+
             Time nextTime = (*itWorker)->estimatedStartTime;
             if (nextTime > currentTime) {
                 currentMinerals += (nextTime - currentTime) * (activeMineralWorker * mineralFactor);
@@ -47,10 +48,9 @@ void ResourceExpert::simulate()
             }
             ++activeMineralWorker;
             ++itWorker;
-            finishTime = calcTime();
         }
 
-        itResources->estimatedTime = currentTime + finishTime;
+        itResources->estimatedTime = finishTime;
         currentMinerals -= neededMinerals;
     }
 }

@@ -48,4 +48,21 @@ BOOST_AUTO_TEST_CASE( delayed_worker )
     BOOST_CHECK_EQUAL( a->resources.estimatedTime, 2722 );
 }
 
+BOOST_AUTO_TEST_CASE( delayed_worker_diff_numbers )
+{
+    auto a = addItem(new BuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool, BWAPI::TilePositions::Unknown));
+    auto b = addItem(new GatherMineralsPlanItem(NULL));
+    auto c = addItem(new GatherMineralsPlanItem(NULL));
+
+    b->estimatedStartTime = 10000;
+    c->estimatedStartTime = 11000;
+
+    ResourceExpert expert;
+    expert.tick(blackboard);
+
+    // last test case + 10000
+    BOOST_REQUIRE( blackboard->includeItem(a) );
+    BOOST_CHECK_EQUAL( a->resources.estimatedTime, 12722 );
+}
+
 BOOST_AUTO_TEST_SUITE_END()
