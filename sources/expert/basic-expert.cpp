@@ -25,42 +25,6 @@ bool BasicExpert::tick(Blackboard* blackboard)
     return true;
 }
 
-void BasicExpert::visitAbstractPort(AbstractPort* /*port*/)
-{ }
-
-void BasicExpert::visitProvideUnitPort(ProvideUnitPort* port)
-{
-    visitAbstractPort(port);
-}
-
-void BasicExpert::visitRequireUnitPort(RequireUnitPort* port)
-{
-    visitAbstractPort(port);
-}
-
-void BasicExpert::visitResourcePort(ResourcePort* port)
-{
-    visitAbstractPort(port);
-}
-
-void BasicExpert::visitAbstractPlanItem(AbstractPlanItem* /*item*/)
-{ }
-
-void BasicExpert::visitOwnUnitPlanItem(OwnUnitPlanItem* item)
-{
-    visitAbstractPlanItem(item);
-}
-
-void BasicExpert::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
-{
-    visitAbstractPlanItem(item);
-}
-
-void BasicExpert::visitBuildPlanItem(BuildPlanItem* item)
-{
-    visitAbstractPlanItem(item);
-}
-
 void BasicExpert::beginTraversal()
 { }
 

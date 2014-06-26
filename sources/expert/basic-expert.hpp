@@ -3,23 +3,13 @@
 #include "plan/plan-item.hpp"
 #include "plan/abstract-visitor.hpp"
 
-class BasicExpert : public AbstractExpert, public AbstractVisitor
+class BasicExpert : public AbstractExpert, public BasicVisitor
 {
     public:
         BasicExpert();
 
         void prepare() override;
         bool tick(Blackboard* blackboard) override;
-
-        virtual void visitAbstractPort(AbstractPort* port);
-        void visitProvideUnitPort(ProvideUnitPort* port) override;
-        void visitRequireUnitPort(RequireUnitPort* port) override;
-        void visitResourcePort(ResourcePort* port) override;
-
-        virtual void visitAbstractPlanItem(AbstractPlanItem* item);
-        void visitOwnUnitPlanItem(OwnUnitPlanItem* item) override;
-        void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) override;
-        void visitBuildPlanItem(BuildPlanItem* item) override;
 
         virtual void beginTraversal();
         virtual void endTraversal();
