@@ -32,7 +32,8 @@ void AbstractPlanItem::setActive()
 {
     estimatedStartTime = ACTIVE_TIME;
     for (auto it : ports)
-        it->estimatedTime = ACTIVE_TIME;
+        if (it->isRequirePort())
+            it->estimatedTime = ACTIVE_TIME;
 }
 
 void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
@@ -149,6 +150,7 @@ void Blackboard::visitActionEvent(ActionEvent* event)
     if (it != actionMap.end()) {
         switch (event->type)
         {
+            case ActionEvent::ActionTerminated:
             case ActionEvent::ActionFinished:
                 it->second->removeFinished(event->sender);
                 removeItem(it->second);

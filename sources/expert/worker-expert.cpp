@@ -17,12 +17,30 @@ bool WorkerExpert::tick(Blackboard* blackboard)
     return BasicPortExpert::tick(blackboard);
 }
 
+void WorkerExpert::beginTraversal()
+{
+    timeHorizont = currentBlackboard->getLastUpdateTime() + 3000;
+}
+
 void WorkerExpert::visitProvideUnitPort(ProvideUnitPort* port)
 {
     if (port->isConnected() || !port->getUnitType().isWorker())
         return;
 
-    providePorts.insert(port);
+    if (port->isOnDemand()) {
+        providePorts.insert(port);
+        return;
+    }
+
+    if (port->estimatedTime > timeHorizont)
+        return;
+
+    BWTA::BaseLocation* base = BWTA::getStartLocation(currentBlackboard->self());
+    BWAPI::Unit* mineral = *base->getStaticMinerals().begin();
+    auto newItem = new GatherMineralsPlanItem(mineral, port);
+    currentBlackboard->addItem(newItem);
+    providePorts.insert(&newItem->provideUnit);
+    //LOG << currentBlackboard->getLastUpdateTime() << ": Added GatherMineralPlanItem.";
 }
 
 void WorkerExpert::visitRequireUnitPort(RequireUnitPort* port)
@@ -30,10 +48,8 @@ void WorkerExpert::visitRequireUnitPort(RequireUnitPort* port)
     if (port->isConnected() || !port->getUnitType().isWorker())
         return;
 
-    if (providePorts.empty()) {
-        //LOG << "no provide ports yet.";
+    if (providePorts.empty())
         return;
-    }
 
     auto it = providePorts.begin();
     port->connectTo(*it);
@@ -42,16 +58,5 @@ void WorkerExpert::visitRequireUnitPort(RequireUnitPort* port)
 
 void WorkerExpert::endTraversal()
 {
-    Time timeHorizont = currentBlackboard->getLastUpdateTime() + 3000;
-    for (auto port : providePorts) {
-        if ((port->estimatedTime > timeHorizont) || port->isOnDemand())
-            continue;
-
-        BWTA::BaseLocation* base = BWTA::getStartLocation(currentBlackboard->self());
-        BWAPI::Unit* mineral = *base->getStaticMinerals().begin();
-
-        currentBlackboard->addItem(new GatherMineralsPlanItem(mineral, port));
-        //LOG << currentBlackboard->getLastUpdateTime() << ": Added GatherMineralPlanItem.";
-    }
     providePorts.clear();
 }

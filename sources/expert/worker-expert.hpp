@@ -12,8 +12,10 @@ class WorkerExpert : public BasicPortExpert
         void visitProvideUnitPort(ProvideUnitPort* port) override;
         void visitRequireUnitPort(RequireUnitPort* port) override;
 
+        void beginTraversal() override;
         void endTraversal() override;
 
     protected:
+        Time                        timeHorizont;
         std::set<ProvideUnitPort*>  providePorts;
 };

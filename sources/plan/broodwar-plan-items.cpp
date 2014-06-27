@@ -84,6 +84,7 @@ void GatherMineralsPlanItem::updateEstimates()
 
 AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
+    //LOG << "Prepare for execution(GatherMinerals) ...";
     AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
     AbstractAction* action = new CollectMineralsAction(requireUnit.getUnit(), mineral, req);
     provideUnit.setPreviousAction(action);
@@ -111,6 +112,7 @@ void BuildPlanItem::updateEstimates()
 
 AbstractAction* BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
+    //LOG << "Prepare for execution(Build) ...";
     AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
     AbstractAction* action = new ZergBuildAction(requireUnit.getUnit(), unitType, pos, req);
     engine->addAction(action);
