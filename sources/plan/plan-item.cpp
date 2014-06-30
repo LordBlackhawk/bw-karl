@@ -144,6 +144,24 @@ void Blackboard::tick()
     }
 }
 
+void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
+{
+    BWAPI::Player* self = BWAPI::Broodwar->self();
+    engine->generateEvent(new FrameEvent(BWAPI::Broodwar->getFrameCount(), self->minerals(), self->gas()));
+
+    for (auto event : BWAPI::Broodwar->getEvents()) {
+        if (event.getType() == BWAPI::EventType::UnitCreate) {
+            BWAPI::Unit* unit = event.getUnit();
+            engine->generateEvent(new UnitCreateEvent(unit, unit->getType(), unit->getPosition(), unit->getPlayer()));
+        } else {
+            engine->generateEvent(new BroodwarEvent(event));
+        }
+    }
+
+    for (auto unit : self->getUnits())
+        engine->generateEvent(new UnitUpdateEvent(unit, unit->getType(), unit->getPosition()));
+}
+
 void Blackboard::visitActionEvent(ActionEvent* event)
 {
     auto it = actionMap.find(event->sender);
@@ -175,18 +193,21 @@ void Blackboard::visitFrameEvent(FrameEvent* event)
 void Blackboard::visitBroodwarEvent(BroodwarEvent* event)
 {
     BWAPI::Event& e = event->event;
-    if (e.getType() == BWAPI::EventType::UnitCreate) {
+    if (e.getType() == BWAPI::EventType::UnitDestroy) {
         BWAPI::Unit* unit = e.getUnit();
-        if (unit->getPlayer() == self()) {
-            LOG << "Own unit added: " << unit->getType().getName();
-            auto item = new OwnUnitPlanItem(unit);
-            addItem(item);
-            unitBoundaries[unit] = item;
+        auto it = unitBoundaries.find(unit);
+        if (it != unitBoundaries.end()) {
+            auto item = dynamic_cast<OwnUnitPlanItem*>(it->second);
+            if (item != NULL)
+                LOG << "Unit removed: " << item->getUnitType().getName();
+            items.erase(std::remove(items.begin(), items.end(), it->second), items.end());
+            delete it->second;
+            unitBoundaries.erase(it);
         }
     }
 }
 
-void Blackboard::visitUnitEvent(UnitEvent* event)
+void Blackboard::visitUnitUpdateEvent(UnitUpdateEvent* event)
 {
     auto it = unitBoundaries.find(event->unit);
     if (it == unitBoundaries.end())
@@ -197,4 +218,16 @@ void Blackboard::visitUnitEvent(UnitEvent* event)
         return;
 
     item->updateData(event->unitType, event->pos);
+}
+
+void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
+{
+    if (event->owner != self())
+        return;
+
+    LOG << "Own unit added: " << event->unitType.getName();
+    auto item = new OwnUnitPlanItem(event->unit);
+    item->updateData(event->unitType, event->pos);
+    addItem(item);
+    unitBoundaries[event->unit] = item;
 }

@@ -10,7 +10,7 @@ void FrameEvent::acceptVisitor(AbstractEventVisitor* visitor)
     visitor->visitFrameEvent(this);
 }
 
-BroodwarEvent::BroodwarEvent(BWAPI::Event e)
+BroodwarEvent::BroodwarEvent(const BWAPI::Event& e)
     : event(e)
 { }
 
@@ -19,11 +19,20 @@ void BroodwarEvent::acceptVisitor(AbstractEventVisitor* visitor)
     visitor->visitBroodwarEvent(this);
 }
 
-UnitEvent::UnitEvent(BWAPI::Unit* u, BWAPI::UnitType t, BWAPI::Position p)
+UnitUpdateEvent::UnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, BWAPI::Position p)
     : unit(u), unitType(t), pos(p)
 { }
 
-void UnitEvent::acceptVisitor(AbstractEventVisitor* visitor)
+void UnitUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
 {
-    visitor->visitUnitEvent(this);
+    visitor->visitUnitUpdateEvent(this);
+}
+
+UnitCreateEvent::UnitCreateEvent(BWAPI::Unit* u, BWAPI::UnitType t, BWAPI::Position p, BWAPI::Player* o)
+    : UnitUpdateEvent(u, t, p), owner(o)
+{ }
+
+void UnitCreateEvent::acceptVisitor(AbstractEventVisitor* visitor)
+{
+    visitor->visitUnitCreateEvent(this);
 }

@@ -12,6 +12,8 @@ class OwnUnitPlanItem : public AbstractPlanItem
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
         void removeFinished(AbstractAction* action) override;
 
+        inline BWAPI::UnitType getUnitType() const { return provideUnit.getUnitType(); }
+
     protected:
         ProvideUnitPort provideUnit;
 };

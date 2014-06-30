@@ -2,7 +2,6 @@
 #include "utils/timer.hpp"
 #include "utils/log.hpp"
 #include "engine/default-execution-engine.hpp"
-#include "engine/broodwar-events.hpp"
 #include "plan/plan-item.hpp"
 #include "expert/expert-registrar.hpp"
 
@@ -16,38 +15,43 @@
 
 using namespace BWAPI;
 
-void reconnect()
+namespace
 {
-    while(!BWAPIClient.connect())
+    class AI
     {
-        Sleep(1000);
+        public:
+            AbstractExecutionEngine* engine;
+            Blackboard*              blackboard;
+
+            AI()
+            {
+                engine = new DefaultExecutionEngine();
+                blackboard = new Blackboard(engine);
+                ExpertRegistrar::preapreBlackboard(blackboard);
+                blackboard->prepare();
+            }
+
+            ~AI()
+            {
+                delete blackboard;
+                delete engine;
+            }
+            
+            void tick()
+            {
+                Blackboard::sendFrameEvent(engine);
+                blackboard->tick();
+                engine->tick();
+            }
+    };
+
+    void reconnect()
+    {
+        while(!BWAPIClient.connect())
+        {
+            Sleep(1000);
+        }
     }
-}
-
-AbstractExecutionEngine* prepareExecutionEngine()
-{
-    DefaultExecutionEngine* engine = new DefaultExecutionEngine();
-    return engine;
-}
-
-Blackboard* prepareBlackboard(AbstractExecutionEngine* engine)
-{
-    Blackboard* blackboard = new Blackboard(engine);
-    ExpertRegistrar::preapreBlackboard(blackboard);
-    blackboard->prepare();
-    return blackboard;
-}
-
-void sendFrameEvent(AbstractExecutionEngine* engine)
-{
-    BWAPI::Player* self = BWAPI::Broodwar->self();
-    engine->generateEvent(new FrameEvent(BWAPI::Broodwar->getFrameCount(), self->minerals(), self->gas()));
-
-    for (auto event : Broodwar->getEvents())
-        engine->generateEvent(new BroodwarEvent(event));
-
-    for (auto unit : self->getUnits())
-        engine->generateEvent(new UnitEvent(unit, unit->getType(), unit->getPosition()));
 }
 
 int main(int /*argc*/, char* argv[])
@@ -86,16 +90,12 @@ int main(int /*argc*/, char* argv[])
             Broodwar->enableFlag(Flag::UserInput);
             Broodwar->setLocalSpeed(0);
 
-            AbstractExecutionEngine* engine = prepareExecutionEngine();
-            Blackboard* blackboard = prepareBlackboard(engine);
-
+            AI ai;
             while (Broodwar->isInGame())
             {
                 if (!Broodwar->isPaused()) {
                     timerStart();
-                    sendFrameEvent(engine);
-                    blackboard->tick();
-                    engine->tick();
+                    ai.tick();
                     timerEnd();
                 }
 
@@ -106,10 +106,7 @@ int main(int /*argc*/, char* argv[])
                     reconnect();
                 }
             }
-
             LOG << "Game ended.\n";
-            delete blackboard;
-            delete engine;
         }
     } catch (std::exception e) {
         LOG << "Catch exception: " << e.what();

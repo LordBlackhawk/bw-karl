@@ -1,4 +1,5 @@
 #include "blackboard-fixture.hpp"
+#include "engine/broodwar-events.hpp"
 #include <BWAPI.h>
 
 MockupAction::MockupAction()
@@ -87,4 +88,14 @@ bool BlackboardFixture::isActive(AbstractAction* /*action*/) const
 {
     BOOST_REQUIRE( false && "Method 'isActive' should not be called" );
     return false;
+}
+
+void BlackboardFixture::addEvent(AbstractEvent* event)
+{
+    events.push_back(event);
+}
+
+void BlackboardFixture::addEvent(const BWAPI::Event& event)
+{
+    addEvent(new BroodwarEvent(event));
 }

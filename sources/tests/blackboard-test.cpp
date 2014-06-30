@@ -1,4 +1,5 @@
 #include "blackboard-fixture.hpp"
+#include "engine/broodwar-events.hpp"
 
 BOOST_FIXTURE_TEST_SUITE( blackboard_test, BlackboardFixture )
 
@@ -15,7 +16,7 @@ BOOST_AUTO_TEST_CASE( remove_after_finished )
 
     BOOST_REQUIRE_EQUAL(actions.size(), 1U);
     AbstractAction* action = popAction();
-    events.push_back(new ActionEvent(action, ActionEvent::ActionFinished));
+    addEvent(new ActionEvent(action, ActionEvent::ActionFinished));
     tick();
 
     BOOST_CHECK( !blackboard->includeItem(b) );
@@ -34,11 +35,27 @@ BOOST_AUTO_TEST_CASE( continue_after_failed )
 
     BOOST_REQUIRE_EQUAL(actions.size(), 1U);
     AbstractAction* action = popAction();
-    events.push_back(new ActionEvent(action, ActionEvent::ActionFailed));
+    addEvent(new ActionEvent(action, ActionEvent::ActionFailed));
     tick();
 
     BOOST_REQUIRE( blackboard->includeItem(b) );
     BOOST_CHECK_EQUAL( b->estimatedStartTime, INFINITE_TIME );
+}
+
+BOOST_AUTO_TEST_CASE( add_remove_unit )
+{
+    BWAPI::Unit* unit = NULL; // make sure the pointer is only used for identification.
+    BWAPI::Player* player = NULL; // make sure the pointer is only used for identification.
+    BWAPI::UnitType ut = BWAPI::UnitTypes::Zerg_Zergling;
+    BWAPI::Position pos = BWAPI::Positions::Unknown;
+
+    addEvent(new UnitCreateEvent(unit, ut, pos, player));
+    tick();
+    BOOST_REQUIRE_EQUAL( blackboard->getItems().size(), 1U );
+
+    addEvent(BWAPI::Event::UnitDestroy(unit));
+    tick();
+    BOOST_CHECK_EQUAL( blackboard->getItems().size(), 0U );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

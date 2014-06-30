@@ -63,6 +63,8 @@ class Blackboard : public AbstractEventVisitor
     public:
         Blackboard(AbstractExecutionEngine* e);
         virtual ~Blackboard();
+
+        static void sendFrameEvent(AbstractExecutionEngine* engine);
     
         inline const std::vector<AbstractPlanItem*>& getItems() const { return items; }
         inline BlackboardInformations* getInformations() { return &informations; }
@@ -83,7 +85,8 @@ class Blackboard : public AbstractEventVisitor
         void visitActionEvent(ActionEvent* event);
         void visitFrameEvent(FrameEvent* event);
         void visitBroodwarEvent(BroodwarEvent* event);
-        void visitUnitEvent(UnitEvent* event);
+        void visitUnitUpdateEvent(UnitUpdateEvent* event);
+        void visitUnitCreateEvent(UnitCreateEvent* event);
 
     protected:
         AbstractExecutionEngine*                        engine;

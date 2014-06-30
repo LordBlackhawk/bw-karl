@@ -39,7 +39,6 @@ class BlackboardFixture : public AbstractExecutionEngine
         void terminateAction(AbstractAction* action, bool cleanup) override;
         void generateEvent(AbstractEvent* event) override;
         void addAction(AbstractAction* action) override;
-        AbstractAction* popAction();
         AbstractEvent* popEvent() override;
         void tick() override;
         bool isActive(AbstractAction* action) const override;
@@ -47,4 +46,8 @@ class BlackboardFixture : public AbstractExecutionEngine
         template <class T>
         T* addItem(T* item)
         { blackboard->addItem(item); return item; }
+
+        AbstractAction* popAction();
+        void addEvent(AbstractEvent* event);
+        void addEvent(const BWAPI::Event& event);
 };
