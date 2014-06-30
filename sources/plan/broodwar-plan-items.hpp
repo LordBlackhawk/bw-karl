@@ -2,15 +2,13 @@
 
 #include "broodwar-ports.hpp"
 
-class OwnUnitPlanItem : public AbstractPlanItem
+class OwnUnitPlanItem : public AbstractBoundaryItem
 {
     public:
         OwnUnitPlanItem(BWAPI::Unit* u);
-        void updateData(BWAPI::UnitType ut, BWAPI::Position p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
-        void removeFinished(AbstractAction* action) override;
+        void visitUnitUpdateEvent(UnitUpdateEvent* event) override; 
 
         inline BWAPI::UnitType getUnitType() const { return provideUnit.getUnitType(); }
 

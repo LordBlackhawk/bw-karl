@@ -10,15 +10,18 @@ AbstractPort::AbstractPort()
     : estimatedTime(INFINITE_TIME)
 { }
 
-AbstractPort::~AbstractPort()
-{ }
-
 AbstractPlanItem::AbstractPlanItem()
     : estimatedStartTime(INFINITE_TIME)
 { }
 
-AbstractPlanItem::~AbstractPlanItem()
+AbstractBoundaryItem::AbstractBoundaryItem(BWAPI::Unit* u)
+    : unit(u)
 { }
+
+void AbstractBoundaryItem::update(AbstractEvent* event)
+{
+    event->acceptVisitor(this);
+}
 
 void AbstractPlanItem::updateEstimates()
 {
@@ -42,9 +45,6 @@ void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
     for (auto it : ports)
         it->estimatedTime = INFINITE_TIME;
 }
-
-AbstractExpert::~AbstractExpert()
-{ }
 
 Blackboard::Blackboard(AbstractExecutionEngine* e)
     : engine(e)
@@ -197,10 +197,9 @@ void Blackboard::visitBroodwarEvent(BroodwarEvent* event)
         BWAPI::Unit* unit = e.getUnit();
         auto it = unitBoundaries.find(unit);
         if (it != unitBoundaries.end()) {
-            auto item = dynamic_cast<OwnUnitPlanItem*>(it->second);
-            if (item != NULL)
-                LOG << "Unit removed: " << item->getUnitType().getName();
-            items.erase(std::remove(items.begin(), items.end(), it->second), items.end());
+            //auto item = dynamic_cast<OwnUnitPlanItem*>(it->second);
+            //if (item != NULL)
+            //    LOG << "Unit removed: " << item->getUnitType().getName();
             delete it->second;
             unitBoundaries.erase(it);
         }
@@ -213,11 +212,7 @@ void Blackboard::visitUnitUpdateEvent(UnitUpdateEvent* event)
     if (it == unitBoundaries.end())
         return;
 
-    auto item = dynamic_cast<OwnUnitPlanItem*>(it->second);
-    if (item == NULL)
-        return;
-
-    item->updateData(event->unitType, event->pos);
+    it->second->update(event);
 }
 
 void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
@@ -225,9 +220,8 @@ void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
     if (event->owner != self())
         return;
 
-    LOG << "Own unit added: " << event->unitType.getName();
+    //LOG << "Own unit added: " << event->unitType.getName();
     auto item = new OwnUnitPlanItem(event->unit);
-    item->updateData(event->unitType, event->pos);
-    addItem(item);
     unitBoundaries[event->unit] = item;
+    item->update(event);
 }

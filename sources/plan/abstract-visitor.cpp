@@ -20,13 +20,16 @@ void BasicVisitor::visitResourcePort(ResourcePort* port)
     visitAbstractPort(port);
 }
 
-void BasicVisitor::visitAbstractPlanItem(AbstractPlanItem* /*item*/)
+void BasicVisitor::visitAbstractBoundaryItem(AbstractBoundaryItem* /*item*/)
 { }
 
 void BasicVisitor::visitOwnUnitPlanItem(OwnUnitPlanItem* item)
 {
-    visitAbstractPlanItem(item);
+    visitAbstractBoundaryItem(item);
 }
+
+void BasicVisitor::visitAbstractPlanItem(AbstractPlanItem* /*item*/)
+{ }
 
 void BasicVisitor::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
 {

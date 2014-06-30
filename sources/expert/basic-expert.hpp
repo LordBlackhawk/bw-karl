@@ -25,8 +25,9 @@ class BasicPortExpert : public BasicExpert
     public:
         BasicPortExpert();
 
+        void visitAbstractBoundaryItem(AbstractBoundaryItem* item) override;
         void visitAbstractPlanItem(AbstractPlanItem* item) override;
 
     protected:
-        AbstractPlanItem* currentPlanItem;
+        AbstractItem* currentItem;
 };

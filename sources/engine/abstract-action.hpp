@@ -12,7 +12,7 @@ class AbstractAction
         AbstractAction* precondition;
 
         AbstractAction(AbstractAction* pre);
-        virtual ~AbstractAction();
+        virtual ~AbstractAction() = default;
         virtual void onBegin(AbstractExecutionEngine* engine);
         virtual Status onTick(AbstractExecutionEngine* engine) = 0;
         virtual void onEnd(AbstractExecutionEngine* engine);
@@ -21,7 +21,7 @@ class AbstractAction
 class AbstractEvent
 {
     public:
-        virtual ~AbstractEvent();
+        virtual ~AbstractEvent() = default;
 
         virtual void acceptVisitor(AbstractEventVisitor* visitor) = 0;
 };
@@ -39,7 +39,7 @@ class ActionEvent : public AbstractEvent
 class AbstractExecutionEngine
 {
     public:
-        virtual ~AbstractExecutionEngine();
+        virtual ~AbstractExecutionEngine() = default;
 
         // Interface to actions:
         virtual void terminateAction(AbstractAction* action, bool cleanup) = 0;

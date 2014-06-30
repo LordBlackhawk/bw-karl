@@ -51,11 +51,11 @@ BOOST_AUTO_TEST_CASE( add_remove_unit )
 
     addEvent(new UnitCreateEvent(unit, ut, pos, player));
     tick();
-    BOOST_REQUIRE_EQUAL( blackboard->getItems().size(), 1U );
+    BOOST_REQUIRE_EQUAL( blackboard->getBoundaries().size(), 1U );
 
     addEvent(BWAPI::Event::UnitDestroy(unit));
     tick();
-    BOOST_CHECK_EQUAL( blackboard->getItems().size(), 0U );
+    BOOST_CHECK_EQUAL( blackboard->getBoundaries().size(), 0U );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

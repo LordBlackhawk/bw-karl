@@ -17,6 +17,8 @@ bool BasicExpert::tick(Blackboard* blackboard)
 {
     currentBlackboard = blackboard;
     beginTraversal();
+    for (auto it : currentBlackboard->getBoundaries())
+        it.second->acceptVisitor(this);
     std::vector<AbstractPlanItem*> items = currentBlackboard->getItems();
     for (auto it : items)
         it->acceptVisitor(this);
@@ -32,12 +34,20 @@ void BasicExpert::endTraversal()
 { }
 
 BasicPortExpert::BasicPortExpert()
-    : currentPlanItem(NULL)
+    : currentItem(NULL)
 { }
+
+void BasicPortExpert::visitAbstractBoundaryItem(AbstractBoundaryItem* item)
+{
+    currentItem = item;
+    for (auto it : item->ports)
+        it->acceptVisitor(this);
+    currentItem = NULL;
+}
 
 void BasicPortExpert::visitAbstractPlanItem(AbstractPlanItem* item)
 {
-    currentPlanItem = item;
+    currentItem = item;
     if (item->isActive()) {
         // Do not visit active connection to avoid mistakes.
         for (auto it : item->ports)
@@ -47,5 +57,5 @@ void BasicPortExpert::visitAbstractPlanItem(AbstractPlanItem* item)
         for (auto it : item->ports)
             it->acceptVisitor(this);
     }
-    currentPlanItem = NULL;
+    currentItem = NULL;
 }

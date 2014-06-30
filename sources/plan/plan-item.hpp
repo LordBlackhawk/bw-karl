@@ -22,17 +22,35 @@ class AbstractPort
         inline bool isImpossible() const { return isImpossibleTime(estimatedTime); }
         inline bool operator < (const AbstractPort& rhs) const { return estimatedTime < rhs.estimatedTime; }
 
-        virtual ~AbstractPort();
+        virtual ~AbstractPort() = default;
         virtual bool isActiveConnection() const = 0;
         virtual bool isRequirePort() const = 0;
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
 };
 
-class AbstractPlanItem
+class AbstractItem
 {
     public:
-        Time                        estimatedStartTime;
         std::vector<AbstractPort*>  ports;
+
+        virtual ~AbstractItem() = default;
+        virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
+};
+
+class AbstractBoundaryItem : public AbstractItem, public BasicEventVisitor
+{
+    public:
+        BWAPI::Unit* unit;
+
+        AbstractBoundaryItem(BWAPI::Unit* u);
+
+        void update(AbstractEvent* event);
+};
+
+class AbstractPlanItem : public AbstractItem
+{
+    public:
+        Time estimatedStartTime;
 
         AbstractPlanItem();
 
@@ -43,8 +61,6 @@ class AbstractPlanItem
         void setActive();
         void setErrorState(AbstractAction* action);
 
-        virtual ~AbstractPlanItem();
-        virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
         virtual void updateEstimates();
         virtual AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) = 0;
         virtual void removeFinished(AbstractAction* action) = 0;
@@ -53,7 +69,7 @@ class AbstractPlanItem
 class AbstractExpert
 {
     public:
-        virtual ~AbstractExpert();
+        virtual ~AbstractExpert() = default;
         virtual void prepare() = 0;
         virtual bool tick(Blackboard* blackboard) = 0; // returns false if it should be removed.
 };
@@ -67,6 +83,7 @@ class Blackboard : public AbstractEventVisitor
         static void sendFrameEvent(AbstractExecutionEngine* engine);
     
         inline const std::vector<AbstractPlanItem*>& getItems() const { return items; }
+        inline const std::map<BWAPI::Unit*, AbstractBoundaryItem*> getBoundaries() const { return unitBoundaries; }
         inline BlackboardInformations* getInformations() { return &informations; }
         inline Time getLastUpdateTime() const { return informations.lastUpdateTime; }
         inline BWAPI::Player* self() const { return informations.self; }
@@ -93,6 +110,6 @@ class Blackboard : public AbstractEventVisitor
         std::vector<AbstractPlanItem*>                  items;
         std::vector<AbstractExpert*>                    experts;
         BlackboardInformations                          informations;
-        std::map<BWAPI::Unit*, AbstractPlanItem*>       unitBoundaries;
+        std::map<BWAPI::Unit*, AbstractBoundaryItem*>   unitBoundaries;
         std::map<AbstractAction*, AbstractPlanItem*>    actionMap;
 };

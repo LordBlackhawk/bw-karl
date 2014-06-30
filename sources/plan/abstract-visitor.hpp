@@ -5,8 +5,10 @@ class ProvideUnitPort;
 class RequireUnitPort;
 class ResourcePort;
 
-class AbstractPlanItem;
+class AbstractBoundaryItem;
 class OwnUnitPlanItem;
+
+class AbstractPlanItem;
 class GatherMineralsPlanItem;
 class BuildPlanItem;
 
@@ -18,6 +20,7 @@ class AbstractVisitor
         virtual void visitResourcePort(ResourcePort* port) = 0;
 
         virtual void visitOwnUnitPlanItem(OwnUnitPlanItem* item) = 0;
+
         virtual void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) = 0;
         virtual void visitBuildPlanItem(BuildPlanItem* item) = 0;
 };
@@ -29,9 +32,11 @@ class BasicVisitor : public AbstractVisitor
         void visitProvideUnitPort(ProvideUnitPort* port) override;
         void visitRequireUnitPort(RequireUnitPort* port) override;
         void visitResourcePort(ResourcePort* port) override;
+        
+        virtual void visitAbstractBoundaryItem(AbstractBoundaryItem* item);
+        void visitOwnUnitPlanItem(OwnUnitPlanItem* item) override;
 
         virtual void visitAbstractPlanItem(AbstractPlanItem* item);
-        void visitOwnUnitPlanItem(OwnUnitPlanItem* item) override;
         void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) override;
         void visitBuildPlanItem(BuildPlanItem* item) override;
 };

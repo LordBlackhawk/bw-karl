@@ -3,18 +3,13 @@
 #include "engine/broodwar-actions.hpp"
 #include "utils/log.hpp"
 #include "utils/assert-throw.hpp"
+#include "engine/broodwar-events.hpp"
 
 OwnUnitPlanItem::OwnUnitPlanItem(BWAPI::Unit* u)
-    : provideUnit(u)
+    : AbstractBoundaryItem(u), provideUnit(u)
 {
     ports.push_back(&provideUnit);
-    estimatedStartTime = ACTIVE_TIME;
     provideUnit.estimatedTime = ACTIVE_TIME;
-}
-
-void OwnUnitPlanItem::updateData(BWAPI::UnitType ut, BWAPI::Position p)
-{
-    provideUnit.updateData(ut, p);
 }
 
 void OwnUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
@@ -22,15 +17,9 @@ void OwnUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitOwnUnitPlanItem(this);
 }
 
-AbstractAction* OwnUnitPlanItem::prepareForExecution(AbstractExecutionEngine* /*engine*/)
+void OwnUnitPlanItem::visitUnitUpdateEvent(UnitUpdateEvent* event)
 {
-    assert(false && "OwnUnitPlanItem should not be called for prepareForExecution.");
-    return NULL;
-}
-
-void OwnUnitPlanItem::removeFinished(AbstractAction* /*action*/)
-{
-    assert(false && "Own UnitPlanItem should not be called for removeFinished.");
+    provideUnit.updateData(event->unitType, event->pos);
 }
 
 AbstractSimpleUnitPlanItem::AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool od)
