@@ -1,5 +1,6 @@
 #include "abstract-visitor.hpp"
 #include "broodwar-ports.hpp"
+#include "broodwar-boundary-items.hpp"
 #include "broodwar-plan-items.hpp"
 
 void BasicVisitor::visitAbstractPort(AbstractPort* /*port*/)
@@ -23,7 +24,12 @@ void BasicVisitor::visitResourcePort(ResourcePort* port)
 void BasicVisitor::visitAbstractBoundaryItem(AbstractBoundaryItem* /*item*/)
 { }
 
-void BasicVisitor::visitOwnUnitPlanItem(OwnUnitPlanItem* item)
+void BasicVisitor::visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item)
+{
+    visitAbstractBoundaryItem(item);
+}
+
+void BasicVisitor::visitMineralBoundaryItem(MineralBoundaryItem* item)
 {
     visitAbstractBoundaryItem(item);
 }

@@ -3,24 +3,6 @@
 #include "engine/broodwar-actions.hpp"
 #include "utils/log.hpp"
 #include "utils/assert-throw.hpp"
-#include "engine/broodwar-events.hpp"
-
-OwnUnitPlanItem::OwnUnitPlanItem(BWAPI::Unit* u)
-    : AbstractBoundaryItem(u), provideUnit(u)
-{
-    ports.push_back(&provideUnit);
-    provideUnit.estimatedTime = ACTIVE_TIME;
-}
-
-void OwnUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
-{
-    visitor->visitOwnUnitPlanItem(this);
-}
-
-void OwnUnitPlanItem::visitUnitUpdateEvent(UnitUpdateEvent* event)
-{
-    provideUnit.updateData(event->unitType, event->pos);
-}
 
 AbstractSimpleUnitPlanItem::AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool od)
     : requireUnit(ut), provideUnit(NULL, od)

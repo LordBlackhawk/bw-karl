@@ -12,27 +12,48 @@ class FrameEvent : public AbstractEvent
         int     currentGas;
 
         FrameEvent(Time t, int m, int g);
-        void acceptVisitor(AbstractEventVisitor* visitor);
+        void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 
 class UnitUpdateEvent : public AbstractEvent
 {
     public:
         BWAPI::Unit*    unit;
+
+        UnitUpdateEvent(BWAPI::Unit* u);
+        void acceptVisitor(AbstractEventVisitor* visitor) override;
+};
+
+class OwnUnitUpdateEvent : public UnitUpdateEvent
+{
+    public:
         BWAPI::UnitType unitType;
         BWAPI::Position pos;
 
-        UnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, BWAPI::Position p);
-        void acceptVisitor(AbstractEventVisitor* visitor);
+        OwnUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, BWAPI::Position p);
+        void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 
-class UnitCreateEvent : public UnitUpdateEvent
+class MineralUpdateEvent : public UnitUpdateEvent
 {
     public:
-        BWAPI::Player*  owner;
+        int minerals;
 
-        UnitCreateEvent(BWAPI::Unit* u, BWAPI::UnitType t, BWAPI::Position p, BWAPI::Player* o);
-        void acceptVisitor(AbstractEventVisitor* visitor);
+        MineralUpdateEvent(BWAPI::Unit* u, int m);
+        void acceptVisitor(AbstractEventVisitor* visitor) override;
+};
+
+class UnitCreateEvent : public AbstractEvent
+{
+    public:
+        BWAPI::Unit*        unit;
+        BWAPI::UnitType     unitType;
+        BWAPI::Player*      owner;
+        BWAPI::TilePosition tilePos;
+        BWAPI::Position     pos;
+
+        UnitCreateEvent(BWAPI::Unit* u, BWAPI::UnitType t, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o);
+        void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 
 class BroodwarEvent : public AbstractEvent
@@ -41,5 +62,5 @@ class BroodwarEvent : public AbstractEvent
         BWAPI::Event    event;
 
         BroodwarEvent(const BWAPI::Event& e);
-        void acceptVisitor(AbstractEventVisitor* visitor);
+        void acceptVisitor(AbstractEventVisitor* visitor) override;
 };

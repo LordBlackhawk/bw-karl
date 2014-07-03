@@ -2,20 +2,6 @@
 
 #include "broodwar-ports.hpp"
 
-class OwnUnitPlanItem : public AbstractBoundaryItem
-{
-    public:
-        OwnUnitPlanItem(BWAPI::Unit* u);
-
-        void acceptVisitor(AbstractVisitor* visitor) override;
-        void visitUnitUpdateEvent(UnitUpdateEvent* event) override; 
-
-        inline BWAPI::UnitType getUnitType() const { return provideUnit.getUnitType(); }
-
-    protected:
-        ProvideUnitPort provideUnit;
-};
-
 class AbstractSimpleUnitPlanItem : public AbstractPlanItem
 {
     public:

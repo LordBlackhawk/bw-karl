@@ -47,9 +47,10 @@ BOOST_AUTO_TEST_CASE( add_remove_unit )
     BWAPI::Unit* unit = NULL; // make sure the pointer is only used for identification.
     BWAPI::Player* player = NULL; // make sure the pointer is only used for identification.
     BWAPI::UnitType ut = BWAPI::UnitTypes::Zerg_Zergling;
+    BWAPI::TilePosition tp = BWAPI::TilePositions::Unknown;
     BWAPI::Position pos = BWAPI::Positions::Unknown;
 
-    addEvent(new UnitCreateEvent(unit, ut, pos, player));
+    addEvent(new UnitCreateEvent(unit, ut, tp, pos, player));
     tick();
     BOOST_REQUIRE_EQUAL( blackboard->getBoundaries().size(), 1U );
 

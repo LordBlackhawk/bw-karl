@@ -1,5 +1,5 @@
 #include "plan-item.hpp"
-#include "broodwar-plan-items.hpp"
+#include "broodwar-boundary-items.hpp"
 #include "engine/abstract-action.hpp"
 #include "engine/broodwar-events.hpp"
 #include "utils/log.hpp"
@@ -152,14 +152,19 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
     for (auto event : BWAPI::Broodwar->getEvents()) {
         if (event.getType() == BWAPI::EventType::UnitCreate) {
             BWAPI::Unit* unit = event.getUnit();
-            engine->generateEvent(new UnitCreateEvent(unit, unit->getType(), unit->getPosition(), unit->getPlayer()));
+            engine->generateEvent(new UnitCreateEvent(unit, unit->getType(), unit->getTilePosition(), unit->getPosition(), unit->getPlayer()));
         } else {
             engine->generateEvent(new BroodwarEvent(event));
         }
     }
 
-    for (auto unit : self->getUnits())
-        engine->generateEvent(new UnitUpdateEvent(unit, unit->getType(), unit->getPosition()));
+    for (auto unit : BWAPI::Broodwar->getAllUnits()) {
+        if (unit->getType().isMineralField()) {
+            engine->generateEvent(new MineralUpdateEvent(unit, unit->getResources()));
+        } else if (unit->getPlayer() == self) {
+            engine->generateEvent(new OwnUnitUpdateEvent(unit, unit->getType(), unit->getPosition()));
+        }
+    }
 }
 
 void Blackboard::visitActionEvent(ActionEvent* event)
@@ -197,7 +202,7 @@ void Blackboard::visitBroodwarEvent(BroodwarEvent* event)
         BWAPI::Unit* unit = e.getUnit();
         auto it = unitBoundaries.find(unit);
         if (it != unitBoundaries.end()) {
-            //auto item = dynamic_cast<OwnUnitPlanItem*>(it->second);
+            //auto item = dynamic_cast<OwnUnitBoundaryItem*>(it->second);
             //if (item != NULL)
             //    LOG << "Unit removed: " << item->getUnitType().getName();
             delete it->second;
@@ -217,11 +222,17 @@ void Blackboard::visitUnitUpdateEvent(UnitUpdateEvent* event)
 
 void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
 {
-    if (event->owner != self())
-        return;
+    AbstractBoundaryItem* item = NULL;
+    if (event->unitType.isMineralField()) {
+        //LOG << "Mineralfield added!";
+        item = new MineralBoundaryItem(event->unit);
+    } else if (event->owner == self()) {
+        //LOG << "Own unit added: " << event->unitType.getName();
+        item = new OwnUnitBoundaryItem(event->unit);
+    }
 
-    //LOG << "Own unit added: " << event->unitType.getName();
-    auto item = new OwnUnitPlanItem(event->unit);
-    unitBoundaries[event->unit] = item;
-    item->update(event);
+    if (item != NULL) {
+        unitBoundaries[event->unit] = item;
+        item->update(event);
+    }
 }

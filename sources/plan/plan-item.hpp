@@ -74,7 +74,7 @@ class AbstractExpert
         virtual bool tick(Blackboard* blackboard) = 0; // returns false if it should be removed.
 };
 
-class Blackboard : public AbstractEventVisitor
+class Blackboard : public BasicEventVisitor
 {
     public:
         Blackboard(AbstractExecutionEngine* e);
