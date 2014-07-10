@@ -45,6 +45,8 @@ class AbstractBoundaryItem : public AbstractItem, public BasicEventVisitor
         AbstractBoundaryItem(BWAPI::Unit* u);
 
         void update(AbstractEvent* event);
+
+        inline BWAPI::Unit* getUnit() const { return unit; }
 };
 
 class AbstractPlanItem : public AbstractItem

@@ -73,11 +73,13 @@ BOOST_AUTO_TEST_CASE( add_pointer_test )
     add(anker, 10);
     add(anker, 11);
 
+    /*
     ListItem* iterator = anker;
     while (iterator != NULL) {
         std::cout << "value: " << iterator->content << ".\n";
         iterator = iterator->next;
     }
+    */
 }
 
 BOOST_AUTO_TEST_CASE( pointer_test )

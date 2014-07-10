@@ -19,7 +19,8 @@ class OwnUnitBoundaryItem : public AbstractBoundaryItem
 class MineralBoundaryItem : public AbstractBoundaryItem
 {
     public:
-        MineralBoundaryItem(BWAPI::Unit* u);
+        MineralBoundaryItem(BWAPI::Unit* u, BaseLocation* b = NULL);
+        ~MineralBoundaryItem();
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void visitUnitCreateEvent(UnitCreateEvent* event) override;
@@ -29,6 +30,7 @@ class MineralBoundaryItem : public AbstractBoundaryItem
         inline int mineralsLeft() const { return minerals; }
 
     protected:
+        BaseLocation*       base;
         BWAPI::TilePosition pos;
         int                 minerals;
 };

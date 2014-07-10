@@ -65,18 +65,17 @@ void DefaultExecutionEngine::tick()
     std::set<AbstractAction*> copy = activeActions;
     for (auto it : copy) {
         AbstractAction::Status status = it->onTick(this);
-        if (status == AbstractAction::Status::Finished) {
+        if (status != AbstractAction::Status::Running) {
             it->onEnd(this);
             allActions.erase(it);
             activeActions.erase(it);
-            generateActionEvent(it, ActionEvent::ActionFinished);
-            activateFollowUps(it);
-        } else if (status == AbstractAction::Status::Failed) {
-            it->onEnd(this);
-            allActions.erase(it);
-            activeActions.erase(it);
-            generateActionEvent(it, ActionEvent::ActionFailed);
-            terminateFollowUps(it);
+            if (status == AbstractAction::Status::Finished) {
+                generateActionEvent(it, ActionEvent::ActionFinished);
+                activateFollowUps(it);
+            } else if (status == AbstractAction::Status::Failed) {
+                generateActionEvent(it, ActionEvent::ActionFailed);
+                terminateFollowUps(it);
+            }
         }
     }
 }

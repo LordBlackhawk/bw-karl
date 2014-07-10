@@ -95,14 +95,6 @@ namespace
     };
 }
 
-void Blackboard::prepare()
-{
-    informations.self = BWAPI::Broodwar->self();
-
-    for (auto it : experts)
-        it->prepare();
-}
-
 void Blackboard::recalculateEstimatedTimes()
 {
     for (auto it : items)
@@ -125,7 +117,9 @@ void Blackboard::tick()
     experts.erase(std::remove_if(experts.begin(), experts.end(), [&] (AbstractExpert* expert)
             {
                 recalculateEstimatedTimes();
-                return !expert->tick(this);
+                bool remove = !expert->tick(this);
+                if (remove) delete expert;
+                return remove;
             }), experts.end());
 
     // 3. Recalculate estimatedTimes
@@ -141,6 +135,28 @@ void Blackboard::tick()
             actionMap[action] = it;
             it->setActive();
         }
+    }
+}
+
+void Blackboard::prepare()
+{
+    informations.self = BWAPI::Broodwar->self();
+
+    for (auto it : experts)
+        it->prepare();
+
+    auto mybase = BWTA::getStartLocation(informations.self);
+    for (auto base : BWTA::getBaseLocations()) {
+        auto baselocation = new BaseLocation;
+        baselocation->origin = base;
+        for (auto unit : base->getMinerals()) {
+            auto item = new MineralBoundaryItem(unit, baselocation);
+            unitBoundaries[unit] = item;
+            baselocation->minerals.insert(item);
+        }
+        informations.allBaseLocations.insert(baselocation);
+        if (base == mybase)
+            informations.ownBaseLocations.insert(baselocation);
     }
 }
 
@@ -222,6 +238,12 @@ void Blackboard::visitUnitUpdateEvent(UnitUpdateEvent* event)
 
 void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
 {
+    auto it = unitBoundaries.find(event->unit);
+    if (it != unitBoundaries.end()) {
+        it->second->update(event);
+        return;
+    }
+
     AbstractBoundaryItem* item = NULL;
     if (event->unitType.isMineralField()) {
         //LOG << "Mineralfield added!";
@@ -230,7 +252,6 @@ void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
         //LOG << "Own unit added: " << event->unitType.getName();
         item = new OwnUnitBoundaryItem(event->unit);
     }
-
     if (item != NULL) {
         unitBoundaries[event->unit] = item;
         item->update(event);

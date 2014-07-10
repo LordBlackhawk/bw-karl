@@ -18,4 +18,6 @@ class WorkerExpert : public BasicPortExpert
     protected:
         Time                        timeHorizont;
         std::set<ProvideUnitPort*>  providePorts;
+
+        MineralBoundaryItem* findMineralForWorker(ProvideUnitPort* port);
 };

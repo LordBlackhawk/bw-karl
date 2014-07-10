@@ -1,6 +1,7 @@
 #include "worker-expert.hpp"
 #include "expert-registrar.hpp"
 #include "plan/broodwar-plan-items.hpp"
+#include "plan/broodwar-boundary-items.hpp"
 #include "utils/log.hpp"
 #include <BWTA.h>
 
@@ -35,12 +36,15 @@ void WorkerExpert::visitProvideUnitPort(ProvideUnitPort* port)
     if (port->estimatedTime > timeHorizont)
         return;
 
-    BWTA::BaseLocation* base = BWTA::getStartLocation(currentBlackboard->self());
-    BWAPI::Unit* mineral = *base->getStaticMinerals().begin();
-    auto newItem = new GatherMineralsPlanItem(mineral, port);
-    currentBlackboard->addItem(newItem);
-    providePorts.insert(&newItem->provideUnit);
-    //LOG << currentBlackboard->getLastUpdateTime() << ": Added GatherMineralPlanItem.";
+    auto mineral = findMineralForWorker(port);
+    if (mineral != NULL) {
+        //LOG << currentBlackboard->getLastUpdateTime() << ": Add GatherMineralPlanItem...";
+        auto newItem = new GatherMineralsPlanItem(mineral, port);
+        currentBlackboard->addItem(newItem);
+        providePorts.insert(&newItem->provideUnit);
+    } else {
+        providePorts.insert(port);
+    }
 }
 
 void WorkerExpert::visitRequireUnitPort(RequireUnitPort* port)
@@ -59,4 +63,21 @@ void WorkerExpert::visitRequireUnitPort(RequireUnitPort* port)
 void WorkerExpert::endTraversal()
 {
     providePorts.clear();
+}
+
+MineralBoundaryItem* WorkerExpert::findMineralForWorker(ProvideUnitPort* port)
+{
+    MineralBoundaryItem* result = NULL;
+    double bestValue = 1e10;
+    for (auto base : currentBlackboard->getInformations()->ownBaseLocations) {
+        for (auto mineral : base->minerals) {
+            double dis = port->getPosition().getDistance(BWAPI::Position(mineral->getTilePosition()));
+            double value = dis;
+            if (value < bestValue) {
+                result = mineral;
+                bestValue = value;
+            }
+        }
+    }
+    return result;
 }

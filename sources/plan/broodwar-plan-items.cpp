@@ -1,4 +1,5 @@
 #include "broodwar-plan-items.hpp"
+#include "broodwar-boundary-items.hpp"
 #include "abstract-visitor.hpp"
 #include "engine/broodwar-actions.hpp"
 #include "utils/log.hpp"
@@ -29,7 +30,7 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
     requireUnit.bridge(&provideUnit);
 }
 
-GatherMineralsPlanItem::GatherMineralsPlanItem(BWAPI::Unit* m, ProvideUnitPort* provider)
+GatherMineralsPlanItem::GatherMineralsPlanItem(MineralBoundaryItem* m, ProvideUnitPort* provider)
     : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone, true), mineral(m)
 {
     provideUnit.updateData(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown);
@@ -57,7 +58,7 @@ AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEng
 {
     //LOG << "Prepare for execution(GatherMinerals) ...";
     AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
-    AbstractAction* action = new CollectMineralsAction(requireUnit.getUnit(), mineral, req);
+    AbstractAction* action = new CollectMineralsAction(requireUnit.getUnit(), mineral->getUnit(), req);
     provideUnit.setPreviousAction(action);
     engine->addAction(action);
     return action;

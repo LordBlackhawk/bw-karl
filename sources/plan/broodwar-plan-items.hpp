@@ -2,6 +2,8 @@
 
 #include "broodwar-ports.hpp"
 
+class MineralBoundaryItem;
+
 class AbstractSimpleUnitPlanItem : public AbstractPlanItem
 {
     public:
@@ -18,14 +20,14 @@ class AbstractSimpleUnitPlanItem : public AbstractPlanItem
 class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
-        GatherMineralsPlanItem(BWAPI::Unit* m, ProvideUnitPort* provider = NULL);
+        GatherMineralsPlanItem(MineralBoundaryItem* m, ProvideUnitPort* provider = NULL);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
     protected:
-        BWAPI::Unit*        mineral;
+        MineralBoundaryItem* mineral;
 };
 
 class BuildPlanItem : public AbstractSimpleUnitPlanItem

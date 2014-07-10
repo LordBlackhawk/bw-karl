@@ -19,9 +19,15 @@ void OwnUnitBoundaryItem::visitOwnUnitUpdateEvent(OwnUnitUpdateEvent* event)
     provideUnit.updateData(event->unitType, event->pos);
 }
 
-MineralBoundaryItem::MineralBoundaryItem(BWAPI::Unit* u)
-    : AbstractBoundaryItem(u), pos(BWAPI::TilePositions::Unknown), minerals(-1)
+MineralBoundaryItem::MineralBoundaryItem(BWAPI::Unit* u, BaseLocation* b)
+    : AbstractBoundaryItem(u), base(b), pos(BWAPI::TilePositions::Unknown), minerals(-1)
 { }
+
+MineralBoundaryItem::~MineralBoundaryItem()
+{
+    if (base != NULL)
+        base->minerals.erase(this);
+}
 
 void MineralBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
 {

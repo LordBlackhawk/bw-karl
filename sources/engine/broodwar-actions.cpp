@@ -56,7 +56,7 @@ ZergBuildAction::Status ZergBuildAction::onTick(AbstractExecutionEngine* /*engin
     if (type != BWAPI::UnitTypes::Zerg_Drone)
         return Failed;
 
-    if (!unit->isIdle())
+    if (!unit->isIdle() && !unit->isGatheringMinerals())
         return Running;
 
     if (unit->build(pos, unitType))
