@@ -21,10 +21,12 @@
 #include <BWAPI/UpgradeType.h>
 #include <BWAPI/Input.h>
 
+#ifndef FORMAT_FUNCTION
 #ifdef __GNUC__
   #define FORMAT_FUNCTION(fa, aa) __attribute__ ((format (printf, fa, aa)))
 #else
   #define FORMAT_FUNCTION(fa, aa)
+#endif
 #endif
 
 namespace BWAPI
