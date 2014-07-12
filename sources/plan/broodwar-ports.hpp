@@ -1,30 +1,27 @@
 #pragma once
 
-#include "plan-item.hpp"
+#include "basic-port-impl.hpp"
 
 #include <BWAPI.h>
 
 class AbstractAction;
 class ProvideUnitPort;
 class RequireUnitPort;
+class ProvideMineralFieldPort;
+class RequireMineralFieldPort;
 
-class ProvideUnitPort : public AbstractPort
+class ProvideUnitPort : public BasicPortImpl<ProvideUnitPort, RequireUnitPort, false>
 {
     public:
         ProvideUnitPort(BWAPI::Unit* u, bool od = false);
-        ~ProvideUnitPort();
+
         void updateData(BWAPI::UnitType ut, BWAPI::Position p);
         void updateData(RequireUnitPort* port);
 
-        bool isRequirePort() const override;
-        bool isActiveConnection() const override;
         void acceptVisitor(AbstractVisitor* visitor) override;
 
-        void connectTo(RequireUnitPort* port);
-        void disconnect();
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
 
-        inline bool isConnected() const { return connection != NULL; }
         inline BWAPI::Unit* getUnit() const { return unit; }
         inline BWAPI::UnitType getUnitType() const { return unitType; }
         inline BWAPI::Position getPosition() const { return pos; }
@@ -36,7 +33,6 @@ class ProvideUnitPort : public AbstractPort
     protected:
         friend class RequireUnitPort;
 
-        RequireUnitPort*    connection;
         BWAPI::Unit*        unit;
         BWAPI::UnitType     unitType;
         BWAPI::Position     pos;
@@ -44,29 +40,21 @@ class ProvideUnitPort : public AbstractPort
         AbstractAction*     previousAction;
 };
 
-class RequireUnitPort : public AbstractPort
+class RequireUnitPort : public BasicPortImpl<RequireUnitPort, ProvideUnitPort, true>
 {
     public:
         RequireUnitPort(BWAPI::UnitType ut);
-        ~RequireUnitPort();
 
-        bool isRequirePort() const override;
-        bool isActiveConnection() const override;
         void acceptVisitor(AbstractVisitor* visitor) override;
 
-        void updateEstimates();
-        void connectTo(ProvideUnitPort* port);
-        void disconnect();
         void bridge(ProvideUnitPort* port);
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
 
-        inline bool isConnected() const { return connection != NULL; }
         inline BWAPI::Unit* getUnit() const { return (connection != NULL) ? connection->unit : NULL; }
         inline BWAPI::UnitType getUnitType() const { return unitType; }
         inline BWAPI::Position getPosition() const { return (connection != NULL) ? connection->pos : BWAPI::Positions::Unknown; }
 
     protected:
-        ProvideUnitPort*    connection;
         BWAPI::UnitType     unitType;
 };
 
@@ -85,4 +73,28 @@ class ResourcePort : public AbstractPort
     protected:
         int minerals;
         int gas;
+};
+
+class MineralBoundaryItem;
+
+class ProvideMineralFieldPort : public BasicPortImpl<ProvideMineralFieldPort, RequireMineralFieldPort, false>
+{
+    public:
+        ProvideMineralFieldPort(MineralBoundaryItem* o);
+        void acceptVisitor(AbstractVisitor* visitor) override;
+
+        void disconnect();
+        BWAPI::Unit* getUnit() const;
+
+    protected:
+        MineralBoundaryItem* owner;
+};
+
+class RequireMineralFieldPort : public BasicPortImpl<RequireMineralFieldPort, ProvideMineralFieldPort, true>
+{
+    public:
+        RequireMineralFieldPort(MineralBoundaryItem* o);
+        void acceptVisitor(AbstractVisitor* visitor) override;
+
+        inline BWAPI::Unit* getUnit() const { return connection->getUnit(); }
 };

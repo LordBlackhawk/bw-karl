@@ -1,4 +1,5 @@
 #include "broodwar-boundary-items.hpp"
+#include "broodwar-ports.hpp"
 #include "abstract-visitor.hpp"
 #include "engine/broodwar-events.hpp"
 
@@ -14,6 +15,11 @@ void OwnUnitBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitOwnUnitBoundaryItem(this);
 }
 
+void OwnUnitBoundaryItem::visitUnitCreateEvent(UnitCreateEvent* event)
+{
+    provideUnit.updateData(event->unitType, event->pos);
+}
+
 void OwnUnitBoundaryItem::visitOwnUnitUpdateEvent(OwnUnitUpdateEvent* event)
 {
     provideUnit.updateData(event->unitType, event->pos);
@@ -27,6 +33,12 @@ MineralBoundaryItem::~MineralBoundaryItem()
 {
     if (base != NULL)
         base->minerals.erase(this);
+    // There maybe ProvideMineralFieldPorts (dynamically created)!
+    while (!ports.empty()) {
+        auto port = dynamic_cast<ProvideMineralFieldPort*>(ports.front());
+        if (port != NULL)
+            port->disconnect();
+    }
 }
 
 void MineralBoundaryItem::acceptVisitor(AbstractVisitor* visitor)

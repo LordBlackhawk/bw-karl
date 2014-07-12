@@ -20,14 +20,13 @@ class AbstractSimpleUnitPlanItem : public AbstractPlanItem
 class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
+        RequireMineralFieldPort requireMineralField;
+
         GatherMineralsPlanItem(MineralBoundaryItem* m, ProvideUnitPort* provider = NULL);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
-
-    protected:
-        MineralBoundaryItem* mineral;
 };
 
 class BuildPlanItem : public AbstractSimpleUnitPlanItem

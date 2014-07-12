@@ -31,8 +31,9 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
 }
 
 GatherMineralsPlanItem::GatherMineralsPlanItem(MineralBoundaryItem* m, ProvideUnitPort* provider)
-    : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone, true), mineral(m)
+    : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone, true), requireMineralField(m)
 {
+    ports.push_back(&requireMineralField);
     provideUnit.updateData(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown);
     if (provider != NULL)
         requireUnit.connectTo(provider);
@@ -45,20 +46,17 @@ void GatherMineralsPlanItem::acceptVisitor(AbstractVisitor* visitor)
 
 void GatherMineralsPlanItem::updateEstimates()
 {
+    requireMineralField.updateEstimates();
     AbstractSimpleUnitPlanItem::updateEstimates();
-
-    int newvalue = estimatedStartTime;
-    if (newvalue != provideUnit.estimatedTime) {
-        provideUnit.estimatedTime = newvalue;
-        //LOG << "Update endTime to " << newvalue;
-    }
+    provideUnit.estimatedTime = estimatedStartTime;
+    //LOG << "estimated start time: " << estimatedStartTime << "; requireMineralField: " << requireMineralField.estimatedTime << "; requireUnit: " << requireUnit.estimatedTime;
 }
 
 AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
     //LOG << "Prepare for execution(GatherMinerals) ...";
     AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
-    AbstractAction* action = new CollectMineralsAction(requireUnit.getUnit(), mineral->getUnit(), req);
+    AbstractAction* action = new CollectMineralsAction(requireUnit.getUnit(), requireMineralField.getUnit(), req);
     provideUnit.setPreviousAction(action);
     engine->addAction(action);
     return action;

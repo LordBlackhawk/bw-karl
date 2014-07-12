@@ -1,15 +1,11 @@
 #include "broodwar-ports.hpp"
 #include "abstract-visitor.hpp"
+#include "broodwar-boundary-items.hpp"
 #include "engine/basic-actions.hpp"
 
 ProvideUnitPort::ProvideUnitPort(BWAPI::Unit* u, bool od)
-    : connection(NULL), unit(u), unitType(BWAPI::UnitTypes::Unknown), pos(BWAPI::Positions::Unknown), onDemand(od), previousAction(NULL)
+    : unit(u), unitType(BWAPI::UnitTypes::Unknown), pos(BWAPI::Positions::Unknown), onDemand(od), previousAction(NULL)
 { }
-
-ProvideUnitPort::~ProvideUnitPort()
-{
-    disconnect();
-}
 
 void ProvideUnitPort::updateData(BWAPI::UnitType ut, BWAPI::Position p)
 {
@@ -24,16 +20,6 @@ void ProvideUnitPort::updateData(RequireUnitPort* port)
     pos         = port->getPosition();
 }
 
-bool ProvideUnitPort::isRequirePort() const
-{
-    return false;
-}
-
-bool ProvideUnitPort::isActiveConnection() const
-{
-    return isActive() && isConnected() && connection->isActive();
-}
-
 void ProvideUnitPort::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitProvideUnitPort(this);
@@ -46,64 +32,13 @@ AbstractAction* ProvideUnitPort::prepareForExecution(AbstractExecutionEngine* en
     return previousAction;
 }
 
-void ProvideUnitPort::connectTo(RequireUnitPort* port)
-{
-    disconnect();
-    if (port != NULL)
-        port->connectTo(this);
-}
-
-void ProvideUnitPort::disconnect()
-{
-    if (connection != NULL)
-        connection->disconnect();
-}
-
 RequireUnitPort::RequireUnitPort(BWAPI::UnitType ut)
-    : connection(NULL), unitType(ut)
+    : unitType(ut)
 { }
-
-RequireUnitPort::~RequireUnitPort()
-{
-    disconnect();
-}
-
-bool RequireUnitPort::isRequirePort() const
-{
-    return true;
-}
-
-bool RequireUnitPort::isActiveConnection() const
-{
-    return isActive() && isConnected() && connection->isActive();
-}
 
 void RequireUnitPort::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitRequireUnitPort(this);
-}
-
-void RequireUnitPort::updateEstimates()
-{
-    if (isConnected())
-        estimatedTime = connection->estimatedTime;
-}
-
-void RequireUnitPort::connectTo(ProvideUnitPort* port)
-{
-    disconnect();
-    if (port != NULL) {
-        connection = port;
-        port->connection = this;
-    }
-}
-
-void RequireUnitPort::disconnect()
-{
-    if (connection != NULL) {
-        connection->connection = NULL;
-        connection = NULL;
-    }
 }
 
 void RequireUnitPort::bridge(ProvideUnitPort* port)
@@ -136,4 +71,43 @@ bool ResourcePort::isActiveConnection() const
 void ResourcePort::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitResourcePort(this);
+}
+
+ProvideMineralFieldPort::ProvideMineralFieldPort(MineralBoundaryItem* o)
+    : owner(o)
+{
+    estimatedTime = ACTIVE_TIME;
+}
+
+void ProvideMineralFieldPort::disconnect()
+{
+    if (isConnected()) {
+        BasicPortImpl<ProvideMineralFieldPort, RequireMineralFieldPort, false>::disconnect();
+        owner->removePort(this);
+        delete this;
+    }
+}
+
+void ProvideMineralFieldPort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitProvideMineralFieldPort(this);
+}
+
+BWAPI::Unit* ProvideMineralFieldPort::getUnit() const
+{
+    return owner->getUnit();
+}
+
+RequireMineralFieldPort::RequireMineralFieldPort(MineralBoundaryItem* o)
+{
+    if (o != NULL) {
+        auto provider = new ProvideMineralFieldPort(o);
+        o->ports.push_back(provider);
+        connectTo(provider);
+    }
+}
+
+void RequireMineralFieldPort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitRequireMineralFieldPort(this);
 }

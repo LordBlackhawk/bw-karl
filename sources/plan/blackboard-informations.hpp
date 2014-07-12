@@ -10,6 +10,8 @@ struct BaseLocation
 {
     BWTA::BaseLocation*             origin;
     std::set<MineralBoundaryItem*>  minerals;
+
+    BaseLocation();
 };
 
 struct BlackboardInformations

@@ -10,6 +10,11 @@ AbstractPort::AbstractPort()
     : estimatedTime(INFINITE_TIME)
 { }
 
+void AbstractItem::removePort(AbstractPort* port)
+{
+    ports.erase(std::remove(ports.begin(), ports.end(), port), ports.end());
+}
+
 AbstractPlanItem::AbstractPlanItem()
     : estimatedStartTime(INFINITE_TIME)
 { }
@@ -68,7 +73,7 @@ void Blackboard::removeItem(AbstractPlanItem* item)
     items.erase(std::remove(items.begin(), items.end(), item), items.end());
 }
 
-bool Blackboard::includeItem(AbstractPlanItem* item)
+bool Blackboard::includeItem(AbstractPlanItem* item) const
 {
     return (std::find(items.begin(), items.end(), item) != items.end());
 }
@@ -81,6 +86,12 @@ void Blackboard::addExpert(AbstractExpert* expert)
 void Blackboard::removeExpert(AbstractExpert* expert)
 {
     experts.erase(std::remove(experts.begin(), experts.end(), expert), experts.end());
+}
+
+AbstractBoundaryItem* Blackboard::lookupUnit(BWAPI::Unit* unit) const
+{
+    auto it = unitBoundaries.find(unit);
+    return (it != unitBoundaries.end()) ? it->second : NULL;
 }
 
 namespace

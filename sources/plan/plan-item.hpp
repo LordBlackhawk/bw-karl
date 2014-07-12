@@ -35,6 +35,8 @@ class AbstractItem
 
         virtual ~AbstractItem() = default;
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
+
+        void removePort(AbstractPort* port);
 };
 
 class AbstractBoundaryItem : public AbstractItem, public BasicEventVisitor
@@ -92,7 +94,6 @@ class Blackboard : public BasicEventVisitor
 
         void addItem(AbstractPlanItem* item);
         void removeItem(AbstractPlanItem* item);
-        bool includeItem(AbstractPlanItem* item); // for test propose only
 
         void addExpert(AbstractExpert* expert);
         void removeExpert(AbstractExpert* expert);
@@ -106,6 +107,10 @@ class Blackboard : public BasicEventVisitor
         void visitBroodwarEvent(BroodwarEvent* event);
         void visitUnitUpdateEvent(UnitUpdateEvent* event);
         void visitUnitCreateEvent(UnitCreateEvent* event);
+
+        // for test propose only:
+        bool includeItem(AbstractPlanItem* item) const;
+        AbstractBoundaryItem* lookupUnit(BWAPI::Unit* unit) const;
 
     protected:
         AbstractExecutionEngine*                        engine;

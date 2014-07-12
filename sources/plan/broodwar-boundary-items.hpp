@@ -8,9 +8,11 @@ class OwnUnitBoundaryItem : public AbstractBoundaryItem
         OwnUnitBoundaryItem(BWAPI::Unit* u);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
+        void visitUnitCreateEvent(UnitCreateEvent* event) override;
         void visitOwnUnitUpdateEvent(OwnUnitUpdateEvent* event) override;
 
         inline BWAPI::UnitType getUnitType() const { return provideUnit.getUnitType(); }
+        inline bool isConnected() const { return provideUnit.isConnected(); }
 
     protected:
         ProvideUnitPort provideUnit;

@@ -25,6 +25,11 @@ void WorkerExpert::beginTraversal()
 
 void WorkerExpert::visitProvideUnitPort(ProvideUnitPort* port)
 {
+    /*LOG << "visitProvideUnitPort... (Connected: " << port->isConnected()
+        << "; worker: " << port->getUnitType().isWorker()
+        << "; isOnDemand: " << port->isOnDemand()
+        << "; estimatedTime: " << port->estimatedTime << ")\n";*/
+
     if (port->isConnected() || !port->getUnitType().isWorker())
         return;
 
@@ -58,6 +63,16 @@ void WorkerExpert::visitRequireUnitPort(RequireUnitPort* port)
     auto it = providePorts.begin();
     port->connectTo(*it);
     providePorts.erase(it);
+}
+
+void WorkerExpert::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
+{
+    if (!item->requireUnit.isConnected() || !item->requireMineralField.isConnected()) {
+        currentBlackboard->removeItem(item);
+        return;
+    }
+
+    BasicPortExpert::visitGatherMineralPlanItem(item);
 }
 
 void WorkerExpert::endTraversal()
