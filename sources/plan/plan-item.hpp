@@ -6,6 +6,7 @@
 #include <vector>
 #include <set>
 
+class AbstractItem;
 class AbstractAction;
 class AbstractExecutionEngine;
 class AbstractVisitor;
@@ -14,10 +15,11 @@ class Blackboard;
 class AbstractPort
 {
     public:
-        Time estimatedTime;
+        Time            estimatedTime;
 
-        AbstractPort();
+        AbstractPort(AbstractItem* o);
 
+        inline AbstractItem* getOwner() const { return owner; }
         inline bool isActive() const { return (estimatedTime == ACTIVE_TIME); }
         inline bool isImpossible() const { return isImpossibleTime(estimatedTime); }
         inline bool operator < (const AbstractPort& rhs) const { return estimatedTime < rhs.estimatedTime; }
@@ -26,6 +28,9 @@ class AbstractPort
         virtual bool isActiveConnection() const = 0;
         virtual bool isRequirePort() const = 0;
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
+
+    protected:
+        AbstractItem*   owner;
 };
 
 class AbstractItem

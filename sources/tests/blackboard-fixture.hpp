@@ -67,5 +67,6 @@ class BlackboardFixture
         OwnUnitBoundaryItem* createOwnUnitBoundaryItem(BWAPI::UnitType ut, BWAPI::Position pos);
         MineralBoundaryItem* createMineralBoundaryItem(BWAPI::TilePosition tp);
         void destroyBoundaryItem(AbstractBoundaryItem* item);
+        void setupFields();
         void buildBaseLocations();
 };

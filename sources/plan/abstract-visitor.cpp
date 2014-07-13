@@ -31,6 +31,11 @@ void BasicVisitor::visitRequireMineralFieldPort(RequireMineralFieldPort* port)
     visitAbstractPort(port);
 }
 
+void BasicVisitor::visitRequireSpacePort(RequireSpacePort* port)
+{
+    visitAbstractPort(port);
+}
+
 void BasicVisitor::visitAbstractBoundaryItem(AbstractBoundaryItem* /*item*/)
 { }
 

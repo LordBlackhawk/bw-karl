@@ -1,10 +1,12 @@
 #pragma once
 
+#include "utils/array2d.hpp"
 #include "utils/time.hpp"
 #include <BWAPI.h>
 #include <BWTA.h>
 
 class MineralBoundaryItem;
+class RequireSpacePort;
 
 struct BaseLocation
 {
@@ -14,9 +16,19 @@ struct BaseLocation
     BaseLocation();
 };
 
+struct FieldInformations
+{
+    bool                buildable   = false;
+    bool                creep       = false;
+    RequireSpacePort*   blocker     = NULL;
+};
+
 struct BlackboardInformations
 {
     ~BlackboardInformations();
+    void prepare();
+
+    void printFieldInformations(std::ostream& stream);
 
     Time    lastUpdateTime = -1;
     int     currentMinerals = 0;
@@ -26,4 +38,6 @@ struct BlackboardInformations
 
     std::set<BaseLocation*>     allBaseLocations;
     std::set<BaseLocation*>     ownBaseLocations;
+
+    Array2d<FieldInformations>  fields;
 };

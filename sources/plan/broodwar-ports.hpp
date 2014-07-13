@@ -13,7 +13,7 @@ class RequireMineralFieldPort;
 class ProvideUnitPort : public BasicPortImpl<ProvideUnitPort, RequireUnitPort, false>
 {
     public:
-        ProvideUnitPort(BWAPI::Unit* u, bool od = false);
+        ProvideUnitPort(AbstractItem* o, BWAPI::Unit* u, bool od = false);
 
         void updateData(BWAPI::UnitType ut, BWAPI::Position p);
         void updateData(RequireUnitPort* port);
@@ -43,7 +43,7 @@ class ProvideUnitPort : public BasicPortImpl<ProvideUnitPort, RequireUnitPort, f
 class RequireUnitPort : public BasicPortImpl<RequireUnitPort, ProvideUnitPort, true>
 {
     public:
-        RequireUnitPort(BWAPI::UnitType ut);
+        RequireUnitPort(AbstractItem* o, BWAPI::UnitType ut);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
 
@@ -61,7 +61,7 @@ class RequireUnitPort : public BasicPortImpl<RequireUnitPort, ProvideUnitPort, t
 class ResourcePort : public AbstractPort
 {
     public:
-        ResourcePort(int m, int g);
+        ResourcePort(AbstractItem* o, int m, int g);
 
         bool isRequirePort() const override;
         bool isActiveConnection() const override;
@@ -85,16 +85,40 @@ class ProvideMineralFieldPort : public BasicPortImpl<ProvideMineralFieldPort, Re
 
         void disconnect();
         BWAPI::Unit* getUnit() const;
-
-    protected:
-        MineralBoundaryItem* owner;
+        MineralBoundaryItem* getOwner() const;
 };
 
 class RequireMineralFieldPort : public BasicPortImpl<RequireMineralFieldPort, ProvideMineralFieldPort, true>
 {
     public:
-        RequireMineralFieldPort(MineralBoundaryItem* o);
+        RequireMineralFieldPort(AbstractItem* o, MineralBoundaryItem* m);
         void acceptVisitor(AbstractVisitor* visitor) override;
 
         inline BWAPI::Unit* getUnit() const { return connection->getUnit(); }
+};
+
+struct FieldInformations;
+template <class T> class Array2d;
+
+class RequireSpacePort : public AbstractPort
+{
+    public:
+        RequireSpacePort(AbstractItem* o, Array2d<FieldInformations>* f, int w, int h, BWAPI::TilePosition p = BWAPI::TilePositions::Unknown);
+        ~RequireSpacePort();
+
+        bool isRequirePort() const override;
+        bool isActiveConnection() const override;
+        void acceptVisitor(AbstractVisitor* visitor) override;
+
+        void disconnect();
+        void connectTo(BWAPI::TilePosition tp);
+
+        inline const BWAPI::TilePosition& getTilePosition() const { return pos; }
+        inline bool isConnected() const { return (pos != BWAPI::TilePositions::Unknown); }
+
+    protected:
+        Array2d<FieldInformations>* fields;
+        BWAPI::TilePosition         pos;
+        int                         width;
+        int                         height;
 };

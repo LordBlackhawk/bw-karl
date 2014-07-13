@@ -1,10 +1,11 @@
 #include "broodwar-ports.hpp"
 #include "abstract-visitor.hpp"
 #include "broodwar-boundary-items.hpp"
+#include "blackboard-informations.hpp"
 #include "engine/basic-actions.hpp"
 
-ProvideUnitPort::ProvideUnitPort(BWAPI::Unit* u, bool od)
-    : unit(u), unitType(BWAPI::UnitTypes::Unknown), pos(BWAPI::Positions::Unknown), onDemand(od), previousAction(NULL)
+ProvideUnitPort::ProvideUnitPort(AbstractItem* o, BWAPI::Unit* u, bool od)
+    : BaseClass(o), unit(u), unitType(BWAPI::UnitTypes::Unknown), pos(BWAPI::Positions::Unknown), onDemand(od), previousAction(NULL)
 { }
 
 void ProvideUnitPort::updateData(BWAPI::UnitType ut, BWAPI::Position p)
@@ -32,8 +33,8 @@ AbstractAction* ProvideUnitPort::prepareForExecution(AbstractExecutionEngine* en
     return previousAction;
 }
 
-RequireUnitPort::RequireUnitPort(BWAPI::UnitType ut)
-    : unitType(ut)
+RequireUnitPort::RequireUnitPort(AbstractItem* o, BWAPI::UnitType ut)
+    : BaseClass(o), unitType(ut)
 { }
 
 void RequireUnitPort::acceptVisitor(AbstractVisitor* visitor)
@@ -54,8 +55,8 @@ AbstractAction* RequireUnitPort::prepareForExecution(AbstractExecutionEngine* en
     return connection->prepareForExecution(engine);
 }
 
-ResourcePort::ResourcePort(int m, int g)
-    : minerals(m), gas(g)
+ResourcePort::ResourcePort(AbstractItem* o, int m, int g)
+    : AbstractPort(o), minerals(m), gas(g)
 { }
 
 bool ResourcePort::isRequirePort() const
@@ -74,7 +75,7 @@ void ResourcePort::acceptVisitor(AbstractVisitor* visitor)
 }
 
 ProvideMineralFieldPort::ProvideMineralFieldPort(MineralBoundaryItem* o)
-    : owner(o)
+    : BaseClass(o)
 {
     estimatedTime = ACTIVE_TIME;
 }
@@ -83,7 +84,7 @@ void ProvideMineralFieldPort::disconnect()
 {
     if (isConnected()) {
         BasicPortImpl<ProvideMineralFieldPort, RequireMineralFieldPort, false>::disconnect();
-        owner->removePort(this);
+        getOwner()->removePort(this);
         delete this;
     }
 }
@@ -95,14 +96,20 @@ void ProvideMineralFieldPort::acceptVisitor(AbstractVisitor* visitor)
 
 BWAPI::Unit* ProvideMineralFieldPort::getUnit() const
 {
-    return owner->getUnit();
+    return getOwner()->getUnit();
 }
 
-RequireMineralFieldPort::RequireMineralFieldPort(MineralBoundaryItem* o)
+MineralBoundaryItem* ProvideMineralFieldPort::getOwner() const
 {
-    if (o != NULL) {
-        auto provider = new ProvideMineralFieldPort(o);
-        o->ports.push_back(provider);
+    return static_cast<MineralBoundaryItem*>(owner);
+}
+
+RequireMineralFieldPort::RequireMineralFieldPort(AbstractItem* o, MineralBoundaryItem* m)
+    : BaseClass(o)
+{
+    if (m != NULL) {
+        auto provider = new ProvideMineralFieldPort(m);
+        m->ports.push_back(provider);
         connectTo(provider);
     }
 }
@@ -110,4 +117,57 @@ RequireMineralFieldPort::RequireMineralFieldPort(MineralBoundaryItem* o)
 void RequireMineralFieldPort::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitRequireMineralFieldPort(this);
+}
+
+RequireSpacePort::RequireSpacePort(AbstractItem* o, Array2d<FieldInformations>* f, int w, int h, BWAPI::TilePosition p)
+    : AbstractPort(o), fields(f), pos(BWAPI::TilePositions::Unknown), width(w), height(h)
+{
+    connectTo(p);
+}
+
+RequireSpacePort::~RequireSpacePort()
+{
+    disconnect();
+}
+
+bool RequireSpacePort::isRequirePort() const
+{
+    return true;
+}
+
+bool RequireSpacePort::isActiveConnection() const
+{
+    return isActive();
+}
+
+void RequireSpacePort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitRequireSpacePort(this);
+}
+
+void RequireSpacePort::disconnect()
+{
+    if (isConnected()) {
+        for (int x=pos.x(); x<pos.x()+width; ++x)
+            for (int y=pos.y(); y<pos.y()+height; ++y)
+                (*fields)[x][y].blocker = NULL;
+        pos = BWAPI::TilePositions::Unknown;
+    }
+}
+
+void RequireSpacePort::connectTo(BWAPI::TilePosition tp)
+{
+    if (isConnected())
+        disconnect();
+    pos = tp;
+    if (isConnected()) {
+        for (int x=pos.x(); x<pos.x()+width; ++x)
+            for (int y=pos.y(); y<pos.y()+height; ++y)
+        {
+            auto& field = (*fields)[x][y];
+            if (field.blocker != NULL)
+                field.blocker->disconnect();
+            field.blocker = this;
+        }
+    }
 }

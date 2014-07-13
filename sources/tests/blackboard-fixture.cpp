@@ -153,8 +153,17 @@ void BlackboardFixture::destroyBoundaryItem(AbstractBoundaryItem* item)
     BOOST_REQUIRE( blackboard->lookupUnit(unit) == NULL );
 }
 
+void BlackboardFixture::setupFields()
+{
+    if (blackboard->getInformations()->fields.getWidth() > 0)
+        return;
+
+    blackboard->getInformations()->fields.resize(64, 64);
+}
+
 void BlackboardFixture::buildBaseLocations()
 {
+    setupFields();
     auto informations = blackboard->getInformations();
     for (int l=0; l<4; ++l) {
         auto base = new BaseLocation;

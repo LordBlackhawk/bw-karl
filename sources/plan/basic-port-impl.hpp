@@ -6,8 +6,10 @@ template <class DerivedClass, class ConnectionClass, bool Require>
 class BasicPortImpl : public AbstractPort
 {
     public:
-        BasicPortImpl()
-            : connection(NULL)
+        typedef BasicPortImpl<DerivedClass, ConnectionClass, Require> BaseClass;
+
+        BasicPortImpl(AbstractItem* o)
+            : AbstractPort(o), connection(NULL)
         { }
         
         ~BasicPortImpl()

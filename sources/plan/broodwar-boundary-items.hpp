@@ -21,18 +21,18 @@ class OwnUnitBoundaryItem : public AbstractBoundaryItem
 class MineralBoundaryItem : public AbstractBoundaryItem
 {
     public:
-        MineralBoundaryItem(BWAPI::Unit* u, BaseLocation* b = NULL);
+        MineralBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f, BaseLocation* b = NULL);
         ~MineralBoundaryItem();
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void visitUnitCreateEvent(UnitCreateEvent* event) override;
         void visitMineralUpdateEvent(MineralUpdateEvent* event) override;
 
-        inline const BWAPI::TilePosition& getTilePosition() const { return pos; }
+        inline const BWAPI::TilePosition& getTilePosition() const { return requireSpace.getTilePosition(); }
         inline int mineralsLeft() const { return minerals; }
 
     protected:
+        RequireSpacePort    requireSpace;
         BaseLocation*       base;
-        BWAPI::TilePosition pos;
         int                 minerals;
 };

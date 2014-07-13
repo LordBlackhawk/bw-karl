@@ -6,7 +6,7 @@
 #include "utils/assert-throw.hpp"
 
 AbstractSimpleUnitPlanItem::AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool od)
-    : requireUnit(ut), provideUnit(NULL, od)
+    : requireUnit(this, ut), provideUnit(this, NULL, od)
 {
     ports.push_back(&requireUnit);
     ports.push_back(&provideUnit);
@@ -31,7 +31,7 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
 }
 
 GatherMineralsPlanItem::GatherMineralsPlanItem(MineralBoundaryItem* m, ProvideUnitPort* provider)
-    : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone, true), requireMineralField(m)
+    : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone, true), requireMineralField(this, m)
 {
     ports.push_back(&requireMineralField);
     provideUnit.updateData(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown);
@@ -63,7 +63,7 @@ AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEng
 }
 
 BuildPlanItem::BuildPlanItem(BWAPI::UnitType ut, BWAPI::TilePosition p)
-    : AbstractSimpleUnitPlanItem(ut.whatBuilds().first), resources(ut.mineralPrice(), ut.gasPrice()), unitType(ut), pos(p)
+    : AbstractSimpleUnitPlanItem(ut.whatBuilds().first), resources(this, ut.mineralPrice(), ut.gasPrice()), unitType(ut), pos(p)
 {
     ports.push_back(&resources);
     provideUnit.updateData(unitType, BWAPI::Position(pos));

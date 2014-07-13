@@ -6,6 +6,7 @@ class RequireUnitPort;
 class ResourcePort;
 class ProvideMineralFieldPort;
 class RequireMineralFieldPort;
+class RequireSpacePort;
 
 class AbstractBoundaryItem;
 class OwnUnitBoundaryItem;
@@ -23,6 +24,7 @@ class AbstractVisitor
         virtual void visitResourcePort(ResourcePort* port) = 0;
         virtual void visitProvideMineralFieldPort(ProvideMineralFieldPort* port) = 0;
         virtual void visitRequireMineralFieldPort(RequireMineralFieldPort* port) = 0;
+        virtual void visitRequireSpacePort(RequireSpacePort* port) = 0;
 
         virtual void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) = 0;
         virtual void visitMineralBoundaryItem(MineralBoundaryItem* item) = 0;
@@ -40,6 +42,7 @@ class BasicVisitor : public AbstractVisitor
         void visitResourcePort(ResourcePort* port) override;
         void visitProvideMineralFieldPort(ProvideMineralFieldPort* port) override;
         void visitRequireMineralFieldPort(RequireMineralFieldPort* port) override;
+        void visitRequireSpacePort(RequireSpacePort* port) override;
         
         virtual void visitAbstractBoundaryItem(AbstractBoundaryItem* item);
         void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) override;

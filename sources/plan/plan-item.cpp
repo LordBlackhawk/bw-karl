@@ -6,8 +6,8 @@
 #include "utils/assert-throw.hpp"
 #include <algorithm>
 
-AbstractPort::AbstractPort()
-    : estimatedTime(INFINITE_TIME)
+AbstractPort::AbstractPort(AbstractItem* o)
+    : estimatedTime(INFINITE_TIME), owner(o)
 { }
 
 void AbstractItem::removePort(AbstractPort* port)
@@ -147,28 +147,19 @@ void Blackboard::tick()
             it->setActive();
         }
     }
+
+    if (informations.lastUpdateTime == 10)
+        informations.printFieldInformations(std::cout);
 }
 
 void Blackboard::prepare()
 {
-    informations.self = BWAPI::Broodwar->self();
-
+    informations.prepare();
+    for (auto base : informations.allBaseLocations)
+        for (auto mineral : base->minerals)
+            unitBoundaries[mineral->unit] = mineral;
     for (auto it : experts)
         it->prepare();
-
-    auto mybase = BWTA::getStartLocation(informations.self);
-    for (auto base : BWTA::getBaseLocations()) {
-        auto baselocation = new BaseLocation;
-        baselocation->origin = base;
-        for (auto unit : base->getMinerals()) {
-            auto item = new MineralBoundaryItem(unit, baselocation);
-            unitBoundaries[unit] = item;
-            baselocation->minerals.insert(item);
-        }
-        informations.allBaseLocations.insert(baselocation);
-        if (base == mybase)
-            informations.ownBaseLocations.insert(baselocation);
-    }
 }
 
 void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
@@ -257,8 +248,7 @@ void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
 
     AbstractBoundaryItem* item = NULL;
     if (event->unitType.isMineralField()) {
-        //LOG << "Mineralfield added!";
-        item = new MineralBoundaryItem(event->unit);
+        item = new MineralBoundaryItem(event->unit, &informations.fields);
     } else if (event->owner == self()) {
         //LOG << "Own unit added: " << event->unitType.getName();
         item = new OwnUnitBoundaryItem(event->unit);

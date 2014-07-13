@@ -4,7 +4,7 @@
 #include "engine/broodwar-events.hpp"
 
 OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u)
-    : AbstractBoundaryItem(u), provideUnit(u)
+    : AbstractBoundaryItem(u), provideUnit(this, u)
 {
     ports.push_back(&provideUnit);
     provideUnit.estimatedTime = ACTIVE_TIME;
@@ -25,8 +25,11 @@ void OwnUnitBoundaryItem::visitOwnUnitUpdateEvent(OwnUnitUpdateEvent* event)
     provideUnit.updateData(event->unitType, event->pos);
 }
 
-MineralBoundaryItem::MineralBoundaryItem(BWAPI::Unit* u, BaseLocation* b)
-    : AbstractBoundaryItem(u), base(b), pos(BWAPI::TilePositions::Unknown), minerals(-1)
+MineralBoundaryItem::MineralBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f, BaseLocation* b)
+    : AbstractBoundaryItem(u),
+      requireSpace(this, f, BWAPI::UnitTypes::Resource_Mineral_Field.tileWidth(), BWAPI::UnitTypes::Resource_Mineral_Field.tileHeight()),
+      base(b),
+      minerals(-1)
 { }
 
 MineralBoundaryItem::~MineralBoundaryItem()
@@ -48,7 +51,7 @@ void MineralBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
 
 void MineralBoundaryItem::visitUnitCreateEvent(UnitCreateEvent* event)
 {
-    pos = event->tilePos;
+    requireSpace.connectTo(event->tilePos);
 }
 
 void MineralBoundaryItem::visitMineralUpdateEvent(MineralUpdateEvent* event)
