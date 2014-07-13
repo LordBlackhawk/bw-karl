@@ -1,5 +1,6 @@
 #include "plan-item.hpp"
 #include "broodwar-boundary-items.hpp"
+#include "broodwar-plan-items.hpp"
 #include "engine/abstract-action.hpp"
 #include "engine/broodwar-events.hpp"
 #include "utils/log.hpp"
@@ -112,6 +113,13 @@ void Blackboard::recalculateEstimatedTimes()
         if (!it->isActive())
             it->updateEstimates();
     std::sort(items.begin(), items.end(), PlanItemCompare());
+}
+
+BuildPlanItem* Blackboard::createBuildPlanItem(BWAPI::UnitType ut)
+{
+    BuildPlanItem* result = new BuildPlanItem(&informations.fields, ut, BWAPI::TilePositions::Unknown);
+    addItem(result);
+    return result;
 }
 
 void Blackboard::tick()

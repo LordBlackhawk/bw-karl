@@ -83,6 +83,8 @@ class AbstractExpert
         virtual bool tick(Blackboard* blackboard) = 0; // returns false if it should be removed.
 };
 
+class BuildPlanItem;
+
 class Blackboard : public BasicEventVisitor
 {
     public:
@@ -112,6 +114,9 @@ class Blackboard : public BasicEventVisitor
         void visitBroodwarEvent(BroodwarEvent* event);
         void visitUnitUpdateEvent(UnitUpdateEvent* event);
         void visitUnitCreateEvent(UnitCreateEvent* event);
+
+        // for creation of plan items:
+        BuildPlanItem* createBuildPlanItem(BWAPI::UnitType ut); 
 
         // for test propose only:
         bool includeItem(AbstractPlanItem* item) const;

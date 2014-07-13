@@ -160,8 +160,6 @@ bool OpeningExpert::tick(Blackboard* blackboard)
     if (poolPos == BWAPI::TilePositions::Unknown)
         return true;
 
-    blackboard->addItem(new BuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool, poolPos));
-    //LOG << "Pool added.";
-
+    blackboard->createBuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool)->requireSpace.connectTo(poolPos);
     return false;
 }

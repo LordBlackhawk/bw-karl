@@ -65,7 +65,7 @@ AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEng
 BuildPlanItem::BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p)
     : AbstractSimpleUnitPlanItem(ut.whatBuilds().first),
       requireResources(this, ut.mineralPrice(), ut.gasPrice()),
-      requireSpace(f, ut.tileWidth(), ut.tileHeight(), p),
+      requireSpace(this, f, ut.tileWidth(), ut.tileHeight(), p),
       unitType(ut)
 {
     ports.push_back(&requireResources);
