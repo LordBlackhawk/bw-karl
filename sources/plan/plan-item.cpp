@@ -16,6 +16,16 @@ void AbstractItem::removePort(AbstractPort* port)
     ports.erase(std::remove(ports.begin(), ports.end(), port), ports.end());
 }
 
+bool AbstractItem::isBoundaryItem() const
+{
+    return (dynamic_cast<const AbstractBoundaryItem*>(this) != NULL);
+}
+
+bool AbstractItem::isPlanItem() const
+{
+    return (dynamic_cast<const AbstractPlanItem*>(this) != NULL);
+}
+
 AbstractPlanItem::AbstractPlanItem()
     : estimatedStartTime(INFINITE_TIME)
 { }
@@ -155,6 +165,9 @@ void Blackboard::tick()
             it->setActive();
         }
     }
+    
+    if (informations.lastUpdateTime == 10)
+        informations.printFieldInformations(std::cout);
 }
 
 void Blackboard::prepare()
@@ -256,7 +269,7 @@ void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
         item = new MineralBoundaryItem(event->unit, &informations.fields);
     } else if (event->owner == self()) {
         //LOG << "Own unit added: " << event->unitType.getName();
-        item = new OwnUnitBoundaryItem(event->unit);
+        item = new OwnUnitBoundaryItem(event->unit, &informations.fields);
     }
     if (item != NULL) {
         unitBoundaries[event->unit] = item;

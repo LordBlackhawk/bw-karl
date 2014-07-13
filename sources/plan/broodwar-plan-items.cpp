@@ -65,10 +65,11 @@ AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEng
 BuildPlanItem::BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p)
     : AbstractSimpleUnitPlanItem(ut.whatBuilds().first),
       requireResources(this, ut.mineralPrice(), ut.gasPrice()),
-      requireSpace(this, f, ut.tileWidth(), ut.tileHeight(), p),
+      requireSpace(this, f, ut, p),
       unitType(ut)
 {
     ports.push_back(&requireResources);
+    ports.push_back(&requireSpace);
     provideUnit.updateData(unitType, BWAPI::Position(p));
 }
 
@@ -79,6 +80,7 @@ void BuildPlanItem::acceptVisitor(AbstractVisitor* visitor)
 
 void BuildPlanItem::updateEstimates()
 {
+    requireSpace.updateEstimates();
     AbstractSimpleUnitPlanItem::updateEstimates();
     provideUnit.estimatedTime = estimatedStartTime + unitType.buildTime();
 }

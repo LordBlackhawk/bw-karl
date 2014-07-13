@@ -119,8 +119,8 @@ void RequireMineralFieldPort::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitRequireMineralFieldPort(this);
 }
 
-RequireSpacePort::RequireSpacePort(AbstractItem* o, Array2d<FieldInformations>* f, int w, int h, BWAPI::TilePosition p)
-    : AbstractPort(o), fields(f), pos(BWAPI::TilePositions::Unknown), width(w), height(h)
+RequireSpacePort::RequireSpacePort(AbstractItem* o, Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p)
+    : AbstractPort(o), fields(f), pos(BWAPI::TilePositions::Unknown), unitType(ut)
 {
     connectTo(p);
 }
@@ -145,24 +145,40 @@ void RequireSpacePort::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitRequireSpacePort(this);
 }
 
+void RequireSpacePort::updateEstimates()
+{
+    estimatedTime = (isConnected()) ? ACTIVE_TIME : INFINITE_TIME;
+}
+
 void RequireSpacePort::disconnect()
 {
     if (isConnected()) {
-        for (int x=pos.x(); x<pos.x()+width; ++x)
-            for (int y=pos.y(); y<pos.y()+height; ++y)
+        for (int x=pos.x(); x<pos.x()+getWidth(); ++x)
+            for (int y=pos.y(); y<pos.y()+getHeight(); ++y)
                 (*fields)[x][y].blocker = NULL;
         pos = BWAPI::TilePositions::Unknown;
     }
 }
 
+void RequireSpacePort::setUnitType(BWAPI::UnitType ut)
+{
+    BWAPI::TilePosition oldpos = pos;
+    disconnect();
+    unitType = ut;
+    connectTo(oldpos);
+}
+
 void RequireSpacePort::connectTo(BWAPI::TilePosition tp)
 {
+    if (pos == tp)
+        return;
+
     if (isConnected())
         disconnect();
     pos = tp;
     if (isConnected()) {
-        for (int x=pos.x(); x<pos.x()+width; ++x)
-            for (int y=pos.y(); y<pos.y()+height; ++y)
+        for (int x=pos.x(); x<pos.x()+getWidth(); ++x)
+            for (int y=pos.y(); y<pos.y()+getHeight(); ++y)
         {
             auto& field = (*fields)[x][y];
             if (field.blocker != NULL)

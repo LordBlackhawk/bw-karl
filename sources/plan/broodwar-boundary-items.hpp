@@ -5,7 +5,7 @@
 class OwnUnitBoundaryItem : public AbstractBoundaryItem
 {
     public:
-        OwnUnitBoundaryItem(BWAPI::Unit* u);
+        OwnUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void visitUnitCreateEvent(UnitCreateEvent* event) override;
@@ -15,7 +15,8 @@ class OwnUnitBoundaryItem : public AbstractBoundaryItem
         inline bool isConnected() const { return provideUnit.isConnected(); }
 
     protected:
-        ProvideUnitPort provideUnit;
+        ProvideUnitPort     provideUnit;
+        RequireSpacePort    requireSpace;
 };
 
 class MineralBoundaryItem : public AbstractBoundaryItem

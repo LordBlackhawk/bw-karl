@@ -42,6 +42,9 @@ class AbstractItem
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
 
         void removePort(AbstractPort* port);
+
+        bool isBoundaryItem() const;
+        bool isPlanItem() const;
 };
 
 class AbstractBoundaryItem : public AbstractItem, public BasicEventVisitor

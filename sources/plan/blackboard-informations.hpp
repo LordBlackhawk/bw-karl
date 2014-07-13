@@ -14,6 +14,8 @@ struct BaseLocation
     std::set<MineralBoundaryItem*>  minerals;
 
     BaseLocation();
+
+    inline BWAPI::TilePosition getTilePosition() const { return origin->getTilePosition(); }
 };
 
 struct FieldInformations

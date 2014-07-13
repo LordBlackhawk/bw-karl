@@ -103,22 +103,26 @@ template <class T> class Array2d;
 class RequireSpacePort : public AbstractPort
 {
     public:
-        RequireSpacePort(AbstractItem* o, Array2d<FieldInformations>* f, int w, int h, BWAPI::TilePosition p = BWAPI::TilePositions::Unknown);
+        RequireSpacePort(AbstractItem* o, Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p = BWAPI::TilePositions::Unknown);
         ~RequireSpacePort();
 
         bool isRequirePort() const override;
         bool isActiveConnection() const override;
         void acceptVisitor(AbstractVisitor* visitor) override;
 
+        void updateEstimates();
         void disconnect();
         void connectTo(BWAPI::TilePosition tp);
+        void setUnitType(BWAPI::UnitType ut);
 
         inline const BWAPI::TilePosition& getTilePosition() const { return pos; }
+        inline int getWidth() const { return unitType.tileWidth(); }
+        inline int getHeight() const { return unitType.tileHeight(); }
+        inline BWAPI::UnitType getUnitType() const { return unitType; }
         inline bool isConnected() const { return (pos != BWAPI::TilePositions::Unknown); }
 
     protected:
         Array2d<FieldInformations>* fields;
         BWAPI::TilePosition         pos;
-        int                         width;
-        int                         height;
+        BWAPI::UnitType             unitType;
 };
