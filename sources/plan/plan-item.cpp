@@ -147,9 +147,6 @@ void Blackboard::tick()
             it->setActive();
         }
     }
-
-    if (informations.lastUpdateTime == 10)
-        informations.printFieldInformations(std::cout);
 }
 
 void Blackboard::prepare()

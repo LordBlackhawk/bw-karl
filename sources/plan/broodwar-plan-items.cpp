@@ -62,11 +62,14 @@ AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEng
     return action;
 }
 
-BuildPlanItem::BuildPlanItem(BWAPI::UnitType ut, BWAPI::TilePosition p)
-    : AbstractSimpleUnitPlanItem(ut.whatBuilds().first), resources(this, ut.mineralPrice(), ut.gasPrice()), unitType(ut), pos(p)
+BuildPlanItem::BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p)
+    : AbstractSimpleUnitPlanItem(ut.whatBuilds().first),
+      requireResources(this, ut.mineralPrice(), ut.gasPrice()),
+      requireSpace(f, ut.tileWidth(), ut.tileHeight(), p),
+      unitType(ut)
 {
-    ports.push_back(&resources);
-    provideUnit.updateData(unitType, BWAPI::Position(pos));
+    ports.push_back(&requireResources);
+    provideUnit.updateData(unitType, BWAPI::Position(p));
 }
 
 void BuildPlanItem::acceptVisitor(AbstractVisitor* visitor)
@@ -84,7 +87,7 @@ AbstractAction* BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engi
 {
     //LOG << "Prepare for execution(Build) ...";
     AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
-    AbstractAction* action = new ZergBuildAction(requireUnit.getUnit(), unitType, pos, req);
+    AbstractAction* action = new ZergBuildAction(requireUnit.getUnit(), unitType, requireSpace.getTilePosition(), req);
     engine->addAction(action);
     provideUnit.setPreviousAction(action);
     return action;

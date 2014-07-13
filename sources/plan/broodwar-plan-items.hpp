@@ -32,9 +32,10 @@ class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
 class BuildPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
-        ResourcePort        resources;
+        ResourcePort        requireResources;
+        RequireSpacePort    requireSpace;
 
-        BuildPlanItem(BWAPI::UnitType ut, BWAPI::TilePosition p);
+        BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates() override;
@@ -42,5 +43,4 @@ class BuildPlanItem : public AbstractSimpleUnitPlanItem
 
     protected:
         BWAPI::UnitType     unitType;
-        BWAPI::TilePosition pos;
 };
