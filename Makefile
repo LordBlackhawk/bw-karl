@@ -11,7 +11,7 @@ MODULEFILES = $(LIBFILES) $(EXEFILES)
 all: $(MODULEFILES)
 
 run: karl.exe
-	$<
+	$< --hud --speed=-1
 
 test: tests.exe
 	@echo ' ##############################################################################'

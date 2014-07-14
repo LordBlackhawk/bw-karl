@@ -2,6 +2,14 @@
 
 #include "plan/plan-item.hpp"
 
+namespace boost
+{
+    namespace program_options
+    {
+        class options_description;
+    }
+}
+
 class ExpertRegistrar
 {
     public:
@@ -11,6 +19,8 @@ class ExpertRegistrar
         ExpertRegistrar(const char* name, IsApplicableFunc isApplicable, CreateInstanceFunc createInstance);
 
         static void preapreBlackboard(Blackboard* blackboard);
+        static boost::program_options::options_description getOptions();
+        static void evaluateOptions();
 };
 
 #define MY_JOIN( X, Y ) MY_DO_JOIN( X, Y )

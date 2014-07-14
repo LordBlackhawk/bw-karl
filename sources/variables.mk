@@ -6,7 +6,7 @@ BWAPIPATH    = $(PROJECTPATH)includes/
 BOOSTPATH    = $(PROJECTPATH)includes/boost_1_46_1
 LIBPATH      = $(PROJECTPATH)lib/
 
-BOOST_LIBS   = -lboost_thread-mgw47-mt-1_46_1
+BOOST_LIBS   = -lboost_thread-mgw47-mt-1_46_1 -lboost_program_options-mgw47-mt-1_46_1
 ifeq ($(NEEDS_TEST_LIBS), yes)
     BOOST_LIBS +=  -lboost_unit_test_framework-mgw47-mt-1_46_1 -lboost_test_exec_monitor-mgw47-mt-1_46_1
 endif
