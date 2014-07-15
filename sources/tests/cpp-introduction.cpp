@@ -95,6 +95,98 @@ BOOST_AUTO_TEST_CASE( pointer_test )
     delete p;
 }
 
+BOOST_AUTO_TEST_CASE( string_test )
+{
+    std::string txt = "Hello ";
+    txt += "World!";
+    BOOST_CHECK_EQUAL( txt, "Hello World!" );
+    BOOST_CHECK_EQUAL( txt[4], 'o' );
+    txt[3] = 'L';
+    BOOST_CHECK_EQUAL( txt, "HelLo World!" );
+    BOOST_CHECK_EQUAL( txt.size(), 12U );
+    //if (txt.c_str() == "HelLo World!")
+    //    BOOST_CHECK( false );
+}
+
+class Base
+{
+    public:
+        int x;
+        int y;
+
+        Base(int a = 15, int b = 5)
+            : x(a), y(b)
+        {
+            //std::cout << "Hello World!\n";
+        }
+
+        Base(const Base& other)
+            : x(other.x), y(other.y)
+        { }
+        
+        ~Base()
+        {
+            //std::cout << "Goodbye!\n";
+        }
+
+        virtual int getSum() const;
+
+    protected:
+        int z;
+
+    private:
+        int f() const
+        {
+            return 0;
+        }
+};
+
+//struct Name { int x };
+
+int Base::getSum() const
+{
+    return x + y + f();
+}
+
+class Derived : public Base
+{
+    public:
+        int w;
+
+        Derived(int a)
+            : Base(11, 11), w(a)
+        { }
+
+        int getSum() const override
+        {
+            return Base::getSum() + w + x;
+        }
+};
+
+BOOST_AUTO_TEST_CASE( derived_test )
+{
+    Derived d(8);
+    BOOST_CHECK_EQUAL( d.getSum(), 41 );
+
+    Base* b = &d;
+    BOOST_CHECK_EQUAL( b->getSum(), 41 );
+}
+
+/*
+BOOST_AUTO_TEST_CASE( class_test )
+{
+    std::cout << "begin...\n";
+    Base base;
+    Base other(base);
+    BOOST_CHECK_EQUAL( base.x, 15 );
+    BOOST_CHECK_EQUAL( base.getSum(), 10 );
+    BOOST_CHECK_EQUAL( other.getSum(), 10 );
+    //BOOST_CHECK_EQUAL( base.f(), 0 );
+    //BOOST_CHECK_EQUAL( base.z, 0 );
+    std::cout << "end.\n";
+}
+*/
+
 /*
 BOOST_AUTO_TEST_CASE( test_name )
 {

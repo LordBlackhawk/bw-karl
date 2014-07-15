@@ -94,6 +94,25 @@ void ZergBuildAction::onEnd(AbstractExecutionEngine* /*engine*/)
     }
 }
 
+MoveToPositionAction::MoveToPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre)
+    : UnitAction(w, pre), pos(p)
+{ }
+
+MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngine* /*engine*/)
+{
+    if (!unit->exists())
+        return Failed;
+
+    if (unit->getPosition().getDistance(pos) < 32.0)
+        return Finished;
+
+    if (!unit->isMoving())
+        unit->move(pos);
+
+    drawInformations("moving");
+    return Running;
+}
+
 MineralTrigger::MineralTrigger(int a, AbstractAction* pre)
     : AbstractAction(pre), amount(a)
 { }

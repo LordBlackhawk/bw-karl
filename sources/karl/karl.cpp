@@ -2,6 +2,7 @@
 #include "utils/timer.hpp"
 #include "utils/log.hpp"
 #include "engine/default-execution-engine.hpp"
+#include "engine/broodwar-actions.hpp"
 #include "plan/plan-item.hpp"
 #include "expert/expert-registrar.hpp"
 
@@ -32,6 +33,16 @@ namespace
                 blackboard = new Blackboard(engine);
                 ExpertRegistrar::preapreBlackboard(blackboard);
                 blackboard->prepare();
+
+                for (auto unit : BWAPI::Broodwar->self()->getUnits())
+                    if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord)
+                {
+                    AbstractAction* pre = NULL;
+                    for (auto location : BWTA::getStartLocations()) {
+                        pre = new MoveToPositionAction(unit, location->getPosition(), pre);
+                        engine->addAction(pre);
+                    }
+                }
             }
 
             ~AI()
