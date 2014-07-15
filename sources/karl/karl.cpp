@@ -107,9 +107,11 @@ namespace
             AI ai;
             while (Broodwar->isInGame())
             {
-                int time = Broodwar->getFrameCount() / 24;
-                Broodwar->drawTextScreen(280, 6, "%02d:%02d:%02d", time/3600, (time/60)%60, time%60);
-                Broodwar->drawTextScreen(340, 6, "fps: %d", Broodwar->getFPS());
+                if (showhud) {
+                    int time = Broodwar->getFrameCount() / 24;
+                    Broodwar->drawTextScreen(280, 6, "%02d:%02d:%02d", time/3600, (time/60)%60, time%60);
+                    Broodwar->drawTextScreen(340, 6, "fps: %d", Broodwar->getFPS());
+                }
 
                 if (!Broodwar->isPaused()) {
                     timerStart();
