@@ -21,6 +21,7 @@ class ExpertRegistrar
         static void prepareBlackboard(Blackboard* blackboard);
         static boost::program_options::options_description getOptions();
         static void evaluateOptions();
+        static void listExperts(std::ostream& stream);
 };
 
 #define MY_JOIN( X, Y ) MY_DO_JOIN( X, Y )

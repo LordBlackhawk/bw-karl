@@ -70,3 +70,12 @@ void ExpertRegistrar::evaluateOptions()
     }
     disabledExperts.clear();
 }
+
+void ExpertRegistrar::listExperts(std::ostream& stream)
+{
+    std::cout << "\nExpert names:\n\n";
+    auto& map = instance();
+    for (auto it : map) {
+        stream << "  " << it.first << "\n";
+    }
+}
