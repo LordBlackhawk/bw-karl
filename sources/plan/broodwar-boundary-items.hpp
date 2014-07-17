@@ -29,6 +29,7 @@ class ResourceBoundaryItem : public AbstractBoundaryItem
         void visitUnitCreateEvent(UnitCreateEvent* event) override;
         void visitMineralUpdateEvent(MineralUpdateEvent* event) override;
 
+        int numberOfWorkers() const;
         inline const BWAPI::TilePosition& getTilePosition() const { return requireSpace.getTilePosition(); }
         inline int mineralsLeft() const { return minerals; }
 

@@ -50,9 +50,12 @@ BOOST_AUTO_TEST_CASE( minerals_destroyed )
 
     auto worker = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Position(1, 1));
 
+    BOOST_CHECK_EQUAL( mineral->numberOfWorkers(), 0 );
+
     WorkerExpert expert;
     expert.tick(blackboard);
 
+    BOOST_CHECK_EQUAL( mineral->numberOfWorkers(), 1 );
     BOOST_CHECK( worker->isConnected() );
     BOOST_REQUIRE_EQUAL( blackboard->getItems().size(), 1U );
 

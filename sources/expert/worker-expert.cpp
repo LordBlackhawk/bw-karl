@@ -87,7 +87,8 @@ ResourceBoundaryItem* WorkerExpert::findMineralForWorker(ProvideUnitPort* port)
     for (auto base : currentBlackboard->getInformations()->ownBaseLocations) {
         for (auto mineral : base->minerals) {
             double dis = port->getPosition().getDistance(BWAPI::Position(mineral->getTilePosition()));
-            double value = dis;
+            int numberOfWorkers = mineral->numberOfWorkers();
+            double value = dis - 100 * numberOfWorkers;
             if (value < bestValue) {
                 result = mineral;
                 bestValue = value;

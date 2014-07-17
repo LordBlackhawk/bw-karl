@@ -70,3 +70,12 @@ void ResourceBoundaryItem::visitMineralUpdateEvent(MineralUpdateEvent* event)
 {
     minerals = event->minerals;
 }
+
+int ResourceBoundaryItem::numberOfWorkers() const
+{
+    int result = 0;
+    for (auto port : ports)
+        if (dynamic_cast<ProvideMineralFieldPort*>(port) != NULL)
+            ++result;
+    return result;
+}
