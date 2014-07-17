@@ -1,5 +1,4 @@
 #include "utils/myseh.hpp"
-#include "utils/timer.hpp"
 #include "utils/log.hpp"
 #include "utils/thread.hpp"
 #include "engine/default-execution-engine.hpp"
@@ -47,13 +46,14 @@ namespace
     class AI
     {
         public:
-            AbstractExecutionEngine* engine;
-            Blackboard*              blackboard;
-            ExpertThread*            thread;
+            DefaultExecutionEngine*     defaultEngine;
+            AbstractExecutionEngine*    engine;
+            Blackboard*                 blackboard;
+            ExpertThread*               thread;
 
             AI()
             {
-                engine = new DefaultExecutionEngine();
+                engine = defaultEngine = new DefaultExecutionEngine();
                 for (auto unit : BWAPI::Broodwar->self()->getUnits())
                     if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord)
                 {
@@ -90,6 +90,14 @@ namespace
                     blackboard->tick();
                 engine->tick();
             }
+
+            void drawHUD()
+            {
+                int time = Broodwar->getFrameCount() / 24;
+                Broodwar->drawTextScreen(280, 6, "%02d:%02d:%02d", time/3600, (time/60)%60, time%60);
+                Broodwar->drawTextScreen(340, 6, "fps: %d", Broodwar->getFPS());
+                Broodwar->drawTextScreen(200, 6, "Actions: %d/%d", defaultEngine->numberOfActiveActions(), defaultEngine->numberOfActions());
+            }
     };
 
     void reconnect()
@@ -107,7 +115,6 @@ namespace
     {
         LOG << "Parameter loading...";
         srand(time(NULL));
-        timerInit();
 
         LOG << "Setup of BWAPI...";
         BWAPI::BWAPI_init();
@@ -141,17 +148,10 @@ namespace
             AI ai;
             while (Broodwar->isInGame())
             {
-                if (showhud) {
-                    int time = Broodwar->getFrameCount() / 24;
-                    Broodwar->drawTextScreen(280, 6, "%02d:%02d:%02d", time/3600, (time/60)%60, time%60);
-                    Broodwar->drawTextScreen(340, 6, "fps: %d", Broodwar->getFPS());
-                }
-
-                if (!Broodwar->isPaused()) {
-                    timerStart();
+                if (showhud)
+                    ai.drawHUD();
+                if (!Broodwar->isPaused())
                     ai.tick();
-                    timerEnd();
-                }
 
                 BWAPI::BWAPIClient.update();
                 if (!BWAPI::BWAPIClient.isConnected())

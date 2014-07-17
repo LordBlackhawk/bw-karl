@@ -17,6 +17,9 @@ class DefaultExecutionEngine : public AbstractExecutionEngine
         void tick();
         bool isActive(AbstractAction* action) const;
 
+        int numberOfActions() const { return allActions.size(); }
+        int numberOfActiveActions() const { return activeActions.size(); }
+
     protected:
         std::set<AbstractAction*>   allActions;
         std::set<AbstractAction*>   passiveActions;
