@@ -30,7 +30,7 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
     requireUnit.bridge(&provideUnit);
 }
 
-GatherMineralsPlanItem::GatherMineralsPlanItem(MineralBoundaryItem* m, ProvideUnitPort* provider)
+GatherMineralsPlanItem::GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider)
     : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone, true), requireMineralField(this, m)
 {
     ports.push_back(&requireMineralField);

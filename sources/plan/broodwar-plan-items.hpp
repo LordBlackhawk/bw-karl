@@ -2,7 +2,7 @@
 
 #include "broodwar-ports.hpp"
 
-class MineralBoundaryItem;
+class ResourceBoundaryItem;
 
 class AbstractSimpleUnitPlanItem : public AbstractPlanItem
 {
@@ -22,7 +22,7 @@ class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
     public:
         RequireMineralFieldPort requireMineralField;
 
-        GatherMineralsPlanItem(MineralBoundaryItem* m, ProvideUnitPort* provider = NULL);
+        GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider = NULL);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates() override;

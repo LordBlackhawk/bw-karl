@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE( minerals_destroyed )
 {
     setupFields();
     auto informations = blackboard->getInformations();
-    auto mineral = createMineralBoundaryItem(BWAPI::TilePosition(3, 4));
+    auto mineral = createResourceBoundaryItem(BWAPI::TilePosition(3, 4));
 
     auto blocker = informations->fields[3][4].blocker;
     BOOST_REQUIRE( blocker != NULL );

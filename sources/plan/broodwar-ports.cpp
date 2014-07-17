@@ -74,7 +74,7 @@ void ResourcePort::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitResourcePort(this);
 }
 
-ProvideMineralFieldPort::ProvideMineralFieldPort(MineralBoundaryItem* o)
+ProvideMineralFieldPort::ProvideMineralFieldPort(ResourceBoundaryItem* o)
     : BaseClass(o)
 {
     estimatedTime = ACTIVE_TIME;
@@ -99,12 +99,12 @@ BWAPI::Unit* ProvideMineralFieldPort::getUnit() const
     return getOwner()->getUnit();
 }
 
-MineralBoundaryItem* ProvideMineralFieldPort::getOwner() const
+ResourceBoundaryItem* ProvideMineralFieldPort::getOwner() const
 {
-    return static_cast<MineralBoundaryItem*>(owner);
+    return static_cast<ResourceBoundaryItem*>(owner);
 }
 
-RequireMineralFieldPort::RequireMineralFieldPort(AbstractItem* o, MineralBoundaryItem* m)
+RequireMineralFieldPort::RequireMineralFieldPort(AbstractItem* o, ResourceBoundaryItem* m)
     : BaseClass(o)
 {
     if (m != NULL) {

@@ -75,23 +75,23 @@ class ResourcePort : public AbstractPort
         int gas;
 };
 
-class MineralBoundaryItem;
+class ResourceBoundaryItem;
 
 class ProvideMineralFieldPort : public BasicPortImpl<ProvideMineralFieldPort, RequireMineralFieldPort, false>
 {
     public:
-        ProvideMineralFieldPort(MineralBoundaryItem* o);
+        ProvideMineralFieldPort(ResourceBoundaryItem* o);
         void acceptVisitor(AbstractVisitor* visitor) override;
 
         void disconnect();
         BWAPI::Unit* getUnit() const;
-        MineralBoundaryItem* getOwner() const;
+        ResourceBoundaryItem* getOwner() const;
 };
 
 class RequireMineralFieldPort : public BasicPortImpl<RequireMineralFieldPort, ProvideMineralFieldPort, true>
 {
     public:
-        RequireMineralFieldPort(AbstractItem* o, MineralBoundaryItem* m);
+        RequireMineralFieldPort(AbstractItem* o, ResourceBoundaryItem* m);
         void acceptVisitor(AbstractVisitor* visitor) override;
 
         inline BWAPI::Unit* getUnit() const { return connection->getUnit(); }

@@ -20,5 +20,5 @@ class WorkerExpert : public BasicPortExpert
         Time                        timeHorizont;
         std::set<ProvideUnitPort*>  providePorts;
 
-        MineralBoundaryItem* findMineralForWorker(ProvideUnitPort* port);
+        ResourceBoundaryItem* findMineralForWorker(ProvideUnitPort* port);
 };

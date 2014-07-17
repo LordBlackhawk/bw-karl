@@ -80,9 +80,9 @@ void WorkerExpert::endTraversal()
     providePorts.clear();
 }
 
-MineralBoundaryItem* WorkerExpert::findMineralForWorker(ProvideUnitPort* port)
+ResourceBoundaryItem* WorkerExpert::findMineralForWorker(ProvideUnitPort* port)
 {
-    MineralBoundaryItem* result = NULL;
+    ResourceBoundaryItem* result = NULL;
     double bestValue = 1e10;
     for (auto base : currentBlackboard->getInformations()->ownBaseLocations) {
         for (auto mineral : base->minerals) {

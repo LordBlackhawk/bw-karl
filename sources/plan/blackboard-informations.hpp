@@ -5,13 +5,13 @@
 #include <BWAPI.h>
 #include <BWTA.h>
 
-class MineralBoundaryItem;
+class ResourceBoundaryItem;
 class RequireSpacePort;
 
 struct BaseLocation
 {
     BWTA::BaseLocation*             origin;
-    std::set<MineralBoundaryItem*>  minerals;
+    std::set<ResourceBoundaryItem*>  minerals;
 
     BaseLocation();
 

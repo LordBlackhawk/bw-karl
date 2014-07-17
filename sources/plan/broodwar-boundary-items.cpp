@@ -31,36 +31,42 @@ void OwnUnitBoundaryItem::visitOwnUnitUpdateEvent(OwnUnitUpdateEvent* event)
     provideUnit.updateData(event->unitType, event->pos);
 }
 
-MineralBoundaryItem::MineralBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f, BaseLocation* b)
+ResourceBoundaryItem::ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f, BaseLocation* b)
     : AbstractBoundaryItem(u),
-      requireSpace(this, f, BWAPI::UnitTypes::Resource_Mineral_Field),
+      unitType(ut),
+      requireSpace(this, f, ut),
       base(b),
       minerals(-1)
-{ }
+{
+    ports.push_back(&requireSpace);
+}
 
-MineralBoundaryItem::~MineralBoundaryItem()
+ResourceBoundaryItem::~ResourceBoundaryItem()
 {
     if (base != NULL)
         base->minerals.erase(this);
     // There maybe ProvideMineralFieldPorts (dynamically created)!
     while (!ports.empty()) {
         auto port = dynamic_cast<ProvideMineralFieldPort*>(ports.front());
-        if (port != NULL)
+        if (port != NULL) {
             port->disconnect();
+        } else {
+            ports.erase(ports.begin());
+        }
     }
 }
 
-void MineralBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
+void ResourceBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
 {
-    visitor->visitMineralBoundaryItem(this);
+    visitor->visitResourceBoundaryItem(this);
 }
 
-void MineralBoundaryItem::visitUnitCreateEvent(UnitCreateEvent* event)
+void ResourceBoundaryItem::visitUnitCreateEvent(UnitCreateEvent* event)
 {
     requireSpace.connectTo(event->tilePos);
 }
 
-void MineralBoundaryItem::visitMineralUpdateEvent(MineralUpdateEvent* event)
+void ResourceBoundaryItem::visitMineralUpdateEvent(MineralUpdateEvent* event)
 {
     minerals = event->minerals;
 }

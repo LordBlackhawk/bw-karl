@@ -265,8 +265,8 @@ void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
     }
 
     AbstractBoundaryItem* item = NULL;
-    if (event->unitType.isMineralField()) {
-        item = new MineralBoundaryItem(event->unit, &informations.fields);
+    if (event->unitType.isResourceContainer()) {
+        item = new ResourceBoundaryItem(event->unit, event->unitType, &informations.fields);
     } else if (event->owner == self()) {
         //LOG << "Own unit added: " << event->unitType.getName();
         item = new OwnUnitBoundaryItem(event->unit, &informations.fields);

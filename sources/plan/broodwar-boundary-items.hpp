@@ -19,11 +19,11 @@ class OwnUnitBoundaryItem : public AbstractBoundaryItem
         RequireSpacePort    requireSpace;
 };
 
-class MineralBoundaryItem : public AbstractBoundaryItem
+class ResourceBoundaryItem : public AbstractBoundaryItem
 {
     public:
-        MineralBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f, BaseLocation* b = NULL);
-        ~MineralBoundaryItem();
+        ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f, BaseLocation* b = NULL);
+        ~ResourceBoundaryItem();
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void visitUnitCreateEvent(UnitCreateEvent* event) override;
@@ -33,6 +33,7 @@ class MineralBoundaryItem : public AbstractBoundaryItem
         inline int mineralsLeft() const { return minerals; }
 
     protected:
+        BWAPI::UnitType     unitType;
         RequireSpacePort    requireSpace;
         BaseLocation*       base;
         int                 minerals;
