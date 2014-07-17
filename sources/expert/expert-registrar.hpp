@@ -18,7 +18,7 @@ class ExpertRegistrar
 
         ExpertRegistrar(const char* name, IsApplicableFunc isApplicable, CreateInstanceFunc createInstance);
 
-        static void preapreBlackboard(Blackboard* blackboard);
+        static void prepareBlackboard(Blackboard* blackboard);
         static boost::program_options::options_description getOptions();
         static void evaluateOptions();
 };

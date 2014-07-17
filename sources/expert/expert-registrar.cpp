@@ -39,7 +39,7 @@ ExpertRegistrar::ExpertRegistrar(const char* name, IsApplicableFunc isApplicable
     instance().insert(std::make_pair(std::string(name), ExpertStruct(isApplicable, createInstance)));
 }
 
-void ExpertRegistrar::preapreBlackboard(Blackboard* blackboard)
+void ExpertRegistrar::prepareBlackboard(Blackboard* blackboard)
 {
     for (auto it : instance()) {
         if (!it.second.disabled && it.second.isApplicable(blackboard))

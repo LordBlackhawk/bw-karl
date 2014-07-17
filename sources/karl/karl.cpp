@@ -1,7 +1,9 @@
 #include "utils/myseh.hpp"
 #include "utils/timer.hpp"
 #include "utils/log.hpp"
+#include "utils/thread.hpp"
 #include "engine/default-execution-engine.hpp"
+#include "engine/mutex-execution-engine.hpp"
 #include "engine/broodwar-actions.hpp"
 #include "plan/plan-item.hpp"
 #include "expert/expert-registrar.hpp"
@@ -21,19 +23,37 @@ namespace po = boost::program_options;
 
 namespace
 {
+    bool doParallel = false;
+
+    class ExpertThread : public Thread
+    {
+        public:
+            ExpertThread(Blackboard* b)
+                : blackboard(b)
+            { }
+
+            void run() override
+            {
+                while (!isTerminated()) {
+                    blackboard->tick();
+                    Sleep(1);
+                }
+            }
+
+        private:
+            Blackboard* blackboard;
+    };
+
     class AI
     {
         public:
             AbstractExecutionEngine* engine;
             Blackboard*              blackboard;
+            ExpertThread*            thread;
 
             AI()
             {
                 engine = new DefaultExecutionEngine();
-                blackboard = new Blackboard(engine);
-                ExpertRegistrar::preapreBlackboard(blackboard);
-                blackboard->prepare();
-
                 for (auto unit : BWAPI::Broodwar->self()->getUnits())
                     if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord)
                 {
@@ -43,10 +63,22 @@ namespace
                         engine->addAction(pre);
                     }
                 }
+
+                if (doParallel)
+                    engine = new MutexExecutionEngine(engine);
+
+                blackboard = new Blackboard(engine);
+                ExpertRegistrar::prepareBlackboard(blackboard);
+                blackboard->prepare();
+
+                if (doParallel)
+                    thread = new ExpertThread(blackboard);
             }
 
             ~AI()
             {
+                if (thread != NULL)
+                    delete thread;
                 delete blackboard;
                 delete engine;
             }
@@ -54,7 +86,8 @@ namespace
             void tick()
             {
                 Blackboard::sendFrameEvent(engine);
-                blackboard->tick();
+                if (thread == NULL)
+                    blackboard->tick();
                 engine->tick();
             }
     };
@@ -93,6 +126,7 @@ namespace
                     LOG << "Reconnecting...";
                     reconnect();
                 }
+                Sleep(1);
             }
 
             LOG << "Reading terran information...";
@@ -142,6 +176,7 @@ int main(int argc, char* argv[])
             ("log",         po::bool_switch(&writelogfiles),            "Write log files on windows exceptions.")
             ("hud",         po::bool_switch(&showhud),                  "Show HUD.")
             ("speed",       po::value<int>(&speed)->default_value(0),   "Set game speed (-1 = default, 0 maximum speed, ...)")
+            ("parallel",    po::bool_switch(&doParallel),               "Run experts parallel to star craft.")
         ;
 
     po::options_description all("All options");
