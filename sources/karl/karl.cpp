@@ -70,7 +70,8 @@ namespace
                     if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord)
                 {
                     AbstractAction* pre = NULL;
-                    for (auto location : BWTA::getStartLocations()) {
+                    for (auto location : BWTA::getStartLocations()) 
+                    {
                         pre = new MoveToPositionAction(unit, location->getPosition(), pre);
                         engine->addAction(pre);
                     }
@@ -92,11 +93,46 @@ namespace
                 static GiveUpAction *giveup=NULL;
                 if(giveup==NULL)for(auto unit : BWAPI::Broodwar->getUnitsInRadius(BWTA::getStartLocation(BWAPI::Broodwar->self())->getPosition(),32*20))
                     if(unit->getPlayer()->isEnemy(BWAPI::Broodwar->self()))
+                {
+                    giveup=new GiveUpAction();
+                    BWAPI::Broodwar->printf("enemy unit near our base!!! Giving up!");
+                    engine->addAction(giveup);
+                }
+                
+                    //Test MorphUnitAction
+                static int morphDelay=0;
+                if( ((++morphDelay)%32) == 0 )
+                {
+                    if(BWAPI::Broodwar->self()->supplyUsed()>=BWAPI::Broodwar->self()->supplyTotal() && BWAPI::Broodwar->self()->minerals()>=100)
                     {
-                        giveup=new GiveUpAction();
-                        BWAPI::Broodwar->printf("enemy unit near our base!!! Giving up!");
-                        engine->addAction(giveup);
+                        for(auto unit : BWAPI::Broodwar->self()->getUnits())
+                        {
+                            if(unit->getType()==BWAPI::UnitTypes::Zerg_Larva)
+                            {
+                                engine->addAction(new MorphUnitAction(unit,BWAPI::UnitTypes::Zerg_Overlord));
+                                break;
+                            }
+                        }
                     }
+                    else if(BWAPI::Broodwar->self()->supplyUsed()<BWAPI::Broodwar->self()->supplyTotal() && BWAPI::Broodwar->self()->minerals()>=50)
+                    {
+                        BWAPI::Unit *larva=NULL;
+                        int workerCount=0;
+                        
+                        for(auto unit : BWAPI::Broodwar->self()->getUnits())
+                        {
+                            if(unit->getType()==BWAPI::UnitTypes::Zerg_Larva)
+                            {
+                                larva=unit;
+                            }
+                            if(unit->getType().isWorker())
+                                workerCount++;
+                        }
+                        
+                        if(larva)
+                            engine->addAction(new MorphUnitAction(larva,workerCount<12?BWAPI::UnitTypes::Zerg_Drone:BWAPI::UnitTypes::Zerg_Zergling));
+                    }
+                }
 
                 
                 Blackboard::sendFrameEvent(engine);

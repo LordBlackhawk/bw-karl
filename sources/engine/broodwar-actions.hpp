@@ -36,6 +36,18 @@ class ZergBuildAction : public UnitAction
         BWAPI::TilePosition pos;
 };
 
+class MorphUnitAction : public UnitAction
+{
+    public:
+        MorphUnitAction(BWAPI::Unit *u, BWAPI::UnitType to, AbstractAction *pre = NULL);
+        void onBegin(AbstractExecutionEngine* engine) override;
+        Status onTick(AbstractExecutionEngine* engine) override;
+        void onEnd(AbstractExecutionEngine* engine) override;
+
+    protected:
+        BWAPI::UnitType     unitType;
+};
+
 class MoveToPositionAction : public UnitAction
 {
     public:

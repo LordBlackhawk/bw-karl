@@ -12,6 +12,7 @@ void UnitAction::drawInformations(const char* name)
     BWAPI::Broodwar->drawTextMap(pos.x() - 2*strlen(name), pos.y(), "%s", name);
 }
 
+
 CollectMineralsAction::CollectMineralsAction(BWAPI::Unit* w, BWAPI::Unit* m, AbstractAction* pre)
     : UnitAction(w, pre), mineral(m)
 { }
@@ -30,6 +31,7 @@ CollectMineralsAction::Status CollectMineralsAction::onTick(AbstractExecutionEng
     drawInformations("gathering minerals");
     return Running;
 }
+
 
 ZergBuildAction::ZergBuildAction(BWAPI::Unit* w, BWAPI::UnitType ut, BWAPI::TilePosition p, AbstractAction* pre)
     : UnitAction(w, pre), unitType(ut), pos(p)
@@ -94,6 +96,76 @@ void ZergBuildAction::onEnd(AbstractExecutionEngine* /*engine*/)
     }
 }
 
+
+MorphUnitAction::MorphUnitAction(BWAPI::Unit* u, BWAPI::UnitType to, AbstractAction* pre)
+    : UnitAction(u, pre), unitType(to)
+{ }
+
+void MorphUnitAction::onBegin(AbstractExecutionEngine* /*engine*/)
+{
+    //LOG << "MorphUnitAction begin...";
+    //unit->stop();
+}
+
+MorphUnitAction::Status MorphUnitAction::onTick(AbstractExecutionEngine* /*engine*/)
+{
+    if(!unit->exists())
+        return Failed;
+    
+    if(unit->isMorphing())
+    {
+        drawInformations("morphing");
+        return Running;
+    }
+    
+    if(unit->getType() == unitType)
+        return Finished;
+    
+    //LOG << "MorphUnitAction: commanding "<<unit->getType().getName()<< " to morph to "<<unitType.getName();
+
+    if (unit->morph(unitType))
+        return Running;
+
+    BWAPI::Error err = BWAPI::Broodwar->getLastError();
+    if (err == BWAPI::Errors::Insufficient_Minerals)
+        return Running;
+    if (err == BWAPI::Errors::Insufficient_Gas)
+        return Running;
+    if (err == BWAPI::Errors::Insufficient_Supply)
+        return Running;
+    if (err == BWAPI::Errors::Unit_Busy || err == BWAPI::Errors::Incompatible_State)
+    {
+        LOG << "MorphUnitAction: unit busy - trying to stop: " << err.toString();
+        unit->stop();
+        return Running;
+    }
+    LOG << "MorphUnitAction failed with " << err.toString();
+    if (err == BWAPI::Errors::Incompatible_UnitType)
+        return Failed;
+    if (err == BWAPI::Errors::Insufficient_Tech)
+        return Failed;
+    return Failed;
+}
+
+
+void MorphUnitAction::onEnd(AbstractExecutionEngine* /*engine*/)
+{
+    /*
+    LOG << "MorphUnitAction finished.";
+    // If the unit still exists and the morphing is not yet finished, abort.
+    if (unit->exists())
+    {
+        if (unit->isMorphing())
+        {
+            unit->cancelMorph();
+        } 
+        else
+        {
+            unit->stop();
+        }
+    }*/
+}
+
 MoveToPositionAction::MoveToPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre)
     : UnitAction(w, pre), pos(p)
 { }
@@ -113,6 +185,7 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
     return Running;
 }
 
+
 MineralTrigger::MineralTrigger(int a, AbstractAction* pre)
     : AbstractAction(pre), amount(a)
 { }
@@ -121,7 +194,6 @@ MineralTrigger::Status MineralTrigger::onTick(AbstractExecutionEngine* /*engine*
 {
     return (BWAPI::Broodwar->self()->minerals() >= amount) ? Finished : Running;
 }
-
 
 
 SendTextAction::SendTextAction(std::string msg, bool toAlliesOnly, AbstractAction* pre)
@@ -142,6 +214,7 @@ SendTextAction::Status SendTextAction::onTick(AbstractExecutionEngine* /*engine*
         return Running;
     return Finished;
 }
+
 
 GiveUpAction::GiveUpAction(AbstractAction* pre)
     : SendTextAction("GG",false,pre)
