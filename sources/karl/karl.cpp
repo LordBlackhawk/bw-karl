@@ -54,15 +54,6 @@ namespace
             AI()
             {
                 engine = defaultEngine = new DefaultExecutionEngine();
-                for (auto unit : BWAPI::Broodwar->self()->getUnits())
-                    if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord)
-                {
-                    AbstractAction* pre = NULL;
-                    for (auto location : BWTA::getStartLocations()) {
-                        pre = new MoveToPositionAction(unit, location->getPosition(), pre);
-                        engine->addAction(pre);
-                    }
-                }
 
                 if (doParallel)
                     engine = new MutexExecutionEngine(engine);
@@ -73,6 +64,18 @@ namespace
 
                 if (doParallel)
                     thread = new ExpertThread(blackboard);
+
+                    // Test MoveToPositionAction
+                for (auto unit : BWAPI::Broodwar->self()->getUnits())
+                    if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord)
+                {
+                    AbstractAction* pre = NULL;
+                    for (auto location : BWTA::getStartLocations()) {
+                        pre = new MoveToPositionAction(unit, location->getPosition(), pre);
+                        engine->addAction(pre);
+                    }
+                }
+
             }
 
             ~AI()
@@ -85,6 +88,17 @@ namespace
 
             void tick()
             {
+                    //Test GiveUpAction
+                static GiveUpAction *giveup=NULL;
+                if(giveup==NULL)for(auto unit : BWAPI::Broodwar->getUnitsInRadius(BWTA::getStartLocation(BWAPI::Broodwar->self())->getPosition(),32*20))
+                    if(unit->getPlayer()->isEnemy(BWAPI::Broodwar->self()))
+                    {
+                        giveup=new GiveUpAction();
+                        BWAPI::Broodwar->printf("enemy unit near our base!!! Giving up!");
+                        engine->addAction(giveup);
+                    }
+
+                
                 Blackboard::sendFrameEvent(engine);
                 if (thread == NULL)
                     blackboard->tick();

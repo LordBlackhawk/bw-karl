@@ -55,3 +55,26 @@ class MineralTrigger : public AbstractAction
     protected:
         int amount;
 };
+
+
+class SendTextAction : public AbstractAction
+{
+    public:
+        SendTextAction(std::string msg, bool toAlliesOnly=false, AbstractAction* pre = NULL);
+        void onBegin(AbstractExecutionEngine* engine) override;
+        Status onTick(AbstractExecutionEngine* engine) override;
+
+    protected:
+        std::string message;
+        bool toAllies;
+        int timeout;
+};
+
+class GiveUpAction : public SendTextAction
+{
+    public:
+        GiveUpAction(AbstractAction* pre = NULL);
+        Status onTick(AbstractExecutionEngine* engine) override;
+
+    protected:
+};

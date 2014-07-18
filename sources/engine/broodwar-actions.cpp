@@ -121,3 +121,42 @@ MineralTrigger::Status MineralTrigger::onTick(AbstractExecutionEngine* /*engine*
 {
     return (BWAPI::Broodwar->self()->minerals() >= amount) ? Finished : Running;
 }
+
+
+
+SendTextAction::SendTextAction(std::string msg, bool toAlliesOnly, AbstractAction* pre)
+    : AbstractAction(pre), message(msg), toAllies(toAlliesOnly)
+{
+    timeout=24*10+message.length()*8; //wait some ticks, TODO: make this configurable? Wait for a certain Time instead of Ticks?
+}
+
+void SendTextAction::onBegin(AbstractExecutionEngine* /*engine*/)
+{
+    BWAPI::Broodwar->printf("sending: '%s' to %s",message.c_str(),toAllies?"allies only":"everyone");
+    BWAPI::Broodwar->sendTextEx(toAllies,"%s",message.c_str());    
+}
+
+SendTextAction::Status SendTextAction::onTick(AbstractExecutionEngine* /*engine*/)
+{
+    if(--timeout>0)
+        return Running;
+    return Finished;
+}
+
+GiveUpAction::GiveUpAction(AbstractAction* pre)
+    : SendTextAction("GG",false,pre)
+{ }
+
+GiveUpAction::Status GiveUpAction::onTick(AbstractExecutionEngine* engine)
+{
+    switch(SendTextAction::onTick(engine))
+    {
+        case Running:
+            return Running;
+        case Failed:
+            return Failed;
+        default:
+            BWAPI::Broodwar->leaveGame();
+            return Finished;
+    }
+}
