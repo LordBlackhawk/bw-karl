@@ -70,7 +70,7 @@ namespace
                     if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord)
                 {
                     AbstractAction* pre = NULL;
-                    for (auto location : BWTA::getStartLocations()) 
+                    for (auto location : BWTA::getStartLocations())
                     {
                         pre = new MoveToPositionAction(unit, location->getPosition(), pre);
                         engine->addAction(pre);
@@ -98,7 +98,7 @@ namespace
                     BWAPI::Broodwar->printf("enemy unit near our base!!! Giving up!");
                     engine->addAction(giveup);
                 }
-                
+
                     //Test MorphUnitAction
                 static int morphDelay=0;
                 if( ((++morphDelay)%32) == 0 )
@@ -118,7 +118,7 @@ namespace
                     {
                         BWAPI::Unit *larva=NULL;
                         int workerCount=0;
-                        
+
                         for(auto unit : BWAPI::Broodwar->self()->getUnits())
                         {
                             if(unit->getType()==BWAPI::UnitTypes::Zerg_Larva)
@@ -128,13 +128,35 @@ namespace
                             if(unit->getType().isWorker())
                                 workerCount++;
                         }
-                        
+
                         if(larva)
                             engine->addAction(new MorphUnitAction(larva,workerCount<12?BWAPI::UnitTypes::Zerg_Drone:BWAPI::UnitTypes::Zerg_Zergling));
                     }
                 }
 
-                
+                    //Test AttackPositionAction
+                BWAPI::Unit* enemy=NULL;
+                for(auto unit : BWAPI::Broodwar->getAllUnits())
+                {
+                    if(unit->getPlayer()->isEnemy(BWAPI::Broodwar->self()))
+                    {
+                        enemy=unit;
+                        break;
+                    }
+                }
+                static int attackDelay=0;
+                if(((++attackDelay)%32)==0 && enemy)
+                    for(auto unit : BWAPI::Broodwar->self()->getUnits())
+                {
+                    if(unit->getType() == BWAPI::UnitTypes::Zerg_Zergling)
+                    {
+                        if(unit->isIdle())
+                        {
+                            engine->addAction(new AttackPositionAction(unit,enemy->getPosition()));
+                        }
+                    }
+                }
+
                 Blackboard::sendFrameEvent(engine);
                 if (thread == NULL)
                     blackboard->tick();
