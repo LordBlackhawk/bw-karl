@@ -204,7 +204,8 @@ AttackPositionAction::Status AttackPositionAction::onTick(AbstractExecutionEngin
     if (unit->getPosition().getDistance(pos) < 32.0 && unit->isIdle())
         return Finished;
 
-    if (!unit->isAttacking() && !unit->isMoving())
+    //if (!unit->isAttacking() && !unit->isMoving())
+    if(unit->isIdle())
         unit->attack(pos);
 
     drawInformations("attackingPosition");
