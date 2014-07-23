@@ -130,10 +130,69 @@ namespace
                         }
 
                         if(larva)
-                            engine->addAction(new MorphUnitAction(larva,workerCount<12?BWAPI::UnitTypes::Zerg_Drone:BWAPI::UnitTypes::Zerg_Zergling));
+                            engine->addAction(new MorphUnitAction(larva,workerCount<4?BWAPI::UnitTypes::Zerg_Drone:BWAPI::UnitTypes::Zerg_Zergling));
                     }
                 }
+                
+                //Test hand coded zergling rush
+                static int attackDelay=0;
+                if(((++attackDelay)%32)==0)
+                {
+                    BWAPI::Unit *enemyTarget = NULL;
+                    for(auto enemy : BWAPI::Broodwar->getAllUnits())
+                        if(enemy->getPlayer()->isEnemy(BWAPI::Broodwar->self()) && !enemy->getType().isFlyer() )
+                    {
+                            enemyTarget=enemy; //find a random enemy to attack
+                    }
+                    if(enemyTarget)
+                        for(auto unit : BWAPI::Broodwar->self()->getUnits())
+                    {
+                        if(unit->getType()==BWAPI::UnitTypes::Zerg_Zergling && unit->isIdle())
+                        {
+                                // send idle units to attack
+                            engine->addAction(new AttackPositionAction(unit,enemyTarget->getPosition()));
+                        }
+                    }
+                    else
+                    {
+                        auto army=BWAPI::Broodwar->self()->getUnits();
+                        auto a=army.begin();
 
+                        for(auto location : BWTA::getStartLocations()) //check start locations first
+                        {
+                            if(!BWAPI::Broodwar->isExplored(location->getTilePosition())) //check if bases are explored
+                            {
+                                while(a!=army.end())
+                                {
+                                    if((*a)->getType()==BWAPI::UnitTypes::Zerg_Zergling && (*a)->isIdle())
+                                    {
+                                            //send next free unit to explore
+                                        engine->addAction(new AttackPositionAction(*a,location->getPosition()));
+                                        a++;
+                                        break;
+                                    }
+                                    a++;
+                                }
+                            }
+                        }
+                        for(auto location : BWTA::getBaseLocations()) //check other base locations
+                            if(!location->isStartLocation() && !BWAPI::Broodwar->isExplored(location->getTilePosition())) //check if bases are explored
+                            {
+                                while(a!=army.end())
+                                {
+                                    if((*a)->getType()==BWAPI::UnitTypes::Zerg_Zergling && (*a)->isIdle())
+                                    {
+                                            //send next free unit to explore
+                                        engine->addAction(new AttackPositionAction(*a,location->getPosition()));
+                                        a++;
+                                        break;
+                                    }
+                                    a++;
+                                }
+                            }
+                    }
+                }
+/*
                     //Test AttackPositionAction
                 BWAPI::Unit* enemy=NULL;
                 for(auto unit : BWAPI::Broodwar->getAllUnits())
@@ -156,6 +215,7 @@ namespace
                         }
                     }
                 }
+ */
 
                 Blackboard::sendFrameEvent(engine);
                 if (thread == NULL)
@@ -208,7 +268,7 @@ namespace
                 Sleep(1);
             }
 
-            LOG << "Reading terran information...";
+            LOG << "Reading terrain information...";
             BWTA::readMap();
             BWTA::analyze();
 
