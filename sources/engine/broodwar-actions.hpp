@@ -58,6 +58,21 @@ class MoveToPositionAction : public UnitAction
         BWAPI::Position     pos;
 };
 
+
+
+class AttackPositionAction : public UnitAction
+{
+    public:
+        AttackPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre = NULL);
+        void onBegin(AbstractExecutionEngine* engine) override;
+        Status onTick(AbstractExecutionEngine* engine) override;
+
+    protected:
+        BWAPI::Position     pos;
+};
+
+
+
 class MineralTrigger : public AbstractAction
 {
     public:

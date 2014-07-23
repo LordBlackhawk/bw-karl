@@ -111,16 +111,16 @@ MorphUnitAction::Status MorphUnitAction::onTick(AbstractExecutionEngine* /*engin
 {
     if(!unit->exists())
         return Failed;
-    
+
     if(unit->isMorphing())
     {
         drawInformations("morphing");
         return Running;
     }
-    
+
     if(unit->getType() == unitType)
         return Finished;
-    
+
     //LOG << "MorphUnitAction: commanding "<<unit->getType().getName()<< " to morph to "<<unitType.getName();
 
     if (unit->morph(unitType))
@@ -158,7 +158,7 @@ void MorphUnitAction::onEnd(AbstractExecutionEngine* /*engine*/)
         if (unit->isMorphing())
         {
             unit->cancelMorph();
-        } 
+        }
         else
         {
             unit->stop();
@@ -186,6 +186,32 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
 }
 
 
+
+AttackPositionAction::AttackPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre)
+    : UnitAction(w, pre), pos(p)
+{ }
+void AttackPositionAction::onBegin(AbstractExecutionEngine* engine)
+{
+ unit->stop();
+}
+
+
+AttackPositionAction::Status AttackPositionAction::onTick(AbstractExecutionEngine* /*engine*/)
+{
+    if (!unit->exists())
+        return Failed;
+
+    if (unit->getPosition().getDistance(pos) < 32.0 && unit->isIdle())
+        return Finished;
+
+    if (!unit->isAttacking() && !unit->isMoving())
+        unit->attack(pos);
+
+    drawInformations("attackingPosition");
+    return Running;
+}
+
+
 MineralTrigger::MineralTrigger(int a, AbstractAction* pre)
     : AbstractAction(pre), amount(a)
 { }
@@ -205,7 +231,7 @@ SendTextAction::SendTextAction(std::string msg, bool toAlliesOnly, AbstractActio
 void SendTextAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
     BWAPI::Broodwar->printf("sending: '%s' to %s",message.c_str(),toAllies?"allies only":"everyone");
-    BWAPI::Broodwar->sendTextEx(toAllies,"%s",message.c_str());    
+    BWAPI::Broodwar->sendTextEx(toAllies,"%s",message.c_str());
 }
 
 SendTextAction::Status SendTextAction::onTick(AbstractExecutionEngine* /*engine*/)
