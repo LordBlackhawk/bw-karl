@@ -66,6 +66,25 @@ void add(ListItem*& anker, int value)
     anker = newitem;
 }
 
+int returnLastItem(ListItem* anker)
+{
+while(anker->next != NULL)
+{
+anker = anker->next;
+}
+return (anker->content);
+}
+
+
+void ausgabe(ListItem* anker)
+{
+while(anker->next != NULL)
+{
+std::cout << anker->content;
+anker=anker->next;
+}
+}
+
 BOOST_AUTO_TEST_CASE( add_pointer_test )
 {
     ListItem* anker = NULL;
@@ -80,6 +99,7 @@ BOOST_AUTO_TEST_CASE( add_pointer_test )
         iterator = iterator->next;
     }
     */
+	BOOST_CHECK_EQUAL( returnLastItem(anker), 10 );
 }
 
 BOOST_AUTO_TEST_CASE( pointer_test )

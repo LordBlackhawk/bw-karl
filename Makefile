@@ -1,6 +1,6 @@
 LIBRARIES   = utils engine plan expert
 EXECUTABLES = karl tests
-MAKEFLAGS   = -j4
+MAKEFLAGS   =
 
 BASEOUTPATH = ./out/
 LIBFILES    = $(addprefix ./lib/lib, $(addsuffix .a, $(LIBRARIES)))

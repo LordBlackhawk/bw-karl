@@ -102,3 +102,24 @@ MineralTrigger::Status MineralTrigger::onTick(AbstractExecutionEngine* /*engine*
 {
     return (BWAPI::Broodwar->self()->minerals() >= amount) ? Finished : Running;
 }
+
+
+AttackUnitAction::AttackUnitAction(BWAPI::Unit* w, BWAPI::Unit* enemy, AbstractAction* pre)
+    : UnitAction(w, pre), e(enemy)
+{ }
+
+
+AttackUnitAction::Status AttackUnitAction::onTick(AbstractExecutionEngine* /*engine*/)
+{
+    if (!unit->exists())
+        return Failed;
+
+    if (!e->exists())
+        return Finished;
+
+    if (!unit->isMoving() || !unit->isAttacking())
+        unit->attack(e);
+
+    drawInformations("attackingUnit");
+    return Running;
+}

@@ -45,3 +45,15 @@ class MineralTrigger : public AbstractAction
     protected:
         int amount;
 };
+
+
+class AttackUnitAction : public UnitAction
+{
+    public:
+        AttackUnitAction(BWAPI::Unit* myunit, BWAPI::Unit* enemy, AbstractAction* pre = NULL);
+        Status onTick(AbstractExecutionEngine* engine) override;
+
+    protected:
+		BWAPI::Unit*     e;
+};
+
