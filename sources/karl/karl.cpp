@@ -64,6 +64,8 @@ namespace
 
                 if (doParallel)
                     thread = new ExpertThread(blackboard);
+                else
+                    thread = NULL;
 
                     // Test MoveToPositionAction
                 for (auto unit : BWAPI::Broodwar->self()->getUnits())

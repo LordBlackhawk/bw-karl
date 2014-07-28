@@ -190,9 +190,9 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
 AttackPositionAction::AttackPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre)
     : UnitAction(w, pre), pos(p)
 { }
-void AttackPositionAction::onBegin(AbstractExecutionEngine* engine)
+void AttackPositionAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
- unit->stop();
+    unit->stop();
 }
 
 
