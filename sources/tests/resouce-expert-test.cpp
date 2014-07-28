@@ -5,18 +5,18 @@ BOOST_FIXTURE_TEST_SUITE( resource_expert_test, BlackboardFixture )
 
 BOOST_AUTO_TEST_CASE( no_worker_infinte_time )
 {
-    auto a = addItem(new BuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool, BWAPI::TilePositions::Unknown));
+    auto a = blackboard->createBuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool);
 
     ResourceExpert expert;
     expert.tick(blackboard);
 
     BOOST_REQUIRE( blackboard->includeItem(a) );
-    BOOST_CHECK_EQUAL( a->resources.estimatedTime, INFINITE_TIME );
+    BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, INFINITE_TIME );
 }
 
 BOOST_AUTO_TEST_CASE( simple_worker )
 {
-    auto a = addItem(new BuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool, BWAPI::TilePositions::Unknown));
+    auto a = blackboard->createBuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool);
     auto b = addItem(new GatherMineralsPlanItem(NULL));
     auto c = addItem(new GatherMineralsPlanItem(NULL));
 
@@ -28,12 +28,12 @@ BOOST_AUTO_TEST_CASE( simple_worker )
 
     // 200 / (2 * 0.045) = 2222,222...
     BOOST_REQUIRE( blackboard->includeItem(a) );
-    BOOST_CHECK_EQUAL( a->resources.estimatedTime, 2222 );
+    BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, 2222 );
 }
 
 BOOST_AUTO_TEST_CASE( delayed_worker )
 {
-    auto a = addItem(new BuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool, BWAPI::TilePositions::Unknown));
+    auto a = blackboard->createBuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool);
     auto b = addItem(new GatherMineralsPlanItem(NULL));
     auto c = addItem(new GatherMineralsPlanItem(NULL));
 
@@ -45,12 +45,12 @@ BOOST_AUTO_TEST_CASE( delayed_worker )
 
     // 1000 + (200 - 1000 * 0.045) / (2 * 0.045) = 2722,2222
     BOOST_REQUIRE( blackboard->includeItem(a) );
-    BOOST_CHECK_EQUAL( a->resources.estimatedTime, 2722 );
+    BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, 2722 );
 }
 
 BOOST_AUTO_TEST_CASE( delayed_worker_diff_numbers )
 {
-    auto a = addItem(new BuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool, BWAPI::TilePositions::Unknown));
+    auto a = blackboard->createBuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool);
     auto b = addItem(new GatherMineralsPlanItem(NULL));
     auto c = addItem(new GatherMineralsPlanItem(NULL));
 
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( delayed_worker_diff_numbers )
 
     // last test case + 10000
     BOOST_REQUIRE( blackboard->includeItem(a) );
-    BOOST_CHECK_EQUAL( a->resources.estimatedTime, 12722 );
+    BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, 12722 );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

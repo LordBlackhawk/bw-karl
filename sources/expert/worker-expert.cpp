@@ -25,6 +25,11 @@ void WorkerExpert::beginTraversal()
 
 void WorkerExpert::visitProvideUnitPort(ProvideUnitPort* port)
 {
+    /*LOG << "visitProvideUnitPort... (Connected: " << port->isConnected()
+        << "; worker: " << port->getUnitType().isWorker()
+        << "; isOnDemand: " << port->isOnDemand()
+        << "; estimatedTime: " << port->estimatedTime << ")\n";*/
+
     if (port->isConnected() || !port->getUnitType().isWorker())
         return;
 
@@ -60,19 +65,30 @@ void WorkerExpert::visitRequireUnitPort(RequireUnitPort* port)
     providePorts.erase(it);
 }
 
+void WorkerExpert::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
+{
+    if (!item->requireUnit.isConnected() || !item->requireMineralField.isConnected()) {
+        currentBlackboard->removeItem(item);
+        return;
+    }
+
+    BasicPortExpert::visitGatherMineralPlanItem(item);
+}
+
 void WorkerExpert::endTraversal()
 {
     providePorts.clear();
 }
 
-MineralBoundaryItem* WorkerExpert::findMineralForWorker(ProvideUnitPort* port)
+ResourceBoundaryItem* WorkerExpert::findMineralForWorker(ProvideUnitPort* port)
 {
-    MineralBoundaryItem* result = NULL;
+    ResourceBoundaryItem* result = NULL;
     double bestValue = 1e10;
     for (auto base : currentBlackboard->getInformations()->ownBaseLocations) {
         for (auto mineral : base->minerals) {
             double dis = port->getPosition().getDistance(BWAPI::Position(mineral->getTilePosition()));
-            double value = dis;
+            int numberOfWorkers = mineral->numberOfWorkers();
+            double value = dis + 100 * numberOfWorkers;
             if (value < bestValue) {
                 result = mineral;
                 bestValue = value;

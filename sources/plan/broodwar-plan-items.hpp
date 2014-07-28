@@ -2,7 +2,7 @@
 
 #include "broodwar-ports.hpp"
 
-class MineralBoundaryItem;
+class ResourceBoundaryItem;
 
 class AbstractSimpleUnitPlanItem : public AbstractPlanItem
 {
@@ -20,28 +20,29 @@ class AbstractSimpleUnitPlanItem : public AbstractPlanItem
 class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
-        GatherMineralsPlanItem(MineralBoundaryItem* m, ProvideUnitPort* provider = NULL);
+        RequireMineralFieldPort requireMineralField;
+
+        GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider = NULL);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
-
-    protected:
-        MineralBoundaryItem* mineral;
 };
 
 class BuildPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
-        ResourcePort        resources;
+        ResourcePort        requireResources;
+        RequireSpacePort    requireSpace;
 
-        BuildPlanItem(BWAPI::UnitType ut, BWAPI::TilePosition p);
+        BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
+        inline BWAPI::UnitType getUnitType() const { return unitType; }
+
     protected:
         BWAPI::UnitType     unitType;
-        BWAPI::TilePosition pos;
 };

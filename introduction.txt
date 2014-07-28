@@ -1,0 +1,26 @@
+Variablen&Typen&Assignment: bool (false true), int, double, array, const, static, volatile, auto
+Operatoren: &&, ||, !, mux, +=, ==, !=, %
+Kontrollstrukturen: if, else, while, do while, for, switch
+Funktionen: void, return, &-Argumente, default values, inline
+Header/Code-Dateien: hpp, cpp
+Präprozessorbefehle: include, pragma once, define, undef, ifdef, ifndef, endif
+Pointer: &, *, new, delete, (TODO:) const char*, std::string
+Klassen: Instanzvariablen, Konstruktoren, Destruktoren, Methoden (const static), Operatoren, Vererbung,
+                public protected private, virtual, override, abstract, final, default
+Namespaces: namespace, using namespace, anonymous namespace, ::
+Templates: template, typename, std::vector, std::deque, std::map, std::set
+Casting: static_cast, dynamic_cast, const_cast
+
+Git-Einführung: status, commit, push, pull, merge, rebase, branch
+
+Actions: MoveToPosition(Wir), AttackPosition(Denis), AttackUnit(Eugen), MorphUnit, GoodGame(Stefan)
+PlanItems: MoveToPosition, AttackPosition, AttackUnit, MorphUnit, GoodGame
+Experts: SpawnLings, OverlordScouting, AttackPosition, NoWorkerGoodGame
+
+
+
+
+
+
+
+

@@ -14,8 +14,8 @@ BOOST_AUTO_TEST_CASE( remove_after_finished )
 
     tick();
 
-    BOOST_REQUIRE_EQUAL(actions.size(), 1U);
     AbstractAction* action = popAction();
+    BOOST_REQUIRE( action != NULL );
     addEvent(new ActionEvent(action, ActionEvent::ActionFinished));
     tick();
 
@@ -33,8 +33,8 @@ BOOST_AUTO_TEST_CASE( continue_after_failed )
 
     tick();
 
-    BOOST_REQUIRE_EQUAL(actions.size(), 1U);
     AbstractAction* action = popAction();
+    BOOST_REQUIRE( action != NULL );
     addEvent(new ActionEvent(action, ActionEvent::ActionFailed));
     tick();
 

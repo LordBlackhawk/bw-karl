@@ -1,9 +1,12 @@
 #include "broodwar-boundary-items.hpp"
+#include "broodwar-ports.hpp"
 #include "abstract-visitor.hpp"
 #include "engine/broodwar-events.hpp"
 
-OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u)
-    : AbstractBoundaryItem(u), provideUnit(u)
+OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f)
+    : AbstractBoundaryItem(u),
+      provideUnit(this, u),
+      requireSpace(this, f, BWAPI::UnitTypes::Unknown)
 {
     ports.push_back(&provideUnit);
     provideUnit.estimatedTime = ACTIVE_TIME;
@@ -14,32 +17,65 @@ void OwnUnitBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitOwnUnitBoundaryItem(this);
 }
 
+void OwnUnitBoundaryItem::visitUnitCreateEvent(UnitCreateEvent* event)
+{
+    if (event->unitType.isBuilding()) {
+        requireSpace.setUnitType(event->unitType);
+        requireSpace.connectTo(event->tilePos);
+    }
+    provideUnit.updateData(event->unitType, event->pos);
+}
+
 void OwnUnitBoundaryItem::visitOwnUnitUpdateEvent(OwnUnitUpdateEvent* event)
 {
     provideUnit.updateData(event->unitType, event->pos);
 }
 
-MineralBoundaryItem::MineralBoundaryItem(BWAPI::Unit* u, BaseLocation* b)
-    : AbstractBoundaryItem(u), base(b), pos(BWAPI::TilePositions::Unknown), minerals(-1)
-{ }
+ResourceBoundaryItem::ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f, BaseLocation* b)
+    : AbstractBoundaryItem(u),
+      unitType(ut),
+      requireSpace(this, f, ut),
+      base(b),
+      minerals(-1)
+{
+    ports.push_back(&requireSpace);
+}
 
-MineralBoundaryItem::~MineralBoundaryItem()
+ResourceBoundaryItem::~ResourceBoundaryItem()
 {
     if (base != NULL)
         base->minerals.erase(this);
+    // There maybe ProvideMineralFieldPorts (dynamically created)!
+    while (!ports.empty()) {
+        auto port = dynamic_cast<ProvideMineralFieldPort*>(ports.front());
+        if (port != NULL) {
+            port->disconnect();
+        } else {
+            ports.erase(ports.begin());
+        }
+    }
 }
 
-void MineralBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
+void ResourceBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
 {
-    visitor->visitMineralBoundaryItem(this);
+    visitor->visitResourceBoundaryItem(this);
 }
 
-void MineralBoundaryItem::visitUnitCreateEvent(UnitCreateEvent* event)
+void ResourceBoundaryItem::visitUnitCreateEvent(UnitCreateEvent* event)
 {
-    pos = event->tilePos;
+    requireSpace.connectTo(event->tilePos);
 }
 
-void MineralBoundaryItem::visitMineralUpdateEvent(MineralUpdateEvent* event)
+void ResourceBoundaryItem::visitMineralUpdateEvent(MineralUpdateEvent* event)
 {
     minerals = event->minerals;
+}
+
+int ResourceBoundaryItem::numberOfWorkers() const
+{
+    int result = 0;
+    for (auto port : ports)
+        if (dynamic_cast<ProvideMineralFieldPort*>(port) != NULL)
+            ++result;
+    return result;
 }

@@ -1,14 +1,30 @@
 #include "plan-item.hpp"
 #include "broodwar-boundary-items.hpp"
+#include "broodwar-plan-items.hpp"
 #include "engine/abstract-action.hpp"
 #include "engine/broodwar-events.hpp"
 #include "utils/log.hpp"
 #include "utils/assert-throw.hpp"
 #include <algorithm>
 
-AbstractPort::AbstractPort()
-    : estimatedTime(INFINITE_TIME)
+AbstractPort::AbstractPort(AbstractItem* o)
+    : estimatedTime(INFINITE_TIME), owner(o)
 { }
+
+void AbstractItem::removePort(AbstractPort* port)
+{
+    ports.erase(std::remove(ports.begin(), ports.end(), port), ports.end());
+}
+
+bool AbstractItem::isBoundaryItem() const
+{
+    return (dynamic_cast<const AbstractBoundaryItem*>(this) != NULL);
+}
+
+bool AbstractItem::isPlanItem() const
+{
+    return (dynamic_cast<const AbstractPlanItem*>(this) != NULL);
+}
 
 AbstractPlanItem::AbstractPlanItem()
     : estimatedStartTime(INFINITE_TIME)
@@ -68,7 +84,7 @@ void Blackboard::removeItem(AbstractPlanItem* item)
     items.erase(std::remove(items.begin(), items.end(), item), items.end());
 }
 
-bool Blackboard::includeItem(AbstractPlanItem* item)
+bool Blackboard::includeItem(AbstractPlanItem* item) const
 {
     return (std::find(items.begin(), items.end(), item) != items.end());
 }
@@ -81,6 +97,12 @@ void Blackboard::addExpert(AbstractExpert* expert)
 void Blackboard::removeExpert(AbstractExpert* expert)
 {
     experts.erase(std::remove(experts.begin(), experts.end(), expert), experts.end());
+}
+
+AbstractBoundaryItem* Blackboard::lookupUnit(BWAPI::Unit* unit) const
+{
+    auto it = unitBoundaries.find(unit);
+    return (it != unitBoundaries.end()) ? it->second : NULL;
 }
 
 namespace
@@ -101,6 +123,13 @@ void Blackboard::recalculateEstimatedTimes()
         if (!it->isActive())
             it->updateEstimates();
     std::sort(items.begin(), items.end(), PlanItemCompare());
+}
+
+BuildPlanItem* Blackboard::createBuildPlanItem(BWAPI::UnitType ut)
+{
+    BuildPlanItem* result = new BuildPlanItem(&informations.fields, ut, BWAPI::TilePositions::Unknown);
+    addItem(result);
+    return result;
 }
 
 void Blackboard::tick()
@@ -136,28 +165,19 @@ void Blackboard::tick()
             it->setActive();
         }
     }
+    
+    if (informations.lastUpdateTime == 10)
+        informations.printFieldInformations(std::cout);
 }
 
 void Blackboard::prepare()
 {
-    informations.self = BWAPI::Broodwar->self();
-
+    informations.prepare();
+    for (auto base : informations.allBaseLocations)
+        for (auto mineral : base->minerals)
+            unitBoundaries[mineral->unit] = mineral;
     for (auto it : experts)
         it->prepare();
-
-    auto mybase = BWTA::getStartLocation(informations.self);
-    for (auto base : BWTA::getBaseLocations()) {
-        auto baselocation = new BaseLocation;
-        baselocation->origin = base;
-        for (auto unit : base->getMinerals()) {
-            auto item = new MineralBoundaryItem(unit, baselocation);
-            unitBoundaries[unit] = item;
-            baselocation->minerals.insert(item);
-        }
-        informations.allBaseLocations.insert(baselocation);
-        if (base == mybase)
-            informations.ownBaseLocations.insert(baselocation);
-    }
 }
 
 void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
@@ -245,12 +265,11 @@ void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
     }
 
     AbstractBoundaryItem* item = NULL;
-    if (event->unitType.isMineralField()) {
-        //LOG << "Mineralfield added!";
-        item = new MineralBoundaryItem(event->unit);
+    if (event->unitType.isResourceContainer()) {
+        item = new ResourceBoundaryItem(event->unit, event->unitType, &informations.fields);
     } else if (event->owner == self()) {
         //LOG << "Own unit added: " << event->unitType.getName();
-        item = new OwnUnitBoundaryItem(event->unit);
+        item = new OwnUnitBoundaryItem(event->unit, &informations.fields);
     }
     if (item != NULL) {
         unitBoundaries[event->unit] = item;

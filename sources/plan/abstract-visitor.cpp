@@ -21,6 +21,21 @@ void BasicVisitor::visitResourcePort(ResourcePort* port)
     visitAbstractPort(port);
 }
 
+void BasicVisitor::visitProvideMineralFieldPort(ProvideMineralFieldPort* port)
+{
+    visitAbstractPort(port);
+}
+
+void BasicVisitor::visitRequireMineralFieldPort(RequireMineralFieldPort* port)
+{
+    visitAbstractPort(port);
+}
+
+void BasicVisitor::visitRequireSpacePort(RequireSpacePort* port)
+{
+    visitAbstractPort(port);
+}
+
 void BasicVisitor::visitAbstractBoundaryItem(AbstractBoundaryItem* /*item*/)
 { }
 
@@ -29,7 +44,7 @@ void BasicVisitor::visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item)
     visitAbstractBoundaryItem(item);
 }
 
-void BasicVisitor::visitMineralBoundaryItem(MineralBoundaryItem* item)
+void BasicVisitor::visitResourceBoundaryItem(ResourceBoundaryItem* item)
 {
     visitAbstractBoundaryItem(item);
 }
