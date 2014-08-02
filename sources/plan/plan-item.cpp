@@ -166,7 +166,7 @@ void Blackboard::tick()
         }
     }
     
-    if (informations.lastUpdateTime == 10)
+    if (informations.lastUpdateTime % 1000 == 10)
         informations.printFieldInformations(std::cout);
 }
 
@@ -183,12 +183,18 @@ void Blackboard::prepare()
 void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
 {
     BWAPI::Player* self = BWAPI::Broodwar->self();
+    BWAPI::Player* neutral = BWAPI::Broodwar->neutral();
     engine->generateEvent(new FrameEvent(BWAPI::Broodwar->getFrameCount(), self->minerals(), self->gas()));
 
     for (auto event : BWAPI::Broodwar->getEvents()) {
-        if (event.getType() == BWAPI::EventType::UnitCreate) {
+        if ( (event.getType() == BWAPI::EventType::UnitCreate)
+          || (event.getType() == BWAPI::EventType::UnitDiscover)
+          || (event.getType() == BWAPI::EventType::UnitMorph)
+          || (event.getType() == BWAPI::EventType::UnitShow)
+          || (event.getType() == BWAPI::EventType::UnitComplete))
+        {
             BWAPI::Unit* unit = event.getUnit();
-            engine->generateEvent(new UnitCreateEvent(unit, unit->getType(), unit->getTilePosition(), unit->getPosition(), unit->getPlayer()));
+            engine->generateEvent(new CompleteUnitUpdateEvent(unit, unit->getType(), unit->getTilePosition(), unit->getPosition(), unit->getPlayer()));
         } else {
             engine->generateEvent(new BroodwarEvent(event));
         }
@@ -197,8 +203,8 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
     for (auto unit : BWAPI::Broodwar->getAllUnits()) {
         if (unit->getType().isMineralField()) {
             engine->generateEvent(new MineralUpdateEvent(unit, unit->getResources()));
-        } else if (unit->getPlayer() == self) {
-            engine->generateEvent(new OwnUnitUpdateEvent(unit, unit->getType(), unit->getPosition()));
+        } else if (unit->getPlayer() != neutral) {
+            engine->generateEvent(new SimpleUnitUpdateEvent(unit, unit->getPosition()));
         }
     }
 }
@@ -256,7 +262,7 @@ void Blackboard::visitUnitUpdateEvent(UnitUpdateEvent* event)
     it->second->update(event);
 }
 
-void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
+void Blackboard::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
 {
     auto it = unitBoundaries.find(event->unit);
     if (it != unitBoundaries.end()) {
@@ -270,6 +276,9 @@ void Blackboard::visitUnitCreateEvent(UnitCreateEvent* event)
     } else if (event->owner == self()) {
         //LOG << "Own unit added: " << event->unitType.getName();
         item = new OwnUnitBoundaryItem(event->unit, &informations.fields);
+    } else if (event->owner != neutral()) {
+        //LOG << "Enemy unit added: " << event->unitType.getName();
+        item = new EnemyUnitBoundaryItem(event->unit, event->unitType, &informations.fields);
     }
     if (item != NULL) {
         unitBoundaries[event->unit] = item;

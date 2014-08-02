@@ -49,6 +49,11 @@ void BasicVisitor::visitResourceBoundaryItem(ResourceBoundaryItem* item)
     visitAbstractBoundaryItem(item);
 }
 
+void BasicVisitor::visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item)
+{
+    visitAbstractBoundaryItem(item);
+}
+
 void BasicVisitor::visitAbstractPlanItem(AbstractPlanItem* /*item*/)
 { }
 

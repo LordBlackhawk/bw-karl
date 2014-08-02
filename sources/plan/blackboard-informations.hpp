@@ -37,6 +37,7 @@ struct BlackboardInformations
     int     currentGas = 0;
 
     BWAPI::Player* self = NULL;
+    BWAPI::Player* neutral = NULL;
 
     std::set<BaseLocation*>     allBaseLocations;
     std::set<BaseLocation*>     ownBaseLocations;

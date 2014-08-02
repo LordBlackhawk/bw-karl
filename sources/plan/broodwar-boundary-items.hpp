@@ -2,40 +2,64 @@
 
 #include "broodwar-ports.hpp"
 
-class OwnUnitBoundaryItem : public AbstractBoundaryItem
+class AbstractSpaceUnitBoundaryItem : public AbstractBoundaryItem
 {
     public:
+        RequireSpacePort    requireSpace;
+        
+        AbstractSpaceUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f, BWAPI::UnitType ut = BWAPI::UnitTypes::Unknown);
+
+        void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) override;
+
+        inline BWAPI::TilePosition getTilePosition() const { return requireSpace.getTilePosition(); }
+        inline BWAPI::UnitType getUnitType() const { return unitType; }
+
+    protected:
+        BWAPI::UnitType     unitType;
+};
+
+class OwnUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
+{
+    public:
+        ProvideUnitPort     provideUnit;
+
         OwnUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        void visitUnitCreateEvent(UnitCreateEvent* event) override;
-        void visitOwnUnitUpdateEvent(OwnUnitUpdateEvent* event) override;
+        void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) override;
+        void visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event) override;
 
-        inline BWAPI::UnitType getUnitType() const { return provideUnit.getUnitType(); }
+        inline BWAPI::Position getPosition() const { return provideUnit.getPosition(); }
         inline bool isConnected() const { return provideUnit.isConnected(); }
-
-    protected:
-        ProvideUnitPort     provideUnit;
-        RequireSpacePort    requireSpace;
 };
 
-class ResourceBoundaryItem : public AbstractBoundaryItem
+class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem
 {
     public:
         ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f, BaseLocation* b = NULL);
         ~ResourceBoundaryItem();
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        void visitUnitCreateEvent(UnitCreateEvent* event) override;
         void visitMineralUpdateEvent(MineralUpdateEvent* event) override;
 
         int numberOfWorkers() const;
-        inline const BWAPI::TilePosition& getTilePosition() const { return requireSpace.getTilePosition(); }
         inline int mineralsLeft() const { return minerals; }
 
     protected:
-        BWAPI::UnitType     unitType;
-        RequireSpacePort    requireSpace;
         BaseLocation*       base;
         int                 minerals;
+};
+
+class EnemyUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
+{
+    public:
+        EnemyUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f);
+
+        void acceptVisitor(AbstractVisitor* visitor) override;
+        void visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event) override;
+
+        inline BWAPI::Position getPosition() const { return position; }
+
+    protected:
+        BWAPI::Position     position;
 };

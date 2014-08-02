@@ -28,13 +28,22 @@ void UnitUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
     visitor->visitUnitUpdateEvent(this);
 }
 
-OwnUnitUpdateEvent::OwnUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, BWAPI::Position p)
-    : UnitUpdateEvent(u), unitType(t), pos(p)
+SimpleUnitUpdateEvent::SimpleUnitUpdateEvent(BWAPI::Unit* u, BWAPI::Position p)
+    : UnitUpdateEvent(u), pos(p)
 { }
 
-void OwnUnitUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
+void SimpleUnitUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
 {
-    visitor->visitOwnUnitUpdateEvent(this);
+    visitor->visitSimpleUnitUpdateEvent(this);
+}
+
+CompleteUnitUpdateEvent::CompleteUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o)
+    : SimpleUnitUpdateEvent(u, p), unitType(t), owner(o), tilePos(tp)
+{ }
+
+void CompleteUnitUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
+{
+    visitor->visitCompleteUnitUpdateEvent(this);
 }
 
 MineralUpdateEvent::MineralUpdateEvent(BWAPI::Unit* u, int m)
@@ -44,13 +53,4 @@ MineralUpdateEvent::MineralUpdateEvent(BWAPI::Unit* u, int m)
 void MineralUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
 {
     visitor->visitMineralUpdateEvent(this);
-}
-
-UnitCreateEvent::UnitCreateEvent(BWAPI::Unit* u, BWAPI::UnitType t, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o)
-    : unit(u), unitType(t), owner(o), tilePos(tp), pos(p)
-{ }
-
-void UnitCreateEvent::acceptVisitor(AbstractEventVisitor* visitor)
-{
-    visitor->visitUnitCreateEvent(this);
 }

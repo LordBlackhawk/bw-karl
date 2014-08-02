@@ -24,13 +24,23 @@ class UnitUpdateEvent : public AbstractEvent
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 
-class OwnUnitUpdateEvent : public UnitUpdateEvent
+class SimpleUnitUpdateEvent : public UnitUpdateEvent
 {
     public:
-        BWAPI::UnitType unitType;
         BWAPI::Position pos;
 
-        OwnUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, BWAPI::Position p);
+        SimpleUnitUpdateEvent(BWAPI::Unit* u, BWAPI::Position p);
+        void acceptVisitor(AbstractEventVisitor* visitor) override;
+};
+
+class CompleteUnitUpdateEvent : public SimpleUnitUpdateEvent
+{
+    public:
+        BWAPI::UnitType     unitType;
+        BWAPI::Player*      owner;
+        BWAPI::TilePosition tilePos;
+
+        CompleteUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o);
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 
@@ -40,19 +50,6 @@ class MineralUpdateEvent : public UnitUpdateEvent
         int minerals;
 
         MineralUpdateEvent(BWAPI::Unit* u, int m);
-        void acceptVisitor(AbstractEventVisitor* visitor) override;
-};
-
-class UnitCreateEvent : public AbstractEvent
-{
-    public:
-        BWAPI::Unit*        unit;
-        BWAPI::UnitType     unitType;
-        BWAPI::Player*      owner;
-        BWAPI::TilePosition tilePos;
-        BWAPI::Position     pos;
-
-        UnitCreateEvent(BWAPI::Unit* u, BWAPI::UnitType t, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o);
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 

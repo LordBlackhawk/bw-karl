@@ -11,6 +11,7 @@ class RequireSpacePort;
 class AbstractBoundaryItem;
 class OwnUnitBoundaryItem;
 class ResourceBoundaryItem;
+class EnemyUnitBoundaryItem;
 
 class AbstractPlanItem;
 class GatherMineralsPlanItem;
@@ -28,6 +29,7 @@ class AbstractVisitor
 
         virtual void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) = 0;
         virtual void visitResourceBoundaryItem(ResourceBoundaryItem* item) = 0;
+        virtual void visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item) = 0;
 
         virtual void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) = 0;
         virtual void visitBuildPlanItem(BuildPlanItem* item) = 0;
@@ -47,6 +49,7 @@ class BasicVisitor : public AbstractVisitor
         virtual void visitAbstractBoundaryItem(AbstractBoundaryItem* item);
         void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) override;
         void visitResourceBoundaryItem(ResourceBoundaryItem* item) override;
+        void visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item) override;
 
         virtual void visitAbstractPlanItem(AbstractPlanItem* item);
         void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) override;

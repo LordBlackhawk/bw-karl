@@ -3,10 +3,29 @@
 #include "abstract-visitor.hpp"
 #include "engine/broodwar-events.hpp"
 
-OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f)
+AbstractSpaceUnitBoundaryItem::AbstractSpaceUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f, BWAPI::UnitType ut)
     : AbstractBoundaryItem(u),
-      provideUnit(this, u),
-      requireSpace(this, f, BWAPI::UnitTypes::Unknown)
+      requireSpace(this, f, ut),
+      unitType(ut)
+{ }
+
+void AbstractSpaceUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
+{
+    unitType = event->unitType;
+    if (unitType.isBuilding()) {
+        requireSpace.setUnitType(unitType);
+        requireSpace.connectTo(event->tilePos);
+        ports.push_back(&requireSpace);
+    } else {
+        requireSpace.disconnect();
+        removePort(&requireSpace);
+    }
+}
+
+
+OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f)
+    : AbstractSpaceUnitBoundaryItem(u, f),
+      provideUnit(this, u)
 {
     ports.push_back(&provideUnit);
     provideUnit.estimatedTime = ACTIVE_TIME;
@@ -17,29 +36,23 @@ void OwnUnitBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitOwnUnitBoundaryItem(this);
 }
 
-void OwnUnitBoundaryItem::visitUnitCreateEvent(UnitCreateEvent* event)
+void OwnUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
 {
-    if (event->unitType.isBuilding()) {
-        requireSpace.setUnitType(event->unitType);
-        requireSpace.connectTo(event->tilePos);
-    }
+    AbstractSpaceUnitBoundaryItem::visitCompleteUnitUpdateEvent(event);
     provideUnit.updateData(event->unitType, event->pos);
 }
 
-void OwnUnitBoundaryItem::visitOwnUnitUpdateEvent(OwnUnitUpdateEvent* event)
+void OwnUnitBoundaryItem::visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event)
 {
-    provideUnit.updateData(event->unitType, event->pos);
+    provideUnit.updateData(getUnitType(), event->pos);
 }
+
 
 ResourceBoundaryItem::ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f, BaseLocation* b)
-    : AbstractBoundaryItem(u),
-      unitType(ut),
-      requireSpace(this, f, ut),
+    : AbstractSpaceUnitBoundaryItem(u, f, ut),
       base(b),
       minerals(-1)
-{
-    ports.push_back(&requireSpace);
-}
+{ }
 
 ResourceBoundaryItem::~ResourceBoundaryItem()
 {
@@ -61,11 +74,6 @@ void ResourceBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitResourceBoundaryItem(this);
 }
 
-void ResourceBoundaryItem::visitUnitCreateEvent(UnitCreateEvent* event)
-{
-    requireSpace.connectTo(event->tilePos);
-}
-
 void ResourceBoundaryItem::visitMineralUpdateEvent(MineralUpdateEvent* event)
 {
     minerals = event->minerals;
@@ -78,4 +86,20 @@ int ResourceBoundaryItem::numberOfWorkers() const
         if (dynamic_cast<ProvideMineralFieldPort*>(port) != NULL)
             ++result;
     return result;
+}
+
+
+EnemyUnitBoundaryItem::EnemyUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f)
+    : AbstractSpaceUnitBoundaryItem(u, f, ut),
+      position(BWAPI::Positions::Unknown)
+{ }
+
+void EnemyUnitBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitEnemyUnitBoundaryItem(this);
+}
+
+void EnemyUnitBoundaryItem::visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event)
+{
+    position = event->pos;
 }

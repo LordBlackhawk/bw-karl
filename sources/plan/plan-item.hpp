@@ -101,6 +101,7 @@ class Blackboard : public BasicEventVisitor
         inline BlackboardInformations* getInformations() { return &informations; }
         inline Time getLastUpdateTime() const { return informations.lastUpdateTime; }
         inline BWAPI::Player* self() const { return informations.self; }
+        inline BWAPI::Player* neutral() const { return informations.neutral; }
 
         void addItem(AbstractPlanItem* item);
         void removeItem(AbstractPlanItem* item);
@@ -116,7 +117,7 @@ class Blackboard : public BasicEventVisitor
         void visitFrameEvent(FrameEvent* event);
         void visitBroodwarEvent(BroodwarEvent* event);
         void visitUnitUpdateEvent(UnitUpdateEvent* event);
-        void visitUnitCreateEvent(UnitCreateEvent* event);
+        void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event);
 
         // for creation of plan items:
         BuildPlanItem* createBuildPlanItem(BWAPI::UnitType ut); 
