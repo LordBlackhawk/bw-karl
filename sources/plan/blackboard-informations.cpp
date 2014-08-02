@@ -40,6 +40,14 @@ void BlackboardInformations::prepare()
     }
 }
 
+void BlackboardInformations::creepChanged(const BWAPI::TilePosition& tp, bool creep)
+{
+    FieldInformations& field = fields[tp.x()][tp.y()];
+    field.creep = creep;
+    if ((field.blocker != NULL) && field.blocker->getOwner()->isPlanItem())
+        field.blocker->disconnect();
+}
+
 void BlackboardInformations::printFieldInformations(std::ostream& stream)
 {
     int mapWidth  = fields.getWidth();

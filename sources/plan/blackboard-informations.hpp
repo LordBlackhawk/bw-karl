@@ -11,7 +11,7 @@ class RequireSpacePort;
 struct BaseLocation
 {
     BWTA::BaseLocation*             origin;
-    std::set<ResourceBoundaryItem*>  minerals;
+    std::set<ResourceBoundaryItem*> minerals;
 
     BaseLocation();
 
@@ -29,6 +29,7 @@ struct BlackboardInformations
 {
     ~BlackboardInformations();
     void prepare();
+    void creepChanged(const BWAPI::TilePosition& tp, bool creep);
 
     void printFieldInformations(std::ostream& stream);
 

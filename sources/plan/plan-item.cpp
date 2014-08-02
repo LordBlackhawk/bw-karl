@@ -3,6 +3,7 @@
 #include "broodwar-plan-items.hpp"
 #include "engine/abstract-action.hpp"
 #include "engine/broodwar-events.hpp"
+#include "engine/broodwar-scanners.hpp"
 #include "utils/log.hpp"
 #include "utils/assert-throw.hpp"
 #include <algorithm>
@@ -178,6 +179,7 @@ void Blackboard::prepare()
             unitBoundaries[mineral->unit] = mineral;
     for (auto it : experts)
         it->prepare();
+    engine->addAction(new CreepScannerAction());
 }
 
 void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
@@ -284,4 +286,9 @@ void Blackboard::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
         unitBoundaries[event->unit] = item;
         item->update(event);
     }
+}
+
+void Blackboard::visitCreepChangedEvent(CreepChangedEvent* event)
+{
+    informations.creepChanged(event->tilePos, event->creep);
 }

@@ -118,6 +118,7 @@ class Blackboard : public BasicEventVisitor
         void visitBroodwarEvent(BroodwarEvent* event);
         void visitUnitUpdateEvent(UnitUpdateEvent* event);
         void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event);
+        void visitCreepChangedEvent(CreepChangedEvent* event);
 
         // for creation of plan items:
         BuildPlanItem* createBuildPlanItem(BWAPI::UnitType ut); 
