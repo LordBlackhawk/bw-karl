@@ -135,18 +135,17 @@ MorphUnitAction::Status MorphUnitAction::onTick(AbstractExecutionEngine* /*engin
         return Running;
     if (err == BWAPI::Errors::Unit_Busy || err == BWAPI::Errors::Incompatible_State)
     {
-        LOG << "MorphUnitAction: unit busy - trying to stop: " << err.toString();
+        //LOG << "MorphUnitAction: unit busy - trying to stop: " << err.toString();
         unit->stop();
         return Running;
     }
-    LOG << "MorphUnitAction failed with " << err.toString();
+    //LOG << "MorphUnitAction failed with " << err.toString();
     if (err == BWAPI::Errors::Incompatible_UnitType)
         return Failed;
     if (err == BWAPI::Errors::Insufficient_Tech)
         return Failed;
     return Failed;
 }
-
 
 void MorphUnitAction::onEnd(AbstractExecutionEngine* /*engine*/)
 {
@@ -165,6 +164,7 @@ void MorphUnitAction::onEnd(AbstractExecutionEngine* /*engine*/)
         }
     }*/
 }
+
 
 MoveToPositionAction::MoveToPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre)
     : UnitAction(w, pre), pos(p)
@@ -186,15 +186,14 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
 }
 
 
-
 AttackPositionAction::AttackPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre)
     : UnitAction(w, pre), pos(p)
 { }
+
 void AttackPositionAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
     unit->stop();
 }
-
 
 AttackPositionAction::Status AttackPositionAction::onTick(AbstractExecutionEngine* /*engine*/)
 {
@@ -213,20 +212,9 @@ AttackPositionAction::Status AttackPositionAction::onTick(AbstractExecutionEngin
 }
 
 
-MineralTrigger::MineralTrigger(int a, AbstractAction* pre)
-    : AbstractAction(pre), amount(a)
-{ }
-
-MineralTrigger::Status MineralTrigger::onTick(AbstractExecutionEngine* /*engine*/)
-{
-    return (BWAPI::Broodwar->self()->minerals() >= amount) ? Finished : Running;
-}
-
-
 AttackUnitAction::AttackUnitAction(BWAPI::Unit* w, BWAPI::Unit* enemy, AbstractAction* pre)
     : UnitAction(w, pre), e(enemy)
 { }
-
 
 AttackUnitAction::Status AttackUnitAction::onTick(AbstractExecutionEngine* /*engine*/)
 {

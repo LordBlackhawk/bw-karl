@@ -71,19 +71,6 @@ class AttackPositionAction : public UnitAction
         BWAPI::Position     pos;
 };
 
-
-
-class MineralTrigger : public AbstractAction
-{
-    public:
-        MineralTrigger(int a, AbstractAction* pre = NULL);
-        Status onTick(AbstractExecutionEngine* engine) override;
-
-    protected:
-        int amount;
-};
-
-
 class AttackUnitAction : public UnitAction
 {
     public:
@@ -91,7 +78,7 @@ class AttackUnitAction : public UnitAction
         Status onTick(AbstractExecutionEngine* engine) override;
 
     protected:
-		BWAPI::Unit*     e;
+        BWAPI::Unit*     e;
 };
 
 
