@@ -1,6 +1,7 @@
+-include user.mk
+
 LIBRARIES   = utils engine plan expert
 EXECUTABLES = karl tests
-MAKEFLAGS   =
 
 BASEOUTPATH = ./out/
 LIBFILES    = $(addprefix ./lib/lib, $(addsuffix .a, $(LIBRARIES)))
