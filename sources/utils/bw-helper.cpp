@@ -1,4 +1,5 @@
 #include "bw-helper.hpp"
+#include <ostream>
 
 std::ostream& operator << (std::ostream& stream, const BWAPI::Position& pos)
 {
