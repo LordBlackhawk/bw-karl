@@ -27,6 +27,11 @@ bool AbstractItem::isPlanItem() const
     return (dynamic_cast<const AbstractPlanItem*>(this) != NULL);
 }
 
+void AbstractItem::update(AbstractEvent* event)
+{
+    event->acceptVisitor(this);
+}
+
 AbstractPlanItem::AbstractPlanItem()
     : estimatedStartTime(INFINITE_TIME)
 { }
@@ -34,11 +39,6 @@ AbstractPlanItem::AbstractPlanItem()
 AbstractBoundaryItem::AbstractBoundaryItem(BWAPI::Unit* u)
     : unit(u)
 { }
-
-void AbstractBoundaryItem::update(AbstractEvent* event)
-{
-    event->acceptVisitor(this);
-}
 
 void AbstractPlanItem::updateEstimates()
 {
@@ -167,7 +167,7 @@ void Blackboard::tick()
         }
     }
     
-    if (informations.lastUpdateTime % 1000 == 10)
+    if (informations.lastUpdateTime % 500 == 10)
         informations.printFieldInformations(std::cout);
 }
 
@@ -185,7 +185,6 @@ void Blackboard::prepare()
 void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
 {
     BWAPI::Player* self = BWAPI::Broodwar->self();
-    BWAPI::Player* neutral = BWAPI::Broodwar->neutral();
     engine->generateEvent(new FrameEvent(BWAPI::Broodwar->getFrameCount(), self->minerals(), self->gas()));
 
     for (auto event : BWAPI::Broodwar->getEvents()) {
@@ -202,6 +201,7 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
         }
     }
 
+    BWAPI::Player* neutral = BWAPI::Broodwar->neutral();
     for (auto unit : BWAPI::Broodwar->getAllUnits()) {
         if (unit->getType().isMineralField()) {
             engine->generateEvent(new MineralUpdateEvent(unit, unit->getResources()));
@@ -230,6 +230,15 @@ void Blackboard::visitActionEvent(ActionEvent* event)
         actionMap.erase(it);
     }
     delete event->sender;
+}
+
+void Blackboard::visitAbstractActionEvent(AbstractActionEvent* event)
+{
+    auto it = actionMap.find(event->sender);
+    if (it == actionMap.end())
+        return;
+
+    it->second->update(event);
 }
 
 void Blackboard::visitFrameEvent(FrameEvent* event)

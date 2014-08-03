@@ -63,3 +63,16 @@ void CreepChangedEvent::acceptVisitor(AbstractEventVisitor* visitor)
 {
     visitor->visitCreepChangedEvent(this);
 }
+
+AbstractActionEvent::AbstractActionEvent(AbstractAction* a)
+    : sender(a)
+{ }
+
+ResourcesConsumedEvent::ResourcesConsumedEvent(AbstractAction* a)
+    : AbstractActionEvent(a)
+{ }
+
+void ResourcesConsumedEvent::acceptVisitor(AbstractEventVisitor* visitor)
+{
+    visitor->visitResourcesConsumedEvent(this);
+}

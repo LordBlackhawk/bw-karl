@@ -1,4 +1,5 @@
 #include "broodwar-actions.hpp"
+#include "broodwar-events.hpp"
 #include "utils/log.hpp"
 #include <cstring>
 
@@ -41,9 +42,10 @@ void ZergBuildAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
     //LOG << "ZergBuildAction begin...";
     unit->stop();
+    resourcesConsumed = false;
 }
 
-ZergBuildAction::Status ZergBuildAction::onTick(AbstractExecutionEngine* /*engine*/)
+ZergBuildAction::Status ZergBuildAction::onTick(AbstractExecutionEngine* engine)
 {
     if (!unit->exists())
         return Failed;
@@ -51,6 +53,10 @@ ZergBuildAction::Status ZergBuildAction::onTick(AbstractExecutionEngine* /*engin
     BWAPI::UnitType type = unit->getType();
     if (type == unitType) {
         drawInformations("building");
+        if (!resourcesConsumed) {
+            engine->generateEvent(new ResourcesConsumedEvent(this));
+            resourcesConsumed = true;
+        }
         return unit->isCompleted() ? Finished : Running;
     }
 

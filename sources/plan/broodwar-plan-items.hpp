@@ -41,6 +41,8 @@ class BuildPlanItem : public AbstractSimpleUnitPlanItem
         void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
+        void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
+
         inline BWAPI::UnitType getUnitType() const { return unitType; }
 
     protected:

@@ -11,6 +11,9 @@ class SimpleUnitUpdateEvent;
 class CompleteUnitUpdateEvent;
 class MineralUpdateEvent;
 
+class AbstractActionEvent;
+class ResourcesConsumedEvent;
+
 class AbstractEventVisitor
 {
     public:
@@ -23,6 +26,9 @@ class AbstractEventVisitor
         virtual void visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event) = 0;
         virtual void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) = 0;
         virtual void visitMineralUpdateEvent(MineralUpdateEvent* event) = 0;
+
+        virtual void visitAbstractActionEvent(AbstractActionEvent* event) = 0;
+        virtual void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) = 0;
 };
 
 class BasicEventVisitor : public AbstractEventVisitor
@@ -37,4 +43,7 @@ class BasicEventVisitor : public AbstractEventVisitor
         void visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event) override;
         void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) override;
         void visitMineralUpdateEvent(MineralUpdateEvent* event) override;
+
+        void visitAbstractActionEvent(AbstractActionEvent* event) override;
+        void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
 };

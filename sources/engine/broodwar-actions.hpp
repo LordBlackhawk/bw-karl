@@ -34,6 +34,7 @@ class ZergBuildAction : public UnitAction
     protected:
         BWAPI::UnitType     unitType;
         BWAPI::TilePosition pos;
+        bool                resourcesConsumed;
 };
 
 class MorphUnitAction : public UnitAction

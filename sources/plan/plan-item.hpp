@@ -33,7 +33,7 @@ class AbstractPort
         AbstractItem*   owner;
 };
 
-class AbstractItem
+class AbstractItem : public BasicEventVisitor
 {
     public:
         std::vector<AbstractPort*>  ports;
@@ -42,19 +42,18 @@ class AbstractItem
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
 
         void removePort(AbstractPort* port);
+        void update(AbstractEvent* event);
 
         bool isBoundaryItem() const;
         bool isPlanItem() const;
 };
 
-class AbstractBoundaryItem : public AbstractItem, public BasicEventVisitor
+class AbstractBoundaryItem : public AbstractItem
 {
     public:
         BWAPI::Unit* unit;
 
         AbstractBoundaryItem(BWAPI::Unit* u);
-
-        void update(AbstractEvent* event);
 
         inline BWAPI::Unit* getUnit() const { return unit; }
 };
@@ -95,7 +94,7 @@ class Blackboard : public BasicEventVisitor
         virtual ~Blackboard();
 
         static void sendFrameEvent(AbstractExecutionEngine* engine);
-    
+
         inline const std::vector<AbstractPlanItem*>& getItems() const { return items; }
         inline const std::map<BWAPI::Unit*, AbstractBoundaryItem*> getBoundaries() const { return unitBoundaries; }
         inline BlackboardInformations* getInformations() { return &informations; }
@@ -113,15 +112,16 @@ class Blackboard : public BasicEventVisitor
         void recalculateEstimatedTimes();
         void tick();
 
-        void visitActionEvent(ActionEvent* event);
-        void visitFrameEvent(FrameEvent* event);
-        void visitBroodwarEvent(BroodwarEvent* event);
-        void visitUnitUpdateEvent(UnitUpdateEvent* event);
-        void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event);
-        void visitCreepChangedEvent(CreepChangedEvent* event);
+        void visitActionEvent(ActionEvent* event) override;
+        void visitFrameEvent(FrameEvent* event) override;
+        void visitBroodwarEvent(BroodwarEvent* event) override;
+        void visitUnitUpdateEvent(UnitUpdateEvent* event) override;
+        void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) override;
+        void visitCreepChangedEvent(CreepChangedEvent* event) override;
+        void visitAbstractActionEvent(AbstractActionEvent* event) override;
 
         // for creation of plan items:
-        BuildPlanItem* createBuildPlanItem(BWAPI::UnitType ut); 
+        BuildPlanItem* createBuildPlanItem(BWAPI::UnitType ut);
 
         // for test propose only:
         bool includeItem(AbstractPlanItem* item) const;

@@ -94,3 +94,9 @@ AbstractAction* BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engi
     provideUnit.setPreviousAction(action);
     return action;
 }
+
+void BuildPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
+{
+    removePort(&requireResources);
+    removePort(&requireSpace);
+}

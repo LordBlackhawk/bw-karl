@@ -71,3 +71,18 @@ class CreepChangedEvent : public AbstractEvent
         CreepChangedEvent(const BWAPI::TilePosition& tp, bool c);
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
+
+class AbstractActionEvent : public AbstractEvent
+{
+    public:
+        AbstractAction* sender;
+
+        AbstractActionEvent(AbstractAction* a);
+};
+
+class ResourcesConsumedEvent : public AbstractActionEvent
+{
+    public:
+        ResourcesConsumedEvent(AbstractAction* a);
+        void acceptVisitor(AbstractEventVisitor* visitor) override;
+};

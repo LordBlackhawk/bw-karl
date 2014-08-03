@@ -17,12 +17,12 @@ void CreepScannerAction::onBegin(AbstractExecutionEngine* /*engine*/)
 
 CreepScannerAction::Status CreepScannerAction::onTick(AbstractExecutionEngine* engine)
 {
-    const int blocks = 8;
-    int frame = BWAPI::Broodwar->getFrameCount();
+    const int blocks = 4;
     int blockSizeX = BWAPI::Broodwar->mapWidth() / blocks;
     int blockSizeY = BWAPI::Broodwar->mapHeight() / blocks;
-    int nx = frame % 8;
-    int ny = (frame / 8) % 8;
+    int frame = BWAPI::Broodwar->getFrameCount();
+    int nx = frame % blocks;
+    int ny = (frame / blocks) % blocks;
     int maxX = (1+nx) * blockSizeX;
     int maxY = (1+ny) * blockSizeY;
     for (int x=maxX-blockSizeX; x<maxX; ++x)

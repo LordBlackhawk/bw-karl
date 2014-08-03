@@ -30,3 +30,11 @@ void BasicEventVisitor::visitMineralUpdateEvent(MineralUpdateEvent* event)
 {
     visitUnitUpdateEvent(event);
 }
+
+void BasicEventVisitor::visitAbstractActionEvent(AbstractActionEvent* /*event*/)
+{ }
+
+void BasicEventVisitor::visitResourcesConsumedEvent(ResourcesConsumedEvent* event)
+{
+    visitAbstractActionEvent(event);
+}
