@@ -62,6 +62,11 @@ void BasicVisitor::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
     visitAbstractPlanItem(item);
 }
 
+void BasicVisitor::visitMoveToPositionPlanItem(MoveToPositionPlanItem* item)
+{
+    visitAbstractPlanItem(item);
+}
+
 void BasicVisitor::visitBuildPlanItem(BuildPlanItem* item)
 {
     visitAbstractPlanItem(item);

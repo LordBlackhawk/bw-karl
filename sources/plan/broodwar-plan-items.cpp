@@ -30,6 +30,7 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
     requireUnit.bridge(&provideUnit);
 }
 
+// TODO: Should be provider->getUnitType(), BWAPI::Position(m->getTilePosition())!!!!
 GatherMineralsPlanItem::GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider)
     : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone, true), requireMineralField(this, m)
 {
@@ -57,6 +58,33 @@ AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEng
     //LOG << "Prepare for execution(GatherMinerals) ...";
     AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
     AbstractAction* action = new CollectMineralsAction(requireUnit.getUnit(), requireMineralField.getUnit(), req);
+    provideUnit.setPreviousAction(action);
+    engine->addAction(action);
+    return action;
+}
+
+MoveToPositionPlanItem::MoveToPositionPlanItem(ProvideUnitPort* provider, BWAPI::Position p)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType()), position(p)
+{
+    provideUnit.updateData(provider->getUnitType(), position);
+    requireUnit.connectTo(provider);
+}
+
+void MoveToPositionPlanItem::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitMoveToPositionPlanItem(this);
+}
+
+void MoveToPositionPlanItem::updateEstimates()
+{
+    AbstractSimpleUnitPlanItem::updateEstimates();
+    provideUnit.estimatedTime = estimatedStartTime + (int)(position.getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
+}
+
+AbstractAction* MoveToPositionPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
+    AbstractAction* action = new MoveToPositionAction(requireUnit.getUnit(), position, req);
     provideUnit.setPreviousAction(action);
     engine->addAction(action);
     return action;

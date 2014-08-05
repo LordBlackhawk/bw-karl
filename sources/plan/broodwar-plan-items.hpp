@@ -29,6 +29,19 @@ class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 };
 
+class MoveToPositionPlanItem : public AbstractSimpleUnitPlanItem
+{
+    public:
+        MoveToPositionPlanItem(ProvideUnitPort* provider, BWAPI::Position p);
+
+        void acceptVisitor(AbstractVisitor* visitor) override;
+        void updateEstimates() override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+
+    protected:
+        BWAPI::Position position;
+};
+
 class BuildPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:

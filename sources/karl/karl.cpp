@@ -5,6 +5,8 @@
 #include "engine/mutex-execution-engine.hpp"
 #include "engine/broodwar-actions.hpp"
 #include "plan/plan-item.hpp"
+#include "plan/broodwar-plan-items.hpp"
+#include "plan/broodwar-boundary-items.hpp"
 #include "expert/expert-registrar.hpp"
 
 #include <BWAPI.h>
@@ -67,8 +69,7 @@ namespace
                 else
                     thread = NULL;
 
-                    // Test MoveToPositionAction
-                for (auto unit : BWAPI::Broodwar->self()->getUnits())
+                /*for (auto unit : BWAPI::Broodwar->self()->getUnits())
                     if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord)
                 {
                     AbstractAction* pre = NULL;
@@ -77,8 +78,7 @@ namespace
                         pre = new MoveToPositionAction(unit, location->getPosition(), pre);
                         engine->addAction(pre);
                     }
-                }
-
+                }*/
             }
 
             ~AI()
@@ -219,6 +219,23 @@ namespace
                 }
  */
 
+                // Test MoveToPositionAction
+                if (Broodwar->getFrameCount() == 2) {
+                    for (auto it : blackboard->getBoundaries()) {
+                        auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
+                        if ((unit != NULL) && (unit->getUnitType() == BWAPI::UnitTypes::Zerg_Overlord)) {
+                            std::cout << "Overlord found!\n";
+                            auto provideUnit = &unit->provideUnit;
+                            for (auto location : BWTA::getStartLocations())
+                            {
+                                auto item = new MoveToPositionPlanItem(provideUnit, location->getPosition());
+                                blackboard->addItem(item);
+                                provideUnit = &item->provideUnit;
+                            }
+                        }
+                    }
+                }
+ 
                 Blackboard::sendFrameEvent(engine);
                 if (thread == NULL)
                     blackboard->tick();
@@ -231,6 +248,19 @@ namespace
                 Broodwar->drawTextScreen(280, 6, "%02d:%02d:%02d", time/3600, (time/60)%60, time%60);
                 Broodwar->drawTextScreen(340, 6, "fps: %d", Broodwar->getFPS());
                 Broodwar->drawTextScreen(200, 6, "Actions: %d/%d", defaultEngine->numberOfActiveActions(), defaultEngine->numberOfActions());
+
+                auto set = Broodwar->getSelectedUnits();
+                if (set.size() == 1U) {
+                    auto selectedUnit = *set.begin();
+                    #define OUTPUT(position, function) Broodwar->drawTextScreen(10, position, #function ": %s", selectedUnit->function() ? "true" : "false");
+                    OUTPUT(100, isIdle);
+                    OUTPUT(120, isStartingAttack);
+                    OUTPUT(140, isAttacking);
+                    OUTPUT(160, isAttackFrame);
+                    OUTPUT(180, isMoving);
+                    OUTPUT(200, isBraking);
+                    #undef OUTPUT
+                }
             }
     };
 
@@ -239,6 +269,15 @@ namespace
         while(!BWAPIClient.connect())
         {
             Sleep(1000);
+        }
+    }
+
+    void broodwarUpdate()
+    {
+        BWAPI::BWAPIClient.update();
+        if (!BWAPI::BWAPIClient.isConnected()) {
+            LOG << "Reconnecting...";
+            reconnect();
         }
     }
 
@@ -256,17 +295,10 @@ namespace
         LOG << "Connecting...";
         reconnect();
 
-        while(true)
-        {
+        while(true) {
             LOG << "Waiting to enter match...";
-            while (!Broodwar->isInGame())
-            {
-                BWAPI::BWAPIClient.update();
-                if (!BWAPI::BWAPIClient.isConnected())
-                {
-                    LOG << "Reconnecting...";
-                    reconnect();
-                }
+            while (!Broodwar->isInGame()) {
+                broodwarUpdate();
                 Sleep(1);
             }
 
@@ -280,19 +312,12 @@ namespace
             Broodwar->setLocalSpeed(speed);
 
             AI ai;
-            while (Broodwar->isInGame())
-            {
+            while (Broodwar->isInGame()) {
                 if (showhud)
                     ai.drawHUD();
                 if (!Broodwar->isPaused())
                     ai.tick();
-
-                BWAPI::BWAPIClient.update();
-                if (!BWAPI::BWAPIClient.isConnected())
-                {
-                    LOG << "Reconnecting...";
-                    reconnect();
-                }
+                broodwarUpdate();
             }
             LOG << "Game ended.\n";
         }

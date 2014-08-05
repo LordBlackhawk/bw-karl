@@ -23,7 +23,7 @@ void BasicEventVisitor::visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event)
 
 void BasicEventVisitor::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
 {
-    visitUnitUpdateEvent(event);
+    visitSimpleUnitUpdateEvent(event);
 }
 
 void BasicEventVisitor::visitMineralUpdateEvent(MineralUpdateEvent* event)

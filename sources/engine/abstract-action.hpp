@@ -33,7 +33,7 @@ class ActionEvent : public AbstractEvent
         AbstractAction* sender;
         Type            type;
         ActionEvent(AbstractAction* s, Type t);
-        void acceptVisitor(AbstractEventVisitor* visitor);
+        void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 
 class AbstractExecutionEngine

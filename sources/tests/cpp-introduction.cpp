@@ -1,11 +1,18 @@
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
+#include <map>
 
 #include "utils/timer.hpp"
 #include "a.hpp"
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
+
+template <class T>
+T min(T a, T b)
+{
+    return (a < b) ? a : b;
+}
 
 void swap(int& x, int& y)
 {
@@ -190,6 +197,62 @@ BOOST_AUTO_TEST_CASE( derived_test )
 
     Base* b = &d;
     BOOST_CHECK_EQUAL( b->getSum(), 41 );
+}
+
+template <class T = int>
+class Pair
+{
+    public:
+        T x;
+        T y;
+
+        Pair(T i, T j)
+            : x(i), y(j)
+        { }
+};
+
+BOOST_AUTO_TEST_CASE( template_test )
+{
+    Pair<> p(5, 7);
+    BOOST_CHECK_EQUAL( p.x, 5 );
+}
+
+BOOST_AUTO_TEST_CASE( stl_lib )
+{
+    std::vector<int> arr = { 10, 11, 12, 16 };
+    BOOST_CHECK_EQUAL( arr[2], 12 );
+    BOOST_CHECK_EQUAL( arr.size(), 4U );
+    BOOST_CHECK_EQUAL( arr.front(), 10 );
+    BOOST_CHECK_EQUAL( arr.back(), 16 );
+    arr.push_back(18);
+    BOOST_CHECK_EQUAL( arr.size(), 5U );
+    BOOST_CHECK_EQUAL( arr.back(), 18 );
+}
+
+BOOST_AUTO_TEST_CASE( function_pointers )
+{
+    std::vector<int (*) (int,int)> arr = { &min<int> };
+    BOOST_CHECK_EQUAL( min(4, 6), 4 );
+    BOOST_CHECK_EQUAL( min(4.0, 6.0), 4.0 );
+    BOOST_CHECK_EQUAL( arr.front()(5, 6), 5 );
+}
+
+BOOST_AUTO_TEST_CASE( map_test )
+{
+    std::map<int, bool> m;
+    m[1000] = true;
+    m[100] = false;
+    m[10] = true;
+    m[1] = false;
+
+    BOOST_CHECK( m[1000] );
+    BOOST_CHECK( m[10] );
+
+    BOOST_CHECK(m.find(50) == m.end());
+    auto it = m.find(10);
+    BOOST_REQUIRE(it != m.end());
+    BOOST_CHECK_EQUAL(it->first, 10);
+    BOOST_CHECK_EQUAL(it->second, true);
 }
 
 /*
