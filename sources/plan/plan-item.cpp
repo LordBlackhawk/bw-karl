@@ -12,6 +12,18 @@ AbstractPort::AbstractPort(AbstractItem* o)
     : estimatedTime(INFINITE_TIME), owner(o)
 { }
 
+AbstractPort::~AbstractPort()
+{
+    owner->removePort(this);
+}
+
+AbstractItem::~AbstractItem()
+{
+    // all remaining port must be of type "free on disconnect"!!!
+    while (!ports.empty())
+        ports.front()->disconnect();
+}
+
 void AbstractItem::removePort(AbstractPort* port)
 {
     ports.erase(std::remove(ports.begin(), ports.end(), port), ports.end());
@@ -45,7 +57,15 @@ void AbstractPlanItem::updateEstimates()
     estimatedStartTime = START_TIME;
     for (auto it : ports)
         if (it->isRequirePort())
-            estimatedStartTime = std::max(estimatedStartTime, it->estimatedTime);
+    {
+        it->updateEstimates();
+        estimatedStartTime = std::max(estimatedStartTime, it->estimatedTime);
+    }
+    for (auto it : ports)
+        if (!it->isRequirePort())
+    {
+        it->updateEstimates();
+    }
 }
 
 void AbstractPlanItem::setActive()

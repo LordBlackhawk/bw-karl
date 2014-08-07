@@ -18,6 +18,10 @@ test: tests.exe
 	@echo ' ##############################################################################'
 	@$< -p
 
+showtest: tests.exe
+	@echo ' ##############################################################################'
+	$< -l test_suite
+
 define LIB_template
 lib/lib$(1).a: .FORCE | $(BASEOUTPATH)
 	@$$(MAKE) $$(MAKEFLAGS) -C ./sources/$(1)/ all

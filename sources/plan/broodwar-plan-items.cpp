@@ -12,12 +12,6 @@ AbstractSimpleUnitPlanItem::AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool 
     ports.push_back(&provideUnit);
 }
 
-void AbstractSimpleUnitPlanItem::updateEstimates()
-{
-    requireUnit.updateEstimates();
-    AbstractPlanItem::updateEstimates();
-}
-
 AbstractAction* AbstractSimpleUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
     BWAPI::Unit* unit = requireUnit.getUnit();
@@ -30,12 +24,11 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
     requireUnit.bridge(&provideUnit);
 }
 
-// TODO: Should be provider->getUnitType(), BWAPI::Position(m->getTilePosition())!!!!
 GatherMineralsPlanItem::GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider)
-    : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone, true), requireMineralField(this, m)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType(), true), requireMineralField(this, m)
 {
     ports.push_back(&requireMineralField);
-    provideUnit.updateData(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown);
+    provideUnit.updateData(provider->getUnitType(), BWAPI::Position(m->getTilePosition()));
     if (provider != NULL)
         requireUnit.connectTo(provider);
 }
@@ -43,14 +36,6 @@ GatherMineralsPlanItem::GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideU
 void GatherMineralsPlanItem::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitGatherMineralPlanItem(this);
-}
-
-void GatherMineralsPlanItem::updateEstimates()
-{
-    requireMineralField.updateEstimates();
-    AbstractSimpleUnitPlanItem::updateEstimates();
-    provideUnit.estimatedTime = estimatedStartTime;
-    //LOG << "estimated start time: " << estimatedStartTime << "; requireMineralField: " << requireMineralField.estimatedTime << "; requireUnit: " << requireUnit.estimatedTime;
 }
 
 AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
@@ -77,8 +62,8 @@ void MoveToPositionPlanItem::acceptVisitor(AbstractVisitor* visitor)
 
 void MoveToPositionPlanItem::updateEstimates()
 {
+    provideUnit.estimatedDuration = (int)(position.getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
     AbstractSimpleUnitPlanItem::updateEstimates();
-    provideUnit.estimatedTime = estimatedStartTime + (int)(position.getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
 }
 
 AbstractAction* MoveToPositionPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
@@ -131,18 +116,12 @@ BuildPlanItem::BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, 
     ports.push_back(&requireResources);
     ports.push_back(&requireSpace);
     provideUnit.updateData(unitType, BWAPI::Position(p));
+    provideUnit.estimatedDuration = unitType.buildTime();
 }
 
 void BuildPlanItem::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitBuildPlanItem(this);
-}
-
-void BuildPlanItem::updateEstimates()
-{
-    requireSpace.updateEstimates();
-    AbstractSimpleUnitPlanItem::updateEstimates();
-    provideUnit.estimatedTime = estimatedStartTime + unitType.buildTime();
 }
 
 AbstractAction* BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engine)

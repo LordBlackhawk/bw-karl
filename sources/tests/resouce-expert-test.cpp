@@ -1,5 +1,6 @@
 #include "blackboard-fixture.hpp"
 #include "expert/resource-expert.hpp"
+#include "plan/broodwar-boundary-items.hpp"
 
 BOOST_FIXTURE_TEST_SUITE( resource_expert_test, BlackboardFixture )
 
@@ -16,9 +17,12 @@ BOOST_AUTO_TEST_CASE( no_worker_infinte_time )
 
 BOOST_AUTO_TEST_CASE( simple_worker )
 {
+    setupFields();
+
     auto a = blackboard->createBuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool);
-    auto b = addItem(new GatherMineralsPlanItem(NULL));
-    auto c = addItem(new GatherMineralsPlanItem(NULL));
+    auto m = createResourceBoundaryItem(BWAPI::TilePosition(5, 5));
+    auto b = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
+    auto c = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
 
     b->setActive();
     c->setActive();
@@ -33,9 +37,12 @@ BOOST_AUTO_TEST_CASE( simple_worker )
 
 BOOST_AUTO_TEST_CASE( delayed_worker )
 {
+    setupFields();
+
     auto a = blackboard->createBuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool);
-    auto b = addItem(new GatherMineralsPlanItem(NULL));
-    auto c = addItem(new GatherMineralsPlanItem(NULL));
+    auto m = createResourceBoundaryItem(BWAPI::TilePosition(5, 5));
+    auto b = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
+    auto c = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
 
     b->setActive();
     c->estimatedStartTime = 1000;
@@ -50,9 +57,12 @@ BOOST_AUTO_TEST_CASE( delayed_worker )
 
 BOOST_AUTO_TEST_CASE( delayed_worker_diff_numbers )
 {
+    setupFields();
+
     auto a = blackboard->createBuildPlanItem(BWAPI::UnitTypes::Zerg_Spawning_Pool);
-    auto b = addItem(new GatherMineralsPlanItem(NULL));
-    auto c = addItem(new GatherMineralsPlanItem(NULL));
+    auto m = createResourceBoundaryItem(BWAPI::TilePosition(5, 5));
+    auto b = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
+    auto c = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
 
     b->estimatedStartTime = 10000;
     c->estimatedStartTime = 11000;

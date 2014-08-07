@@ -1,20 +1,23 @@
 #pragma once
 
 #include "plan-item.hpp"
+#include <iostream>
 
-template <class DerivedClass, class ConnectionClass, bool Require>
+template <class DerivedClass, class ConnectionClass, bool Require, bool FreeOnDisconnect>
 class BasicPortImpl : public AbstractPort
 {
     public:
-        typedef BasicPortImpl<DerivedClass, ConnectionClass, Require> BaseClass;
+        typedef BasicPortImpl<DerivedClass, ConnectionClass, Require, FreeOnDisconnect> BaseClass;
+
+        int estimatedDuration;
 
         BasicPortImpl(AbstractItem* o)
-            : AbstractPort(o), connection(NULL)
+            : AbstractPort(o), connection(NULL), estimatedDuration(0)
         { }
-        
+
         ~BasicPortImpl()
         {
-            This()->disconnect();
+            This()->staticDisconnect();
         }
 
         bool isRequirePort() const override
@@ -26,16 +29,20 @@ class BasicPortImpl : public AbstractPort
         {
             return isActive() && isConnected() && connection->isActive();
         }
-        
-        void updateEstimates()
+
+        void updateEstimates() override
         {
-            if (Require)
+            if (Require) {
                 estimatedTime = (isConnected()) ? connection->estimatedTime : INFINITE_TIME;
+            } else {
+                // Remark this method is only called if owner is of type AbstractPlanItem!!!
+                estimatedTime = static_cast<AbstractPlanItem*>(owner)->estimatedStartTime + estimatedDuration;
+            }
         }
 
         void connectTo(ConnectionClass* port)
         {
-            disconnect();
+            staticDisconnect();
             if (port != NULL) {
                 if (Require) {
                     connection = port;
@@ -46,9 +53,9 @@ class BasicPortImpl : public AbstractPort
             }
         }
 
-        void disconnect()
+        void staticDisconnect()
         {
-            if (connection != NULL) {
+            if (isConnected()) {
                 if (Require) {
                     connection->connection = NULL;
                     connection = NULL;
@@ -57,14 +64,24 @@ class BasicPortImpl : public AbstractPort
                 }
             }
         }
-        
+
+        void disconnect() override
+        {
+            if (connection != NULL) {
+                staticDisconnect();
+                if (FreeOnDisconnect)
+                    delete this;
+            }
+        }
+
         inline bool isConnected() const
         {
             return connection != NULL;
         }
 
     protected:
-        friend class BasicPortImpl<ConnectionClass, DerivedClass, !Require>;
+        friend class BasicPortImpl<ConnectionClass, DerivedClass, !Require, false>;
+        friend class BasicPortImpl<ConnectionClass, DerivedClass, !Require, true>;
         ConnectionClass* connection;
 
         DerivedClass* This()
