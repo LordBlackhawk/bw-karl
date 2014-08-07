@@ -36,6 +36,17 @@ void BasicVisitor::visitRequireSpacePort(RequireSpacePort* port)
     visitAbstractPort(port);
 }
 
+void BasicVisitor::visitProvideEnemyUnitPort(ProvideEnemyUnitPort* port)
+{
+    visitAbstractPort(port);
+}
+
+void BasicVisitor::visitRequireEnemyUnitPort(RequireEnemyUnitPort* port)
+{
+    visitAbstractPort(port);
+}
+
+
 void BasicVisitor::visitAbstractBoundaryItem(AbstractBoundaryItem* /*item*/)
 { }
 

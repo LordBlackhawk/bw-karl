@@ -44,14 +44,13 @@ class MoveToPositionPlanItem : public AbstractSimpleUnitPlanItem
 class AttackUnitPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
-        AttackUnitPlanItem(ProvideUnitPort* provider, ProvideUnitPort* enemy);
+        AttackUnitPlanItem(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
-
-    protected:
-        BWAPI::Unit enemyunit;
+		RequireEnemyUnitPort enemyUnit;
+		
 };
 
 class BuildPlanItem : public AbstractSimpleUnitPlanItem

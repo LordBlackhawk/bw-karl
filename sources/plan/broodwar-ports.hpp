@@ -127,3 +127,29 @@ class RequireSpacePort final : public AbstractPort
         BWAPI::TilePosition         pos;
         BWAPI::UnitType             unitType;
 };
+
+
+class  RequireEnemyUnitPort;
+class EnemyUnitBoundaryItem;
+
+class ProvideEnemyUnitPort final : public BasicPortImpl<ProvideEnemyUnitPort, RequireEnemyUnitPort, false, true>
+{
+    public:
+        ProvideEnemyUnitPort(EnemyUnitBoundaryItem* o);
+        void acceptVisitor(AbstractVisitor* visitor) override;
+
+        BWAPI::Unit* getUnit() const;
+        EnemyUnitBoundaryItem* getOwner() const;
+		BWAPI::Position getPosition() const;
+};
+
+
+class RequireEnemyUnitPort final : public BasicPortImpl<RequireEnemyUnitPort, ProvideEnemyUnitPort, true, false>
+{
+    public:
+        RequireEnemyUnitPort(AbstractItem* o, EnemyUnitBoundaryItem* m);
+        void acceptVisitor(AbstractVisitor* visitor) override;
+
+        inline BWAPI::Unit* getUnit() const { return connection->getUnit(); }
+		inline BWAPI::Position getPosition() const { return connection->getPosition();}
+};

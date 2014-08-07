@@ -188,3 +188,46 @@ void RequireSpacePort::connectTo(BWAPI::TilePosition tp)
         }
     }
 }
+
+
+// EnemyUnit
+ProvideEnemyUnitPort::ProvideEnemyUnitPort(EnemyUnitBoundaryItem* o)
+    : BaseClass(o)
+{
+    estimatedTime = ACTIVE_TIME;
+}
+
+void ProvideEnemyUnitPort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitProvideEnemyUnitPort(this);
+}
+
+BWAPI::Unit* ProvideEnemyUnitPort::getUnit() const
+{
+    return getOwner()->getUnit();
+}
+
+BWAPI::Position ProvideEnemyUnitPort::getPosition() const 
+{ 
+	return getOwner()->getPosition();
+}
+
+EnemyUnitBoundaryItem* ProvideEnemyUnitPort::getOwner() const
+{
+    return static_cast<EnemyUnitBoundaryItem*>(owner);
+}
+
+RequireEnemyUnitPort::RequireEnemyUnitPort(AbstractItem* o, EnemyUnitBoundaryItem* enemy)
+    : BaseClass(o)
+{
+    if (enemy != NULL) {
+        auto provider = new ProvideEnemyUnitPort(enemy);
+        enemy->ports.push_back(provider);
+        connectTo(provider);
+    }
+}
+
+void RequireEnemyUnitPort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitRequireEnemyUnitPort(this);
+}

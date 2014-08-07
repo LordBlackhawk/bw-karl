@@ -77,10 +77,11 @@ AbstractAction* MoveToPositionPlanItem::prepareForExecution(AbstractExecutionEng
 
 
 
-AttackUnitPlanItem::AttackUnitPlanItem(ProvideUnitPort* provider, ProvideUnitPort* enemy)
-    : AbstractSimpleUnitPlanItem(provider->getUnitType()), enemyunit(enemy)
+AttackUnitPlanItem::AttackUnitPlanItem(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType()), enemyUnit(this,enemy)
 {
-    provideUnit.updateData(provider->getUnitType(), enemy);
+	ports.push_back(&enemyUnit);
+    provideUnit.updateData(provider->getUnitType(), enemy->getPosition());
     requireUnit.connectTo(provider);
 }
 
@@ -91,14 +92,14 @@ void AttackUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
 
 void AttackUnitPlanItem::updateEstimates()
 {
+    provideUnit.estimatedDuration = (int)(enemyUnit.getPosition().getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
     AbstractSimpleUnitPlanItem::updateEstimates();
-    provideUnit.estimatedTime = estimatedStartTime + (int)(enemyunit.getPosition().getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
 }
 
 AbstractAction* AttackUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
     AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
-    AbstractAction* action = new AttackUnitAction(requireUnit.getUnit(), requireUnit.getUnit(), req);
+    AbstractAction* action = new AttackUnitAction(requireUnit.getUnit(), enemyUnit.getUnit(), req);
     provideUnit.setPreviousAction(action);
     engine->addAction(action);
     return action;
