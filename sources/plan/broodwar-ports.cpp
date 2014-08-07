@@ -79,6 +79,11 @@ void ResourcePort::disconnect()
     estimatedTime = INFINITE_TIME;
 }
 
+void ResourcePort::updateEstimates()
+{
+    // do nothing, ResourceExpert updates estimates!!!
+}
+
 ProvideMineralFieldPort::ProvideMineralFieldPort(ResourceBoundaryItem* o)
     : BaseClass(o)
 {

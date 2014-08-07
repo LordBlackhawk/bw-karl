@@ -12,12 +12,6 @@ AbstractSimpleUnitPlanItem::AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool 
     ports.push_back(&provideUnit);
 }
 
-void AbstractSimpleUnitPlanItem::updateEstimates()
-{
-    requireUnit.updateEstimates();
-    AbstractPlanItem::updateEstimates();
-}
-
 AbstractAction* AbstractSimpleUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
     BWAPI::Unit* unit = requireUnit.getUnit();
@@ -45,14 +39,6 @@ void GatherMineralsPlanItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitGatherMineralPlanItem(this);
 }
 
-void GatherMineralsPlanItem::updateEstimates()
-{
-    requireMineralField.updateEstimates();
-    AbstractSimpleUnitPlanItem::updateEstimates();
-    provideUnit.estimatedTime = estimatedStartTime;
-    //LOG << "estimated start time: " << estimatedStartTime << "; requireMineralField: " << requireMineralField.estimatedTime << "; requireUnit: " << requireUnit.estimatedTime;
-}
-
 AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
     //LOG << "Prepare for execution(GatherMinerals) ...";
@@ -77,8 +63,8 @@ void MoveToPositionPlanItem::acceptVisitor(AbstractVisitor* visitor)
 
 void MoveToPositionPlanItem::updateEstimates()
 {
+    provideUnit.estimatedDuration = (int)(position.getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
     AbstractSimpleUnitPlanItem::updateEstimates();
-    provideUnit.estimatedTime = estimatedStartTime + (int)(position.getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
 }
 
 AbstractAction* MoveToPositionPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
@@ -99,18 +85,12 @@ BuildPlanItem::BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, 
     ports.push_back(&requireResources);
     ports.push_back(&requireSpace);
     provideUnit.updateData(unitType, BWAPI::Position(p));
+    provideUnit.estimatedDuration = unitType.buildTime();
 }
 
 void BuildPlanItem::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitBuildPlanItem(this);
-}
-
-void BuildPlanItem::updateEstimates()
-{
-    requireSpace.updateEstimates();
-    AbstractSimpleUnitPlanItem::updateEstimates();
-    provideUnit.estimatedTime = estimatedStartTime + unitType.buildTime();
 }
 
 AbstractAction* BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engine)

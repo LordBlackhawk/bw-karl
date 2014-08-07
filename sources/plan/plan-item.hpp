@@ -29,6 +29,7 @@ class AbstractPort
         virtual bool isRequirePort() const = 0;
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
         virtual void disconnect() = 0;
+        virtual void updateEstimates() = 0;
 
     protected:
         AbstractItem*   owner;

@@ -19,7 +19,7 @@ AbstractPort::~AbstractPort()
 
 AbstractItem::~AbstractItem()
 {
-    // all remaining port must of type free on disconnect!!!
+    // all remaining port must be of type "free on disconnect"!!!
     while (!ports.empty())
         ports.front()->disconnect();
 }
@@ -57,7 +57,15 @@ void AbstractPlanItem::updateEstimates()
     estimatedStartTime = START_TIME;
     for (auto it : ports)
         if (it->isRequirePort())
-            estimatedStartTime = std::max(estimatedStartTime, it->estimatedTime);
+    {
+        it->updateEstimates();
+        estimatedStartTime = std::max(estimatedStartTime, it->estimatedTime);
+    }
+    for (auto it : ports)
+        if (!it->isRequirePort())
+    {
+        it->updateEstimates();
+    }
 }
 
 void AbstractPlanItem::setActive()

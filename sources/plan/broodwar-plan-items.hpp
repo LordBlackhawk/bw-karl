@@ -12,7 +12,6 @@ class AbstractSimpleUnitPlanItem : public AbstractPlanItem
 
         AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool od = false);
 
-        void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
         void removeFinished(AbstractAction* action) override;
 };
@@ -25,7 +24,6 @@ class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
         GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider = NULL);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 };
 
@@ -51,7 +49,6 @@ class BuildPlanItem : public AbstractSimpleUnitPlanItem
         BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
         void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;

@@ -67,6 +67,7 @@ class ResourcePort final : public AbstractPort
         bool isActiveConnection() const override;
         void acceptVisitor(AbstractVisitor* visitor) override;
         void disconnect() override;
+        void updateEstimates() override;
 
         inline int getMinerals() const { return minerals; }
         inline int getGas() const { return gas; }
@@ -110,7 +111,7 @@ class RequireSpacePort final : public AbstractPort
         bool isActiveConnection() const override;
         void acceptVisitor(AbstractVisitor* visitor) override;
 
-        void updateEstimates();
+        void updateEstimates() override;
         void disconnect() override;
         void connectTo(BWAPI::TilePosition tp);
         void setUnitType(BWAPI::UnitType ut);

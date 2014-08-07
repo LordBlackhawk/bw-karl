@@ -9,8 +9,10 @@ class BasicPortImpl : public AbstractPort
     public:
         typedef BasicPortImpl<DerivedClass, ConnectionClass, Require, FreeOnDisconnect> BaseClass;
 
+        int estimatedDuration;
+
         BasicPortImpl(AbstractItem* o)
-            : AbstractPort(o), connection(NULL)
+            : AbstractPort(o), connection(NULL), estimatedDuration(0)
         { }
 
         ~BasicPortImpl()
@@ -28,10 +30,14 @@ class BasicPortImpl : public AbstractPort
             return isActive() && isConnected() && connection->isActive();
         }
 
-        void updateEstimates()
+        void updateEstimates() override
         {
-            if (Require)
+            if (Require) {
                 estimatedTime = (isConnected()) ? connection->estimatedTime : INFINITE_TIME;
+            } else {
+                // Remark this method is only called if owner is of type AbstractPlanItem!!!
+                estimatedTime = static_cast<AbstractPlanItem*>(owner)->estimatedStartTime + estimatedDuration;
+            }
         }
 
         void connectTo(ConnectionClass* port)
