@@ -21,7 +21,7 @@ class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
     public:
         RequireMineralFieldPort requireMineralField;
 
-        GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider = NULL);
+        GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;

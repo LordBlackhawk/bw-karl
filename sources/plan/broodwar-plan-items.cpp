@@ -24,12 +24,11 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
     requireUnit.bridge(&provideUnit);
 }
 
-// TODO: Should be provider->getUnitType(), BWAPI::Position(m->getTilePosition())!!!!
 GatherMineralsPlanItem::GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider)
-    : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone, true), requireMineralField(this, m)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType(), true), requireMineralField(this, m)
 {
     ports.push_back(&requireMineralField);
-    provideUnit.updateData(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown);
+    provideUnit.updateData(provider->getUnitType(), BWAPI::Position(m->getTilePosition()));
     if (provider != NULL)
         requireUnit.connectTo(provider);
 }
