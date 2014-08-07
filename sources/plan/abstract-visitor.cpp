@@ -71,3 +71,8 @@ void BasicVisitor::visitBuildPlanItem(BuildPlanItem* item)
 {
     visitAbstractPlanItem(item);
 }
+
+void BasicVisitor::visitAttackUnitPlanItem(AttackUnitPlanItem* item)
+{
+    visitAbstractPlanItem(item);
+}

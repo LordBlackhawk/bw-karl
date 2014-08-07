@@ -90,6 +90,38 @@ AbstractAction* MoveToPositionPlanItem::prepareForExecution(AbstractExecutionEng
     return action;
 }
 
+
+
+AttackUnitPlanItem::AttackUnitPlanItem(ProvideUnitPort* provider, ProvideUnitPort* enemy)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType()), enemyunit(enemy)
+{
+    provideUnit.updateData(provider->getUnitType(), enemy);
+    requireUnit.connectTo(provider);
+}
+
+void AttackUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitAttackUnitPlanItem(this);
+}
+
+void AttackUnitPlanItem::updateEstimates()
+{
+    AbstractSimpleUnitPlanItem::updateEstimates();
+    provideUnit.estimatedTime = estimatedStartTime + (int)(enemyunit.getPosition().getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
+}
+
+AbstractAction* AttackUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
+    AbstractAction* action = new AttackUnitAction(requireUnit.getUnit(), requireUnit.getUnit(), req);
+    provideUnit.setPreviousAction(action);
+    engine->addAction(action);
+    return action;
+}
+
+
+
+
 BuildPlanItem::BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p)
     : AbstractSimpleUnitPlanItem(ut.whatBuilds().first),
       requireResources(this, ut.mineralPrice(), ut.gasPrice()),

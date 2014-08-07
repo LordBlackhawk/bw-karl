@@ -18,6 +18,8 @@ class GatherMineralsPlanItem;
 class MoveToPositionPlanItem;
 class BuildPlanItem;
 
+class AttackUnitPlanItem;
+
 class AbstractVisitor
 {
     public:
@@ -35,6 +37,8 @@ class AbstractVisitor
         virtual void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) = 0;
         virtual void visitMoveToPositionPlanItem(MoveToPositionPlanItem* item) = 0;
         virtual void visitBuildPlanItem(BuildPlanItem* item) = 0;
+		
+		virtual void visitAttackUnitPlanItem(AttackUnitPlanItem* item) = 0;
 };
 
 class BasicVisitor : public AbstractVisitor
@@ -57,4 +61,6 @@ class BasicVisitor : public AbstractVisitor
         void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) override;
         void visitMoveToPositionPlanItem(MoveToPositionPlanItem* item) override;
         void visitBuildPlanItem(BuildPlanItem* item) override;
+		
+		void visitAttackUnitPlanItem(AttackUnitPlanItem* item) override;
 };
