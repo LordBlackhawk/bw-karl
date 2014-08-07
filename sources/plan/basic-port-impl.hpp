@@ -1,20 +1,21 @@
 #pragma once
 
 #include "plan-item.hpp"
+#include <iostream>
 
-template <class DerivedClass, class ConnectionClass, bool Require>
+template <class DerivedClass, class ConnectionClass, bool Require, bool FreeOnDisconnect>
 class BasicPortImpl : public AbstractPort
 {
     public:
-        typedef BasicPortImpl<DerivedClass, ConnectionClass, Require> BaseClass;
+        typedef BasicPortImpl<DerivedClass, ConnectionClass, Require, FreeOnDisconnect> BaseClass;
 
         BasicPortImpl(AbstractItem* o)
             : AbstractPort(o), connection(NULL)
         { }
-        
+
         ~BasicPortImpl()
         {
-            This()->disconnect();
+            This()->staticDisconnect();
         }
 
         bool isRequirePort() const override
@@ -26,7 +27,7 @@ class BasicPortImpl : public AbstractPort
         {
             return isActive() && isConnected() && connection->isActive();
         }
-        
+
         void updateEstimates()
         {
             if (Require)
@@ -35,7 +36,7 @@ class BasicPortImpl : public AbstractPort
 
         void connectTo(ConnectionClass* port)
         {
-            disconnect();
+            staticDisconnect();
             if (port != NULL) {
                 if (Require) {
                     connection = port;
@@ -46,9 +47,9 @@ class BasicPortImpl : public AbstractPort
             }
         }
 
-        void disconnect()
+        void staticDisconnect()
         {
-            if (connection != NULL) {
+            if (isConnected()) {
                 if (Require) {
                     connection->connection = NULL;
                     connection = NULL;
@@ -57,14 +58,24 @@ class BasicPortImpl : public AbstractPort
                 }
             }
         }
-        
+
+        void disconnect() override
+        {
+            if (connection != NULL) {
+                staticDisconnect();
+                if (FreeOnDisconnect)
+                    delete this;
+            }
+        }
+
         inline bool isConnected() const
         {
             return connection != NULL;
         }
 
     protected:
-        friend class BasicPortImpl<ConnectionClass, DerivedClass, !Require>;
+        friend class BasicPortImpl<ConnectionClass, DerivedClass, !Require, false>;
+        friend class BasicPortImpl<ConnectionClass, DerivedClass, !Require, true>;
         ConnectionClass* connection;
 
         DerivedClass* This()

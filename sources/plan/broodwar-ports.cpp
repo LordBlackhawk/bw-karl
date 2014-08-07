@@ -74,19 +74,15 @@ void ResourcePort::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitResourcePort(this);
 }
 
+void ResourcePort::disconnect()
+{
+    estimatedTime = INFINITE_TIME;
+}
+
 ProvideMineralFieldPort::ProvideMineralFieldPort(ResourceBoundaryItem* o)
     : BaseClass(o)
 {
     estimatedTime = ACTIVE_TIME;
-}
-
-void ProvideMineralFieldPort::disconnect()
-{
-    if (isConnected()) {
-        BasicPortImpl<ProvideMineralFieldPort, RequireMineralFieldPort, false>::disconnect();
-        getOwner()->removePort(this);
-        delete this;
-    }
 }
 
 void ProvideMineralFieldPort::acceptVisitor(AbstractVisitor* visitor)

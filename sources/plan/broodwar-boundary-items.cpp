@@ -58,15 +58,6 @@ ResourceBoundaryItem::~ResourceBoundaryItem()
 {
     if (base != NULL)
         base->minerals.erase(this);
-    // There maybe ProvideMineralFieldPorts (dynamically created)!
-    while (!ports.empty()) {
-        auto port = dynamic_cast<ProvideMineralFieldPort*>(ports.front());
-        if (port != NULL) {
-            port->disconnect();
-        } else {
-            ports.erase(ports.begin());
-        }
-    }
 }
 
 void ResourceBoundaryItem::acceptVisitor(AbstractVisitor* visitor)

@@ -10,7 +10,7 @@ class RequireUnitPort;
 class ProvideMineralFieldPort;
 class RequireMineralFieldPort;
 
-class ProvideUnitPort : public BasicPortImpl<ProvideUnitPort, RequireUnitPort, false>
+class ProvideUnitPort final : public BasicPortImpl<ProvideUnitPort, RequireUnitPort, false, false>
 {
     public:
         ProvideUnitPort(AbstractItem* o, BWAPI::Unit* u, bool od = false);
@@ -40,7 +40,7 @@ class ProvideUnitPort : public BasicPortImpl<ProvideUnitPort, RequireUnitPort, f
         AbstractAction*     previousAction;
 };
 
-class RequireUnitPort : public BasicPortImpl<RequireUnitPort, ProvideUnitPort, true>
+class RequireUnitPort final : public BasicPortImpl<RequireUnitPort, ProvideUnitPort, true, false>
 {
     public:
         RequireUnitPort(AbstractItem* o, BWAPI::UnitType ut);
@@ -58,7 +58,7 @@ class RequireUnitPort : public BasicPortImpl<RequireUnitPort, ProvideUnitPort, t
         BWAPI::UnitType     unitType;
 };
 
-class ResourcePort : public AbstractPort
+class ResourcePort final : public AbstractPort
 {
     public:
         ResourcePort(AbstractItem* o, int m, int g);
@@ -66,6 +66,7 @@ class ResourcePort : public AbstractPort
         bool isRequirePort() const override;
         bool isActiveConnection() const override;
         void acceptVisitor(AbstractVisitor* visitor) override;
+        void disconnect() override;
 
         inline int getMinerals() const { return minerals; }
         inline int getGas() const { return gas; }
@@ -77,18 +78,17 @@ class ResourcePort : public AbstractPort
 
 class ResourceBoundaryItem;
 
-class ProvideMineralFieldPort : public BasicPortImpl<ProvideMineralFieldPort, RequireMineralFieldPort, false>
+class ProvideMineralFieldPort final : public BasicPortImpl<ProvideMineralFieldPort, RequireMineralFieldPort, false, true>
 {
     public:
         ProvideMineralFieldPort(ResourceBoundaryItem* o);
         void acceptVisitor(AbstractVisitor* visitor) override;
 
-        void disconnect();
         BWAPI::Unit* getUnit() const;
         ResourceBoundaryItem* getOwner() const;
 };
 
-class RequireMineralFieldPort : public BasicPortImpl<RequireMineralFieldPort, ProvideMineralFieldPort, true>
+class RequireMineralFieldPort final : public BasicPortImpl<RequireMineralFieldPort, ProvideMineralFieldPort, true, false>
 {
     public:
         RequireMineralFieldPort(AbstractItem* o, ResourceBoundaryItem* m);
@@ -100,7 +100,7 @@ class RequireMineralFieldPort : public BasicPortImpl<RequireMineralFieldPort, Pr
 struct FieldInformations;
 template <class T> class Array2d;
 
-class RequireSpacePort : public AbstractPort
+class RequireSpacePort final : public AbstractPort
 {
     public:
         RequireSpacePort(AbstractItem* o, Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p = BWAPI::TilePositions::Unknown);
@@ -111,7 +111,7 @@ class RequireSpacePort : public AbstractPort
         void acceptVisitor(AbstractVisitor* visitor) override;
 
         void updateEstimates();
-        void disconnect();
+        void disconnect() override;
         void connectTo(BWAPI::TilePosition tp);
         void setUnitType(BWAPI::UnitType ut);
 

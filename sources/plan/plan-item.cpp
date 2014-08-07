@@ -12,6 +12,18 @@ AbstractPort::AbstractPort(AbstractItem* o)
     : estimatedTime(INFINITE_TIME), owner(o)
 { }
 
+AbstractPort::~AbstractPort()
+{
+    owner->removePort(this);
+}
+
+AbstractItem::~AbstractItem()
+{
+    // all remaining port must of type free on disconnect!!!
+    while (!ports.empty())
+        ports.front()->disconnect();
+}
+
 void AbstractItem::removePort(AbstractPort* port)
 {
     ports.erase(std::remove(ports.begin(), ports.end(), port), ports.end());
