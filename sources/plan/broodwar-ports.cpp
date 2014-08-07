@@ -108,11 +108,7 @@ ResourceBoundaryItem* ProvideMineralFieldPort::getOwner() const
 RequireMineralFieldPort::RequireMineralFieldPort(AbstractItem* o, ResourceBoundaryItem* m)
     : BaseClass(o)
 {
-    if (m != NULL) {
-        auto provider = new ProvideMineralFieldPort(m);
-        m->ports.push_back(provider);
-        connectTo(provider);
-    }
+    connectTo(new ProvideMineralFieldPort(m));
 }
 
 void RequireMineralFieldPort::acceptVisitor(AbstractVisitor* visitor)
@@ -220,11 +216,7 @@ EnemyUnitBoundaryItem* ProvideEnemyUnitPort::getOwner() const
 RequireEnemyUnitPort::RequireEnemyUnitPort(AbstractItem* o, EnemyUnitBoundaryItem* enemy)
     : BaseClass(o)
 {
-    if (enemy != NULL) {
-        auto provider = new ProvideEnemyUnitPort(enemy);
-        enemy->ports.push_back(provider);
-        connectTo(provider);
-    }
+    connectTo(new ProvideEnemyUnitPort(enemy));
 }
 
 void RequireEnemyUnitPort::acceptVisitor(AbstractVisitor* visitor)

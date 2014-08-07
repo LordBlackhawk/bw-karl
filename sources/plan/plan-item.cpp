@@ -10,7 +10,9 @@
 
 AbstractPort::AbstractPort(AbstractItem* o)
     : estimatedTime(INFINITE_TIME), owner(o)
-{ }
+{
+    owner->ports.push_back(this);
+}
 
 AbstractPort::~AbstractPort()
 {

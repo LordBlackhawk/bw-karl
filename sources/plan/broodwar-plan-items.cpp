@@ -7,10 +7,7 @@
 
 AbstractSimpleUnitPlanItem::AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool od)
     : requireUnit(this, ut), provideUnit(this, NULL, od)
-{
-    ports.push_back(&requireUnit);
-    ports.push_back(&provideUnit);
-}
+{ }
 
 AbstractAction* AbstractSimpleUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
 {
@@ -27,7 +24,6 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
 GatherMineralsPlanItem::GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider)
     : AbstractSimpleUnitPlanItem(provider->getUnitType(), true), requireMineralField(this, m)
 {
-    ports.push_back(&requireMineralField);
     provideUnit.updateData(provider->getUnitType(), BWAPI::Position(m->getTilePosition()));
     if (provider != NULL)
         requireUnit.connectTo(provider);
@@ -80,7 +76,6 @@ AbstractAction* MoveToPositionPlanItem::prepareForExecution(AbstractExecutionEng
 AttackUnitPlanItem::AttackUnitPlanItem(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy)
     : AbstractSimpleUnitPlanItem(provider->getUnitType()), enemyUnit(this,enemy)
 {
-	ports.push_back(&enemyUnit);
     provideUnit.updateData(provider->getUnitType(), enemy->getPosition());
     requireUnit.connectTo(provider);
 }
@@ -114,8 +109,6 @@ BuildPlanItem::BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, 
       requireSpace(this, f, ut, p),
       unitType(ut)
 {
-    ports.push_back(&requireResources);
-    ports.push_back(&requireSpace);
     provideUnit.updateData(unitType, BWAPI::Position(p));
     provideUnit.estimatedDuration = unitType.buildTime();
 }

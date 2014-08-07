@@ -7,7 +7,9 @@ AbstractSpaceUnitBoundaryItem::AbstractSpaceUnitBoundaryItem(BWAPI::Unit* u, Arr
     : AbstractBoundaryItem(u),
       requireSpace(this, f, ut),
       unitType(ut)
-{ }
+{
+    removePort(&requireSpace);
+}
 
 void AbstractSpaceUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
 {
@@ -27,7 +29,6 @@ OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformatio
     : AbstractSpaceUnitBoundaryItem(u, f),
       provideUnit(this, u)
 {
-    ports.push_back(&provideUnit);
     provideUnit.estimatedTime = ACTIVE_TIME;
 }
 

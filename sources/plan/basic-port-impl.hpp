@@ -12,7 +12,7 @@ class BasicPortImpl : public AbstractPort
         int estimatedDuration;
 
         BasicPortImpl(AbstractItem* o)
-            : AbstractPort(o), connection(NULL), estimatedDuration(0)
+            : AbstractPort(o), estimatedDuration(0), connection(NULL)
         { }
 
         ~BasicPortImpl()
