@@ -21,6 +21,7 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
     requireUnit.bridge(&provideUnit);
 }
 
+
 GatherMineralsPlanItem::GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider)
     : AbstractSimpleUnitPlanItem(provider->getUnitType(), true), requireMineralField(this, m)
 {
@@ -43,6 +44,35 @@ AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEng
     engine->addAction(action);
     return action;
 }
+
+
+MorphUnitPlanItem::MorphUnitPlanItem(ProvideUnitPort* provider, BWAPI::UnitType type)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType()), unitType(type)
+{
+    provideUnit.updateData(type, provider?provider->getPosition():BWAPI::Positions::Unknown);
+    requireUnit.connectTo(provider);
+}
+
+void MorphUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitMorphUnitPlanItem(this);
+}
+
+void MorphUnitPlanItem::updateEstimates()
+{
+    provideUnit.estimatedDuration = unitType.buildTime();
+    AbstractSimpleUnitPlanItem::updateEstimates();
+}
+
+AbstractAction* MorphUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
+    AbstractAction* action = new MorphUnitAction(requireUnit.getUnit(), unitType, req);
+    provideUnit.setPreviousAction(action);
+    engine->addAction(action);
+    return action;
+}
+
 
 MoveToPositionPlanItem::MoveToPositionPlanItem(ProvideUnitPort* provider, BWAPI::Position p)
     : AbstractSimpleUnitPlanItem(provider->getUnitType()), position(p)

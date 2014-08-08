@@ -18,6 +18,7 @@ class EnemyUnitBoundaryItem;
 
 class AbstractPlanItem;
 class GatherMineralsPlanItem;
+class MorphUnitPlanItem;
 class MoveToPositionPlanItem;
 class BuildPlanItem;
 
@@ -41,6 +42,7 @@ class AbstractVisitor
         virtual void visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item) = 0;
 
         virtual void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) = 0;
+        virtual void visitMorphUnitPlanItem(MorphUnitPlanItem* item) = 0;
         virtual void visitMoveToPositionPlanItem(MoveToPositionPlanItem* item) = 0;
         virtual void visitBuildPlanItem(BuildPlanItem* item) = 0;
 		
@@ -69,6 +71,7 @@ class BasicVisitor : public AbstractVisitor
 
         virtual void visitAbstractPlanItem(AbstractPlanItem* item);
         void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) override;
+        void visitMorphUnitPlanItem(MorphUnitPlanItem* item) override;
         void visitMoveToPositionPlanItem(MoveToPositionPlanItem* item) override;
         void visitBuildPlanItem(BuildPlanItem* item) override;
 		

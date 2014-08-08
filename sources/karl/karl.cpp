@@ -101,6 +101,7 @@ namespace
                     engine->addAction(giveup);
                 }
 
+/*
                     //Test MorphUnitAction
                 static int morphDelay=0;
                 if( ((++morphDelay)%32) == 0 )
@@ -135,7 +136,33 @@ namespace
                             engine->addAction(new MorphUnitAction(larva,workerCount<4?BWAPI::UnitTypes::Zerg_Drone:BWAPI::UnitTypes::Zerg_Zergling));
                     }
                 }
-                
+*/
+                    //Test MorphUnitPlanItem
+                OwnUnitBoundaryItem* larva=NULL;
+                for (auto it : blackboard->getBoundaries())
+                {
+                    auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
+                    if ((unit != NULL) && !unit->isConnected() && (unit->getUnitType() == BWAPI::UnitTypes::Zerg_Larva))
+                    {
+                        larva=unit;
+                        break;
+                    }
+                }
+                if(larva!=NULL && BWAPI::Broodwar->self()->supplyUsed()>=BWAPI::Broodwar->self()->supplyTotal() && BWAPI::Broodwar->self()->minerals()>=100)
+                {
+                    blackboard->addItem(new MorphUnitPlanItem(&larva->provideUnit, BWAPI::UnitTypes::Zerg_Overlord));
+                }
+                else if(larva!=NULL && BWAPI::Broodwar->self()->supplyUsed()<BWAPI::Broodwar->self()->supplyTotal() && BWAPI::Broodwar->self()->minerals()>=50)
+                {
+                    int workerCount=0;
+                    for(auto unit : BWAPI::Broodwar->self()->getUnits())
+                        if(unit->getType().isWorker())
+                            workerCount++;
+
+                    blackboard->addItem(new MorphUnitPlanItem(&larva->provideUnit, workerCount<4?BWAPI::UnitTypes::Zerg_Drone:BWAPI::UnitTypes::Zerg_Zergling));
+                }
+
+
                 //Test hand coded zergling rush
                 static int attackDelay=0;
                 if(((++attackDelay)%32)==0)
@@ -235,7 +262,7 @@ namespace
                         }
                     }
                 }
- 
+
                 Blackboard::sendFrameEvent(engine);
                 if (thread == NULL)
                     blackboard->tick();
