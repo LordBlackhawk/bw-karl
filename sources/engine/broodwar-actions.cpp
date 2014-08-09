@@ -111,9 +111,10 @@ void MorphUnitAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
     //LOG << "MorphUnitAction begin...";
     //unit->stop();
+    resourcesConsumed = false;
 }
 
-MorphUnitAction::Status MorphUnitAction::onTick(AbstractExecutionEngine* /*engine*/)
+MorphUnitAction::Status MorphUnitAction::onTick(AbstractExecutionEngine* engine)
 {
     if(!unit->exists())
         return Failed;
@@ -121,6 +122,10 @@ MorphUnitAction::Status MorphUnitAction::onTick(AbstractExecutionEngine* /*engin
     if(unit->isMorphing())
     {
         drawInformations("morphing");
+        if (!resourcesConsumed) {
+            engine->generateEvent(new ResourcesConsumedEvent(this));
+            resourcesConsumed = true;
+        }
         return Running;
     }
 

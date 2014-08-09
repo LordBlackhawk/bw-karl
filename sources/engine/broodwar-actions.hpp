@@ -47,6 +47,7 @@ class MorphUnitAction : public UnitAction
 
     protected:
         BWAPI::UnitType     unitType;
+        bool                resourcesConsumed;
 };
 
 class MoveToPositionAction : public UnitAction

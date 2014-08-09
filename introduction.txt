@@ -15,8 +15,10 @@ Git-Introduction: status, commit, push, pull, merge, rebase, branch
 
 Actions: MoveToPosition(Together), AttackPosition(Denis), AttackUnit(Eugen), MorphUnit, GoodGame(Stefan), TrainUnit
 PlanItems: MoveToPosition(Together), AttackPosition(Denis), AttackUnit(Eugen), MorphUnit, GoodGame, TrainUnit
-Experts: SpawnLings, OverlordScouting, AttackPosition, NoWorkerGoodGame
+Experts: SpawnLings, OverlordScouting, AttackPosition, NoWorkerGoodGame, Supply, Larva
+Write test for expert.
 
+Draw plan.
 
 
 

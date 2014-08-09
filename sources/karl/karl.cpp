@@ -150,7 +150,7 @@ namespace
                 }
                 if(larva!=NULL && BWAPI::Broodwar->self()->supplyUsed()>=BWAPI::Broodwar->self()->supplyTotal() && BWAPI::Broodwar->self()->minerals()>=100)
                 {
-                    blackboard->addItem(new MorphUnitPlanItem(&larva->provideUnit, BWAPI::UnitTypes::Zerg_Overlord));
+                    blackboard->addItem(new MorphUnitPlanItem(BWAPI::UnitTypes::Zerg_Overlord, &larva->provideUnit));
                 }
                 else if(larva!=NULL && BWAPI::Broodwar->self()->supplyUsed()<BWAPI::Broodwar->self()->supplyTotal() && BWAPI::Broodwar->self()->minerals()>=50)
                 {
@@ -159,7 +159,7 @@ namespace
                         if(unit->getType().isWorker())
                             workerCount++;
 
-                    blackboard->addItem(new MorphUnitPlanItem(&larva->provideUnit, workerCount<4?BWAPI::UnitTypes::Zerg_Drone:BWAPI::UnitTypes::Zerg_Zergling));
+                    blackboard->addItem(new MorphUnitPlanItem(workerCount<4?BWAPI::UnitTypes::Zerg_Drone:BWAPI::UnitTypes::Zerg_Zergling, &larva->provideUnit));
                 }
 
 

@@ -1,6 +1,7 @@
 #include "blackboard-fixture.hpp"
 #include "engine/broodwar-events.hpp"
 #include "plan/broodwar-boundary-items.hpp"
+#include "plan/broodwar-plan-items.hpp"
 #include <BWAPI.h>
 
 MockupAction::MockupAction()
@@ -173,4 +174,11 @@ void BlackboardFixture::buildBaseLocations()
         if (l % 2 == 0)
             informations->ownBaseLocations.insert(base);
     }
+}
+
+MorphUnitPlanItem* BlackboardFixture::morphUnit(BWAPI::UnitType ut)
+{
+    auto result = new MorphUnitPlanItem(ut);
+    blackboard->addItem(result);
+    return result;
 }

@@ -46,22 +46,19 @@ AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEng
 }
 
 
-MorphUnitPlanItem::MorphUnitPlanItem(ProvideUnitPort* provider, BWAPI::UnitType type)
-    : AbstractSimpleUnitPlanItem(provider->getUnitType()), unitType(type)
+MorphUnitPlanItem::MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* provider)
+    : AbstractSimpleUnitPlanItem(type.whatBuilds().first),
+      requireResources(this, type.mineralPrice(), type.gasPrice()),
+      unitType(type)
 {
     provideUnit.updateData(type, provider?provider->getPosition():BWAPI::Positions::Unknown);
     requireUnit.connectTo(provider);
+    provideUnit.estimatedDuration = unitType.buildTime();
 }
 
 void MorphUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitMorphUnitPlanItem(this);
-}
-
-void MorphUnitPlanItem::updateEstimates()
-{
-    provideUnit.estimatedDuration = unitType.buildTime();
-    AbstractSimpleUnitPlanItem::updateEstimates();
 }
 
 AbstractAction* MorphUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
@@ -71,6 +68,11 @@ AbstractAction* MorphUnitPlanItem::prepareForExecution(AbstractExecutionEngine* 
     provideUnit.setPreviousAction(action);
     engine->addAction(action);
     return action;
+}
+
+void MorphUnitPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
+{
+    removePort(&requireResources);
 }
 
 

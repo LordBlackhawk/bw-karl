@@ -129,7 +129,7 @@ class RequireSpacePort final : public AbstractPort
 };
 
 
-class  RequireEnemyUnitPort;
+class RequireEnemyUnitPort;
 class EnemyUnitBoundaryItem;
 
 class ProvideEnemyUnitPort final : public BasicPortImpl<ProvideEnemyUnitPort, RequireEnemyUnitPort, false, true>
@@ -140,7 +140,7 @@ class ProvideEnemyUnitPort final : public BasicPortImpl<ProvideEnemyUnitPort, Re
 
         BWAPI::Unit* getUnit() const;
         EnemyUnitBoundaryItem* getOwner() const;
-		BWAPI::Position getPosition() const;
+        BWAPI::Position getPosition() const;
 };
 
 
@@ -151,5 +151,5 @@ class RequireEnemyUnitPort final : public BasicPortImpl<RequireEnemyUnitPort, Pr
         void acceptVisitor(AbstractVisitor* visitor) override;
 
         inline BWAPI::Unit* getUnit() const { return connection->getUnit(); }
-		inline BWAPI::Position getPosition() const { return connection->getPosition();}
+        inline BWAPI::Position getPosition() const { return connection->getPosition();}
 };

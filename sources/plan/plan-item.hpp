@@ -15,7 +15,7 @@ class Blackboard;
 class AbstractPort
 {
     public:
-        Time            estimatedTime;
+        Time estimatedTime;
 
         AbstractPort(AbstractItem* o);
 
@@ -98,7 +98,7 @@ class Blackboard : public BasicEventVisitor
         static void sendFrameEvent(AbstractExecutionEngine* engine);
 
         inline const std::vector<AbstractPlanItem*>& getItems() const { return items; }
-        inline const std::map<BWAPI::Unit*, AbstractBoundaryItem*> getBoundaries() const { return unitBoundaries; }
+        inline const std::map<BWAPI::Unit*, AbstractBoundaryItem*>& getBoundaries() const { return unitBoundaries; }
         inline BlackboardInformations* getInformations() { return &informations; }
         inline Time getLastUpdateTime() const { return informations.lastUpdateTime; }
         inline BWAPI::Player* self() const { return informations.self; }

@@ -42,6 +42,8 @@ class BasicPortImpl : public AbstractPort
 
         void connectTo(ConnectionClass* port)
         {
+            if (connection == port)
+                return;
             staticDisconnect();
             if (port != NULL) {
                 if (Require) {

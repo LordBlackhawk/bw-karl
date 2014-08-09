@@ -27,16 +27,20 @@ class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 };
 
-
 class MorphUnitPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
-        MorphUnitPlanItem(ProvideUnitPort* provider, BWAPI::UnitType type);
+        ResourcePort requireResources;
+
+        MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* provider = NULL);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
-        
+
+        void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
+
+        inline BWAPI::UnitType getUnitType() const { return unitType; }
+
     protected:
         BWAPI::UnitType unitType;
 };
@@ -58,13 +62,13 @@ class MoveToPositionPlanItem : public AbstractSimpleUnitPlanItem
 class AttackUnitPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
+        RequireEnemyUnitPort enemyUnit;
+
         AttackUnitPlanItem(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates() override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
-		RequireEnemyUnitPort enemyUnit;
-		
 };
 
 class BuildPlanItem : public AbstractSimpleUnitPlanItem
