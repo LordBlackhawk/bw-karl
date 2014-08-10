@@ -44,7 +44,8 @@ void RequireUnitPort::acceptVisitor(AbstractVisitor* visitor)
 
 void RequireUnitPort::bridge(ProvideUnitPort* port)
 {
-    connection->connectTo(port->connection);
+    if ((connection != NULL) && (port != NULL))
+        connection->connectTo(port->connection);
 }
 
 AbstractAction* RequireUnitPort::prepareForExecution(AbstractExecutionEngine* engine)
@@ -82,6 +83,57 @@ void ResourcePort::disconnect()
 void ResourcePort::updateEstimates()
 {
     // do nothing, ResourceExpert updates estimates!!!
+}
+
+SupplyPort::SupplyPort(AbstractItem* o, BWAPI::UnitType ut, bool checkTwoInOneEgg)
+    : AbstractPort(o), estimatedDuration(0), race(ut.getRace()), providedAmount(ut.supplyProvided() - ut.supplyRequired())
+{
+    if (checkTwoInOneEgg && ut.isTwoUnitsInOneEgg())
+        providedAmount *= 2;
+    if (providedAmount == 0)
+        owner->removePort(this);
+}
+
+void SupplyPort::updateUnitType(BWAPI::UnitType ut)
+{
+    int newAmount = ut.supplyProvided() - ut.supplyRequired();
+    if (newAmount != providedAmount) {
+        if (providedAmount == 0)
+            owner->ports.push_back(this);
+        providedAmount = newAmount;
+        if (providedAmount == 0)
+            owner->removePort(this);
+    }
+}
+
+bool SupplyPort::isRequirePort() const
+{
+    return (providedAmount < 0);
+}
+
+bool SupplyPort::isActiveConnection() const
+{
+    return false;
+}
+
+void SupplyPort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitSupplyPort(this);
+}
+
+void SupplyPort::disconnect()
+{
+    estimatedTime = INFINITE_TIME;
+}
+
+void SupplyPort::updateEstimates()
+{
+    if (isRequirePort()) {
+        // do nothing, require ports are updated by SupplyExpert!!!
+    } else {
+        // Remark this method is only called if owner is of type AbstractPlanItem!!!
+        estimatedTime = static_cast<AbstractPlanItem*>(owner)->estimatedStartTime + estimatedDuration;
+    }
 }
 
 ProvideMineralFieldPort::ProvideMineralFieldPort(ResourceBoundaryItem* o)

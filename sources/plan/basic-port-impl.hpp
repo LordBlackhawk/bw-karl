@@ -81,6 +81,11 @@ class BasicPortImpl : public AbstractPort
             return connection != NULL;
         }
 
+        inline ConnectionClass* getConnectedPort() const
+        {
+            return connection;
+        }
+
     protected:
         friend class BasicPortImpl<ConnectionClass, DerivedClass, !Require, false>;
         friend class BasicPortImpl<ConnectionClass, DerivedClass, !Require, true>;

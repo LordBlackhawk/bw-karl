@@ -35,7 +35,7 @@ void BuildingPlacementExpert::visitRequireSpacePort(RequireSpacePort* port)
     unitType = port->getUnitType();
     BWAPI::TilePosition pos = getBuildLocationNear();
     if (pos != BWAPI::TilePositions::None) {
-        LOG << "found position: " << pos.x() << ", " << pos.y();
+        //LOG << "found position: " << pos.x() << ", " << pos.y();
         port->connectTo(pos);
     }
 }

@@ -4,6 +4,7 @@ class AbstractPort;
 class ProvideUnitPort;
 class RequireUnitPort;
 class ResourcePort;
+class SupplyPort;
 class ProvideMineralFieldPort;
 class RequireMineralFieldPort;
 class RequireSpacePort;
@@ -30,6 +31,7 @@ class AbstractVisitor
         virtual void visitProvideUnitPort(ProvideUnitPort* port) = 0;
         virtual void visitRequireUnitPort(RequireUnitPort* port) = 0;
         virtual void visitResourcePort(ResourcePort* port) = 0;
+        virtual void visitSupplyPort(SupplyPort* port) = 0;
         virtual void visitProvideMineralFieldPort(ProvideMineralFieldPort* port) = 0;
         virtual void visitRequireMineralFieldPort(RequireMineralFieldPort* port) = 0;
         virtual void visitRequireSpacePort(RequireSpacePort* port) = 0;
@@ -56,6 +58,7 @@ class BasicVisitor : public AbstractVisitor
         void visitProvideUnitPort(ProvideUnitPort* port) override;
         void visitRequireUnitPort(RequireUnitPort* port) override;
         void visitResourcePort(ResourcePort* port) override;
+        void visitSupplyPort(SupplyPort* port) override;
         void visitProvideMineralFieldPort(ProvideMineralFieldPort* port) override;
         void visitRequireMineralFieldPort(RequireMineralFieldPort* port) override;
         void visitRequireSpacePort(RequireSpacePort* port) override;

@@ -6,6 +6,7 @@
 #include "engine/broodwar-scanners.hpp"
 #include "utils/log.hpp"
 #include "utils/assert-throw.hpp"
+#include "utils/bw-helper.hpp"
 #include <algorithm>
 
 AbstractPort::AbstractPort(AbstractItem* o)
@@ -155,6 +156,13 @@ BuildPlanItem* Blackboard::createBuildPlanItem(BWAPI::UnitType ut)
     return result;
 }
 
+MorphUnitPlanItem* Blackboard::createMorphPlanItem(BWAPI::UnitType ut)
+{
+    MorphUnitPlanItem* result = new MorphUnitPlanItem(ut);
+    addItem(result);
+    return result;
+}
+
 void Blackboard::tick()
 {
     // 1. Receive events
@@ -189,8 +197,8 @@ void Blackboard::tick()
         }
     }
     
-    if (informations.lastUpdateTime % 500 == 10)
-        informations.printFieldInformations(std::cout);
+    //if (informations.lastUpdateTime % 500 == 10)
+    //    informations.printFieldInformations(std::cout);
 }
 
 void Blackboard::prepare()
@@ -217,6 +225,7 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
           || (event.getType() == BWAPI::EventType::UnitComplete))
         {
             BWAPI::Unit* unit = event.getUnit();
+            //LOG << BWAPI::Broodwar->getFrameCount() << " event " << event.getType() << ": " << unit << " " << unit->getType();
             engine->generateEvent(new CompleteUnitUpdateEvent(unit, unit->getType(), unit->getTilePosition(), unit->getPosition(), unit->getPlayer()));
         } else {
             engine->generateEvent(new BroodwarEvent(event));
@@ -308,7 +317,7 @@ void Blackboard::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
         item = new ResourceBoundaryItem(event->unit, event->unitType, &informations.fields);
     } else if (event->owner == self()) {
         //LOG << "Own unit added: " << event->unitType.getName();
-        item = new OwnUnitBoundaryItem(event->unit, &informations.fields);
+        item = new OwnUnitBoundaryItem(event->unit, event->unitType, &informations.fields);
     } else if (event->owner != neutral()) {
         //LOG << "Enemy unit added: " << event->unitType.getName();
         item = new EnemyUnitBoundaryItem(event->unit, event->unitType, &informations.fields);

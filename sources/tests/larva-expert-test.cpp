@@ -16,13 +16,40 @@ BOOST_AUTO_TEST_CASE( basic )
 
     BOOST_CHECK_EQUAL( b1->provideUnit.getUnitType(), BWAPI::UnitTypes::Zerg_Larva );
     BOOST_CHECK_EQUAL( p1->requireUnit.getUnitType(), BWAPI::UnitTypes::Zerg_Larva );
-    BOOST_CHECK_EQUAL( p1->ports.size(), 3U );
     BOOST_CHECK( !p1->isActive() );
 
     LarvaExpert expert;
     expert.tick(blackboard);
 
     BOOST_CHECK( p1->requireUnit.isConnected() );
+    BOOST_CHECK( p2->requireUnit.isConnected() );
+}
+
+BOOST_AUTO_TEST_CASE( active_plan_items )
+{
+    createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Larva);
+    auto b1 = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Larva);
+    createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Larva);
+
+    auto p1 = morphUnit(BWAPI::UnitTypes::Zerg_Drone);
+    auto p2 = morphUnit(BWAPI::UnitTypes::Zerg_Drone);
+
+    BOOST_CHECK( !b1->provideUnit.isActiveConnection() );   
+    BOOST_CHECK( !p1->requireUnit.isActiveConnection() );
+
+    p1->requireUnit.connectTo(&b1->provideUnit);
+    p1->setActive();
+
+    BOOST_CHECK( b1->provideUnit.isActiveConnection() );
+    BOOST_CHECK( p1->requireUnit.isActiveConnection() );
+
+    LarvaExpert expert;
+    expert.tick(blackboard);
+
+    BOOST_CHECK( b1->provideUnit.isConnected() );
+    BOOST_CHECK( p1->requireUnit.isConnected() );
+    BOOST_CHECK( b1->provideUnit.getConnectedPort() == &p1->requireUnit );
+
     BOOST_CHECK( p2->requireUnit.isConnected() );
 }
 

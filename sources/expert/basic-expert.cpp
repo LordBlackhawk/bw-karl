@@ -41,7 +41,8 @@ void BasicPortExpert::visitAbstractBoundaryItem(AbstractBoundaryItem* item)
 {
     currentItem = item;
     for (auto it : item->ports)
-        it->acceptVisitor(this);
+        if (!it->isActiveConnection())
+            it->acceptVisitor(this);
     currentItem = NULL;
 }
 

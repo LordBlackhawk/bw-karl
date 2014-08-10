@@ -54,6 +54,7 @@ namespace
             ExpertThread*               thread;
 
             AI()
+                : thread(NULL)
             {
                 engine = defaultEngine = new DefaultExecutionEngine();
 
@@ -66,19 +67,6 @@ namespace
 
                 if (doParallel)
                     thread = new ExpertThread(blackboard);
-                else
-                    thread = NULL;
-
-                /*for (auto unit : BWAPI::Broodwar->self()->getUnits())
-                    if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord)
-                {
-                    AbstractAction* pre = NULL;
-                    for (auto location : BWTA::getStartLocations())
-                    {
-                        pre = new MoveToPositionAction(unit, location->getPosition(), pre);
-                        engine->addAction(pre);
-                    }
-                }*/
             }
 
             ~AI()
@@ -91,7 +79,7 @@ namespace
 
             void tick()
             {
-                    //Test GiveUpAction
+                // Test GiveUpAction
                 static GiveUpAction *giveup=NULL;
                 if(giveup==NULL)for(auto unit : BWAPI::Broodwar->getUnitsInRadius(BWTA::getStartLocation(BWAPI::Broodwar->self())->getPosition(),32*20))
                     if(unit->getPlayer()->isEnemy(BWAPI::Broodwar->self()))
@@ -101,69 +89,46 @@ namespace
                     engine->addAction(giveup);
                 }
 
-/*
-                    //Test MorphUnitAction
-                static int morphDelay=0;
-                if( ((++morphDelay)%32) == 0 )
-                {
-                    if(BWAPI::Broodwar->self()->supplyUsed()>=BWAPI::Broodwar->self()->supplyTotal() && BWAPI::Broodwar->self()->minerals()>=100)
+                if (thread == NULL) {
+                    // Test MorphUnitPlanItem
+                    OwnUnitBoundaryItem* larva=NULL;
+                    for (auto it : blackboard->getBoundaries())
                     {
-                        for(auto unit : BWAPI::Broodwar->self()->getUnits())
+                        auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
+                        if ((unit != NULL) && !unit->isConnected() && (unit->getUnitType() == BWAPI::UnitTypes::Zerg_Larva))
                         {
-                            if(unit->getType()==BWAPI::UnitTypes::Zerg_Larva)
-                            {
-                                engine->addAction(new MorphUnitAction(unit,BWAPI::UnitTypes::Zerg_Overlord));
-                                break;
-                            }
+                            larva = unit;
+                            break;
                         }
                     }
-                    else if(BWAPI::Broodwar->self()->supplyUsed()<BWAPI::Broodwar->self()->supplyTotal() && BWAPI::Broodwar->self()->minerals()>=50)
-                    {
-                        BWAPI::Unit *larva=NULL;
+                    if ((larva != NULL) && BWAPI::Broodwar->self()->minerals()>=50) {
                         int workerCount=0;
-
                         for(auto unit : BWAPI::Broodwar->self()->getUnits())
-                        {
-                            if(unit->getType()==BWAPI::UnitTypes::Zerg_Larva)
-                            {
-                                larva=unit;
-                            }
                             if(unit->getType().isWorker())
                                 workerCount++;
+
+                        //LOG << "Added morph unit.";
+                        blackboard->addItem(new MorphUnitPlanItem(workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling, &larva->provideUnit));
+                    }
+                    // Test MoveToPositionAction
+                    if (BWAPI::Broodwar->getFrameCount() == 2) {
+                        for (auto it : blackboard->getBoundaries()) {
+                            auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
+                            if ((unit != NULL) && (unit->getUnitType() == BWAPI::UnitTypes::Zerg_Overlord)) {
+                                //std::cout << "Overlord found!\n";
+                                auto provideUnit = &unit->provideUnit;
+                                for (auto location : BWTA::getStartLocations())
+                                {
+                                    auto item = new MoveToPositionPlanItem(provideUnit, location->getPosition());
+                                    blackboard->addItem(item);
+                                    provideUnit = &item->provideUnit;
+                                }
+                            }
                         }
-
-                        if(larva)
-                            engine->addAction(new MorphUnitAction(larva,workerCount<4?BWAPI::UnitTypes::Zerg_Drone:BWAPI::UnitTypes::Zerg_Zergling));
                     }
                 }
-*/
-                    //Test MorphUnitPlanItem
-                OwnUnitBoundaryItem* larva=NULL;
-                for (auto it : blackboard->getBoundaries())
-                {
-                    auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
-                    if ((unit != NULL) && !unit->isConnected() && (unit->getUnitType() == BWAPI::UnitTypes::Zerg_Larva))
-                    {
-                        larva=unit;
-                        break;
-                    }
-                }
-                if(larva!=NULL && BWAPI::Broodwar->self()->supplyUsed()>=BWAPI::Broodwar->self()->supplyTotal() && BWAPI::Broodwar->self()->minerals()>=100)
-                {
-                    blackboard->addItem(new MorphUnitPlanItem(BWAPI::UnitTypes::Zerg_Overlord, &larva->provideUnit));
-                }
-                else if(larva!=NULL && BWAPI::Broodwar->self()->supplyUsed()<BWAPI::Broodwar->self()->supplyTotal() && BWAPI::Broodwar->self()->minerals()>=50)
-                {
-                    int workerCount=0;
-                    for(auto unit : BWAPI::Broodwar->self()->getUnits())
-                        if(unit->getType().isWorker())
-                            workerCount++;
 
-                    blackboard->addItem(new MorphUnitPlanItem(workerCount<4?BWAPI::UnitTypes::Zerg_Drone:BWAPI::UnitTypes::Zerg_Zergling, &larva->provideUnit));
-                }
-
-
-                //Test hand coded zergling rush
+                // Test hand coded zergling rush
                 static int attackDelay=0;
                 if(((++attackDelay)%32)==0)
                 {
@@ -179,6 +144,7 @@ namespace
                         if(unit->getType()==BWAPI::UnitTypes::Zerg_Zergling && unit->isIdle())
                         {
                                 // send idle units to attack
+                            //LOG << "Added attack action.";
                             engine->addAction(new AttackPositionAction(unit,enemyTarget->getPosition()));
                         }
                     }
@@ -196,6 +162,7 @@ namespace
                                     if((*a)->getType()==BWAPI::UnitTypes::Zerg_Zergling && (*a)->isIdle())
                                     {
                                             //send next free unit to explore
+                                        //LOG << "Added attack action.";
                                         engine->addAction(new AttackPositionAction(*a,location->getPosition()));
                                         a++;
                                         break;
@@ -212,6 +179,7 @@ namespace
                                     if((*a)->getType()==BWAPI::UnitTypes::Zerg_Zergling && (*a)->isIdle())
                                     {
                                             //send next free unit to explore
+                                        //LOG << "Added attack action.";
                                         engine->addAction(new AttackPositionAction(*a,location->getPosition()));
                                         a++;
                                         break;
@@ -219,47 +187,6 @@ namespace
                                     a++;
                                 }
                             }
-                    }
-                }
-/*
-                    //Test AttackPositionAction
-                BWAPI::Unit* enemy=NULL;
-                for(auto unit : BWAPI::Broodwar->getAllUnits())
-                {
-                    if(unit->getPlayer()->isEnemy(BWAPI::Broodwar->self()))
-                    {
-                        enemy=unit;
-                        break;
-                    }
-                }
-                static int attackDelay=0;
-                if(((++attackDelay)%32)==0 && enemy)
-                    for(auto unit : BWAPI::Broodwar->self()->getUnits())
-                {
-                    if(unit->getType() == BWAPI::UnitTypes::Zerg_Zergling)
-                    {
-                        if(unit->isIdle())
-                        {
-                            engine->addAction(new AttackPositionAction(unit,enemy->getPosition()));
-                        }
-                    }
-                }
- */
-
-                // Test MoveToPositionAction
-                if (Broodwar->getFrameCount() == 2) {
-                    for (auto it : blackboard->getBoundaries()) {
-                        auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
-                        if ((unit != NULL) && (unit->getUnitType() == BWAPI::UnitTypes::Zerg_Overlord)) {
-                            std::cout << "Overlord found!\n";
-                            auto provideUnit = &unit->provideUnit;
-                            for (auto location : BWTA::getStartLocations())
-                            {
-                                auto item = new MoveToPositionPlanItem(provideUnit, location->getPosition());
-                                blackboard->addItem(item);
-                                provideUnit = &item->provideUnit;
-                            }
-                        }
                     }
                 }
 
@@ -274,19 +201,34 @@ namespace
                 int time = Broodwar->getFrameCount() / 24;
                 Broodwar->drawTextScreen(280, 6, "%02d:%02d:%02d", time/3600, (time/60)%60, time%60);
                 Broodwar->drawTextScreen(340, 6, "fps: %d", Broodwar->getFPS());
-                Broodwar->drawTextScreen(200, 6, "Actions: %d/%d", defaultEngine->numberOfActiveActions(), defaultEngine->numberOfActions());
+                Broodwar->drawTextScreen(160, 6, "Actions: %d/%d", defaultEngine->numberOfActiveActions(), defaultEngine->numberOfActions());
 
                 auto set = Broodwar->getSelectedUnits();
                 if (set.size() == 1U) {
                     auto selectedUnit = *set.begin();
                     #define OUTPUT(position, function) Broodwar->drawTextScreen(10, position, #function ": %s", selectedUnit->function() ? "true" : "false");
                     OUTPUT(100, isIdle);
-                    OUTPUT(120, isStartingAttack);
-                    OUTPUT(140, isAttacking);
-                    OUTPUT(160, isAttackFrame);
-                    OUTPUT(180, isMoving);
-                    OUTPUT(200, isBraking);
+                    OUTPUT(115, isStartingAttack);
+                    OUTPUT(130, isAttacking);
+                    OUTPUT(145, isAttackFrame);
+                    OUTPUT(160, isMoving);
+                    OUTPUT(275, isBraking);
                     #undef OUTPUT
+                } else {
+                    std::map<BWAPI::UnitType, int> numbers;
+                    for (auto it : BWAPI::Broodwar->self()->getUnits()) {
+                        auto n = numbers.find(it->getType());
+                        if (n != numbers.end()) {
+                            n->second += 1;
+                        } else {
+                            numbers[it->getType()] = 1;
+                        }
+                    }
+                    int top = 100;
+                    for (auto it : numbers) {
+                        Broodwar->drawTextScreen(10, top, "%s: %d", it.first.c_str(), it.second);
+                        top += 15;
+                    }
                 }
             }
     };

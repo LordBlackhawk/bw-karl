@@ -49,11 +49,12 @@ AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEng
 MorphUnitPlanItem::MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* provider)
     : AbstractSimpleUnitPlanItem(type.whatBuilds().first),
       requireResources(this, type.mineralPrice(), type.gasPrice()),
+      supply(this, type, true),
       unitType(type)
 {
-    provideUnit.updateData(type, provider?provider->getPosition():BWAPI::Positions::Unknown);
+    provideUnit.updateData(unitType, (provider != NULL) ? provider->getPosition() : BWAPI::Positions::Unknown);
+    supply.estimatedDuration = provideUnit.estimatedDuration = unitType.buildTime();
     requireUnit.connectTo(provider);
-    provideUnit.estimatedDuration = unitType.buildTime();
 }
 
 void MorphUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
@@ -73,6 +74,8 @@ AbstractAction* MorphUnitPlanItem::prepareForExecution(AbstractExecutionEngine* 
 void MorphUnitPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
 {
     removePort(&requireResources);
+    if (supply.isRequirePort())
+        removePort(&supply);
 }
 
 
@@ -139,10 +142,11 @@ BuildPlanItem::BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, 
     : AbstractSimpleUnitPlanItem(ut.whatBuilds().first),
       requireResources(this, ut.mineralPrice(), ut.gasPrice()),
       requireSpace(this, f, ut, p),
+      supply(this, ut),
       unitType(ut)
 {
     provideUnit.updateData(unitType, BWAPI::Position(p));
-    provideUnit.estimatedDuration = unitType.buildTime();
+    supply.estimatedDuration = provideUnit.estimatedDuration = unitType.buildTime();
 }
 
 void BuildPlanItem::acceptVisitor(AbstractVisitor* visitor)

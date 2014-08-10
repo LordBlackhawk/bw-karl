@@ -31,6 +31,7 @@ class MorphUnitPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
         ResourcePort requireResources;
+        SupplyPort supply;
 
         MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* provider = NULL);
 
@@ -76,6 +77,7 @@ class BuildPlanItem : public AbstractSimpleUnitPlanItem
     public:
         ResourcePort        requireResources;
         RequireSpacePort    requireSpace;
+        SupplyPort          supply;
 
         BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p);
 

@@ -88,6 +88,7 @@ class AbstractExpert
 };
 
 class BuildPlanItem;
+class MorphUnitPlanItem;
 
 class Blackboard : public BasicEventVisitor
 {
@@ -124,6 +125,7 @@ class Blackboard : public BasicEventVisitor
 
         // for creation of plan items:
         BuildPlanItem* createBuildPlanItem(BWAPI::UnitType ut);
+        MorphUnitPlanItem* createMorphPlanItem(BWAPI::UnitType ut);
 
         // for test propose only:
         bool includeItem(AbstractPlanItem* item) const;

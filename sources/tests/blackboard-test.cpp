@@ -1,16 +1,7 @@
 #include "blackboard-fixture.hpp"
 #include "engine/broodwar-events.hpp"
 #include "plan/broodwar-boundary-items.hpp"
-
-std::ostream& operator << (std::ostream& stream, const BWAPI::Position& pos)
-{
-    return stream << "(" << pos.x() << "," << pos.y() << ")";
-}
-
-std::ostream& operator << (std::ostream& stream, const BWAPI::TilePosition& pos)
-{
-    return stream << "(" << pos.x() << "," << pos.y() << ")";
-}
+#include "utils/bw-helper.hpp"
 
 BOOST_FIXTURE_TEST_SUITE( blackboard_test, BlackboardFixture )
 

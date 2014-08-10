@@ -77,6 +77,31 @@ class ResourcePort final : public AbstractPort
         int gas;
 };
 
+class SupplyPort final : public AbstractPort
+{
+    public:
+        int estimatedDuration;
+
+        SupplyPort(AbstractItem* o, BWAPI::UnitType ut, bool checkTwoInOneEgg = false);
+
+        bool isRequirePort() const override;
+        bool isActiveConnection() const override;
+        void acceptVisitor(AbstractVisitor* visitor) override;
+        void disconnect() override;
+        void updateEstimates() override;
+
+        void updateUnitType(BWAPI::UnitType ut);
+
+        inline BWAPI::Race getRace() const { return race; }
+        inline int getProvidedAmount() const { return providedAmount; }
+        inline int getRequiredAmount() const { return -providedAmount; }
+        inline bool isConnected() const { return !isImpossibleTime(estimatedTime); }
+
+    protected:
+        BWAPI::Race race;
+        int         providedAmount;
+};
+
 class ResourceBoundaryItem;
 
 class ProvideMineralFieldPort final : public BasicPortImpl<ProvideMineralFieldPort, RequireMineralFieldPort, false, true>

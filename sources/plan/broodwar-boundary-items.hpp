@@ -22,8 +22,9 @@ class OwnUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
 {
     public:
         ProvideUnitPort     provideUnit;
+        SupplyPort          supply;
 
-        OwnUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f);
+        OwnUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) override;

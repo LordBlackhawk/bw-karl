@@ -26,6 +26,7 @@ void LarvaExpert::visitRequireUnitPort(RequireUnitPort* port)
 
 void LarvaExpert::endTraversal()
 {
+    //std::cout << "provide.size(): " << provide.size() << "; require.size(): " << require.size() << "\n";
     int size = std::min(provide.size(), require.size());
     for (int k=0; k<size; ++k)
         require[k]->connectTo(provide[k]);

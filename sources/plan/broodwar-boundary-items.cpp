@@ -25,11 +25,13 @@ void AbstractSpaceUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpd
 }
 
 
-OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f)
-    : AbstractSpaceUnitBoundaryItem(u, f),
-      provideUnit(this, u)
+OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f)
+    : AbstractSpaceUnitBoundaryItem(u, f, ut),
+      provideUnit(this, u),
+      supply(this, ut)
 {
     provideUnit.estimatedTime = ACTIVE_TIME;
+    supply.estimatedTime = ACTIVE_TIME;
 }
 
 void OwnUnitBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
@@ -39,6 +41,8 @@ void OwnUnitBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
 
 void OwnUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
 {
+    if (getUnitType() != event->unitType)
+        supply.updateUnitType(event->unitType);
     AbstractSpaceUnitBoundaryItem::visitCompleteUnitUpdateEvent(event);
     provideUnit.updateData(event->unitType, event->pos);
 }

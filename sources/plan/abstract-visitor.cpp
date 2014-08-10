@@ -21,6 +21,11 @@ void BasicVisitor::visitResourcePort(ResourcePort* port)
     visitAbstractPort(port);
 }
 
+void BasicVisitor::visitSupplyPort(SupplyPort* port)
+{
+    visitAbstractPort(port);
+}
+
 void BasicVisitor::visitProvideMineralFieldPort(ProvideMineralFieldPort* port)
 {
     visitAbstractPort(port);

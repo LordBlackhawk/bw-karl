@@ -12,7 +12,11 @@ MODULEFILES = $(LIBFILES) $(EXEFILES)
 all: $(MODULEFILES)
 
 run: karl.exe
-	$< --hud --speed=0 --parallel
+	$< --hud --speed=0
+#--parallel
+
+debug: karl.exe
+	gdb --args $< --hud --speed=0
 
 test: tests.exe
 	@echo ' ##############################################################################'
