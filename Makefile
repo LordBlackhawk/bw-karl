@@ -35,6 +35,13 @@ testcov: coverage_tests.exe
 		$(MAKE) $(MAKEFLAGS) -C ./sources/$$module/ gen-coverage ; \
 	done
 
+DOXYGEN-exists: ; @command -v doxygen > /dev/null || ( echo "Doxygen is required to build the docs." && exit 1 )
+DOT-exists: ; @command -v dot > /dev/null || ( echo "Dot (from graphviz package) is required to build class hierarchy graphs in the docs." && exit 1 )
+
+doc: DOXYGEN-exists DOT-exists
+	@echo "Generating documentation in ./doxygen/html..."
+	@doxygen ./doxygen/Doxyfile
+
 define LIB_template
 lib/lib$(1).a: .FORCE | $(BASEOUTPATH)
 	@$$(MAKE) $$(MAKEFLAGS) -C ./sources/$(1)/ all
@@ -55,6 +62,7 @@ $(foreach exe,$(EXECUTABLES),$(eval $(call EXE_template,$(exe))))
 clean:
 	rm -rf $(BASEOUTPATH)
 	rm $(MODULEFILES)
+	rm -rf doxygen/html
 
 lines:
 	wc -l sources/*/*.*pp
