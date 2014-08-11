@@ -91,25 +91,30 @@ namespace
 
                 if (thread == NULL) {
                     // Test MorphUnitPlanItem
-                    OwnUnitBoundaryItem* larva=NULL;
-                    for (auto it : blackboard->getBoundaries())
+                    bool already_queued_morph=false;
+                    int workerCount=0;
+                    for(auto it : blackboard->getBoundaries())
                     {
                         auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
-                        if ((unit != NULL) && !unit->isConnected() && (unit->getUnitType() == BWAPI::UnitTypes::Zerg_Larva))
+                        if ((unit != NULL) && (unit->getUnitType().isWorker()))
+                            workerCount++;
+                    }
+                    auto morphType=workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling;
+                    for(auto it:blackboard->getItems())
+                    {
+                        auto morph = dynamic_cast<MorphUnitPlanItem*>(it);
+                        if(morph!=NULL && morph->getUnitType() == morphType)
                         {
-                            larva = unit;
-                            break;
+                            if(!morph->isActive())
+                                already_queued_morph=true;
                         }
                     }
-                    if ((larva != NULL) && BWAPI::Broodwar->self()->minerals()>=50) {
-                        int workerCount=0;
-                        for(auto unit : BWAPI::Broodwar->self()->getUnits())
-                            if(unit->getType().isWorker())
-                                workerCount++;
-
-                        //LOG << "Added morph unit.";
-                        blackboard->addItem(new MorphUnitPlanItem(workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling, &larva->provideUnit));
+                    if(!already_queued_morph)
+                    {
+                        LOG << "adding morph: "<<morphType.getName();
+                        blackboard->addItem(new MorphUnitPlanItem(workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling, NULL));
                     }
+                    
                     // Test MoveToPositionAction
                     if (BWAPI::Broodwar->getFrameCount() == 2) {
                         for (auto it : blackboard->getBoundaries()) {
