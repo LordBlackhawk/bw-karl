@@ -27,3 +27,22 @@ cleandep:
 
 clean:
 	rm -rf $(OBJECTPATH)
+
+$(COVOBJPATH)%.o: $(SOURCEPATH)%.cpp $(OBJECTPATH)%.d | $(COVOBJPATH)
+	$(CXX) --std=c++0x $(COVFLAGS) -c $< -o $@
+
+$(COVOBJPATH)%.o: $(SOURCEPATH)%.cc $(OBJECTPATH)%.d | $(COVOBJPATH)
+	$(CC) --std=c99 $(CCFLAGS) -c $< -o $@
+
+$(COVOBJPATH)%.o: $(SOURCEPATH)%.s | $(COVOBJPATH)
+	$(CC) $(ASFLAGS) -o $@ -c $^
+
+gen-coverage: | $(COVERAGEPATH)
+	gcov -r -o $(BASEOUTPATH)coverage_$(MODULENAME) *.cpp > $(SUMMARYFILE)
+	mv *.gcov $(COVERAGEPATH)
+
+$(COVOBJPATH):
+	mkdir $(COVOBJPATH)
+
+$(COVERAGEPATH):
+	mkdir $(COVERAGEPATH)

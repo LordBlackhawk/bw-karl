@@ -158,7 +158,7 @@ namespace seh
             stream << getExceptionText() << std::endl;
             printPrettyStack(stream, debugfilename, &context);
             stream.close();
-        } catch (std::exception e) { /* Do nothing, it is getting worst only... */ }
+        } catch (std::exception& e) { /* Do nothing, it is getting worst only... */ }
         withinHandler = false;
     }
 

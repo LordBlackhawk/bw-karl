@@ -44,8 +44,8 @@ void RequireUnitPort::acceptVisitor(AbstractVisitor* visitor)
 
 void RequireUnitPort::bridge(ProvideUnitPort* port)
 {
-    if ((connection != NULL) && (port != NULL))
-        connection->connectTo(port->connection);
+    assert((connection != NULL) && (port != NULL));
+    connection->connectTo(port->connection);
 }
 
 AbstractAction* RequireUnitPort::prepareForExecution(AbstractExecutionEngine* engine)

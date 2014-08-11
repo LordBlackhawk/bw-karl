@@ -35,7 +35,7 @@ CollectMineralsAction::Status CollectMineralsAction::onTick(AbstractExecutionEng
 
 
 ZergBuildAction::ZergBuildAction(BWAPI::Unit* w, BWAPI::UnitType ut, BWAPI::TilePosition p, AbstractAction* pre)
-    : UnitAction(w, pre), unitType(ut), pos(p)
+    : UnitAction(w, pre), unitType(ut), pos(p), resourcesConsumed(false)
 { }
 
 void ZergBuildAction::onBegin(AbstractExecutionEngine* /*engine*/)
@@ -104,7 +104,7 @@ void ZergBuildAction::onEnd(AbstractExecutionEngine* /*engine*/)
 
 
 MorphUnitAction::MorphUnitAction(BWAPI::Unit* u, BWAPI::UnitType to, AbstractAction* pre)
-    : UnitAction(u, pre), unitType(to)
+    : UnitAction(u, pre), unitType(to), resourcesConsumed(false)
 { }
 
 void MorphUnitAction::onBegin(AbstractExecutionEngine* /*engine*/)

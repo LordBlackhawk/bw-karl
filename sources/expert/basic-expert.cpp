@@ -3,6 +3,7 @@
 #include "plan/broodwar-plan-items.hpp"
 
 BasicExpert::BasicExpert()
+    : currentBlackboard(NULL)
 { }
 
 bool BasicExpert::isApplicable(Blackboard* /*blackboard*/)
