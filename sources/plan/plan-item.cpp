@@ -27,6 +27,11 @@ AbstractItem::~AbstractItem()
         ports.front()->disconnect();
 }
 
+bool AbstractItem::isPortRegistered(AbstractPort* port)
+{
+    return std::find(ports.begin(), ports.end(), port) != ports.end();
+}
+
 void AbstractItem::removePort(AbstractPort* port)
 {
     ports.erase(std::remove(ports.begin(), ports.end(), port), ports.end());
