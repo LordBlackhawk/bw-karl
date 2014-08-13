@@ -74,6 +74,7 @@ void ResourceBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
 
 void ResourceBoundaryItem::visitMineralUpdateEvent(MineralUpdateEvent* event)
 {
+    lastSeen = event->time;
     minerals = event->minerals;
 }
 

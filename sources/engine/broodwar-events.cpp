@@ -46,8 +46,8 @@ void CompleteUnitUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
     visitor->visitCompleteUnitUpdateEvent(this);
 }
 
-MineralUpdateEvent::MineralUpdateEvent(BWAPI::Unit* u, int m)
-    : UnitUpdateEvent(u), minerals(m)
+MineralUpdateEvent::MineralUpdateEvent(BWAPI::Unit* u, int t, int m)
+    : UnitUpdateEvent(u), time(t), minerals(m)
 { }
 
 void MineralUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
