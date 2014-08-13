@@ -1,0 +1,63 @@
+
+#plangraph-graph
+{
+    width: 100%;
+    border: 1px solid black;
+}
+
+#plangraph-graph .node rect 
+{
+    stroke: #333;
+    stroke-width: 1px;
+    fill: #fff;
+}
+
+#plangraph-graph .node div.label
+{
+    padding: 4px;
+    font-family: monospace;
+}
+#plangraph-graph .planitem div
+{
+    color: #A33;
+}
+#plangraph-graph .planitem rect
+{
+    stroke-width: 3px;
+}
+#plangraph-graph .boundaryitem div
+{
+    color: #3A3;
+}
+#plangraph-graph .boundaryitem rect
+{
+    stroke-width: 3px;
+}
+#plangraph-graph .port div
+{
+    color: #33A;
+}
+#plangraph-graph .port.active rect
+{
+    fill: #DDF;
+}
+#plangraph-graph .port.inactive rect
+{
+    fill: #DDD;
+}
+#plangraph-graph .port.impossible rect
+{
+    fill: #DBB;
+}
+
+#plangraph-graph .edgeLabel rect 
+{
+    fill: #fff;
+}
+
+#plangraph-graph .edgePath 
+{
+    stroke: #333;
+    stroke-width: 1.5px;
+    fill: none;
+}

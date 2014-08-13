@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>plangraph</title>
+        <meta charset="UTF-8">
+        <link href="css/plangraph.css" rel="stylesheet" type="text/css"/>
+        <script src="../js/lib/d3.js" type="text/javascript"></script>
+        <script src="../js/lib/dagre-d3.js" type="text/javascript"></script>
+        <script src="../js/plangraph.js" type="text/javascript"></script>
+    </head>
+    <body>
+    <h1>Plangraph</h1>
+    <div id="plangraph-config">
+        Render Config: 
+        <label for="plangraph-displayPortsAs">displayPortsAs: </label><select name="plangraph-displayPortsAs" id="plangraph-displayPortsAs">
+            <option value="2nodes">2nodes</option>
+            <option value="1node">1node</option>
+            <option value="edge" selected="selected">edge</option>
+        </select>
+        <input type="checkbox" id="plangraph-skipResources" name="plangraph-skipResources" checked="checked" />
+        <label for="plangraph-skipResources">skipResources </label>
+        <button id="plangraph-update">update</button>
+        <input type="checkbox" id="plangraph-autoupdate" name="plangraph-autoupdate"  /><label for="plangraph-autoupdate">autoupdate </label>
+    </div>
+    <svg height=680 id="plangraph-graph">
+        <g />
+    </svg>
+    <h1>Debug:</h1>
+    <p>
+        SVG:
+        <textarea name="plangraph-output-svg" id="plangraph-output-svg" rows="10" cols="80"></textarea>
+    </p>
+    <p>
+        DOT:
+        <textarea name="plangraph-output-dot" id="plangraph-output-dot" rows="10" cols="80"></textarea>
+    </p>
+    <script>
+        plangraphInit();
+    </script>
+    </body>
+</html>

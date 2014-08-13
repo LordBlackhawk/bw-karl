@@ -9,6 +9,8 @@
 #include "plan/broodwar-boundary-items.hpp"
 #include "expert/expert-registrar.hpp"
 
+#include "expert/webgui-expert.hpp"
+
 #include <BWAPI.h>
 #include <BWAPI/Client.h>
 #include <BWTA.h>
@@ -310,6 +312,7 @@ int main(int argc, char* argv[])
             ("hud",         po::bool_switch(&showhud),                  "Show HUD.")
             ("speed",       po::value<int>(&speed)->default_value(0),   "Set game speed (-1 = default, 0 maximum speed, ...)")
             ("parallel",    po::bool_switch(&doParallel),               "Run experts parallel to StarCraft.")
+            ("webgui",      po::bool_switch(&WebGUIExpert::enabled),    "Enable WebGUI on port 8080.")
         ;
 
     po::options_description all("All options");
