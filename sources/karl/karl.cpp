@@ -117,23 +117,6 @@ namespace
                         LOG << "adding morph: "<<morphType.getName();
                         blackboard->addItem(new MorphUnitPlanItem(workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling, NULL));
                     }
-                    
-                    // Test MoveToPositionAction
-                    if (BWAPI::Broodwar->getFrameCount() == 2) {
-                        for (auto it : blackboard->getBoundaries()) {
-                            auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
-                            if ((unit != NULL) && (unit->getUnitType() == BWAPI::UnitTypes::Zerg_Overlord)) {
-                                //std::cout << "Overlord found!\n";
-                                auto provideUnit = &unit->provideUnit;
-                                for (auto location : BWTA::getStartLocations())
-                                {
-                                    auto item = new MoveToPositionPlanItem(provideUnit, location->getPosition());
-                                    blackboard->addItem(item);
-                                    provideUnit = &item->provideUnit;
-                                }
-                            }
-                        }
-                    }
                 }
 
                 // Test hand coded zergling rush
