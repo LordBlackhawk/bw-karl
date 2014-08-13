@@ -43,6 +43,7 @@ class AbstractItem : public BasicEventVisitor
         virtual ~AbstractItem();
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
 
+        bool isPortRegistered(AbstractPort* port);
         void removePort(AbstractPort* port);
         void update(AbstractEvent* event);
 

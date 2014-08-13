@@ -45,8 +45,10 @@ class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem
 
         int numberOfWorkers() const;
         inline int mineralsLeft() const { return minerals; }
+        inline Time getLastSeen() const { return lastSeen; }
 
     protected:
+        Time                lastSeen;
         BaseLocation*       base;
         int                 minerals;
 };

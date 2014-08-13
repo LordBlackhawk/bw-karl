@@ -8,6 +8,7 @@
 #include "plan/broodwar-plan-items.hpp"
 #include "plan/broodwar-boundary-items.hpp"
 #include "expert/expert-registrar.hpp"
+#include "expert/report-expert.hpp"
 
 #include <BWAPI.h>
 #include <BWAPI/Client.h>
@@ -315,6 +316,7 @@ int main(int argc, char* argv[])
     po::options_description all("All options");
     all.add(general);
     all.add(ExpertRegistrar::getOptions());
+    all.add(ReportExpert::getOptions());
 
     try {
         po::variables_map vm;

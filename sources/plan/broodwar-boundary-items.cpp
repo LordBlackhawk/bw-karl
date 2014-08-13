@@ -17,7 +17,8 @@ void AbstractSpaceUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpd
     if (unitType.isBuilding()) {
         requireSpace.setUnitType(unitType);
         requireSpace.connectTo(event->tilePos);
-        ports.push_back(&requireSpace);
+        if (!isPortRegistered(&requireSpace))
+            ports.push_back(&requireSpace);
     } else {
         requireSpace.disconnect();
         removePort(&requireSpace);
@@ -55,6 +56,7 @@ void OwnUnitBoundaryItem::visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* even
 
 ResourceBoundaryItem::ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f, BaseLocation* b)
     : AbstractSpaceUnitBoundaryItem(u, f, ut),
+      lastSeen(-1),
       base(b),
       minerals(-1)
 { }

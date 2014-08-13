@@ -15,7 +15,7 @@ MODULEFILES         = $(LIBFILES) $(EXEFILES)
 all: $(MODULEFILES)
 
 run: karl.exe
-	$< --hud --speed=0
+	$< --hud --speed=0 --report=1000
 #--parallel
 
 debug: karl.exe
