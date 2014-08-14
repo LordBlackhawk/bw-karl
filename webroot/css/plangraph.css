@@ -19,19 +19,33 @@
 }
 #plangraph-graph .planitem div
 {
-    color: #A33;
+    color: #077;
 }
 #plangraph-graph .planitem rect
 {
     stroke-width: 3px;
 }
+#plangraph-graph .planitem.active rect
+{
+    fill: #DFF;
+}
+#plangraph-graph .planitem.inactive rect
+{
+    fill: #DDD;
+}
+#plangraph-graph .planitem.impossible rect
+{
+    fill: #DBB;
+}
+
 #plangraph-graph .boundaryitem div
 {
-    color: #3A3;
+    color: #770;
 }
 #plangraph-graph .boundaryitem rect
 {
     stroke-width: 3px;
+    fill: #FFD;
 }
 #plangraph-graph .port div
 {
@@ -43,7 +57,7 @@
 }
 #plangraph-graph .port.inactive rect
 {
-    fill: #DDD;
+    fill: #BBB;
 }
 #plangraph-graph .port.impossible rect
 {
@@ -61,3 +75,46 @@
     stroke-width: 1.5px;
     fill: none;
 }
+
+span.provide_indicator
+{
+    padding: 4px;
+    border-left: 1px solid black;
+    margin-right: -3px;
+    background-color: gray;
+}
+
+.port span.provide_indicator.activeconnection
+{
+    background-color: greenyellow;
+}
+
+span.require_indicator
+{
+    padding: 4px;
+    border-right: 1px solid black;
+    margin-left: -3px;
+    background-color: gray;
+}
+
+.port span.require_indicator.activeconnection
+{
+    background-color: greenyellow;
+}
+
+span.active_indicator
+{
+    border-radius: 50%;
+    height: 36px;
+    padding: 4px;
+    border: 1px solid #666;
+    color: #DDD;
+    text-align: center;
+    background-color: gray;
+}
+.active span.active_indicator
+{
+    background-color: greenyellow;
+    color: #666;
+}
+

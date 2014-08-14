@@ -16,5 +16,4 @@ class WebGUIExpert : public BasicExpert
         
         bool handleWebRequest(struct mg_connection *conn);
     protected:
-        struct Blackboard *blackboard;
 };

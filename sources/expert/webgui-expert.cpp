@@ -12,8 +12,9 @@ REGISTER_EXPERT(WebGUIExpert);
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <typeinfo>
-
+#include <sstream>
 
 namespace 
 {
@@ -38,6 +39,27 @@ namespace
                 sscanf(tmp,"%i",destination)==1)
             return true;
         return false;
+    }
+
+    template<class T>
+    std::string t_to_string(T i)
+    {
+        std::stringstream ss;
+        std::string s;
+        ss << i;
+        s = ss.str();
+        return s;
+    }
+    std::string position2JSON(BWAPI::Position pos)
+    {
+        if(pos==BWAPI::Positions::Invalid)
+            return "{\"x\":\"-1\",\"y\":\"-1\",\"info\":\"invalid\"}";
+        if(pos==BWAPI::Positions::None)
+            return "{\"x\":\"-1\",\"y\":\"-1\",\"info\":\"none\"}";
+        if(pos==BWAPI::Positions::Unknown)
+            return "{\"x\":\"-1\",\"y\":\"-1\",\"info\":\"unknown\"}";
+
+        return "{\"x\":\""+t_to_string(pos.x())+"\",\"y\":\""+t_to_string(pos.y())+"\"}";
     }
 
 
@@ -238,8 +260,9 @@ namespace
             void visitMoveToPositionPlanItem(MoveToPositionPlanItem* item) override
             {
                 visitAbstractPlanItem(item);
-                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{}",
-                        "MoveToPosition");
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"pos\":%s}",
+                        "MoveToPosition",
+                        position2JSON(item->getPosition()).c_str());
             }
             void visitBuildPlanItem(BuildPlanItem* item) override
             {
@@ -284,16 +307,16 @@ bool WebGUIExpert::handleWebRequest(mg_connection* conn)
 {
     if(strcmp(conn->uri,"/status") == 0)
     {
-        if(!blackboard)
+        if(!currentBlackboard)
             return false;
         
         mg_send_header(conn, "Content-Type", "application/json");
         
         mg_printf_data(conn, "{");
         
-        mg_printf_data(conn, "\"time\":\"%i\",",blackboard->getInformations()->lastUpdateTime);
-        mg_printf_data(conn, "\"minerals\":\"%i\",",blackboard->getInformations()->currentMinerals);
-        mg_printf_data(conn, "\"gas\":\"%i\"",blackboard->getInformations()->currentGas);
+        mg_printf_data(conn, "\"time\":\"%i\",",currentBlackboard->getInformations()->lastUpdateTime);
+        mg_printf_data(conn, "\"minerals\":\"%i\",",currentBlackboard->getInformations()->currentMinerals);
+        mg_printf_data(conn, "\"gas\":\"%i\"",currentBlackboard->getInformations()->currentGas);
         
         mg_printf_data(conn, "}");
         
@@ -303,17 +326,17 @@ bool WebGUIExpert::handleWebRequest(mg_connection* conn)
     {
         int count;
         
-        if(!blackboard)
+        if(!currentBlackboard)
             return false;
         
         mg_send_header(conn, "Content-Type", "application/json");
         
         mg_printf_data(conn, "{");
-        mg_printf_data(conn, "\"time\":\"%i\",",blackboard->getInformations()->lastUpdateTime);
+        mg_printf_data(conn, "\"time\":\"%i\",",currentBlackboard->getInformations()->lastUpdateTime);
         mg_printf_data(conn, "\"items\":[");
         count=0;
         WebGUIOutputVisitor outputVisitor(conn);
-        for(auto it:blackboard->getItems())
+        for(auto it:currentBlackboard->getItems())
         {
             if(count>0)
                 mg_printf_data(conn,",");
@@ -328,7 +351,7 @@ bool WebGUIExpert::handleWebRequest(mg_connection* conn)
 
         mg_printf_data(conn, "\"boundaries\":[");
         count=0;
-        for(auto bound_it:blackboard->getBoundaries())
+        for(auto bound_it:currentBlackboard->getBoundaries())
         {
             AbstractBoundaryItem *it=bound_it.second;
 
@@ -346,7 +369,7 @@ bool WebGUIExpert::handleWebRequest(mg_connection* conn)
         mg_printf_data(conn, "\"actions\":[");
         /*
         count=0;
-        for(auto act:blackboard->actionMap)
+        for(auto act:currentBlackboard->actionMap)
         {
             
             if(count>0)
@@ -444,7 +467,8 @@ void WebGUIExpert::prepare()
 
 bool WebGUIExpert::tick(Blackboard* blackboard)
 {
-    this->blackboard=blackboard;
+    currentBlackboard=blackboard;
     mg_poll_server(server, 0);
+    currentBlackboard=NULL;
     return true;
 }
