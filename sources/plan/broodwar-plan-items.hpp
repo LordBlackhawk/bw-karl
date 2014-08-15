@@ -55,6 +55,8 @@ class MoveToPositionPlanItem : public AbstractSimpleUnitPlanItem
         void updateEstimates(Time current) override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
+        inline BWAPI::Position getPosition() const { return position; }
+
     protected:
         BWAPI::Position position;
 };

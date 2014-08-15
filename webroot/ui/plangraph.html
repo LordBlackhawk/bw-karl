@@ -9,7 +9,7 @@
         <script src="../js/plangraph.js" type="text/javascript"></script>
     </head>
     <body>
-    <h1>Plangraph</h1>
+    <h1 id="plangraph-headline">Plangraph</h1>
     <div id="plangraph-config">
         Render Config: 
         <label for="plangraph-displayPortsAs">displayPortsAs: </label><select name="plangraph-displayPortsAs" id="plangraph-displayPortsAs">
@@ -19,6 +19,8 @@
         </select>
         <input type="checkbox" id="plangraph-skipResources" name="plangraph-skipResources" checked="checked" />
         <label for="plangraph-skipResources">skipResources </label>
+        <input type="checkbox" id="plangraph-skipUnconnected" name="plangraph-skipUnconnected" checked="checked" />
+        <label for="plangraph-skipUnconnected">skipUnconnected </label>
         <button id="plangraph-update">update</button>
         <input type="checkbox" id="plangraph-autoupdate" name="plangraph-autoupdate"  /><label for="plangraph-autoupdate">autoupdate </label>
     </div>
