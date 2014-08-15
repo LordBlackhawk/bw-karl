@@ -47,10 +47,9 @@ class CompleteUnitUpdateEvent : public SimpleUnitUpdateEvent
 class MineralUpdateEvent : public UnitUpdateEvent
 {
     public:
-        int time;
         int minerals;
 
-        MineralUpdateEvent(BWAPI::Unit* u, int t, int m);
+        MineralUpdateEvent(BWAPI::Unit* u, int m);
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 

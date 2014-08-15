@@ -33,7 +33,7 @@ void BlackboardInformations::prepare()
         auto baselocation = new BaseLocation;
         baselocation->origin = base;
         for (auto unit : base->getMinerals())
-            baselocation->minerals.insert(new ResourceBoundaryItem(unit, unit->getType(), &fields, baselocation));
+            baselocation->minerals.insert(new ResourceBoundaryItem(unit, unit->getType(), this, baselocation));
         allBaseLocations.insert(baselocation);
         if (base == mybase)
             ownBaseLocations.insert(baselocation);

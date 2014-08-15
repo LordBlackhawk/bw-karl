@@ -266,7 +266,7 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
     BWAPI::Player* neutral = BWAPI::Broodwar->neutral();
     for (auto unit : BWAPI::Broodwar->getAllUnits()) {
         if (unit->getType().isMineralField()) {
-            engine->generateEvent(new MineralUpdateEvent(unit, BWAPI::Broodwar->getFrameCount(), unit->getResources()));
+            engine->generateEvent(new MineralUpdateEvent(unit, unit->getResources()));
         } else if (unit->getPlayer() != neutral) {
             engine->generateEvent(new SimpleUnitUpdateEvent(unit, unit->getPosition()));
         }
@@ -345,7 +345,7 @@ void Blackboard::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
 
     AbstractBoundaryItem* item = NULL;
     if (event->unitType.isResourceContainer()) {
-        item = new ResourceBoundaryItem(event->unit, event->unitType, &informations.fields);
+        item = new ResourceBoundaryItem(event->unit, event->unitType, &informations);
     } else if (event->owner == self()) {
         //LOG << "Own unit added: " << event->unitType.getName();
         item = new OwnUnitBoundaryItem(event->unit, event->unitType, &informations.fields);

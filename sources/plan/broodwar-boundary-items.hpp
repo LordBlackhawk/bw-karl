@@ -37,7 +37,7 @@ class OwnUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
 class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem
 {
     public:
-        ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f, BaseLocation* b = NULL);
+        ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, BlackboardInformations* i, BaseLocation* b = NULL);
         ~ResourceBoundaryItem();
 
         void acceptVisitor(AbstractVisitor* visitor) override;
@@ -49,9 +49,10 @@ class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem
         inline BWAPI::Position getPosition() const { return BWAPI::Position(getTilePosition()); }
 
     protected:
-        Time                lastSeen;
-        BaseLocation*       base;
-        int                 minerals;
+        BlackboardInformations* info;
+        Time                    lastSeen;
+        BaseLocation*           base;
+        int                     minerals;
 };
 
 class EnemyUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem

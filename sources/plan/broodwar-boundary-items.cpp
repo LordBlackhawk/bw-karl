@@ -54,8 +54,9 @@ void OwnUnitBoundaryItem::visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* even
 }
 
 
-ResourceBoundaryItem::ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f, BaseLocation* b)
-    : AbstractSpaceUnitBoundaryItem(u, f, ut),
+ResourceBoundaryItem::ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, BlackboardInformations* i, BaseLocation* b)
+    : AbstractSpaceUnitBoundaryItem(u, &i->fields, ut),
+      info(i),
       lastSeen(-1),
       base(b),
       minerals(-1)
@@ -74,7 +75,7 @@ void ResourceBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
 
 void ResourceBoundaryItem::visitMineralUpdateEvent(MineralUpdateEvent* event)
 {
-    lastSeen = event->time;
+    lastSeen = info->lastUpdateTime;
     minerals = event->minerals;
 }
 
