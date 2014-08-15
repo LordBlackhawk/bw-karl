@@ -52,7 +52,7 @@ class MoveToPositionPlanItem : public AbstractSimpleUnitPlanItem
         MoveToPositionPlanItem(ProvideUnitPort* provider, BWAPI::Position p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        void updateEstimates() override;
+        void updateEstimates(Time current) override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
     protected:
@@ -68,7 +68,7 @@ class AttackUnitPlanItem : public AbstractSimpleUnitPlanItem
         AttackUnitPlanItem(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        void updateEstimates() override;
+        void updateEstimates(Time current) override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 };
 

@@ -21,18 +21,20 @@ BOOST_AUTO_TEST_CASE( simple_worker )
 
     auto a = blackboard->build(BWAPI::UnitTypes::Zerg_Spawning_Pool);
     auto m = createResourceBoundaryItem(BWAPI::TilePosition(5, 5));
-    auto b = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
-    auto c = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
+    auto b = blackboard->gather(createProvideUnitPort(BWAPI::UnitTypes::Zerg_Drone), m);
+    auto c = blackboard->gather(createProvideUnitPort(BWAPI::UnitTypes::Zerg_Drone), m);
 
-    b->setActive();
-    c->setActive();
+    // execute tick to be sure that plan items are active and estimatedStartTime is correct:
+    tick();
+    BOOST_CHECK(b->isActive());
+    BOOST_CHECK(c->isActive());
 
     ResourceExpert expert;
     expert.tick(blackboard);
 
     // 200 / (2 * 0.045) = 2222,222...
     BOOST_REQUIRE( blackboard->includeItem(a) );
-    BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, 2222 );
+    BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, 2223 );
 }
 
 BOOST_AUTO_TEST_CASE( delayed_worker )
@@ -41,16 +43,20 @@ BOOST_AUTO_TEST_CASE( delayed_worker )
 
     auto a = blackboard->build(BWAPI::UnitTypes::Zerg_Spawning_Pool);
     auto m = createResourceBoundaryItem(BWAPI::TilePosition(5, 5));
-    auto b = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
-    auto c = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
+    auto b = blackboard->gather(createProvideUnitPort(BWAPI::UnitTypes::Zerg_Drone), m);
+    auto c = blackboard->gather(createProvideUnitPort(BWAPI::UnitTypes::Zerg_Drone, 1000), m);
 
-    b->setActive();
-    c->estimatedStartTime = 1000;
+    // execute tick to be sure that plan items are active and estimatedStartTime is correct:
+    tick();
+    BOOST_CHECK(b->isActive());
+    BOOST_CHECK_EQUAL(b->estimatedStartTime, 1);
+    BOOST_CHECK(!c->isActive());
+    BOOST_CHECK_EQUAL(c->estimatedStartTime, 1000);
 
     ResourceExpert expert;
     expert.tick(blackboard);
 
-    // 1000 + (200 - 1000 * 0.045) / (2 * 0.045) = 2722,2222
+    // 1 + 1000 + (200 - 1000 * 0.045) / (2 * 0.045) = 2723,2222
     BOOST_REQUIRE( blackboard->includeItem(a) );
     BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, 2722 );
 }
@@ -61,11 +67,11 @@ BOOST_AUTO_TEST_CASE( delayed_worker_diff_numbers )
 
     auto a = blackboard->build(BWAPI::UnitTypes::Zerg_Spawning_Pool);
     auto m = createResourceBoundaryItem(BWAPI::TilePosition(5, 5));
-    auto b = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
-    auto c = addItem(new GatherMineralsPlanItem(m, &createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone, BWAPI::Positions::Unknown)->provideUnit));
+    blackboard->gather(createProvideUnitPort(BWAPI::UnitTypes::Zerg_Drone, 10000), m);
+    blackboard->gather(createProvideUnitPort(BWAPI::UnitTypes::Zerg_Drone, 11000), m);
 
-    b->estimatedStartTime = 10000;
-    c->estimatedStartTime = 11000;
+    // execute tick to be sure that plan items are active and estimatedStartTime is correct:
+    tick();
 
     ResourceExpert expert;
     expert.tick(blackboard);

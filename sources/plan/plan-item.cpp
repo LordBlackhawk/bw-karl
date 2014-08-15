@@ -20,6 +20,11 @@ AbstractPort::~AbstractPort()
     owner->removePort(this);
 }
 
+bool AbstractPort::isActive() const
+{
+    return owner->isBoundaryItem() || dynamic_cast<AbstractPlanItem*>(owner)->isActive();
+}
+
 AbstractItem::~AbstractItem()
 {
     // all remaining port must be of type "free on disconnect"!!!
@@ -52,22 +57,24 @@ void AbstractItem::update(AbstractEvent* event)
     event->acceptVisitor(this);
 }
 
-AbstractPlanItem::AbstractPlanItem()
-    : estimatedStartTime(INFINITE_TIME)
-{ }
-
 AbstractBoundaryItem::AbstractBoundaryItem(BWAPI::Unit* u)
     : unit(u)
 { }
 
-void AbstractPlanItem::updateEstimates()
+AbstractPlanItem::AbstractPlanItem()
+    : estimatedStartTime(INFINITE_TIME), status(Planed)
+{ }
+
+void AbstractPlanItem::updateEstimates(Time current)
 {
-    estimatedStartTime = START_TIME;
-    for (auto it : ports)
-        if (it->isRequirePort())
-    {
-        it->updateEstimates();
-        estimatedStartTime = std::max(estimatedStartTime, it->estimatedTime);
+    if (status == Planed || status == Active) {
+        estimatedStartTime = current + 1;
+        for (auto it : ports)
+            if (it->isRequirePort())
+        {
+            it->updateEstimates();
+            estimatedStartTime = std::max(estimatedStartTime, it->estimatedTime);
+        }
     }
     for (auto it : ports)
         if (!it->isRequirePort())
@@ -78,17 +85,14 @@ void AbstractPlanItem::updateEstimates()
 
 void AbstractPlanItem::setActive()
 {
-    estimatedStartTime = ACTIVE_TIME;
-    for (auto it : ports)
-        if (it->isRequirePort())
-            it->estimatedTime = ACTIVE_TIME;
+    assert(status == Planed);
+    status = Active;
 }
 
 void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
 {
-    estimatedStartTime = INFINITE_TIME;
-    for (auto it : ports)
-        it->estimatedTime = INFINITE_TIME;
+    assert(status == Active || status == Executing);
+    status = Failed;
 }
 
 Blackboard::Blackboard(AbstractExecutionEngine* e)
@@ -134,26 +138,6 @@ AbstractBoundaryItem* Blackboard::lookupUnit(BWAPI::Unit* unit) const
     return (it != unitBoundaries.end()) ? it->second : NULL;
 }
 
-namespace
-{
-    class PlanItemCompare
-    {
-        public:
-            bool operator () (AbstractPlanItem* lhs, AbstractPlanItem* rhs) const
-            {
-                return *lhs < *rhs;
-            }
-    };
-}
-
-void Blackboard::recalculateEstimatedTimes()
-{
-    for (auto it : items)
-        if (!it->isActive())
-            it->updateEstimates();
-    std::sort(items.begin(), items.end(), PlanItemCompare());
-}
-
 BuildPlanItem* Blackboard::build(BWAPI::UnitType ut)
 {
     auto result = new BuildPlanItem(&informations.fields, ut, BWAPI::TilePositions::Unknown);
@@ -194,6 +178,25 @@ AttackUnitPlanItem* Blackboard::attack(ProvideUnitPort* provider, EnemyUnitBound
     return result;
 }
 
+namespace
+{
+    class PlanItemCompare
+    {
+        public:
+            bool operator () (AbstractPlanItem* lhs, AbstractPlanItem* rhs) const
+            {
+                return *lhs < *rhs;
+            }
+    };
+}
+
+void Blackboard::recalculateEstimatedTimes()
+{
+    for (auto it : items)
+        it->updateEstimates(informations.lastUpdateTime);
+    std::sort(items.begin(), items.end(), PlanItemCompare());
+}
+
 void Blackboard::tick()
 {
     // 1. Receive events
@@ -219,7 +222,7 @@ void Blackboard::tick()
     // 4. Execute actions which are planed soon
     const Time timeHorizont = getLastUpdateTime() + 10;
     for (auto it : items)
-        if (!it->isActive() && (it->estimatedStartTime < timeHorizont))
+        if (it->isPlaned() && (it->estimatedStartTime < timeHorizont))
     {
         AbstractAction* action = it->prepareForExecution(engine);
         if (action != NULL) {

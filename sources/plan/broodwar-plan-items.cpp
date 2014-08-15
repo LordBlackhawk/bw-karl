@@ -91,10 +91,10 @@ void MoveToPositionPlanItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitMoveToPositionPlanItem(this);
 }
 
-void MoveToPositionPlanItem::updateEstimates()
+void MoveToPositionPlanItem::updateEstimates(Time current)
 {
     provideUnit.estimatedDuration = (int)(position.getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
-    AbstractSimpleUnitPlanItem::updateEstimates();
+    AbstractSimpleUnitPlanItem::updateEstimates(current);
 }
 
 AbstractAction* MoveToPositionPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
@@ -120,10 +120,10 @@ void AttackUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitAttackUnitPlanItem(this);
 }
 
-void AttackUnitPlanItem::updateEstimates()
+void AttackUnitPlanItem::updateEstimates(Time current)
 {
     provideUnit.estimatedDuration = (int)(enemyUnit.getPosition().getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
-    AbstractSimpleUnitPlanItem::updateEstimates();
+    AbstractSimpleUnitPlanItem::updateEstimates(current);
 }
 
 AbstractAction* AttackUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)

@@ -20,9 +20,10 @@ class AbstractPort
         AbstractPort(AbstractItem* o);
 
         inline AbstractItem* getOwner() const { return owner; }
-        inline bool isActive() const { return (estimatedTime == ACTIVE_TIME); }
         inline bool isImpossible() const { return isImpossibleTime(estimatedTime); }
         inline bool operator < (const AbstractPort& rhs) const { return estimatedTime < rhs.estimatedTime; }
+
+        bool isActive() const;
 
         virtual ~AbstractPort();
         virtual bool isActiveConnection() const = 0;
@@ -64,20 +65,27 @@ class AbstractBoundaryItem : public AbstractItem
 class AbstractPlanItem : public AbstractItem
 {
     public:
+        enum Status { Planed, Active, Executing, Failed };
+
         Time estimatedStartTime;
 
         AbstractPlanItem();
 
-        inline bool isActive() const { return (estimatedStartTime == ACTIVE_TIME); }
+        inline bool isPlaned() const { return (status == Planed); }
+        inline bool isActive() const { return (status == Active) || (status == Executing); }
         inline bool isImpossible() const { return isImpossibleTime(estimatedStartTime); }
         inline bool operator < (const AbstractPlanItem& rhs) const { return estimatedStartTime < rhs.estimatedStartTime; }
+        inline Status getStatus() const { return status; }
 
         void setActive();
         void setErrorState(AbstractAction* action);
 
-        virtual void updateEstimates();
+        virtual void updateEstimates(Time current);
         virtual AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) = 0;
         virtual void removeFinished(AbstractAction* action) = 0;
+
+    protected:
+        Status status;
 };
 
 class AbstractExpert

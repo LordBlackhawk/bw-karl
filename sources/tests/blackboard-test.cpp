@@ -7,12 +7,12 @@ BOOST_FIXTURE_TEST_SUITE( blackboard_test, BlackboardFixture )
 
 BOOST_AUTO_TEST_CASE( remove_after_finished )
 {
-    MockupPlanItem* a = addItem(new MockupPlanItem(-1));
-    MockupPlanItem* b = addItem(new MockupPlanItem(5));
-    MockupPlanItem* c = addItem(new MockupPlanItem(1000));
+    auto boundary = createProvideUnitPort(BWAPI::UnitTypes::Zerg_Drone);
+    MockupPlanItem* a = addItem(new MockupPlanItem(0));
+    MockupPlanItem* b = addItem(new MockupPlanItem(100));
 
+    a->requireUnit.connectTo(boundary);
     b->requireUnit.connectTo(&a->provideUnit);
-    c->requireUnit.connectTo(&b->provideUnit);
 
     tick();
 
@@ -21,27 +21,28 @@ BOOST_AUTO_TEST_CASE( remove_after_finished )
     addEvent(new ActionEvent(action, ActionEvent::ActionFinished));
     tick();
 
-    BOOST_CHECK( !blackboard->includeItem(b) );
+    BOOST_CHECK( !blackboard->includeItem(a) );
 }
 
 BOOST_AUTO_TEST_CASE( continue_after_failed )
 {
-    MockupPlanItem* a = addItem(new MockupPlanItem(-1));
-    MockupPlanItem* b = addItem(new MockupPlanItem(5));
-    MockupPlanItem* c = addItem(new MockupPlanItem(1000));
+    auto boundary = createProvideUnitPort(BWAPI::UnitTypes::Zerg_Drone);
+    MockupPlanItem* a = addItem(new MockupPlanItem(0));
+    MockupPlanItem* b = addItem(new MockupPlanItem(100));
 
+    a->requireUnit.connectTo(boundary);
     b->requireUnit.connectTo(&a->provideUnit);
-    c->requireUnit.connectTo(&b->provideUnit);
 
     tick();
+    BOOST_CHECK( a->isActive() );
 
     AbstractAction* action = popAction();
     BOOST_REQUIRE( action != NULL );
     addEvent(new ActionEvent(action, ActionEvent::ActionFailed));
     tick();
 
-    BOOST_REQUIRE( blackboard->includeItem(b) );
-    BOOST_CHECK_EQUAL( b->estimatedStartTime, INFINITE_TIME );
+    BOOST_REQUIRE( blackboard->includeItem(a) );
+    BOOST_CHECK_EQUAL( a->getStatus(), AbstractPlanItem::Failed );
 }
 
 BOOST_AUTO_TEST_CASE( add_remove_unit )

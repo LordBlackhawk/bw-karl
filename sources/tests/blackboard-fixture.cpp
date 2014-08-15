@@ -17,12 +17,13 @@ MockupPlanItem::MockupPlanItem(int time)
     : AbstractSimpleUnitPlanItem(BWAPI::UnitTypes::Zerg_Drone)
 {
     estimatedStartTime = time;
+    provideUnit.estimatedTime = time;
 }
 
 void MockupPlanItem::acceptVisitor(AbstractVisitor* /*visitor*/)
 { }
 
-void MockupPlanItem::updateEstimates()
+void MockupPlanItem::updateEstimates(Time /*current*/)
 { }
 
 AbstractAction* MockupPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
@@ -174,4 +175,44 @@ void BlackboardFixture::buildBaseLocations()
         if (l % 2 == 0)
             informations->ownBaseLocations.insert(base);
     }
+}
+
+namespace
+{
+    class ProvideUnitPlanItem : public AbstractPlanItem
+    {
+        public:
+            ProvideUnitPort provideUnit;
+
+            ProvideUnitPlanItem(BWAPI::UnitType ut, BWAPI::Position pos, int time)
+                : provideUnit(this, NULL)
+            {
+                provideUnit.updateData(ut, pos);
+                provideUnit.estimatedTime = time;
+                estimatedStartTime = time;
+            }
+
+            void acceptVisitor(AbstractVisitor* visitor) override
+            {
+                visitor->visitAbstractPlanItem(this);
+            }
+
+            void updateEstimates(Time /*current*/) override
+            {
+                // Do not change estimatedStartTime on tick!!!
+            }
+
+            AbstractAction* prepareForExecution(AbstractExecutionEngine* /*engine*/) override
+            {
+                return NULL;
+            }
+
+            void removeFinished(AbstractAction* /*action*/)
+            { }
+    };
+}
+
+ProvideUnitPort* BlackboardFixture::createProvideUnitPort(BWAPI::UnitType ut, Time estimatedStartTime, BWAPI::Position pos)
+{
+    return &(new ProvideUnitPlanItem(ut, pos, estimatedStartTime))->provideUnit;
 }

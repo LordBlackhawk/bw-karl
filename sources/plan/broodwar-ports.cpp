@@ -67,7 +67,7 @@ bool ResourcePort::isRequirePort() const
 
 bool ResourcePort::isActiveConnection() const
 {
-    return isActive();
+    return false;
 }
 
 void ResourcePort::acceptVisitor(AbstractVisitor* visitor)

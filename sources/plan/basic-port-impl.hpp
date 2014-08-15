@@ -12,7 +12,7 @@ class BasicPortImpl : public AbstractPort
         int estimatedDuration;
 
         BasicPortImpl(AbstractItem* o)
-            : AbstractPort(o), estimatedDuration(0), connection(NULL)
+            : AbstractPort(o), estimatedDuration(1), connection(NULL)
         { }
 
         ~BasicPortImpl()
@@ -36,7 +36,7 @@ class BasicPortImpl : public AbstractPort
                 estimatedTime = (isConnected()) ? connection->estimatedTime : INFINITE_TIME;
             } else {
                 // Remark this method is only called if owner is of type AbstractPlanItem!!!
-                estimatedTime = static_cast<AbstractPlanItem*>(owner)->estimatedStartTime + estimatedDuration;
+                estimatedTime = static_cast<AbstractPlanItem*>(owner)->estimatedStartTime + std::max(1, estimatedDuration);
             }
         }
 

@@ -1,3 +1,33 @@
+/*
+    ToDo: EXAMPLE OF IMPROVED GRAPH:
+    
+    { rank=min;
+    n1 [label="Zerg Larva",shape=box,color=green]
+    n2 [label="Zerg Hatchery",shape=box,color=green]
+    n4 [label="Zerg Drone",shape=box,color=green]
+    n5 [label="Zerg Drone",shape=box,color=green]
+    n6 [label="Zerg Drone",shape=box,color=green]
+    n7 [label="Zerg Overlord",shape=box,color=green]
+    n8 [label="Zerg Larva",shape=box,color=green]
+    n9 [label="Zerg Larva",shape=box,color=green]
+    n10 [label="Resource Mineral Field",shape=box,color=blue]
+    n11 [label="Resource Mineral Field",shape=box,color=blue]
+    n12 [label="Resource Mineral Field",shape=box,color=blue]
+    n14 [label="Resource Mineral Field",shape=box,color=blue]
+    }
+    subgraph cluster0 {
+     { rank=min;
+     n3 [label="Zerg Drone",shape=box,color=green]
+     n13 [label="Resource Mineral Field",shape=box,color=blue]
+     }
+     n15 [label="GatherMinerals\nactive"]
+     n3 -> n15 [color=black]
+     n13 -> n15 [color=black]
+     label="3x";
+     color=black;
+    }
+*/
+
 #include "report-expert.hpp"
 #include "expert-registrar.hpp"
 #include "plan/broodwar-ports.hpp"

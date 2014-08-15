@@ -20,7 +20,7 @@ class MockupPlanItem : public AbstractSimpleUnitPlanItem, public ObjectCounter<M
     public:
         MockupPlanItem(int time);
         void acceptVisitor(AbstractVisitor* visitor) override;
-        void updateEstimates() override;
+        void updateEstimates(Time current) override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 };
 
@@ -69,4 +69,6 @@ class BlackboardFixture
         void destroyBoundaryItem(AbstractBoundaryItem* item);
         void setupFields();
         void buildBaseLocations();
+
+        ProvideUnitPort* createProvideUnitPort(BWAPI::UnitType ut, Time estimatedStartTime = 0, BWAPI::Position pos = BWAPI::Positions::Unknown);
 };
