@@ -73,6 +73,23 @@ function plangraphInit()
                     return "A";
                 return time;
             }
+            
+            function getStatusEstimatedString(status,time)
+            {
+                switch(status)
+                {
+                    case "planned":
+                        return getEstimatedTimeString(time);
+                    case "active":
+                        return "A";
+                    case "executing":
+                        return "E";
+                    case "failed":
+                        return "F";
+                    default:
+                        return "?";
+                }
+            }
 
             function getPositionString(pos)
             {
@@ -165,7 +182,7 @@ function plangraphInit()
                 }
                 if(type=="planitem")
                 {
-                    label="<span class=\"active_indicator\">"+getEstimatedTimeString(item.estimatedStartTime)+"</span>"+label;
+                    label="<span class=\"active_indicator\">"+getStatusEstimatedString(item.status,item.estimatedStartTime)+"</span>"+label;
                 }
 
                 if(config.skipUnconnected)

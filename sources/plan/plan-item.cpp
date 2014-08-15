@@ -62,12 +62,12 @@ AbstractBoundaryItem::AbstractBoundaryItem(BWAPI::Unit* u)
 { }
 
 AbstractPlanItem::AbstractPlanItem()
-    : estimatedStartTime(INFINITE_TIME), status(Planed)
+    : estimatedStartTime(INFINITE_TIME), status(Planned)
 { }
 
 void AbstractPlanItem::updateEstimates(Time current)
 {
-    if (status == Planed || status == Active) {
+    if (status == Planned || status == Active) {
         estimatedStartTime = current + 1;
         for (auto it : ports)
             if (it->isRequirePort())
@@ -85,7 +85,7 @@ void AbstractPlanItem::updateEstimates(Time current)
 
 void AbstractPlanItem::setActive()
 {
-    assert(status == Planed);
+    assert(status == Planned);
     status = Active;
 }
 
@@ -219,10 +219,10 @@ void Blackboard::tick()
     // 3. Recalculate estimatedTimes
     recalculateEstimatedTimes();
 
-    // 4. Execute actions which are planed soon
+    // 4. Execute actions which are planned soon
     const Time timeHorizont = getLastUpdateTime() + 10;
     for (auto it : items)
-        if (it->isPlaned() && (it->estimatedStartTime < timeHorizont))
+        if (it->isPlanned() && (it->estimatedStartTime < timeHorizont))
     {
         AbstractAction* action = it->prepareForExecution(engine);
         if (action != NULL) {

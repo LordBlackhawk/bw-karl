@@ -89,6 +89,22 @@ namespace
 
         return "{\"x\":\""+t_to_string(pos.x())+"\",\"y\":\""+t_to_string(pos.y())+"\"}";
     }
+    const char *status2String(AbstractPlanItem::Status status)
+    {
+        switch(status)
+        {
+            case AbstractPlanItem::Status::Planned:
+                return "planned";
+            case AbstractPlanItem::Status::Active:
+                return "active";
+            case AbstractPlanItem::Status::Executing:
+                return "executing";
+            case AbstractPlanItem::Status::Failed:
+                return "failed";
+            default:
+                return "unknown";
+        }
+    }
 
     class WebGUIOutputVisitor : public AbstractVisitor
     {
@@ -97,7 +113,7 @@ namespace
             WebGUIOutputVisitor(mg_connection *conn) : conn(conn)
             { }
 
-            void visitAbstractPort(AbstractPort* port)
+            void visitAbstractPort(AbstractPort* port) override
             {
                 mg_printf_data(conn,"\"id\":\"%p\",\"owner\":\"%p\",\"active\":%s,\"activeConnection\":%s,\"impossible\":%s,\"type\":\"%s\",\"estimatedTime\":\"%i\"",
                     port,
@@ -202,7 +218,7 @@ namespace
                     port->isConnected()?"true":"false");
             }
 
-            void visitAbstractBoundaryItem(AbstractBoundaryItem* item)
+            void visitAbstractBoundaryItem(AbstractBoundaryItem* item) override
             {
                 mg_printf_data(conn,"\"id\":\"%p\",\"unitID\":\"%i\",",
                         item,
@@ -251,11 +267,12 @@ namespace
                     //FIXME: item->getPosition(),item->getTilePosition()
             }
 
-            void visitAbstractPlanItem(AbstractPlanItem* item)
+            void visitAbstractPlanItem(AbstractPlanItem* item) override
             {
-                mg_printf_data(conn,"\"id\":\"%p\",\"active\":%s,\"impossible\":%s,\"estimatedStartTime\":\"%i\",",
+                mg_printf_data(conn,"\"id\":\"%p\",\"active\":%s,\"status\":\"%s\",\"impossible\":%s,\"estimatedStartTime\":\"%i\",",
                         item,
                         item->isActive()?"true":"false",
+                        status2String(item->getStatus()),
                         item->isImpossible()?"true":"false",
                         item->estimatedStartTime);
                 mg_printf_data(conn,"\"ports\":[");
