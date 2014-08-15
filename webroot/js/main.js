@@ -13,8 +13,22 @@ $(document).ready(function()
             {
                 if(!data)
                     return;
-                $("#info").html("Time: "+data.time+" Minerals: "+data.minerals+" Gas: "+data.gas);
-                $("#status").css("background-color","#007700");
+                
+                switch(data.status)
+                {
+                    case "pregame":
+                        $("#info").html("waiting for game...");
+                        $("#status").css("background-color","#000099");
+                        break;
+                    case "running":
+                        $("#info").html("Time: "+data.time+" Minerals: "+data.minerals+" Gas: "+data.gas);
+                        $("#status").css("background-color","#007700");
+                        break;
+                    default:
+                        $("#info").html("unknown game state: "+data.status);
+                        $("#status").css("background-color","#777777");
+                }
+                
             },
             error: function(request, status, err)
             {
@@ -44,6 +58,57 @@ $(document).ready(function()
         {
             if(data!=="ok")
                 alert(data);
+        },'text');
+    });
+    
+    $('#add-planitem-morph').on('submit',function(e){
+        e.preventDefault();
+        $.post('add', {type:'MorphUnitPlanItem',unitType:$('#add-planitem-morph-type').val()},function(data)
+        {
+            if(data!=="ok")
+                alert(data);
+        },'text');
+    });
+    $('#add-planitem-build').on('submit',function(e){
+        e.preventDefault();
+        $.post('add', {type:'BuildPlanItem',unitType:$('#add-planitem-build-type').val()},function(data)
+        {
+            if(data!=="ok")
+                alert(data);
+        },'text');
+    });
+    $.get('unittypes',function(data)
+    {
+        var buildings=[];
+        var morphable=[];
+        
+        for(var unitType in data)
+        {
+            var ut=data[unitType];
+            
+            if(ut.isBuilding)
+            {
+                buildings.push(unitType);
+            }
+            if(ut.race==="Zerg" && !ut.isBuilding)
+            {
+                morphable.push(unitType);
+            }
+        }
+        
+        $('#add-planitem-morph-type').autocomplete({
+            autoSelectFirst: true,
+            lookup:morphable,
+            onSelect:function(value){
+                //alert(value);
+            }
+        });
+        $('#add-planitem-build-type').autocomplete({
+            autoSelectFirst: true,
+            lookup:buildings,
+            onSelect:function(value){
+                //alert(value);
+            }
         });
     });
 });

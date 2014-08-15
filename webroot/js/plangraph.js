@@ -253,15 +253,20 @@ function plangraphInit()
                     {
                         var port=item.ports[p];
 
-                        if(port.data.connectedPort && 0!=port.data.connectedPort)
+                        if(port.data.connectedPort && 0!=port.data.connectedPort || port.type==="provide")
                         {
                             var label="<span class=\"active_indicator\">"+getEstimatedTimeString(port.estimatedTime)+"</span>"+getPortLabel(port);
                             var portName=getJoinedPortName(port.id,port.data.connectedPort);
-
-                            ensureNodeExists(portName,{
+                            
+                            var graphinfo;  //provide ports override require ports
+                            if(!g.hasNode(portName)||port.type==="provide")
+                                graphinfo={
                                 label: "<div class=\"label\">"+label+"</div>",
                                 type: "port",
-                                port: port });
+                                port: port };
+
+                            ensureNodeExists(portName, graphinfo);
+                            
                             if(port.type==="require")
                             {
                                 addEdge(null,"item"+item.id, portName, { label: "port" });
@@ -285,16 +290,25 @@ function plangraphInit()
                         {
                             if(typeof(portOwner[port.data.connectedPort])!=="undefined")
                             {
-                                var label=getPortLabel(port);
+                                var label="<div class=\"label\">"+getPortLabel(port)+"</div>";
                                 if(port.type==="require")
                                 {
-                                    addEdge("edge"+getJoinedPortName(item.id,portOwner[port.data.connectedPort]),"item"+item.id, "item"+portOwner[port.data.connectedPort], { label: label });
+                                    addEdge(null,"item"+item.id, "item"+portOwner[port.data.connectedPort], { label: label });
                                 }
                                 else
                                 {
-                                    addEdge("edge"+getJoinedPortName(item.id,portOwner[port.data.connectedPort]),"item"+portOwner[port.data.connectedPort], "item"+item.id, { label: label });
+                                    addEdge(null,"item"+portOwner[port.data.connectedPort], "item"+item.id, { label: label });
                                 }
                             }
+                        }
+                        else if(port.type==="provide")  //display estimates for unconnected provide ports
+                        {
+                            var label="<span class=\"active_indicator\">"+getEstimatedTimeString(port.estimatedTime)+"</span> ? "
+                            ensureNodeExists("emptyItemForProvidePort"+port.id,{
+                                label:"<div class=\"label\">"+label+"</div>",
+                                type: "port",
+                                port: port });
+                            addEdge(null,"emptyItemForProvidePort"+port.id, "item"+item.id, { label: "<div class=\"label\">"+getPortLabel(port)+"</div>" });
                         }
                     }
                 }
@@ -344,9 +358,6 @@ function plangraphInit()
             renderer.layout(layout).run(g, d3.select("#plangraph-graph g"));
             $("#plangraph-output-svg").text($("#plangraph-graph").html().replace(/<g/g, "\n<g"));
             $("#plangraph-output-dot").text(dotOutput+"}");
-
-            if($('#plangraph-autoupdate').prop('checked'))
-                setTimeout(plangraphUpdate,1000);
         }
         catch (e)
         {
@@ -372,12 +383,18 @@ function plangraphInit()
             updateAlreadyRunning=false;
             if(!data)
                 return;
+            
+            if(data.status==="running")
+            {
+                plangraphRedraw(data,typeof(oldPlanData)!=="undefined");
 
-            plangraphRedraw(data,typeof(oldPlanData)!=="undefined");
+                $("#plangraph-headline").text("Plangraph for frame #"+data.time);
 
-            $("#plangraph-headline").text("Plangraph for frame #"+data.time);
-
-            oldPlanData=data;
+                oldPlanData=data;
+            }
+            
+            if($('#plangraph-autoupdate').prop('checked'))
+                setTimeout(plangraphUpdate,1000);
 
         }).fail(function() {
             updateAlreadyRunning=false;

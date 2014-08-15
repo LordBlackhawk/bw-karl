@@ -251,6 +251,8 @@ namespace
 
         LOG << "Setup of BWAPI...";
         BWAPI::BWAPI_init();
+        
+        WebGUIExpert::initialize();
 
         LOG << "Connecting...";
         reconnect();
@@ -259,6 +261,7 @@ namespace
             LOG << "Waiting to enter match...";
             while (!Broodwar->isInGame()) {
                 broodwarUpdate();
+                WebGUIExpert::preGameTick();
                 Sleep(1);
             }
 
@@ -281,6 +284,8 @@ namespace
             }
             LOG << "Game ended.\n";
         }
+        
+        WebGUIExpert::quit(); //FIXME: won't get here anyways...
     }
 }
 

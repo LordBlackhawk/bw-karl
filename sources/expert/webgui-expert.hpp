@@ -8,12 +8,16 @@ class WebGUIExpert : public BasicExpert
         WebGUIExpert();
         ~WebGUIExpert();
 
-        void prepare() override;
         bool tick(Blackboard* blackboard) override;
+        inline Blackboard *getCurrentBlackboard() { return currentBlackboard; }
         
         static bool enabled;
         static bool isApplicable(Blackboard* blackboard);
         
-        bool handleWebRequest(struct mg_connection *conn);
+        static void initialize();
+        static void quit();
+        static void preGameTick();
+        
+        static WebGUIExpert *instance();
     protected:
 };
