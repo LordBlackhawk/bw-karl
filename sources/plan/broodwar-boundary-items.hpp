@@ -46,6 +46,7 @@ class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem
         int numberOfWorkers() const;
         inline int mineralsLeft() const { return minerals; }
         inline Time getLastSeen() const { return lastSeen; }
+        inline BWAPI::Position getPosition() const { return BWAPI::Position(getTilePosition()); }
 
     protected:
         Time                lastSeen;

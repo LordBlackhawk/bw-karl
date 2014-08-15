@@ -115,7 +115,7 @@ namespace
                     if(!already_queued_morph)
                     {
                         LOG << "adding morph: "<<morphType.getName();
-                        blackboard->addItem(new MorphUnitPlanItem(workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling, NULL));
+                        blackboard->morph(workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling, NULL);
                     }
                 }
 

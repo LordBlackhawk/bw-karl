@@ -11,8 +11,8 @@ BOOST_AUTO_TEST_CASE( basic )
     for (int k=0; k<7; ++k)
         createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Drone);
 
-    auto p1 = morphUnit(BWAPI::UnitTypes::Zerg_Drone);
-    auto p2 = morphUnit(BWAPI::UnitTypes::Zerg_Drone);
+    auto p1 = blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
+    auto p2 = blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
 
     BOOST_CHECK( p2->supply.isRequirePort() );
     BOOST_CHECK_EQUAL( p2->supply.getRequiredAmount(), 2U );
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE( two_in_one_egg )
 {
     auto h = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Hatchery);
     auto z = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Zergling);
-    auto m = morphUnit(BWAPI::UnitTypes::Zerg_Zergling);
+    auto m = blackboard->morph(BWAPI::UnitTypes::Zerg_Zergling);
 
     BOOST_CHECK_EQUAL( h->supply.getProvidedAmount(), 2U );
     BOOST_CHECK_EQUAL( z->supply.getRequiredAmount(), 1U );

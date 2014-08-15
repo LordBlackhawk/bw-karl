@@ -154,16 +154,42 @@ void Blackboard::recalculateEstimatedTimes()
     std::sort(items.begin(), items.end(), PlanItemCompare());
 }
 
-BuildPlanItem* Blackboard::createBuildPlanItem(BWAPI::UnitType ut)
+BuildPlanItem* Blackboard::build(BWAPI::UnitType ut)
 {
-    BuildPlanItem* result = new BuildPlanItem(&informations.fields, ut, BWAPI::TilePositions::Unknown);
+    auto result = new BuildPlanItem(&informations.fields, ut, BWAPI::TilePositions::Unknown);
     addItem(result);
     return result;
 }
 
-MorphUnitPlanItem* Blackboard::createMorphPlanItem(BWAPI::UnitType ut)
+MorphUnitPlanItem* Blackboard::morph(BWAPI::UnitType ut)
 {
-    MorphUnitPlanItem* result = new MorphUnitPlanItem(ut);
+    auto result = new MorphUnitPlanItem(ut);
+    addItem(result);
+    return result;
+}
+
+GatherMineralsPlanItem* Blackboard::gather(ProvideUnitPort* provider, ResourceBoundaryItem* m)
+{
+    auto result = new GatherMineralsPlanItem(m, provider);
+    addItem(result);
+    return result;
+}
+
+MoveToPositionPlanItem* Blackboard::move(ProvideUnitPort* provider, BWAPI::Position p)
+{
+    auto result = new MoveToPositionPlanItem(provider, p);
+    addItem(result);
+    return result;
+}
+
+MoveToPositionPlanItem* Blackboard::move(ProvideUnitPort* provider, BWAPI::TilePosition tp)
+{
+    return move(provider, BWAPI::Position(tp));
+}
+
+AttackUnitPlanItem* Blackboard::attack(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy)
+{
+    auto result = new AttackUnitPlanItem(provider, enemy);
     addItem(result);
     return result;
 }

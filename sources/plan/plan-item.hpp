@@ -88,8 +88,16 @@ class AbstractExpert
         virtual bool tick(Blackboard* blackboard) = 0; // returns false if it should be removed.
 };
 
+class ProvideUnitPort;
+
+class ResourceBoundaryItem;
+class EnemyUnitBoundaryItem;
+
 class BuildPlanItem;
 class MorphUnitPlanItem;
+class GatherMineralsPlanItem;
+class MoveToPositionPlanItem;
+class AttackUnitPlanItem;
 
 class Blackboard : public BasicEventVisitor
 {
@@ -125,8 +133,12 @@ class Blackboard : public BasicEventVisitor
         void visitAbstractActionEvent(AbstractActionEvent* event) override;
 
         // for creation of plan items:
-        BuildPlanItem* createBuildPlanItem(BWAPI::UnitType ut);
-        MorphUnitPlanItem* createMorphPlanItem(BWAPI::UnitType ut);
+        BuildPlanItem* build(BWAPI::UnitType ut);
+        MorphUnitPlanItem* morph(BWAPI::UnitType ut);
+        GatherMineralsPlanItem* gather(ProvideUnitPort* provider, ResourceBoundaryItem* m);
+        MoveToPositionPlanItem* move(ProvideUnitPort* provider, BWAPI::Position p);
+        MoveToPositionPlanItem* move(ProvideUnitPort* provider, BWAPI::TilePosition tp);
+        AttackUnitPlanItem* attack(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy);
 
         // for test propose only:
         bool includeItem(AbstractPlanItem* item) const;

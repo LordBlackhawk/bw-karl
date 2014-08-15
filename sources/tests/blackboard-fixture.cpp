@@ -175,10 +175,3 @@ void BlackboardFixture::buildBaseLocations()
             informations->ownBaseLocations.insert(base);
     }
 }
-
-MorphUnitPlanItem* BlackboardFixture::morphUnit(BWAPI::UnitType ut)
-{
-    auto result = new MorphUnitPlanItem(ut);
-    blackboard->addItem(result);
-    return result;
-}

@@ -16,36 +16,36 @@ void OverlordScoutingExpert::visitProvideUnitPort(ProvideUnitPort* port)
 {
     if (port->getUnitType() != BWAPI::UnitTypes::Zerg_Overlord)
         return;
-	if (port->isConnected() || port->estimatedTime > currentBlackboard->getLastUpdateTime()+100) 
-		return;
+    if (port->isConnected() || port->estimatedTime > currentBlackboard->getLastUpdateTime()+100)
+        return;
     overlords.push_back(port);
 }
 
 
 void OverlordScoutingExpert::visitResourceBoundaryItem(ResourceBoundaryItem* item){
 
-	if(!item->getUnitType().isMineralField()) 
-		return;
-	minerals.push_back(item);
+    if(!item->getUnitType().isMineralField())
+        return;
+    minerals.push_back(item);
 }
 
 
 
 void OverlordScoutingExpert::endTraversal()
 {
-	std::vector<int> value;
-	
-	for(auto o:overlords) {
-	for(auto m:minerals) {
-		value.push_back(- 3*m->getLastSeen()  - BWAPI::Position(m->getTilePosition()).getDistance(o->getPosition()));
-	}
-	auto it = std::max_element(value.begin(),value.end());
-	int index = it-value.begin();
-	auto m = minerals[index];
-	currentBlackboard->addItem(new MoveToPositionPlanItem(o,BWAPI::Position(m->getTilePosition())));
-	value.clear();
-	}
-	
+    std::vector<int> value;
+
+    for(auto o:overlords) {
+        for(auto m:minerals) {
+            value.push_back(- 3*m->getLastSeen()  - m->getPosition().getDistance(o->getPosition()));
+        }
+        auto it = std::max_element(value.begin(),value.end());
+        int index = it-value.begin();
+        auto m = minerals[index];
+        currentBlackboard->move(o, m->getTilePosition());
+        value.clear();
+    }
+
     overlords.clear();
-	minerals.clear();
+    minerals.clear();
 }

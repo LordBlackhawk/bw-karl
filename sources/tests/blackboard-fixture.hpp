@@ -69,6 +69,4 @@ class BlackboardFixture
         void destroyBoundaryItem(AbstractBoundaryItem* item);
         void setupFields();
         void buildBaseLocations();
-
-        MorphUnitPlanItem* morphUnit(BWAPI::UnitType ut);
 };

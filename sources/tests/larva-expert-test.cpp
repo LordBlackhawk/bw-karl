@@ -11,8 +11,8 @@ BOOST_AUTO_TEST_CASE( basic )
     createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Larva);
     createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Larva);
 
-    auto p1 = morphUnit(BWAPI::UnitTypes::Zerg_Drone);
-    auto p2 = morphUnit(BWAPI::UnitTypes::Zerg_Drone);
+    auto p1 = blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
+    auto p2 = blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
 
     BOOST_CHECK_EQUAL( b1->provideUnit.getUnitType(), BWAPI::UnitTypes::Zerg_Larva );
     BOOST_CHECK_EQUAL( p1->requireUnit.getUnitType(), BWAPI::UnitTypes::Zerg_Larva );
@@ -31,8 +31,8 @@ BOOST_AUTO_TEST_CASE( active_plan_items )
     auto b1 = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Larva);
     createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Larva);
 
-    auto p1 = morphUnit(BWAPI::UnitTypes::Zerg_Drone);
-    auto p2 = morphUnit(BWAPI::UnitTypes::Zerg_Drone);
+    auto p1 = blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
+    auto p2 = blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
 
     BOOST_CHECK( !b1->provideUnit.isActiveConnection() );   
     BOOST_CHECK( !p1->requireUnit.isActiveConnection() );

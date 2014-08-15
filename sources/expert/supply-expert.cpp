@@ -61,9 +61,9 @@ namespace
 void SupplyExpert::endTraversal()
 {
     if (process(provideTerran, requireTerran))
-        currentBlackboard->createBuildPlanItem(BWAPI::UnitTypes::Terran_Supply_Depot);
+        currentBlackboard->build(BWAPI::UnitTypes::Terran_Supply_Depot);
     if (process(provideZerg, requireZerg))
-        currentBlackboard->createMorphPlanItem(BWAPI::UnitTypes::Zerg_Overlord);
+        currentBlackboard->morph(BWAPI::UnitTypes::Zerg_Overlord);
     if (process(provideProtoss, requireProtoss))
-        currentBlackboard->createBuildPlanItem(BWAPI::UnitTypes::Protoss_Pylon);
+        currentBlackboard->build(BWAPI::UnitTypes::Protoss_Pylon);
 }
