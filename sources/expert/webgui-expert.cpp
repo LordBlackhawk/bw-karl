@@ -529,7 +529,7 @@ namespace
 
                         if(get_request_unitType(conn,"unitType",ut))
                         {
-                            currentBlackboard->createBuildPlanItem(ut);
+                            currentBlackboard->build(ut);
                             LOG << "WebGUIExpert: add BuildPlanItem("<<ut.getName()<<");";
                             mg_printf_data(conn,"ok");
                         }
@@ -540,7 +540,7 @@ namespace
 
                         if(get_request_unitType(conn,"unitType",ut))
                         {
-                            currentBlackboard->createMorphPlanItem(ut);
+                            currentBlackboard->morph(ut);
                             LOG << "WebGUIExpert: add MorphUnitPlanItem("<<ut.getName()<<");";
                             mg_printf_data(conn,"ok");
                         }
