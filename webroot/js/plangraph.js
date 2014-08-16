@@ -24,7 +24,8 @@ function plangraphInit()
 
                     // true/false
                 skipUnconnected: $("#plangraph-skipUnconnected").prop('checked')
-            }
+            };
+
             var dotOutput="digraph G {\n";
 
             var portOwner={};
@@ -169,7 +170,7 @@ function plangraphInit()
                         break;
 
                     case "MoveToPosition":
-                        label="MoveTo: "+getPositionString(item.data.pos)
+                        label="MoveTo: "+getPositionString(item.data.pos);
                         break;
 
                     case "GatherMinerals":
@@ -180,7 +181,7 @@ function plangraphInit()
                     default:
                         label=item.name+"<br /><i>"+JSON.stringify(item.data)+"</i>";
                 }
-                if(type=="planitem")
+                if(type==="planitem")
                 {
                     label="<span class=\"active_indicator\">"+getStatusEstimatedString(item.status,item.estimatedStartTime)+"</span>"+label;
                 }
@@ -210,7 +211,7 @@ function plangraphInit()
                     for(var p in item.ports)
                     {
                         var port=item.ports[p];
-
+                        
                         var label=getPortLabel(port);
 
                         var activeconnection=port.activeConnection?" activeconnection":"";
@@ -243,7 +244,7 @@ function plangraphInit()
                         {
                             ensureNodeExists("port"+port.data.connectedPort);
                             if(port.type==="require")
-                                addEdge(null,"port"+port.id,"port"+port.data.connectedPort,{label: "connected" })
+                                addEdge(null,"port"+port.id,"port"+port.data.connectedPort,{label: "connected" });
                             /*else  //don't also re-connect the provide to the require port again
                                 g.addEdge(null,"port"+port.data.connectedPort,"port"+port.id,{label: "connected" })*/
                         }
@@ -320,7 +321,7 @@ function plangraphInit()
                         }
                         else if(port.type==="provide")  //display estimates for unconnected provide ports
                         {
-                            var label="<span class=\"active_indicator\">"+getEstimatedTimeString(port.estimatedTime)+"</span> ? "
+                            var label="<span class=\"active_indicator\">"+getEstimatedTimeString(port.estimatedTime)+"</span> ? ";
                             ensureNodeExists("emptyItemForProvidePort"+port.id,{
                                 label:"<div class=\"label\">"+label+"</div>",
                                 type: "port",
@@ -329,7 +330,13 @@ function plangraphInit()
                         }
                     }
                 }
+
+                    //gather all ports in data.ports
+                for(p in item.ports)
+                    data.ports[item.ports[p].id]=item.ports[p];
             }
+
+            data.ports={};
 
             var items=data.items;
             for(var i in items)
@@ -363,6 +370,19 @@ function plangraphInit()
                         default:
                             return "node";
                     }
+                }).attr("original-title", function(u)
+                {
+                    switch(g.node(u).type)
+                    {
+                        case "port":
+                            return g.node(u).port.id;
+                        case "planitem":
+                            return g.node(u).item.id;
+                        case "boundaryitem":
+                            return g.node(u).item.id;
+                        /*default:
+                            return "node";*/
+                    }
                 });
                 return svgNodes;
             });
@@ -373,6 +393,7 @@ function plangraphInit()
                 renderer.transition(transition);
 
             renderer.layout(layout).run(g, d3.select("#plangraph-graph g"));
+
             $("#plangraph-output-svg").text($("#plangraph-graph").html().replace(/<g/g, "\n<g"));
             $("#plangraph-output-dot").text(dotOutput+"}");
         }
@@ -382,7 +403,7 @@ function plangraphInit()
         }
     }
 
-    var oldPlanData;
+    var currentPlanData;
 
     var updateAlreadyRunning=false;
 
@@ -403,11 +424,11 @@ function plangraphInit()
             
             if(data.status==="running")
             {
-                plangraphRedraw(data,typeof(oldPlanData)!=="undefined");
+                plangraphRedraw(data,typeof(currentPlanData)!=="undefined");
 
                 $("#plangraph-headline").text("Plangraph for frame #"+data.time);
 
-                oldPlanData=data;
+                currentPlanData=data;
             }
             
             if($('#plangraph-autoupdate').prop('checked'))
@@ -425,9 +446,8 @@ function plangraphInit()
     {
         $('#plangraph-autoupdate').prop('checked',false);
         if(!updateAlreadyRunning)
-            plangraphRedraw(oldPlanData,false);
+            plangraphRedraw(currentPlanData,false);
     }
-
     $("#plangraph-displayPortsAs").on('change',configChanged);
     $("#plangraph-skipResources").on('change',configChanged);
     $("#plangraph-skipUnconnected").on('change',configChanged);
@@ -437,4 +457,63 @@ function plangraphInit()
             plangraphUpdate();
     });
     plangraphUpdate();
+
+    function getTooltipForItem(typename,item)
+    {
+        if(!item)
+            return "item undefined";
+
+        var tooltip="<h3>"+item.name+typename+"</h3>";
+
+        tooltip+="<table>";
+        for(var field in item)
+        {
+            if(field==="name" || field==="ports" || field==="data")
+                continue
+            tooltip+="<tr><td>"+field+":</td><td>"+JSON.stringify(item[field])+"</td></tr>";
+        }
+        for(var field in item.data)
+        {
+            tooltip+="<tr><td>"+field+":</td><td>"+JSON.stringify(item.data[field])+"</td></tr>";
+        }
+
+        tooltip+="</table>";
+
+        return tooltip;
+    }
+
+    $('#plangraph-graph .planitem').tipsy({
+        gravity: 'n',
+        html: true,
+        live: true,
+        hoverlock: true,
+        title: function() {
+            if(!currentPlanData)
+                return "no data";
+            return getTooltipForItem("PlanItem",currentPlanData.items[this.getAttribute('original-title')]);
+        }
+    });
+    $('#plangraph-graph .boundaryitem').tipsy({
+        gravity: 'n',
+        html: true,
+        live: true,
+        hoverlock: true,
+        title: function() {
+            if(!currentPlanData)
+                return "no data";
+            return getTooltipForItem("BoundaryItem",currentPlanData.boundaries[this.getAttribute('original-title')]);
+        }
+    });
+    $('#plangraph-graph .port').tipsy({ 
+        gravity: 'n',
+        html: true,
+        live: true,
+        hoverlock: true,
+        title: function() {
+            if(!currentPlanData)
+                return "no data";
+            return getTooltipForItem("Port",currentPlanData.ports[this.getAttribute('original-title')]);
+        }
+    });
+    
 }

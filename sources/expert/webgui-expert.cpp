@@ -220,8 +220,7 @@ namespace
 
             void visitAbstractBoundaryItem(AbstractBoundaryItem* item) override
             {
-                mg_printf_data(conn,"\"id\":\"%p\",\"unitID\":\"%i\",",
-                        item,
+                mg_printf_data(conn,",\"unitID\":\"%i\",",
                         item->unit?item->unit->getID():0
                         );
                 mg_printf_data(conn,"\"ports\":[");
@@ -269,8 +268,7 @@ namespace
 
             void visitAbstractPlanItem(AbstractPlanItem* item) override
             {
-                mg_printf_data(conn,"\"id\":\"%p\",\"active\":%s,\"status\":\"%s\",\"impossible\":%s,\"estimatedStartTime\":\"%i\",",
-                        item,
+                mg_printf_data(conn,",\"active\":%s,\"status\":\"%s\",\"impossible\":%s,\"estimatedStartTime\":\"%i\",",
                         item->isActive()?"true":"false",
                         status2String(item->getStatus()),
                         item->isImpossible()?"true":"false",
@@ -405,39 +403,42 @@ namespace
                 {
                     mg_printf_data(conn, "\"status\":\"running\",");
                     mg_printf_data(conn, "\"time\":\"%i\",",currentBlackboard->getInformations()->lastUpdateTime);
-                    mg_printf_data(conn, "\"items\":[");
+                    mg_printf_data(conn, "\"items\":{");
                     count=0;
                     WebGUIOutputVisitor outputVisitor(conn);
                     for(auto it:currentBlackboard->getItems())
                     {
+                        AbstractPlanItem *item=it;
+                        
                         if(count>0)
                             mg_printf_data(conn,",");
 
-                        mg_printf_data(conn, "{");
-                        it->acceptVisitor(&outputVisitor);
+                        mg_printf_data(conn, "\"%p\":{\"id\":\"%p\"",item,item);
+                        item->acceptVisitor(&outputVisitor);
                         mg_printf_data(conn, "}");
 
                         count++;
                     }
-                    mg_printf_data(conn, "],");
+                    mg_printf_data(conn, "},");
 
-                    mg_printf_data(conn, "\"boundaries\":[");
+                    mg_printf_data(conn, "\"boundaries\":{");
                     count=0;
                     for(auto bound_it:currentBlackboard->getBoundaries())
                     {
-                        AbstractBoundaryItem *it=bound_it.second;
+                        AbstractBoundaryItem *item=bound_it.second;
 
                         if(count>0)
                             mg_printf_data(conn,",");
 
-                        mg_printf_data(conn, "{");
-                        it->acceptVisitor(&outputVisitor);
+                        
+                        mg_printf_data(conn, "\"%p\":{\"id\":\"%p\"",item,item);
+                        item->acceptVisitor(&outputVisitor);
                         mg_printf_data(conn, "}");
 
                         count++;
                     }
 
-                    mg_printf_data(conn, "],");
+                    mg_printf_data(conn, "},");
                     mg_printf_data(conn, "\"actions\":[");
                     /*
                     count=0;
