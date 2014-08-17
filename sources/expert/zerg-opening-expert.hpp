@@ -2,8 +2,10 @@
 
 #include "basic-expert.hpp"
 
-class OpeningExpert final : public BasicExpert
+class ZergOpeningExpert final : public BasicExpert
 {
     public:
         bool tick(Blackboard* blackboard) override;
+
+        static bool isApplicable(Blackboard* blackboard);
 };

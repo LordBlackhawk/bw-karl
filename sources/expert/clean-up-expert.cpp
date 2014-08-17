@@ -4,6 +4,14 @@
 
 REGISTER_EXPERT(CleanUpExpert)
 
+void CleanUpExpert::visitAbstractPlanItem(AbstractPlanItem* item)
+{
+    if (item->getStatus() != AbstractPlanItem::Failed)
+        return;
+
+    currentBlackboard->removeItem(item);
+}
+
 void CleanUpExpert::visitMoveToPositionPlanItem(MoveToPositionPlanItem* item)
 {
     if (item->requireUnit.isConnected())

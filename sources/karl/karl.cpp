@@ -92,7 +92,7 @@ namespace
                     engine->addAction(giveup);
                 }
 
-                if (thread == NULL) {
+                /*if (thread == NULL) {
                     // Test MorphUnitPlanItem
                     bool hasPool = false;
                     for (auto it : BWAPI::Broodwar->self()->getUnits()) {
@@ -126,7 +126,7 @@ namespace
                             blackboard->morph(workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling);
                         }
                     }
-                }
+                }*/
 
                 // Test hand coded zergling rush
                 static int attackDelay=0;
