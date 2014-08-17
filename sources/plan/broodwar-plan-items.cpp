@@ -108,6 +108,33 @@ AbstractAction* MoveToPositionPlanItem::prepareForExecution(AbstractExecutionEng
 }
 
 
+AttackPositionPlanItem::AttackPositionPlanItem(ProvideUnitPort* provider, BWAPI::Position p)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType()), position(p)
+{
+    provideUnit.updateData(provider->getUnitType(), position);
+    requireUnit.connectTo(provider);
+}
+
+void AttackPositionPlanItem::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitAttackPositionPlanItem(this);
+}
+
+void AttackPositionPlanItem::updateEstimates(Time current)
+{
+    provideUnit.estimatedDuration = (int)(position.getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
+    AbstractSimpleUnitPlanItem::updateEstimates(current);
+}
+
+AbstractAction* AttackPositionPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
+    AbstractAction* action = new AttackPositionAction(requireUnit.getUnit(), position, req);
+    provideUnit.setPreviousAction(action);
+    engine->addAction(action);
+    return action;
+}
+
 
 AttackUnitPlanItem::AttackUnitPlanItem(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy)
     : AbstractSimpleUnitPlanItem(provider->getUnitType()), enemyUnit(this,enemy)

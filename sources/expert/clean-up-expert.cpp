@@ -19,3 +19,11 @@ void CleanUpExpert::visitAttackUnitPlanItem(AttackUnitPlanItem* item)
 
     currentBlackboard->removeItem(item);
 }
+
+void CleanUpExpert::visitAttackPositionPlanItem(AttackPositionPlanItem* item)
+{
+    if (item->requireUnit.isConnected())
+        return;
+
+    currentBlackboard->removeItem(item);
+}

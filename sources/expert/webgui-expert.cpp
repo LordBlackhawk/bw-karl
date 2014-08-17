@@ -319,6 +319,13 @@ namespace
                 mg_printf_data(conn,",\"name\":\"%s\",\"data\":{}",
                     "AttackUnit");
             }
+            void visitAttackPositionPlanItem(AttackPositionPlanItem* item) override
+            {
+                visitAbstractPlanItem(item);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"pos\":%s}",
+                        "AttackPosition",
+                        position2JSON(item->getPosition()).c_str());
+            }
 
         private:
             mg_connection *conn;

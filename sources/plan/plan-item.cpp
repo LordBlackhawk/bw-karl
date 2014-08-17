@@ -184,6 +184,13 @@ AttackUnitPlanItem* Blackboard::attack(ProvideUnitPort* provider, EnemyUnitBound
     return result;
 }
 
+AttackPositionPlanItem* Blackboard::attack(ProvideUnitPort* provider, BWAPI::Position p)
+{
+    auto result = new AttackPositionPlanItem(provider, p);
+    addItem(result);
+    return result;
+}
+
 namespace
 {
     class PlanItemCompare
