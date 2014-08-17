@@ -101,16 +101,16 @@ namespace
                             break;
                         }
                     }
-                    if (hasPool) {
-                        bool already_queued_morph=false;
-                        int workerCount=0;
-                        for(auto it : blackboard->getBoundaries())
-                        {
-                            auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
-                            if ((unit != NULL) && (unit->getUnitType().isWorker()))
-                                workerCount++;
-                        }
-                        auto morphType=workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling;
+                    bool already_queued_morph=false;
+                    int workerCount=0;
+                    for(auto it : blackboard->getBoundaries())
+                    {
+                        auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
+                        if ((unit != NULL) && (unit->getUnitType().isWorker()))
+                            workerCount++;
+                    }
+                    auto morphType=workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling;
+                    if (hasPool || morphType == BWAPI::UnitTypes::Zerg_Drone) {
                         for(auto it:blackboard->getItems())
                         {
                             auto morph = dynamic_cast<MorphUnitPlanItem*>(it);
