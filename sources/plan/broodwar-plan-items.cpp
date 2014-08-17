@@ -73,6 +73,7 @@ AbstractAction* MorphUnitPlanItem::prepareForExecution(AbstractExecutionEngine* 
 
 void MorphUnitPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
 {
+    setExecuting();
     removePort(&requireResources);
     if (supply.isRequirePort())
         removePort(&supply);
@@ -166,6 +167,7 @@ AbstractAction* BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engi
 
 void BuildPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
 {
+    setExecuting();
     removePort(&requireResources);
     removePort(&requireSpace);
 }

@@ -20,7 +20,7 @@ struct BaseLocation
 
 struct FieldInformations
 {
-    Time                lastSeen    = -1;
+    //Time                lastSeen    = -1;
     bool                buildable   = false;
     bool                creep       = false;
     RequireSpacePort*   blocker     = NULL;

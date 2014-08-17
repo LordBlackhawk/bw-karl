@@ -95,6 +95,12 @@ void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
     status = Failed;
 }
 
+void AbstractPlanItem::setExecuting()
+{
+    assert(status == Active);
+    status = Executing;
+}
+
 Blackboard::Blackboard(AbstractExecutionEngine* e)
     : engine(e)
 { }

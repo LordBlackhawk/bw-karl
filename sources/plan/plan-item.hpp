@@ -78,6 +78,7 @@ class AbstractPlanItem : public AbstractItem
         inline Status getStatus() const { return status; }
 
         void setActive();
+        void setExecuting();
         void setErrorState(AbstractAction* action);
 
         virtual void updateEstimates(Time current);
