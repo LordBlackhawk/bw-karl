@@ -16,6 +16,7 @@ struct BaseLocation
     BaseLocation();
 
     inline BWAPI::TilePosition getTilePosition() const { return origin->getTilePosition(); }
+    inline BWAPI::Position getPosition() const { return BWAPI::Position(getTilePosition()); }
 };
 
 struct FieldInformations
