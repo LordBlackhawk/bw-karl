@@ -97,3 +97,8 @@ void BasicVisitor::visitAttackUnitPlanItem(AttackUnitPlanItem* item)
 {
     visitAbstractPlanItem(item);
 }
+
+void BasicVisitor::visitGiveUpPlanItem(GiveUpPlanItem* item)
+{
+    visitAbstractPlanItem(item);
+}

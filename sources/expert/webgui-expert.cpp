@@ -319,6 +319,12 @@ namespace
                 mg_printf_data(conn,",\"name\":\"%s\",\"data\":{}",
                     "AttackUnit");
             }
+            void visitGiveUpPlanItem(GiveUpPlanItem* item) override
+            {
+                visitAbstractPlanItem(item);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{}",
+                    "GiveUp");
+            }
 
         private:
             mg_connection *conn;

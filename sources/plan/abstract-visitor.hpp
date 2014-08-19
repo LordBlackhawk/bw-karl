@@ -1,3 +1,6 @@
+
+#include "broodwar-plan-items.hpp"
+
 #pragma once
 
 class AbstractPort;
@@ -48,6 +51,7 @@ class AbstractVisitor
         virtual void visitMoveToPositionPlanItem(MoveToPositionPlanItem* item) = 0;
         virtual void visitBuildPlanItem(BuildPlanItem* item) = 0;
         virtual void visitAttackUnitPlanItem(AttackUnitPlanItem* item) = 0;
+        virtual void visitGiveUpPlanItem(GiveUpPlanItem* item) = 0;
 };
 
 class BasicVisitor : public AbstractVisitor
@@ -75,4 +79,5 @@ class BasicVisitor : public AbstractVisitor
         void visitMoveToPositionPlanItem(MoveToPositionPlanItem* item) override;
         void visitBuildPlanItem(BuildPlanItem* item) override;
         void visitAttackUnitPlanItem(AttackUnitPlanItem* item) override;
+        void visitGiveUpPlanItem(GiveUpPlanItem* item) override;
 };
