@@ -82,41 +82,6 @@ namespace
 
             void tick()
             {
-                if (thread == NULL) {
-                    // Test MorphUnitPlanItem
-                    bool hasPool = false;
-                    for (auto it : BWAPI::Broodwar->self()->getUnits()) {
-                        if ((it->getType() == BWAPI::UnitTypes::Zerg_Spawning_Pool) && !it->isMorphing()) {
-                            hasPool = true;
-                            break;
-                        }
-                    }
-                    if (hasPool) {
-                        bool already_queued_morph=false;
-                        int workerCount=0;
-                        for(auto it : blackboard->getBoundaries())
-                        {
-                            auto unit = dynamic_cast<OwnUnitBoundaryItem*>(it.second);
-                            if ((unit != NULL) && (unit->getUnitType().isWorker()))
-                                workerCount++;
-                        }
-                        auto morphType=workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling;
-                        for(auto it:blackboard->getItems())
-                        {
-                            auto morph = dynamic_cast<MorphUnitPlanItem*>(it);
-                            if(morph!=NULL && morph->getUnitType() == morphType)
-                            {
-                                if(!morph->isActive())
-                                    already_queued_morph=true;
-                            }
-                        }
-                        if(!already_queued_morph)
-                        {
-                            LOG << "adding morph: "<<morphType.getName();
-                            blackboard->morph(workerCount<4 ? BWAPI::UnitTypes::Zerg_Drone : BWAPI::UnitTypes::Zerg_Zergling);
-                        }
-                    }
-                }
 
                 // Test hand coded zergling rush
                 static int attackDelay=0;

@@ -38,6 +38,9 @@ struct BlackboardInformations
     int     currentMinerals = 0;
     int     currentGas = 0;
 
+    int unusedLarvaCount = 0;   //number of available ProvideUnitPorts providing larva
+    int workerCount = 0;    //number of available ProvideUnitPorts providing workers
+
     BWAPI::Player* self = NULL;
     BWAPI::Player* neutral = NULL;
 

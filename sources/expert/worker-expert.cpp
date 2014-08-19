@@ -77,6 +77,7 @@ void WorkerExpert::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
 
 void WorkerExpert::endTraversal()
 {
+    currentBlackboard->getInformations()->workerCount = providePorts.size();
     providePorts.clear();
 }
 
