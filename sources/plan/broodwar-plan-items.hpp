@@ -107,3 +107,16 @@ class BuildPlanItem : public AbstractSimpleUnitPlanItem
     protected:
         BWAPI::UnitType     unitType;
 };
+
+
+class GiveUpPlanItem : public AbstractPlanItem
+{
+    public:
+        GiveUpPlanItem();
+
+        void acceptVisitor(AbstractVisitor* visitor) override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        void removeFinished(AbstractAction* /*action*/) override;
+
+    protected:
+};

@@ -191,6 +191,13 @@ AttackPositionPlanItem* Blackboard::attack(ProvideUnitPort* provider, BWAPI::Pos
     return result;
 }
 
+GiveUpPlanItem* Blackboard::giveUp()
+{
+    auto result = new GiveUpPlanItem();
+    addItem(result);
+    return result;
+}
+
 namespace
 {
     class PlanItemCompare

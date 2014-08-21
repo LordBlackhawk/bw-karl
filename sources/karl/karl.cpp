@@ -82,16 +82,6 @@ namespace
 
             void tick()
             {
-                // Test GiveUpAction
-                static GiveUpAction *giveup=NULL;
-                if(giveup==NULL)for(auto unit : BWAPI::Broodwar->getUnitsInRadius(BWTA::getStartLocation(BWAPI::Broodwar->self())->getPosition(),32*20))
-                    if(unit->getPlayer()->isEnemy(BWAPI::Broodwar->self()))
-                {
-                    giveup=new GiveUpAction();
-                    BWAPI::Broodwar->printf("enemy unit near our base!!! Giving up!");
-                    engine->addAction(giveup);
-                }
-
                 Blackboard::sendFrameEvent(engine);
                 if (thread == NULL)
                     blackboard->tick();

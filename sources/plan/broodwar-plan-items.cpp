@@ -198,3 +198,25 @@ void BuildPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*
     removePort(&requireResources);
     removePort(&requireSpace);
 }
+
+
+
+
+GiveUpPlanItem::GiveUpPlanItem()
+    : AbstractPlanItem()
+{ }
+
+void GiveUpPlanItem::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitGiveUpPlanItem(this);
+}
+
+AbstractAction* GiveUpPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    AbstractAction* action = new GiveUpAction(NULL);
+    engine->addAction(action);
+    return action;
+}
+
+void GiveUpPlanItem::removeFinished(AbstractAction* /*action*/)
+{ }

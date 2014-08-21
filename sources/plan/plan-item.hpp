@@ -108,6 +108,7 @@ class GatherMineralsPlanItem;
 class MoveToPositionPlanItem;
 class AttackUnitPlanItem;
 class AttackPositionPlanItem;
+class GiveUpPlanItem;
 
 class Blackboard : public BasicEventVisitor
 {
@@ -150,6 +151,7 @@ class Blackboard : public BasicEventVisitor
         MoveToPositionPlanItem* move(ProvideUnitPort* provider, BWAPI::TilePosition tp);
         AttackUnitPlanItem* attack(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy);
         AttackPositionPlanItem* attack(ProvideUnitPort* provider, BWAPI::Position p);
+        GiveUpPlanItem* giveUp();
 
         // for test propose only:
         bool includeItem(AbstractPlanItem* item) const;

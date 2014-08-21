@@ -326,6 +326,12 @@ namespace
                         "AttackPosition",
                         position2JSON(item->getPosition()).c_str());
             }
+            void visitGiveUpPlanItem(GiveUpPlanItem* item) override
+            {
+                visitAbstractPlanItem(item);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{}",
+                    "GiveUp");
+            }
 
         private:
             mg_connection *conn;
