@@ -6,6 +6,17 @@
 #include <set>
 #include <vector>
 
+struct ActionInfo
+{
+    enum Info { Passiv, Active, Removed };
+    Info info;
+    AbstractAction* action;
+
+    ActionInfo(Info i, AbstractAction* a)
+        : info(i), action(a)
+    { }
+};
+
 class DefaultExecutionEngine : public AbstractExecutionEngine
 {
     public:
@@ -16,18 +27,16 @@ class DefaultExecutionEngine : public AbstractExecutionEngine
         AbstractEvent* popEvent();
         void tick();
         bool isActive(AbstractAction* action) const;
+        bool containsAction(AbstractAction* action) const;
 
-        int numberOfActions() const { return allActions.size(); }
-        int numberOfActiveActions() const { return activeActions.size(); }
+        int numberOfActions() const { return actions.size(); }
+        int numberOfActiveActions() const;
 
     protected:
-        std::set<AbstractAction*>   allActions;
-        std::set<AbstractAction*>   passiveActions;
-        std::set<AbstractAction*>   activeActions;
+        std::vector<ActionInfo>     actions;
         std::deque<AbstractEvent*>  events;
 
-        std::vector<AbstractAction*> findFollowUps(AbstractAction* action);
-        void setPreconditionOfFollowUps(AbstractAction* action, AbstractAction* newprecondition);
-        void activateFollowUps(AbstractAction* action);
-        void terminateFollowUps(AbstractAction* action);
+        std::vector<ActionInfo>::iterator findAction(AbstractAction* action);
+        std::vector<ActionInfo>::const_iterator findAction(AbstractAction* action) const;
+        void markFollowUps(AbstractAction* action, ActionInfo::Info info);
 };

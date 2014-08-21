@@ -114,7 +114,7 @@ namespace
                     OUTPUT(130, isAttacking);
                     OUTPUT(145, isAttackFrame);
                     OUTPUT(160, isMoving);
-                    OUTPUT(275, isBraking);
+                    OUTPUT(175, isBraking);
                     #undef OUTPUT
                 } else {
                     std::map<BWAPI::UnitType, int> numbers;

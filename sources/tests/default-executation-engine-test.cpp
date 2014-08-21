@@ -15,6 +15,40 @@
 
 namespace
 {
+    class MockupAction : public AbstractAction
+    {
+        public:
+            enum TestStatus { testCreated, testRunning, testFailed, testFinished };
+            TestStatus testStatus;
+            int remainingTicks;
+
+            MockupAction(AbstractAction* pre, int ticks)
+                : AbstractAction(pre), testStatus(testCreated), remainingTicks(ticks)
+            { }
+
+            void onBegin(AbstractExecutionEngine* /*engine*/)
+            {
+                BOOST_CHECK_EQUAL( testStatus, testCreated );
+                testStatus = testRunning;
+            }
+
+            Status onTick(AbstractExecutionEngine* /*engine*/)
+            {
+                BOOST_CHECK_EQUAL( testStatus, testRunning );
+                if (remainingTicks > 0)
+                    return Running;
+                --remainingTicks;
+                testStatus = testFailed;
+                return Failed;
+            }
+
+            void onEnd(AbstractExecutionEngine* /*engine*/)
+            {
+                BOOST_CHECK( (testStatus == testRunning) || (testStatus == testFailed) );
+                testStatus = testFinished;
+            }
+    };
+
     class DefaultExecutionEngineFixture
     {
         public:
@@ -45,6 +79,16 @@ namespace
 
             DefaultExecutionEngine engine;
             std::vector<AbstractAction*> actions;
+
+            AbstractAction* addInfiniteAction(AbstractAction* pre = NULL)
+            {
+                return add(new MockupAction(pre, 10000));
+            }
+
+            AbstractAction* addFailAction(AbstractAction* pre = NULL)
+            {
+                return add(new MockupAction(pre, 0));
+            }
     };
 }
 
@@ -52,7 +96,7 @@ BOOST_FIXTURE_TEST_SUITE( default_execution_engine, DefaultExecutionEngineFixtur
 
 BOOST_AUTO_TEST_CASE( basic )
 {
-    auto inf = add(new InfiniteAction());
+    auto inf = addInfiniteAction();
     tick();
     CHECK_NOEVENT();
 
@@ -64,8 +108,8 @@ BOOST_AUTO_TEST_CASE( basic )
 
 BOOST_AUTO_TEST_CASE( terminate_cleanup )
 {
-    auto action1 = add(new InfiniteAction());
-    auto action2 = add(new InfiniteAction(action1));
+    auto action1 = addInfiniteAction();
+    auto action2 = addInfiniteAction(action1);
     auto terminate = add(new TerminateAction(action1, true));
 
     tick();
@@ -77,8 +121,8 @@ BOOST_AUTO_TEST_CASE( terminate_cleanup )
 
 BOOST_AUTO_TEST_CASE( terminate_do_not_cleanup )
 {
-    auto action1 = add(new InfiniteAction());
-    auto action2 = add(new InfiniteAction(action1));
+    auto action1 = addInfiniteAction();
+    auto action2 = addInfiniteAction(action1);
     auto terminate = add(new TerminateAction(action1, false));
 
     tick();
@@ -86,12 +130,16 @@ BOOST_AUTO_TEST_CASE( terminate_do_not_cleanup )
     CHECK_EVENT(ActionEvent::ActionTerminated, action1);
     CHECK_EVENT(ActionEvent::ActionFinished, terminate);
     BOOST_CHECK(isActive(action2));
+    BOOST_CHECK_EQUAL( engine.numberOfActions(), 1 );
+    BOOST_CHECK_EQUAL( engine.numberOfActiveActions(), 1 );
+    BOOST_CHECK(!engine.containsAction(action1));
+    BOOST_CHECK(!engine.containsAction(terminate));
 }
 
 BOOST_AUTO_TEST_CASE( fail_action_cleanup )
 {
-    auto action = add(new FailAction());
-    auto follow = add(new InfiniteAction(action));
+    auto action = addFailAction();
+    auto follow = addInfiniteAction(action);
 
     tick();
 
@@ -101,9 +149,9 @@ BOOST_AUTO_TEST_CASE( fail_action_cleanup )
 
 BOOST_AUTO_TEST_CASE( terminate_middle_action )
 {
-    auto action1 = add(new InfiniteAction());
-    auto action2 = add(new InfiniteAction(action1));
-    auto action3 = add(new InfiniteAction(action2));
+    auto action1 = addInfiniteAction();
+    auto action2 = addInfiniteAction(action1);
+    auto action3 = addInfiniteAction(action2);
     auto terminate = add(new TerminateAction(action2, false));
 
     tick();

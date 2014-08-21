@@ -16,8 +16,10 @@ class BuildingPlacementExpert : public BasicPortExpert
         int                 buildDistance;
 
         BWAPI::TilePosition getBuildLocationNear();
+        bool canBuildDepotWithSpace(int x, int y);
         bool canBuildHereWithSpace(int x, int y);
         bool canBuildHere(int x, int y);
         bool buildable(int x, int y);
         bool movable(int x, int y);
+        bool isResourceAt(int x, int y);
 };

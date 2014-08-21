@@ -87,6 +87,28 @@ BWAPI::TilePosition BuildingPlacementExpert::getBuildLocationNear()
     return BWAPI::TilePositions::None;
 }
 
+bool BuildingPlacementExpert::canBuildDepotWithSpace(int x, int y)
+{
+    int width = unitType.tileWidth();
+    int height = unitType.tileHeight();
+
+    int startx = x - 3;
+    if (startx < 0) return false;
+    int starty = y - 3;
+    if (starty < 0) return false;
+    int endx = x + width + 3;
+    if (endx > mapWidth) return false;
+    int endy = y + height + 3;
+    if (endy > mapHeight) return false;
+
+    for(int k=startx; k<endx; k++)
+        for(int l=starty; l<endy; l++)
+            if (isResourceAt(k, l))
+                return false;
+
+    return true;
+}
+
 bool BuildingPlacementExpert::canBuildHereWithSpace(int x, int y)
 {
     //returns true if we can build this type of unit here with the specified amount of space.
@@ -122,6 +144,9 @@ bool BuildingPlacementExpert::canBuildHereWithSpace(int x, int y)
 
 bool BuildingPlacementExpert::canBuildHere(int x, int y)
 {
+    if (unitType.isResourceDepot() && !canBuildDepotWithSpace(x, y))
+        return false;
+
     int width = unitType.tileWidth();
     int height = unitType.tileHeight();
 
@@ -156,4 +181,13 @@ bool BuildingPlacementExpert::buildable(int x, int y)
 bool BuildingPlacementExpert::movable(int x, int y)
 {
     return buildable(x, y);
+}
+
+bool BuildingPlacementExpert::isResourceAt(int x, int y)
+{
+    auto& field = currentBlackboard->getInformations()->fields[x][y];
+    if (field.blocker == NULL)
+        return false;
+    auto ut = field.blocker->getUnitType();
+    return ut.isResourceContainer();
 }
