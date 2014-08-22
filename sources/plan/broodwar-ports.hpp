@@ -178,3 +178,31 @@ class RequireEnemyUnitPort final : public BasicPortImpl<RequireEnemyUnitPort, Pr
         inline BWAPI::Unit* getUnit() const { return connection->getUnit(); }
         inline BWAPI::Position getPosition() const { return connection->getPosition();}
 };
+
+class RequireUnitExistancePort;
+
+class ProvideUnitExistancePort final : public BasicPortImpl<ProvideUnitExistancePort, RequireUnitExistancePort, false, true>
+{
+    public:
+        ProvideUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut);
+        void acceptVisitor(AbstractVisitor* visitor) override;
+
+        BWAPI::UnitType getUnitType() const { return unitType; }
+
+    protected:
+        BWAPI::UnitType unitType;
+};
+
+class RequireUnitExistancePort final : public BasicPortImpl<RequireUnitExistancePort, ProvideUnitExistancePort, true, true>
+{
+    public:
+        RequireUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut);
+        void acceptVisitor(AbstractVisitor* visitor) override;
+        void connectTo(AbstractItem* provider);
+        using BaseClass::connectTo;
+
+        BWAPI::UnitType getUnitType() const { return unitType; }
+
+    protected:
+        BWAPI::UnitType unitType;
+};

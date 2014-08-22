@@ -217,6 +217,26 @@ namespace
                     port->getConnectedPort(),
                     port->isConnected()?"true":"false");
             }
+            void visitProvideUnitExistancePort(ProvideUnitExistancePort* port) override
+            {
+                visitAbstractPort(port);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"unitType\":\"%s\",\"connectedPort\":\"%p\",\"connected\":%s}",
+                    "ProvideUnitExistance",
+                    port->getUnitType().getName().c_str(),
+                    port->getConnectedPort(),
+                    port->isConnected()?"true":"false");
+                    //FIXME: port->getPosition()
+            }
+            void visitRequireUnitExistancePort(RequireUnitExistancePort* port) override
+            {
+                visitAbstractPort(port);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"unitType\":\"%s\",\"connectedPort\":\"%p\",\"connected\":%s}",
+                    "RequireUnitExistance",
+                    port->getUnitType().getName().c_str(),
+                    port->getConnectedPort(),
+                    port->isConnected()?"true":"false");
+                    //FIXME: port->getPosition()
+            }
 
             void visitAbstractBoundaryItem(AbstractBoundaryItem* item) override
             {

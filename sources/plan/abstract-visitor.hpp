@@ -13,6 +13,8 @@ class RequireMineralFieldPort;
 class RequireSpacePort;
 class ProvideEnemyUnitPort;
 class RequireEnemyUnitPort;
+class ProvideUnitExistancePort;
+class RequireUnitExistancePort;
 
 class AbstractBoundaryItem;
 class OwnUnitBoundaryItem;
@@ -40,6 +42,8 @@ class AbstractVisitor
         virtual void visitRequireSpacePort(RequireSpacePort* port) = 0;
         virtual void visitProvideEnemyUnitPort(ProvideEnemyUnitPort* port) = 0;
         virtual void visitRequireEnemyUnitPort(RequireEnemyUnitPort* port) = 0;
+        virtual void visitProvideUnitExistancePort(ProvideUnitExistancePort* port) = 0;
+        virtual void visitRequireUnitExistancePort(RequireUnitExistancePort* port) = 0;
 
         virtual void visitAbstractBoundaryItem(AbstractBoundaryItem* item) = 0;
         virtual void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) = 0;
@@ -69,6 +73,8 @@ class BasicVisitor : public AbstractVisitor
         void visitRequireSpacePort(RequireSpacePort* port) override;
         void visitProvideEnemyUnitPort(ProvideEnemyUnitPort* port) override;
         void visitRequireEnemyUnitPort(RequireEnemyUnitPort* port) override;
+        void visitProvideUnitExistancePort(ProvideUnitExistancePort* port) override;
+        void visitRequireUnitExistancePort(RequireUnitExistancePort* port) override;
         
         void visitAbstractBoundaryItem(AbstractBoundaryItem* item) override;
         void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) override;

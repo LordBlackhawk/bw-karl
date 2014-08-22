@@ -257,7 +257,7 @@ BWAPI::Unit* ProvideEnemyUnitPort::getUnit() const
 
 BWAPI::Position ProvideEnemyUnitPort::getPosition() const 
 { 
-	return getOwner()->getPosition();
+    return getOwner()->getPosition();
 }
 
 EnemyUnitBoundaryItem* ProvideEnemyUnitPort::getOwner() const
@@ -274,4 +274,27 @@ RequireEnemyUnitPort::RequireEnemyUnitPort(AbstractItem* o, EnemyUnitBoundaryIte
 void RequireEnemyUnitPort::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitRequireEnemyUnitPort(this);
+}
+
+ProvideUnitExistancePort::ProvideUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut)
+    : BaseClass(o), unitType(ut)
+{ }
+
+void ProvideUnitExistancePort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitProvideUnitExistancePort(this);
+}
+
+RequireUnitExistancePort::RequireUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut)
+    : BaseClass(o), unitType(ut)
+{ }
+
+void RequireUnitExistancePort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitRequireUnitExistancePort(this);
+}
+
+void RequireUnitExistancePort::connectTo(AbstractItem* provider)
+{
+    BaseClass::connectTo(new ProvideUnitExistancePort(provider, unitType));
 }
