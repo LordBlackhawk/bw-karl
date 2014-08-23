@@ -14,6 +14,11 @@ class AbstractSimpleUnitPlanItem : public AbstractPlanItem
 
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
         void removeFinished(AbstractAction* action) override;
+
+    protected:
+        void addRequirements(BWAPI::UnitType ut);
+        void bridgeUnitExistancePortsTo(AbstractItem* item);
+        void removeRequireExistancePorts();
 };
 
 class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
@@ -37,6 +42,7 @@ class MorphUnitPlanItem : public AbstractSimpleUnitPlanItem
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        void removeFinished(AbstractAction* action) override;
 
         void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
 
@@ -99,6 +105,7 @@ class BuildPlanItem : public AbstractSimpleUnitPlanItem
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        void removeFinished(AbstractAction* action) override;
 
         void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
 

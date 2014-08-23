@@ -27,9 +27,12 @@ bool AbstractPort::isActive() const
 
 AbstractItem::~AbstractItem()
 {
-    // all remaining port must be of type "free on disconnect"!!!
-    while (!ports.empty())
-        ports.front()->disconnect();
+    while (!ports.empty()) {
+        AbstractPort* port = ports.front();
+        port->disconnect();
+        if (!ports.empty() && (port == ports.front()))
+            delete port;
+    }
 }
 
 bool AbstractItem::isPortRegistered(AbstractPort* port)
@@ -142,6 +145,17 @@ AbstractBoundaryItem* Blackboard::lookupUnit(BWAPI::Unit* unit) const
 {
     auto it = unitBoundaries.find(unit);
     return (it != unitBoundaries.end()) ? it->second : NULL;
+}
+
+AbstractPlanItem* Blackboard::create(BWAPI::UnitType ut)
+{
+    BWAPI::UnitType builderType = ut.whatBuilds().first;
+    if (builderType.isWorker())
+        return build(ut);
+    if ((builderType == BWAPI::UnitTypes::Zerg_Larva) || (builderType.isBuilding() && (builderType.getRace() == BWAPI::Races::Zerg)))
+        return morph(ut);
+    assert(false && "Blackboard does not know how to create unit of this type.");
+    return NULL;
 }
 
 BuildPlanItem* Blackboard::build(BWAPI::UnitType ut)

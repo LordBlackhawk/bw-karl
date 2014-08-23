@@ -193,7 +193,7 @@ class ProvideUnitExistancePort final : public BasicPortImpl<ProvideUnitExistance
         BWAPI::UnitType unitType;
 };
 
-class RequireUnitExistancePort final : public BasicPortImpl<RequireUnitExistancePort, ProvideUnitExistancePort, true, true>
+class RequireUnitExistancePort final : public BasicPortImpl<RequireUnitExistancePort, ProvideUnitExistancePort, true, false>
 {
     public:
         RequireUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut);

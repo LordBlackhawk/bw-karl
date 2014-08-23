@@ -144,6 +144,7 @@ class Blackboard : public BasicEventVisitor
         void visitAbstractActionEvent(AbstractActionEvent* event) override;
 
         // for creation of plan items:
+        AbstractPlanItem* create(BWAPI::UnitType ut);
         BuildPlanItem* build(BWAPI::UnitType ut);
         MorphUnitPlanItem* morph(BWAPI::UnitType ut);
         GatherMineralsPlanItem* gather(ProvideUnitPort* provider, ResourceBoundaryItem* m);

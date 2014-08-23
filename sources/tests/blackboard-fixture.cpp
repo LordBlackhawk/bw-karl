@@ -216,3 +216,10 @@ ProvideUnitPort* BlackboardFixture::createProvideUnitPort(BWAPI::UnitType ut, Ti
 {
     return &(new ProvideUnitPlanItem(ut, pos, estimatedStartTime))->provideUnit;
 }
+
+void BlackboardFixture::finishPlanItem(AbstractPlanItem* item)
+{
+    item->removeFinished(NULL);
+    blackboard->removeItem(item);
+    delete item;
+}

@@ -44,7 +44,6 @@ void RequireUnitPort::acceptVisitor(AbstractVisitor* visitor)
 
 void RequireUnitPort::bridge(ProvideUnitPort* port)
 {
-    assert((connection != NULL) && (port != NULL));
     connection->connectTo(port->connection);
 }
 
@@ -278,7 +277,13 @@ void RequireEnemyUnitPort::acceptVisitor(AbstractVisitor* visitor)
 
 ProvideUnitExistancePort::ProvideUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut)
     : BaseClass(o), unitType(ut)
-{ }
+{
+    if (owner->isPlanItem()) {
+        estimatedDuration = ut.buildTime();
+    } else if (owner->isBoundaryItem()) {
+        estimatedTime = ACTIVE_TIME;
+    }
+}
 
 void ProvideUnitExistancePort::acceptVisitor(AbstractVisitor* visitor)
 {
@@ -296,5 +301,7 @@ void RequireUnitExistancePort::acceptVisitor(AbstractVisitor* visitor)
 
 void RequireUnitExistancePort::connectTo(AbstractItem* provider)
 {
+    if (isConnected() && (getConnectedPort()->getOwner() == provider))
+        return;
     BaseClass::connectTo(new ProvideUnitExistancePort(provider, unitType));
 }

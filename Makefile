@@ -19,7 +19,7 @@ run: karl.exe
 # --report=1000
 
 debug: karl.exe
-	gdb --args $< --hud --speed=0
+	gdb --args $< --hud --speed=0 --webgui
 
 test: tests.exe
 	@echo ' ##############################################################################'
