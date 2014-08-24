@@ -60,7 +60,23 @@ $(document).ready(function()
                 alert(data);
         },'text');
     });
-    
+
+    $('#engine-interrupt').on('click',function(){
+        $.post('interrupt', {},function(data)
+        {
+            if(data!=="ok")
+                alert(data);
+        },'text');
+    });
+
+    $('#engine-continue').on('click',function(){
+        $.post('continue', {},function(data)
+        {
+            if(data!=="ok")
+                alert(data);
+        },'text');
+    });
+
     $('#add-planitem-morph').on('submit',function(e){
         e.preventDefault();
         $.post('add', {type:'MorphUnitPlanItem',unitType:$('#add-planitem-morph-type').val()},function(data)

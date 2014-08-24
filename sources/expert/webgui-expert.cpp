@@ -21,6 +21,9 @@ namespace
 {
     struct mg_server *server=NULL;
     WebGUIExpert *webguiInstance=NULL;
+    bool interruptLoopRunning=false;
+    bool requestInterruptLoop=false;
+
 
     bool get_request_int(struct mg_connection *conn, const char* name, int &destination)
     {
@@ -533,6 +536,32 @@ namespace
 
                 return MG_TRUE;
             }
+            else if(strcmp(conn->uri,"/interrupt")==0)
+            {
+                mg_send_header(conn, "Content-Type", "text/plain");
+
+                if(!currentBlackboard)
+                {
+                    mg_printf_data(conn,"err: not in game.");
+                }
+                else
+                {
+                    requestInterruptLoop=true;
+                    mg_printf_data(conn,"ok");
+                }
+
+                return MG_TRUE;
+            }
+            else if(strcmp(conn->uri,"/continue")==0)
+            {
+                mg_send_header(conn, "Content-Type", "text/plain");
+
+                interruptLoopRunning=false;
+
+                mg_printf_data(conn,"ok");
+
+                return MG_TRUE;
+            }
             else if(strcmp(conn->uri,"/add")==0)
             {
                 std::string type;
@@ -606,6 +635,11 @@ bool WebGUIExpert::tick(Blackboard* blackboard)
     currentBlackboard=blackboard;
     mg_poll_server(server, 0);
     currentBlackboard=NULL;
+
+    if(requestInterruptLoop && !interruptLoopRunning)
+        WebGUIExpert::interruptEngineExecution(blackboard);
+    requestInterruptLoop=false;
+    
     return true;
 }
 
@@ -613,6 +647,19 @@ void WebGUIExpert::preGameTick()
 {
     if(server!=NULL)
         mg_poll_server(server, 0);
+}
+
+#include <windows.h>
+void WebGUIExpert::interruptEngineExecution(Blackboard* blackboard)
+{
+    interruptLoopRunning=true;
+    std::cout << "\n###### execution interrupted, WebGUI active on port 8080 ######\n";
+    while(interruptLoopRunning)
+    {
+        WebGUIExpert::instance()->tick(blackboard);
+        Sleep(10);
+    }
+    std::cout << "\n###### continue execution ######\n";
 }
 
 void WebGUIExpert::initialize()
