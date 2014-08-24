@@ -23,7 +23,11 @@ void RequirementsExpert::visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item)
     // Recognize units which are building at the moment.
     if (item->provideUnit.isConnected()) {
         auto planitem = item->provideUnit.getConnectedPort()->getOwner();
-        if ((dynamic_cast<MorphUnitPlanItem*>(planitem) != NULL) || (dynamic_cast<BuildPlanItem*>(planitem) != NULL))
+        auto morph = dynamic_cast<MorphUnitPlanItem*>(planitem);
+        if ((morph != NULL) && (morph->getUnitType() == item->getUnitType()) && morph->isActive())
+            return;
+        auto build = dynamic_cast<BuildPlanItem*>(planitem);
+        if ((build != NULL) && (build->getUnitType() == item->getUnitType()) && build->isActive())
             return;
     }
     addProvider(item->getUnitType(), item);

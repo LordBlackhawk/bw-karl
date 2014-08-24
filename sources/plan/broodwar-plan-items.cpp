@@ -23,8 +23,9 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
 
 void AbstractSimpleUnitPlanItem::addRequirements(BWAPI::UnitType ut)
 {
+    BWAPI::UnitType builder = ut.whatBuilds().first;
     for (auto it : ut.requiredUnits())
-        if (!it.first.isWorker() && (it.first != BWAPI::UnitTypes::Zerg_Larva))
+        if (it.first != builder)
             new RequireUnitExistancePort(this, it.first);
 }
 
