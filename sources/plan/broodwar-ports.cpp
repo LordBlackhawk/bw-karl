@@ -44,7 +44,6 @@ void RequireUnitPort::acceptVisitor(AbstractVisitor* visitor)
 
 void RequireUnitPort::bridge(ProvideUnitPort* port)
 {
-    assert((connection != NULL) && (port != NULL));
     connection->connectTo(port->connection);
 }
 
@@ -257,7 +256,7 @@ BWAPI::Unit* ProvideEnemyUnitPort::getUnit() const
 
 BWAPI::Position ProvideEnemyUnitPort::getPosition() const 
 { 
-	return getOwner()->getPosition();
+    return getOwner()->getPosition();
 }
 
 EnemyUnitBoundaryItem* ProvideEnemyUnitPort::getOwner() const
@@ -274,4 +273,35 @@ RequireEnemyUnitPort::RequireEnemyUnitPort(AbstractItem* o, EnemyUnitBoundaryIte
 void RequireEnemyUnitPort::acceptVisitor(AbstractVisitor* visitor)
 {
     visitor->visitRequireEnemyUnitPort(this);
+}
+
+ProvideUnitExistancePort::ProvideUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut)
+    : BaseClass(o), unitType(ut)
+{
+    if (owner->isPlanItem()) {
+        estimatedDuration = ut.buildTime();
+    } else if (owner->isBoundaryItem()) {
+        estimatedTime = ACTIVE_TIME;
+    }
+}
+
+void ProvideUnitExistancePort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitProvideUnitExistancePort(this);
+}
+
+RequireUnitExistancePort::RequireUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut)
+    : BaseClass(o), unitType(ut)
+{ }
+
+void RequireUnitExistancePort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitRequireUnitExistancePort(this);
+}
+
+void RequireUnitExistancePort::connectTo(AbstractItem* provider)
+{
+    if (isConnected() && (getConnectedPort()->getOwner() == provider))
+        return;
+    BaseClass::connectTo(new ProvideUnitExistancePort(provider, unitType));
 }

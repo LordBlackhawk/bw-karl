@@ -51,6 +51,16 @@ void BasicVisitor::visitRequireEnemyUnitPort(RequireEnemyUnitPort* port)
     visitAbstractPort(port);
 }
 
+void BasicVisitor::visitProvideUnitExistancePort(ProvideUnitExistancePort* port)
+{
+    visitAbstractPort(port);
+}
+
+void BasicVisitor::visitRequireUnitExistancePort(RequireUnitExistancePort* port)
+{
+    visitAbstractPort(port);
+}
+
 
 void BasicVisitor::visitAbstractBoundaryItem(AbstractBoundaryItem* /*item*/)
 { }
@@ -94,6 +104,11 @@ void BasicVisitor::visitBuildPlanItem(BuildPlanItem* item)
 }
 
 void BasicVisitor::visitAttackUnitPlanItem(AttackUnitPlanItem* item)
+{
+    visitAbstractPlanItem(item);
+}
+
+void BasicVisitor::visitAttackPositionPlanItem(AttackPositionPlanItem* item)
 {
     visitAbstractPlanItem(item);
 }

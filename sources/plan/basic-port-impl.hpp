@@ -12,7 +12,7 @@ class BasicPortImpl : public AbstractPort
         int estimatedDuration;
 
         BasicPortImpl(AbstractItem* o)
-            : AbstractPort(o), estimatedDuration(1), connection(NULL)
+            : AbstractPort(o), estimatedDuration(1), connection(NULL), disconnectLevel(0)
         { }
 
         ~BasicPortImpl()
@@ -42,6 +42,7 @@ class BasicPortImpl : public AbstractPort
 
         void connectTo(ConnectionClass* port)
         {
+            //assert(!isActiveConnection() && "Active connection can not be changed!");
             if (connection == port)
                 return;
             staticDisconnect();
@@ -60,6 +61,7 @@ class BasicPortImpl : public AbstractPort
             if (isConnected()) {
                 if (Require) {
                     connection->connection = NULL;
+                    connection->disconnect();
                     connection = NULL;
                 } else {
                     connection->disconnect();
@@ -69,11 +71,11 @@ class BasicPortImpl : public AbstractPort
 
         void disconnect() override
         {
-            if (connection != NULL) {
-                staticDisconnect();
-                if (FreeOnDisconnect)
-                    delete this;
-            }
+            ++disconnectLevel;
+            staticDisconnect();
+            --disconnectLevel;
+            if (FreeOnDisconnect && (disconnectLevel == 0))
+                delete this;
         }
 
         inline bool isConnected() const
@@ -95,4 +97,7 @@ class BasicPortImpl : public AbstractPort
         {
             return static_cast<DerivedClass*>(this);
         }
+
+    private:
+        int disconnectLevel;
 };

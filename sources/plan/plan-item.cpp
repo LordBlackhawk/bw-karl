@@ -27,9 +27,12 @@ bool AbstractPort::isActive() const
 
 AbstractItem::~AbstractItem()
 {
-    // all remaining port must be of type "free on disconnect"!!!
-    while (!ports.empty())
-        ports.front()->disconnect();
+    while (!ports.empty()) {
+        AbstractPort* port = ports.front();
+        port->disconnect();
+        if (!ports.empty() && (port == ports.front()))
+            delete port;
+    }
 }
 
 bool AbstractItem::isPortRegistered(AbstractPort* port)
@@ -95,6 +98,12 @@ void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
     status = Failed;
 }
 
+void AbstractPlanItem::setExecuting()
+{
+    assert(status == Active);
+    status = Executing;
+}
+
 Blackboard::Blackboard(AbstractExecutionEngine* e)
     : engine(e)
 { }
@@ -138,6 +147,17 @@ AbstractBoundaryItem* Blackboard::lookupUnit(BWAPI::Unit* unit) const
     return (it != unitBoundaries.end()) ? it->second : NULL;
 }
 
+AbstractPlanItem* Blackboard::create(BWAPI::UnitType ut)
+{
+    BWAPI::UnitType builderType = ut.whatBuilds().first;
+    if (builderType.isWorker())
+        return build(ut);
+    if ((builderType == BWAPI::UnitTypes::Zerg_Larva) || (builderType.isBuilding() && (builderType.getRace() == BWAPI::Races::Zerg)))
+        return morph(ut);
+    assert(false && "Blackboard does not know how to create unit of this type.");
+    return NULL;
+}
+
 BuildPlanItem* Blackboard::build(BWAPI::UnitType ut)
 {
     auto result = new BuildPlanItem(&informations.fields, ut, BWAPI::TilePositions::Unknown);
@@ -178,13 +198,19 @@ AttackUnitPlanItem* Blackboard::attack(ProvideUnitPort* provider, EnemyUnitBound
     return result;
 }
 
+AttackPositionPlanItem* Blackboard::attack(ProvideUnitPort* provider, BWAPI::Position p)
+{
+    auto result = new AttackPositionPlanItem(provider, p);
+    addItem(result);
+    return result;
+}
+
 GiveUpPlanItem* Blackboard::giveUp()
 {
     auto result = new GiveUpPlanItem();
     addItem(result);
     return result;
 }
-
 
 namespace
 {

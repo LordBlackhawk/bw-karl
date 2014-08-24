@@ -82,69 +82,6 @@ namespace
 
             void tick()
             {
-
-                // Test hand coded zergling rush
-                static int attackDelay=0;
-                if(((++attackDelay)%32)==0)
-                {
-                    BWAPI::Unit *enemyTarget = NULL;
-                    for(auto enemy : BWAPI::Broodwar->getAllUnits())
-                        if(enemy->getPlayer()->isEnemy(BWAPI::Broodwar->self()) && !enemy->getType().isFlyer() )
-                    {
-                            enemyTarget=enemy; //find a random enemy to attack
-                    }
-                    if(enemyTarget)
-                        for(auto unit : BWAPI::Broodwar->self()->getUnits())
-                    {
-                        if(unit->getType()==BWAPI::UnitTypes::Zerg_Zergling && unit->isIdle())
-                        {
-                                // send idle units to attack
-                            //LOG << "Added attack action.";
-                            engine->addAction(new AttackPositionAction(unit,enemyTarget->getPosition()));
-                        }
-                    }
-                    else
-                    {
-                        auto army=BWAPI::Broodwar->self()->getUnits();
-                        auto a=army.begin();
-
-                        for(auto location : BWTA::getStartLocations()) //check start locations first
-                        {
-                            if(!BWAPI::Broodwar->isExplored(location->getTilePosition())) //check if bases are explored
-                            {
-                                while(a!=army.end())
-                                {
-                                    if((*a)->getType()==BWAPI::UnitTypes::Zerg_Zergling && (*a)->isIdle())
-                                    {
-                                            //send next free unit to explore
-                                        //LOG << "Added attack action.";
-                                        engine->addAction(new AttackPositionAction(*a,location->getPosition()));
-                                        a++;
-                                        break;
-                                    }
-                                    a++;
-                                }
-                            }
-                        }
-                        for(auto location : BWTA::getBaseLocations()) //check other base locations
-                            if(!location->isStartLocation() && !BWAPI::Broodwar->isExplored(location->getTilePosition())) //check if bases are explored
-                            {
-                                while(a!=army.end())
-                                {
-                                    if((*a)->getType()==BWAPI::UnitTypes::Zerg_Zergling && (*a)->isIdle())
-                                    {
-                                            //send next free unit to explore
-                                        //LOG << "Added attack action.";
-                                        engine->addAction(new AttackPositionAction(*a,location->getPosition()));
-                                        a++;
-                                        break;
-                                    }
-                                    a++;
-                                }
-                            }
-                    }
-                }
-
                 Blackboard::sendFrameEvent(engine);
                 if (thread == NULL)
                     blackboard->tick();
@@ -167,7 +104,7 @@ namespace
                     OUTPUT(130, isAttacking);
                     OUTPUT(145, isAttackFrame);
                     OUTPUT(160, isMoving);
-                    OUTPUT(275, isBraking);
+                    OUTPUT(175, isBraking);
                     #undef OUTPUT
                 } else {
                     std::map<BWAPI::UnitType, int> numbers;

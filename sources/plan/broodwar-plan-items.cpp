@@ -21,6 +21,37 @@ void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
     requireUnit.bridge(&provideUnit);
 }
 
+void AbstractSimpleUnitPlanItem::addRequirements(BWAPI::UnitType ut)
+{
+    for (auto it : ut.requiredUnits())
+        if (!it.first.isWorker() && (it.first != BWAPI::UnitTypes::Zerg_Larva))
+            new RequireUnitExistancePort(this, it.first);
+}
+
+void AbstractSimpleUnitPlanItem::bridgeUnitExistancePortsTo(AbstractItem* item)
+{
+    std::set<ProvideUnitExistancePort*> providePorts;
+    for (auto it : ports) {
+        auto ptr = dynamic_cast<ProvideUnitExistancePort*>(it);
+        if (ptr != NULL)
+            providePorts.insert(ptr);
+    }
+    for (auto it : providePorts)
+        it->getConnectedPort()->connectTo(item);
+}
+
+void AbstractSimpleUnitPlanItem::removeRequireExistancePorts()
+{
+    std::set<RequireUnitExistancePort*> providePorts;
+    for (auto it : ports) {
+        auto ptr = dynamic_cast<RequireUnitExistancePort*>(it);
+        if (ptr != NULL)
+            providePorts.insert(ptr);
+    }
+    for (auto it : providePorts)
+        it->disconnect();
+}
+
 
 GatherMineralsPlanItem::GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider)
     : AbstractSimpleUnitPlanItem(provider->getUnitType(), true), requireMineralField(this, m)
@@ -52,6 +83,7 @@ MorphUnitPlanItem::MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* prov
       supply(this, type, true),
       unitType(type)
 {
+    addRequirements(unitType);
     provideUnit.updateData(unitType, (provider != NULL) ? provider->getPosition() : BWAPI::Positions::Unknown);
     supply.estimatedDuration = provideUnit.estimatedDuration = unitType.buildTime();
     requireUnit.connectTo(provider);
@@ -73,9 +105,20 @@ AbstractAction* MorphUnitPlanItem::prepareForExecution(AbstractExecutionEngine* 
 
 void MorphUnitPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
 {
+    setExecuting();
     removePort(&requireResources);
     if (supply.isRequirePort())
         removePort(&supply);
+    removeRequireExistancePorts();
+}
+
+void MorphUnitPlanItem::removeFinished(AbstractAction* action)
+{
+    // ToDo: I do not know why requireUnit can not be connected, I think it is a bug...
+    if (requireUnit.isConnected()) {
+        bridgeUnitExistancePortsTo(requireUnit.getConnectedPort()->getOwner());
+        AbstractSimpleUnitPlanItem::removeFinished(action);
+    }
 }
 
 
@@ -106,6 +149,33 @@ AbstractAction* MoveToPositionPlanItem::prepareForExecution(AbstractExecutionEng
     return action;
 }
 
+
+AttackPositionPlanItem::AttackPositionPlanItem(ProvideUnitPort* provider, BWAPI::Position p)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType()), position(p)
+{
+    provideUnit.updateData(provider->getUnitType(), position);
+    requireUnit.connectTo(provider);
+}
+
+void AttackPositionPlanItem::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitAttackPositionPlanItem(this);
+}
+
+void AttackPositionPlanItem::updateEstimates(Time current)
+{
+    provideUnit.estimatedDuration = (int)(position.getDistance(requireUnit.getPosition()) / provideUnit.getUnitType().topSpeed());
+    AbstractSimpleUnitPlanItem::updateEstimates(current);
+}
+
+AbstractAction* AttackPositionPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
+    AbstractAction* action = new AttackPositionAction(requireUnit.getUnit(), position, req);
+    provideUnit.setPreviousAction(action);
+    engine->addAction(action);
+    return action;
+}
 
 
 AttackUnitPlanItem::AttackUnitPlanItem(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy)
@@ -145,6 +215,7 @@ BuildPlanItem::BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, 
       supply(this, ut),
       unitType(ut)
 {
+    addRequirements(unitType);
     provideUnit.updateData(unitType, BWAPI::Position(p));
     supply.estimatedDuration = provideUnit.estimatedDuration = unitType.buildTime();
 }
@@ -166,8 +237,17 @@ AbstractAction* BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engi
 
 void BuildPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
 {
+    setExecuting();
     removePort(&requireResources);
     removePort(&requireSpace);
+    removeRequireExistancePorts();
+}
+
+void BuildPlanItem::removeFinished(AbstractAction* action)
+{
+    assert(requireUnit.isConnected());
+    bridgeUnitExistancePortsTo(requireUnit.getConnectedPort()->getOwner());
+    AbstractSimpleUnitPlanItem::removeFinished(action);
 }
 
 

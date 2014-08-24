@@ -69,6 +69,7 @@ class BlackboardFixture
         void destroyBoundaryItem(AbstractBoundaryItem* item);
         void setupFields();
         void buildBaseLocations();
+        void finishPlanItem(AbstractPlanItem* item);
 
         ProvideUnitPort* createProvideUnitPort(BWAPI::UnitType ut, Time estimatedStartTime = 0, BWAPI::Position pos = BWAPI::Positions::Unknown);
 };

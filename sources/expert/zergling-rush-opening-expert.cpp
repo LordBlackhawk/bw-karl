@@ -2,7 +2,7 @@
 #include "expert-registrar.hpp"
 #include "plan/broodwar-boundary-items.hpp"
 
-REGISTER_EXPERT(ZerglingRushOpeningExpert)
+//REGISTER_EXPERT(ZerglingRushOpeningExpert)
 
 void ZerglingRushOpeningExpert::beginTraversal()
 {

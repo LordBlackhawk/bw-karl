@@ -220,6 +220,24 @@ namespace
                     port->getConnectedPort(),
                     port->isConnected()?"true":"false");
             }
+            void visitProvideUnitExistancePort(ProvideUnitExistancePort* port) override
+            {
+                visitAbstractPort(port);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"unitType\":\"%s\",\"connectedPort\":\"%p\",\"connected\":%s}",
+                    "ProvideUnitExistanceExistance",
+                    port->getUnitType().getName().c_str(),
+                    port->getConnectedPort(),
+                    port->isConnected()?"true":"false");
+            }
+            void visitRequireUnitExistancePort(RequireUnitExistancePort* port) override
+            {
+                visitAbstractPort(port);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"unitType\":\"%s\",\"connectedPort\":\"%p\",\"connected\":%s}",
+                    "RequireUnitExistanceExistance",
+                    port->getUnitType().getName().c_str(),
+                    port->getConnectedPort(),
+                    port->isConnected()?"true":"false");
+            }
 
             void visitAbstractBoundaryItem(AbstractBoundaryItem* item) override
             {
@@ -321,6 +339,13 @@ namespace
                 visitAbstractPlanItem(item);
                 mg_printf_data(conn,",\"name\":\"%s\",\"data\":{}",
                     "AttackUnit");
+            }
+            void visitAttackPositionPlanItem(AttackPositionPlanItem* item) override
+            {
+                visitAbstractPlanItem(item);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"pos\":%s}",
+                        "AttackPosition",
+                        position2JSON(item->getPosition()).c_str());
             }
             void visitGiveUpPlanItem(GiveUpPlanItem* item) override
             {

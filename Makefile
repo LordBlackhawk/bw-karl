@@ -15,11 +15,11 @@ MODULEFILES         = $(LIBFILES) $(EXEFILES)
 all: $(MODULEFILES)
 
 run: karl.exe
-	$< --hud --speed=0
-#--parallel --webgui --report=1000
+	$< --hud --speed=0 --parallel --webgui
+# --report=1000
 
 debug: karl.exe
-	gdb --args $< --hud --speed=0
+	gdb --args $< --hud --speed=0 --webgui
 
 test: tests.exe
 	@echo ' ##############################################################################'
@@ -59,7 +59,10 @@ endef
 $(foreach lib,$(LIBRARIES),$(eval $(call LIB_template,$(lib))))
 $(foreach exe,$(EXECUTABLES),$(eval $(call EXE_template,$(exe))))
 
-clean:
+cleancov:
+	rm -rf $(COVERAGEPATH) $(BASEOUTPATH)coverage_*/ $(LIBPATH)libcoverage_*.a
+
+clean: cleancov
 	rm -rf $(BASEOUTPATH)
 	rm $(MODULEFILES)
 	rm -rf doxygen/html
@@ -72,9 +75,6 @@ $(BASEOUTPATH):
 
 $(COVERAGEPATH):
 	mkdir $(COVERAGEPATH)
-
-cleancov:
-	rm -rf $(COVERAGEPATH) $(BASEOUTPATH)coverage_*/ $(LIBPATH)libcoverage_*.a
 
 CPPCHECKDEFINES = -UBOOST_BORLAND_DEBUG -UBOOST_DEBUG_PYTHON -UBOOST_ALL_DYN_LINK -U__BORLANDC__ -U_RTLDLL -UBOOST_ABI_PREFIX -UBOOST_ABI_SUFFIX -UBOOST_ASSERT_CONFIG
 BOOST_PATH      = ./includes/boost/

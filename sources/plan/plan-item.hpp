@@ -78,6 +78,7 @@ class AbstractPlanItem : public AbstractItem
         inline Status getStatus() const { return status; }
 
         void setActive();
+        void setExecuting();
         void setErrorState(AbstractAction* action);
 
         virtual void updateEstimates(Time current);
@@ -106,6 +107,7 @@ class MorphUnitPlanItem;
 class GatherMineralsPlanItem;
 class MoveToPositionPlanItem;
 class AttackUnitPlanItem;
+class AttackPositionPlanItem;
 class GiveUpPlanItem;
 
 class Blackboard : public BasicEventVisitor
@@ -142,12 +144,14 @@ class Blackboard : public BasicEventVisitor
         void visitAbstractActionEvent(AbstractActionEvent* event) override;
 
         // for creation of plan items:
+        AbstractPlanItem* create(BWAPI::UnitType ut);
         BuildPlanItem* build(BWAPI::UnitType ut);
         MorphUnitPlanItem* morph(BWAPI::UnitType ut);
         GatherMineralsPlanItem* gather(ProvideUnitPort* provider, ResourceBoundaryItem* m);
         MoveToPositionPlanItem* move(ProvideUnitPort* provider, BWAPI::Position p);
         MoveToPositionPlanItem* move(ProvideUnitPort* provider, BWAPI::TilePosition tp);
         AttackUnitPlanItem* attack(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy);
+        AttackPositionPlanItem* attack(ProvideUnitPort* provider, BWAPI::Position p);
         GiveUpPlanItem* giveUp();
 
         // for test propose only:

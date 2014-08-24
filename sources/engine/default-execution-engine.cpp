@@ -1,31 +1,34 @@
 #include "default-execution-engine.hpp"
+#include <algorithm>
 
 DefaultExecutionEngine::DefaultExecutionEngine()
 { }
 
+std::vector<ActionInfo>::iterator DefaultExecutionEngine::findAction(AbstractAction* action)
+{
+    return std::find_if(actions.begin(), actions.end(), [&] (const ActionInfo& i) { return i.action == action; });
+}
+
+std::vector<ActionInfo>::const_iterator DefaultExecutionEngine::findAction(AbstractAction* action) const
+{
+    return std::find_if(actions.begin(), actions.end(), [&] (const ActionInfo& i) { return i.action == action; });
+}
+
 void DefaultExecutionEngine::terminateAction(AbstractAction* action, bool cleanup)
 {
-    if (allActions.find(action) == allActions.end())
+    auto it = findAction(action);
+    if (it == actions.end())
         return;
 
-    allActions.erase(action);
-    if (action->precondition != NULL) {
-        passiveActions.erase(action);
-    } else {
-        action->onEnd(this);
-        activeActions.erase(action);
-    }
+    if (it->info == ActionInfo::Active)
+        it->action->onEnd(this);
+    it->info = ActionInfo::Removed;
     generateActionEvent(action, ActionEvent::ActionTerminated);
 
-    if (cleanup) {
-        terminateFollowUps(action);
-    } else {
-        if (action->precondition != NULL) {
-            setPreconditionOfFollowUps(action, action->precondition);
-        } else {
-            activateFollowUps(action);
-        }
-    }
+    ActionInfo::Info newinfo = ActionInfo::Removed;
+    if (!cleanup)
+        newinfo = (it->action->precondition == NULL) ? ActionInfo::Active : ActionInfo::Passiv;
+    markFollowUps(it->action, newinfo);
 }
 
 void DefaultExecutionEngine::generateEvent(AbstractEvent* event)
@@ -35,19 +38,24 @@ void DefaultExecutionEngine::generateEvent(AbstractEvent* event)
 
 void DefaultExecutionEngine::addAction(AbstractAction* action)
 {
-    allActions.insert(action);
-    if ((action->precondition != NULL) && (allActions.find(action->precondition) != allActions.end())) {
-        passiveActions.insert(action);
-    } else {
+    ActionInfo::Info info = ActionInfo::Passiv;
+    if ((action->precondition == NULL) || !containsAction(action->precondition)) {
+        info = ActionInfo::Active;
         action->precondition = NULL;
         action->onBegin(this);
-        activeActions.insert(action);
     }
+    actions.push_back(ActionInfo(info, action));
 }
 
 bool DefaultExecutionEngine::isActive(AbstractAction* action) const
 {
-    return activeActions.find(action) != activeActions.end();
+    auto it = findAction(action);
+    return (it != actions.end()) && (it->info == ActionInfo::Active);
+}
+
+bool DefaultExecutionEngine::containsAction(AbstractAction* action) const
+{
+    return (findAction(action) != actions.end());
 }
 
 AbstractEvent* DefaultExecutionEngine::popEvent()
@@ -62,65 +70,49 @@ AbstractEvent* DefaultExecutionEngine::popEvent()
 
 void DefaultExecutionEngine::tick()
 {
-    std::set<AbstractAction*> copy = activeActions;
-    for (auto it : copy) {
-        AbstractAction::Status status = it->onTick(this);
+    for (auto& it : actions)
+        if (it.info == ActionInfo::Active)
+    {
+        AbstractAction::Status status = it.action->onTick(this);
         if (status != AbstractAction::Status::Running) {
-            it->onEnd(this);
-            allActions.erase(it);
-            activeActions.erase(it);
+            it.action->onEnd(this);
+            it.info = ActionInfo::Removed;
             if (status == AbstractAction::Status::Finished) {
-                generateActionEvent(it, ActionEvent::ActionFinished);
-                activateFollowUps(it);
+                generateActionEvent(it.action, ActionEvent::ActionFinished);
+                markFollowUps(it.action, ActionInfo::Active);
             } else if (status == AbstractAction::Status::Failed) {
-                generateActionEvent(it, ActionEvent::ActionFailed);
-                terminateFollowUps(it);
+                generateActionEvent(it.action, ActionEvent::ActionFailed);
+                markFollowUps(it.action, ActionInfo::Removed);
             }
         }
     }
+
+    actions.erase(std::remove_if(actions.begin(), actions.end(), [] (const ActionInfo& i) { return i.info == ActionInfo::Removed; }), actions.end());
 }
 
-std::vector<AbstractAction*> DefaultExecutionEngine::findFollowUps(AbstractAction* action)
+void DefaultExecutionEngine::markFollowUps(AbstractAction* action, ActionInfo::Info info)
 {
-    std::vector<AbstractAction*> result;
-    for (auto it : passiveActions)
-        if (it->precondition == action)
-            result.push_back(it);
-    return result;
-}
-
-void DefaultExecutionEngine::setPreconditionOfFollowUps(AbstractAction* action, AbstractAction* newprecondition)
-{
-    for (auto it : passiveActions)
-        if (it->precondition == action)
-            it->precondition = newprecondition;
-}
-
-void DefaultExecutionEngine::activateFollowUps(AbstractAction* action)
-{
-    auto it = passiveActions.begin();
-    while (it != passiveActions.end()) {
-        if ((*it)->precondition == action) {
-            (*it)->onBegin(this);
-            activeActions.insert(*it);
-            it = passiveActions.erase(it);
-        } else {
-            ++it;
+    for (auto& it : actions)
+        if (it.action->precondition == action)
+    {
+        it.info = info;
+        switch (info) {
+            case ActionInfo::Active:
+                it.action->precondition = NULL;
+                it.action->onBegin(this);
+                break;
+            case ActionInfo::Passiv:
+                it.action->precondition = action->precondition;
+                break;
+            case ActionInfo::Removed:
+                generateActionEvent(it.action, ActionEvent::ActionCleanedUp);
+                markFollowUps(it.action, info);
+                break;
         }
     }
 }
 
-void DefaultExecutionEngine::terminateFollowUps(AbstractAction* action)
+int DefaultExecutionEngine::numberOfActiveActions() const
 {
-    std::vector<AbstractAction*> all = findFollowUps(action);
-    while (!all.empty()) {
-        AbstractAction* current = all.back();
-        allActions.erase(current);
-        passiveActions.erase(current);
-        generateActionEvent(current, ActionEvent::ActionCleanedUp);
-
-        all.pop_back();
-        std::vector<AbstractAction*> additional = findFollowUps(current);
-        all.insert(all.end(), additional.begin(), additional.end());
-    }
+    return std::count_if(actions.begin(), actions.end(), [] (const ActionInfo& i) { return i.info == ActionInfo::Active; });
 }
