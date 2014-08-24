@@ -224,7 +224,7 @@ namespace
             {
                 visitAbstractPort(port);
                 mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"unitType\":\"%s\",\"connectedPort\":\"%p\",\"connected\":%s}",
-                    "ProvideUnitExistanceExistance",
+                    "ProvideUnitExistance",
                     port->getUnitType().getName().c_str(),
                     port->getConnectedPort(),
                     port->isConnected()?"true":"false");
@@ -233,7 +233,7 @@ namespace
             {
                 visitAbstractPort(port);
                 mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"unitType\":\"%s\",\"connectedPort\":\"%p\",\"connected\":%s}",
-                    "RequireUnitExistanceExistance",
+                    "RequireUnitExistance",
                     port->getUnitType().getName().c_str(),
                     port->getConnectedPort(),
                     port->isConnected()?"true":"false");
