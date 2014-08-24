@@ -177,6 +177,10 @@ function plangraphInit()
                         label="MoveTo: "+getPositionString(item.data.pos);
                         break;
 
+                    case "AttackPosition":
+                        label="Attack: "+getPositionString(item.data.pos);
+                        break;
+
                     case "GatherMinerals":
                     case "AttackUnit":
                         label=item.name;
