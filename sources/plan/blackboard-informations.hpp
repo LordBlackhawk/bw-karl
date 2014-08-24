@@ -5,33 +5,42 @@
 #include <BWAPI.h>
 #include <BWTA.h>
 
+class BlackboardInformations;
 class ResourceBoundaryItem;
 class RequireSpacePort;
 
 struct BaseLocation
 {
-    BWTA::BaseLocation*             origin;
-    std::set<ResourceBoundaryItem*> minerals;
+    public:
+        BWTA::BaseLocation*             origin;
+        std::set<ResourceBoundaryItem*> minerals;
 
-    BaseLocation();
+        BaseLocation(BlackboardInformations* o);
+        Time lastSeenComplete() const;
+        bool isCompleteExplored() const;
 
-    inline BWAPI::TilePosition getTilePosition() const { return origin->getTilePosition(); }
-    inline BWAPI::Position getPosition() const { return BWAPI::Position(getTilePosition()); }
+        inline BWAPI::TilePosition getTilePosition() const { return origin->getTilePosition(); }
+        inline BWAPI::Position getPosition() const { return BWAPI::Position(getTilePosition()); }
+
+    protected:
+        BlackboardInformations* owner;
 };
 
 struct FieldInformations
 {
-    //Time                lastSeen    = -1;
+    Time                lastSeen    = -1;
     bool                buildable   = false;
     bool                creep       = false;
     RequireSpacePort*   blocker     = NULL;
+
+    inline bool isExplored() const { return lastSeen > 1; }
 };
 
 struct BlackboardInformations
 {
     ~BlackboardInformations();
     void prepare();
-    void creepChanged(const BWAPI::TilePosition& tp, bool creep);
+    void fieldSeen(const BWAPI::TilePosition& tp, bool creep);
 
     void printFieldInformations(std::ostream& stream);
 

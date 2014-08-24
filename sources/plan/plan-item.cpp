@@ -277,7 +277,7 @@ void Blackboard::prepare()
             unitBoundaries[mineral->unit] = mineral;
     for (auto it : experts)
         it->prepare();
-    engine->addAction(new CreepScannerAction());
+    engine->addAction(new FieldScannerAction());
 }
 
 void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
@@ -396,7 +396,7 @@ void Blackboard::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
     }
 }
 
-void Blackboard::visitCreepChangedEvent(CreepChangedEvent* event)
+void Blackboard::visitFieldSeenEvent(FieldSeenEvent* event)
 {
-    informations.creepChanged(event->tilePos, event->creep);
+    informations.fieldSeen(event->tilePos, event->creep);
 }

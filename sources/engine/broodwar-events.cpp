@@ -55,13 +55,13 @@ void MineralUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
     visitor->visitMineralUpdateEvent(this);
 }
 
-CreepChangedEvent::CreepChangedEvent(const BWAPI::TilePosition& tp, bool c)
+FieldSeenEvent::FieldSeenEvent(const BWAPI::TilePosition& tp, bool c)
     : tilePos(tp), creep(c)
 { }
 
-void CreepChangedEvent::acceptVisitor(AbstractEventVisitor* visitor)
+void FieldSeenEvent::acceptVisitor(AbstractEventVisitor* visitor)
 {
-    visitor->visitCreepChangedEvent(this);
+    visitor->visitFieldSeenEvent(this);
 }
 
 AbstractActionEvent::AbstractActionEvent(AbstractAction* a)

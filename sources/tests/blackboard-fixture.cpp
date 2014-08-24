@@ -168,7 +168,7 @@ void BlackboardFixture::buildBaseLocations()
     setupFields();
     auto informations = blackboard->getInformations();
     for (int l=0; l<4; ++l) {
-        auto base = new BaseLocation;
+        auto base = new BaseLocation(informations);
         for (int k=0; k<10; ++k)
             base->minerals.insert(createResourceBoundaryItem(BWAPI::TilePosition(k, k)));
         informations->allBaseLocations.insert(base);

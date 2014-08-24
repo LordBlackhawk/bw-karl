@@ -10,7 +10,7 @@ void BasicEventVisitor::visitFrameEvent(FrameEvent* /*event*/)
 void BasicEventVisitor::visitBroodwarEvent(BroodwarEvent* /*event*/)
 { }
 
-void BasicEventVisitor::visitCreepChangedEvent(CreepChangedEvent* /*event*/)
+void BasicEventVisitor::visitFieldSeenEvent(FieldSeenEvent* /*event*/)
 { }
 
 void BasicEventVisitor::visitUnitUpdateEvent(UnitUpdateEvent* /*event*/)

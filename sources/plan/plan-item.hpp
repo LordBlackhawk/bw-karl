@@ -140,7 +140,7 @@ class Blackboard : public BasicEventVisitor
         void visitBroodwarEvent(BroodwarEvent* event) override;
         void visitUnitUpdateEvent(UnitUpdateEvent* event) override;
         void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) override;
-        void visitCreepChangedEvent(CreepChangedEvent* event) override;
+        void visitFieldSeenEvent(FieldSeenEvent* event) override;
         void visitAbstractActionEvent(AbstractActionEvent* event) override;
 
         // for creation of plan items:

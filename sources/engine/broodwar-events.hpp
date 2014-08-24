@@ -62,13 +62,13 @@ class BroodwarEvent : public AbstractEvent
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 
-class CreepChangedEvent : public AbstractEvent
+class FieldSeenEvent : public AbstractEvent
 {
     public:
         BWAPI::TilePosition tilePos;
         bool creep;
 
-        CreepChangedEvent(const BWAPI::TilePosition& tp, bool c);
+        FieldSeenEvent(const BWAPI::TilePosition& tp, bool c);
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 

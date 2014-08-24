@@ -39,11 +39,19 @@ void AttackExpert::endTraversal()
             }
         }
 
-        // If no enemy known, then search at random base location.
-        if (bestPosition == BWAPI::Positions::Unknown)
-            bestPosition = getRandomItem(currentBlackboard->getInformations()->allBaseLocations)->getPosition();
+        // If no enemy known, then search at random unexplored base location.
+        if (bestPosition == BWAPI::Positions::Unknown) {
+            std::set<BaseLocation*> unexplored;
+            for (auto it : currentBlackboard->getInformations()->allBaseLocations)
+                if (!it->isCompleteExplored())
+                    unexplored.insert(it);
+            auto location = getRandomItem(unexplored);
+            if (location != NULL)
+                bestPosition = location->getPosition();
+        }
 
-        currentBlackboard->attack(ling, bestPosition);
+        if (bestPosition != BWAPI::Positions::Unknown)
+            currentBlackboard->attack(ling, bestPosition);
     }
     lings.clear();
     enemies.clear();

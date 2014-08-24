@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( minerals_destroyed )
     BOOST_REQUIRE( blocker != NULL );
     BOOST_CHECK( blocker->getOwner() == mineral );
 
-    auto base = new BaseLocation;
+    auto base = new BaseLocation(informations);
     base->minerals.insert(mineral);
     informations->allBaseLocations.insert(base);
     informations->ownBaseLocations.insert(base);
