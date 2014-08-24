@@ -1,4 +1,5 @@
 #include "basic-expert.hpp"
+#include "webgui-expert.hpp"
 #include "plan/broodwar-ports.hpp"
 #include "plan/broodwar-plan-items.hpp"
 
@@ -33,6 +34,12 @@ void BasicExpert::beginTraversal()
 
 void BasicExpert::endTraversal()
 { }
+
+void BasicExpert::interrupt()
+{
+    if ((currentBlackboard != NULL) && (WebGUIExpert::instance() != NULL))
+        WebGUIExpert::interruptEngineExecution(currentBlackboard);
+}
 
 BasicPortExpert::BasicPortExpert()
     : currentItem(NULL)

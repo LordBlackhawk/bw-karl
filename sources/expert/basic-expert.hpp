@@ -18,6 +18,8 @@ class BasicExpert : public AbstractExpert, public BasicVisitor
 
     protected:
         Blackboard* currentBlackboard;
+
+        void interrupt();
 };
 
 class BasicPortExpert : public BasicExpert
