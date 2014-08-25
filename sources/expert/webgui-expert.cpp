@@ -577,6 +577,23 @@ namespace
 
                 return MG_TRUE;
             }
+            else if(strcmp(conn->uri,"/step")==0)
+            {
+                mg_send_header(conn, "Content-Type", "text/plain");
+
+                if(!currentBlackboard)
+                {
+                    mg_printf_data(conn,"err: not in game.");
+                }
+                else
+                {
+                    requestInterruptLoop = true;
+                    interruptLoopRunning = false;
+                    mg_printf_data(conn,"ok");
+                }
+
+                return MG_TRUE;
+            }
             else if(strcmp(conn->uri,"/continue")==0)
             {
                 mg_send_header(conn, "Content-Type", "text/plain");
@@ -655,16 +672,22 @@ bool WebGUIExpert::isApplicable(Blackboard* /*blackboard*/)
     return WebGUIExpert::enabled;
 }
 
-bool WebGUIExpert::tick(Blackboard* blackboard)
+void WebGUIExpert::basicTick(Blackboard* blackboard)
 {
     currentBlackboard=blackboard;
     mg_poll_server(server, 0);
     currentBlackboard=NULL;
+}
 
-    if(requestInterruptLoop && !interruptLoopRunning)
+bool WebGUIExpert::tick(Blackboard* blackboard)
+{
+    basicTick(blackboard);
+
+    if(requestInterruptLoop && !interruptLoopRunning) {
+        requestInterruptLoop=false;
         WebGUIExpert::interruptEngineExecution(blackboard);
-    requestInterruptLoop=false;
-    
+    }
+
     return true;
 }
 
@@ -675,15 +698,18 @@ void WebGUIExpert::preGameTick()
 }
 
 #include <windows.h>
+bool WebGUIExpert::pauseGame = false;
 void WebGUIExpert::interruptEngineExecution(Blackboard* blackboard)
 {
     interruptLoopRunning=true;
     std::cout << "\n###### execution interrupted, WebGUI active on port 8080 ######\n";
+    pauseGame = true;
     while(interruptLoopRunning)
     {
-        WebGUIExpert::instance()->tick(blackboard);
+        WebGUIExpert::instance()->basicTick(blackboard);
         Sleep(10);
     }
+    pauseGame = false;
     std::cout << "\n###### continue execution ######\n";
 }
 

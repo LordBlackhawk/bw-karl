@@ -12,6 +12,7 @@ class WebGUIExpert : public BasicExpert
         inline Blackboard *getCurrentBlackboard() { return currentBlackboard; }
 
         static bool enabled;
+        static bool pauseGame;
         static bool isApplicable(Blackboard* blackboard);
         
         static void initialize();
@@ -21,5 +22,7 @@ class WebGUIExpert : public BasicExpert
         static void interruptEngineExecution(Blackboard* blackboard);
         
         static WebGUIExpert *instance();
+
     protected:
+        void basicTick(Blackboard* blackboard);
 };

@@ -179,8 +179,14 @@ namespace
             while (Broodwar->isInGame()) {
                 if (showhud)
                     ai.drawHUD();
-                if (!Broodwar->isPaused())
+                if (Broodwar->isPaused()) {
+                    if (!WebGUIExpert::pauseGame)
+                        Broodwar->resumeGame();
+                } else {
                     ai.tick();
+                    if (WebGUIExpert::pauseGame)
+                        Broodwar->pauseGame();
+                }
                 broodwarUpdate();
             }
             LOG << "Game ended.\n";

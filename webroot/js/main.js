@@ -69,6 +69,14 @@ $(document).ready(function()
         },'text');
     });
 
+    $('#engine-step').on('click', function(){
+        $.post('step', {}, function(data)
+        {
+            if (data!="ok")
+                alert(data);
+        }, 'text');
+    });
+
     $('#engine-continue').on('click',function(){
         $.post('continue', {},function(data)
         {
