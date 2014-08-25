@@ -45,6 +45,7 @@ BOOST_AUTO_TEST_CASE( basic )
     BOOST_REQUIRE_EQUAL( countPortsOfType<ProvideUnitExistancePort>(pool), 1 );
     auto providePort = findPortOfType<ProvideUnitExistancePort>(pool);
     BOOST_CHECK( providePort->isConnected() );
+    BOOST_CHECK( !providePort->isImpossible() );
 }
 
 BOOST_AUTO_TEST_CASE( create_provider )
@@ -70,23 +71,32 @@ BOOST_AUTO_TEST_CASE( plan_item_finished )
     auto pool = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Spawning_Pool);
     auto build = blackboard->build(BWAPI::UnitTypes::Zerg_Spawning_Pool);
     build->requireUnit.connectTo(&pool->provideUnit);
+    build->estimatedStartTime = 0;
     build->setActive();
+    build->setExecuting();
 
     auto ling = blackboard->morph(BWAPI::UnitTypes::Zerg_Zergling);
 
     RequirementsExpert expert;
     expert.tick(blackboard);
+    tick();
 
     BOOST_CHECK_EQUAL( countPortsOfType<ProvideUnitExistancePort>(pool), 0 );
     BOOST_REQUIRE_EQUAL( countPortsOfType<ProvideUnitExistancePort>(build), 1 );
-    BOOST_CHECK( findPortOfType<ProvideUnitExistancePort>(build)->isConnected() );
+    auto providePort = findPortOfType<ProvideUnitExistancePort>(build);
+    BOOST_CHECK( providePort->isConnected() );
+    BOOST_CHECK( !providePort->isImpossible() );
+    BOOST_CHECK_EQUAL( providePort->estimatedDuration, BWAPI::UnitTypes::Zerg_Spawning_Pool.buildTime() );
+    BOOST_CHECK_EQUAL( providePort->estimatedTime, BWAPI::UnitTypes::Zerg_Spawning_Pool.buildTime() );
 
     finishPlanItem(build);
+    tick();
 
     BOOST_REQUIRE_EQUAL( countPortsOfType<RequireUnitExistancePort>(ling), 1 );
     auto requirePort = findPortOfType<RequireUnitExistancePort>(ling);
     BOOST_CHECK_EQUAL( requirePort->getUnitType(), BWAPI::UnitTypes::Zerg_Spawning_Pool );
     BOOST_CHECK( requirePort->isConnected() );
+    BOOST_CHECK( !requirePort->isImpossible() );
 
     BOOST_REQUIRE_EQUAL( countPortsOfType<ProvideUnitExistancePort>(pool), 1 );
     BOOST_CHECK( findPortOfType<ProvideUnitExistancePort>(pool)->isConnected() );

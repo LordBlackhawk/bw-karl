@@ -76,7 +76,8 @@ void AbstractPlanItem::updateEstimates(Time current)
             if (it->isRequirePort())
         {
             it->updateEstimates();
-            estimatedStartTime = std::max(estimatedStartTime, it->estimatedTime);
+            if ((status != Active) || !it->isImpossible())
+                estimatedStartTime = std::max(estimatedStartTime, it->estimatedTime);
         }
     }
     for (auto it : ports)
