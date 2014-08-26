@@ -125,6 +125,7 @@ void Blackboard::addItem(AbstractPlanItem* item)
 void Blackboard::removeItem(AbstractPlanItem* item)
 {
     items.erase(std::remove(items.begin(), items.end(), item), items.end());
+    delete item;
 }
 
 bool Blackboard::includeItem(AbstractPlanItem* item) const
@@ -321,7 +322,6 @@ void Blackboard::visitActionEvent(ActionEvent* event)
             case ActionEvent::ActionFinished:
                 it->second->removeFinished(event->sender);
                 removeItem(it->second);
-                delete it->second;
                 break;
             default:
                 it->second->setErrorState(event->sender);

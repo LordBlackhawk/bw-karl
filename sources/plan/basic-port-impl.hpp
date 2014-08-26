@@ -17,6 +17,7 @@ class BasicPortImpl : public AbstractPort
 
         ~BasicPortImpl()
         {
+            ++disconnectLevel;
             This()->staticDisconnect();
         }
 

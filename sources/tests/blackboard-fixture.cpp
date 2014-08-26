@@ -221,5 +221,4 @@ void BlackboardFixture::finishPlanItem(AbstractPlanItem* item)
 {
     item->removeFinished(NULL);
     blackboard->removeItem(item);
-    delete item;
 }

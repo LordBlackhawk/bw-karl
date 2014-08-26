@@ -15,7 +15,7 @@ MODULEFILES         = $(LIBFILES) $(EXEFILES)
 all: $(MODULEFILES)
 
 run: karl.exe
-	$< --hud --speed=0 --parallel --webgui
+	$< --hud --speed=0 --parallel --webgui --disable GiveUpExpert
 # --report=1000
 
 debug: karl.exe

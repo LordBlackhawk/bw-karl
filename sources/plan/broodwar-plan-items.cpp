@@ -43,14 +43,14 @@ void AbstractSimpleUnitPlanItem::bridgeUnitExistancePortsTo(AbstractItem* item)
 
 void AbstractSimpleUnitPlanItem::removeRequireExistancePorts()
 {
-    std::set<RequireUnitExistancePort*> providePorts;
+    std::set<RequireUnitExistancePort*> requirePorts;
     for (auto it : ports) {
         auto ptr = dynamic_cast<RequireUnitExistancePort*>(it);
         if (ptr != NULL)
-            providePorts.insert(ptr);
+            requirePorts.insert(ptr);
     }
-    for (auto it : providePorts)
-        it->disconnect();
+    for (auto it : requirePorts)
+        delete it;
 }
 
 

@@ -142,8 +142,8 @@ MorphUnitAction::Status MorphUnitAction::onTick(AbstractExecutionEngine* engine)
         return Running;
     if (err == BWAPI::Errors::Insufficient_Gas)
         return Running;
-    if (err == BWAPI::Errors::Insufficient_Supply)
-        return Running;
+    //if (err == BWAPI::Errors::Insufficient_Supply)
+    //    return Running;
     if (err == BWAPI::Errors::Unit_Busy || err == BWAPI::Errors::Incompatible_State)
     {
         //LOG << "MorphUnitAction: unit busy - trying to stop: " << err.toString();
@@ -151,10 +151,10 @@ MorphUnitAction::Status MorphUnitAction::onTick(AbstractExecutionEngine* engine)
         return Running;
     }
     //LOG << "MorphUnitAction failed with " << err.toString();
-    if (err == BWAPI::Errors::Incompatible_UnitType)
-        return Failed;
-    if (err == BWAPI::Errors::Insufficient_Tech)
-        return Failed;
+    //if (err == BWAPI::Errors::Incompatible_UnitType)
+    //    return Failed;
+    //if (err == BWAPI::Errors::Insufficient_Tech)
+    //    return Failed;
     return Failed;
 }
 
@@ -251,6 +251,7 @@ SendTextAction::SendTextAction(std::string msg, bool toAlliesOnly, AbstractActio
 
 void SendTextAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
+    LOG << "GG.";
     BWAPI::Broodwar->printf("sending: '%s' to %s",message.c_str(),toAllies?"allies only":"everyone");
     BWAPI::Broodwar->sendTextEx(toAllies,"%s",message.c_str());
 }

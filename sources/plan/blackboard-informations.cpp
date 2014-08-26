@@ -12,10 +12,10 @@ Time BaseLocation::lastSeenComplete() const
     int xBegin = tp.x(), yBegin = tp.y();
     int xEnd = xBegin + BWAPI::UnitTypes::Zerg_Hatchery.tileWidth(), yEnd = yBegin + BWAPI::UnitTypes::Zerg_Hatchery.tileHeight();
 
-    Time result;
+    Time result = INFINITE_TIME;
     for (int x=xBegin; x<xEnd; ++x)
         for (int y=yBegin; y<yEnd; ++y)
-            result = std::max(result, owner->fields[x][y].lastSeen);
+            result = std::min(result, owner->fields[x][y].lastSeen);
     return result;
 }
 
@@ -25,7 +25,7 @@ bool BaseLocation::isCompleteExplored() const
     int xBegin = tp.x(), yBegin = tp.y();
     int xEnd = xBegin + BWAPI::UnitTypes::Zerg_Hatchery.tileWidth(), yEnd = yBegin + BWAPI::UnitTypes::Zerg_Hatchery.tileHeight();
 
-    bool result;
+    bool result = true;
     for (int x=xBegin; x<xEnd; ++x)
         for (int y=yBegin; y<yEnd; ++y)
             result = result && owner->fields[x][y].isExplored();
