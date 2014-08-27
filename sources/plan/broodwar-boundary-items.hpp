@@ -58,13 +58,17 @@ class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem
 class EnemyUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
 {
     public:
-        EnemyUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f);
+        EnemyUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, BlackboardInformations* i);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event) override;
 
         inline BWAPI::Position getPosition() const { return position; }
+        inline Time getLastSeen() const { return lastSeen; }
+        inline bool isVisible() const { return lastSeen > info->lastUpdateTime - 5; } 
 
     protected:
-        BWAPI::Position     position;
+        BlackboardInformations* info;
+        Time                    lastSeen;
+        BWAPI::Position         position;
 };

@@ -12,7 +12,7 @@ class AbstractExecutionEngine;
 class AbstractVisitor;
 class Blackboard;
 
-class AbstractPort
+class AbstractPort : public AssertBase
 {
     public:
         Time estimatedTime;
@@ -36,7 +36,7 @@ class AbstractPort
         AbstractItem*   owner;
 };
 
-class AbstractItem : public BasicEventVisitor
+class AbstractItem : public BasicEventVisitor, public AssertBase
 {
     public:
         std::vector<AbstractPort*>  ports;
@@ -89,7 +89,7 @@ class AbstractPlanItem : public AbstractItem
         Status status;
 };
 
-class AbstractExpert
+class AbstractExpert : public AssertBase
 {
     public:
         virtual ~AbstractExpert() = default;

@@ -93,16 +93,16 @@ void AbstractPlanItem::setActive()
     status = Active;
 }
 
-void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
-{
-    assert(status == Active || status == Executing);
-    status = Failed;
-}
-
 void AbstractPlanItem::setExecuting()
 {
     assert(status == Active);
     status = Executing;
+}
+
+void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
+{
+    assert(status == Active || status == Executing);
+    status = Failed;
 }
 
 Blackboard::Blackboard(AbstractExecutionEngine* e)
@@ -323,7 +323,8 @@ void Blackboard::visitActionEvent(ActionEvent* event)
                 it->second->removeFinished(event->sender);
                 removeItem(it->second);
                 break;
-            default:
+            case ActionEvent::ActionFailed:
+            case ActionEvent::ActionCleanedUp:
                 it->second->setErrorState(event->sender);
                 break;
         }
@@ -389,7 +390,7 @@ void Blackboard::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
         item = new OwnUnitBoundaryItem(event->unit, event->unitType, &informations.fields);
     } else if (event->owner != neutral()) {
         //LOG << "Enemy unit added: " << event->unitType.getName();
-        item = new EnemyUnitBoundaryItem(event->unit, event->unitType, &informations.fields);
+        item = new EnemyUnitBoundaryItem(event->unit, event->unitType, &informations);
     }
     if (item != NULL) {
         unitBoundaries[event->unit] = item;

@@ -89,8 +89,10 @@ int ResourceBoundaryItem::numberOfWorkers() const
 }
 
 
-EnemyUnitBoundaryItem::EnemyUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f)
-    : AbstractSpaceUnitBoundaryItem(u, f, ut),
+EnemyUnitBoundaryItem::EnemyUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, BlackboardInformations* i)
+    : AbstractSpaceUnitBoundaryItem(u, &i->fields, ut),
+      info(i),
+      lastSeen(-1),
       position(BWAPI::Positions::Unknown)
 { }
 
@@ -101,5 +103,6 @@ void EnemyUnitBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
 
 void EnemyUnitBoundaryItem::visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event)
 {
+    lastSeen = info->lastUpdateTime;
     position = event->pos;
 }
