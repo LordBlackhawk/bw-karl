@@ -20,7 +20,7 @@ void AttackExpert::visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item)
 
 void AttackExpert::visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item)
 {
-    if (item->getUnitType().isFlyer() || !item->isVisible())
+    if (item->getUnitType().isFlyer() || (!item->isVisible() && !item->getUnitType().isBuilding()))
         return;
     enemies.push_back(item);
 }
@@ -30,11 +30,13 @@ void AttackExpert::endTraversal()
     for (auto ling : lings) {
         BWAPI::Position bestPosition = BWAPI::Positions::Unknown;
         double          bestValue = -1.0e10;
+		EnemyUnitBoundaryItem* possibleScout = NULL;
 
         for (auto enemy : enemies) {
             double value = valueEnemyUnit(ling, enemy);
             if (value > bestValue) {
                 bestPosition = enemy->getPosition();
+				possibleScout = enemy;
                 bestValue = value;
             }
         }
@@ -51,7 +53,14 @@ void AttackExpert::endTraversal()
         }
 
         if (bestPosition != BWAPI::Positions::Unknown)
-            currentBlackboard->attack(ling, bestPosition);
+		{   auto startPoint = BWTA::getStartLocation(currentBlackboard->self())->getPosition();
+			if(possibleScout!=NULL && possibleScout->getUnitType().isWorker() && startPoint.getDistance(possibleScout->getPosition()) < 800)
+			{
+				currentBlackboard->attack(ling,possibleScout);
+			} else {
+				currentBlackboard->attack(ling, bestPosition);
+			}
+		}
     }
     lings.clear();
     enemies.clear();
