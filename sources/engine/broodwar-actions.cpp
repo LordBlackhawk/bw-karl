@@ -1,6 +1,7 @@
 #include "broodwar-actions.hpp"
 #include "broodwar-events.hpp"
 #include "utils/log.hpp"
+#include "utils/bw-helper.hpp"
 #include <cstring>
 
 UnitAction::UnitAction(BWAPI::Unit* u, AbstractAction* pre)
@@ -40,7 +41,6 @@ ZergBuildAction::ZergBuildAction(BWAPI::Unit* w, BWAPI::UnitType ut, BWAPI::Tile
 
 void ZergBuildAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
-    //LOG << "ZergBuildAction begin...";
     unit->stop();
     resourcesConsumed = false;
 }
@@ -77,21 +77,12 @@ ZergBuildAction::Status ZergBuildAction::onTick(AbstractExecutionEngine* engine)
         return Running;
     if (err == BWAPI::Errors::Unit_Busy)
         return Running;
-    /*
-    if (err == BWAPI::Errors::Unreachable_Location)
-        return Failed;
-    if (err == BWAPI::Errors::Unbuildable_Location)
-        return Failed;
-    if (err == BWAPI::Errors::Insufficient_Tech)
-        return Failed;
-    */
-    LOG << "ZergBuildAction failed with " << err.toString();
+    LOG << "ZergBuildAction failed with " << err;
     return Failed;
 }
 
 void ZergBuildAction::onEnd(AbstractExecutionEngine* /*engine*/)
 {
-    //LOG << "ZergBuildAction finished.";
     // If the unit still exists and the building is not yet finished, abort.
     if (unit->exists()) {
         if (unit->isBeingConstructed()) {
@@ -109,8 +100,6 @@ MorphUnitAction::MorphUnitAction(BWAPI::Unit* u, BWAPI::UnitType to, AbstractAct
 
 void MorphUnitAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
-    //LOG << "MorphUnitAction begin...";
-    //unit->stop();
     resourcesConsumed = false;
 }
 
@@ -132,8 +121,6 @@ MorphUnitAction::Status MorphUnitAction::onTick(AbstractExecutionEngine* engine)
     if(unit->getType() == unitType)
         return Finished;
 
-    //LOG << "MorphUnitAction: commanding "<<unit->getType().getName()<< " to morph to "<<unitType.getName();
-
     if (unit->morph(unitType))
         return Running;
 
@@ -142,19 +129,13 @@ MorphUnitAction::Status MorphUnitAction::onTick(AbstractExecutionEngine* engine)
         return Running;
     if (err == BWAPI::Errors::Insufficient_Gas)
         return Running;
-    //if (err == BWAPI::Errors::Insufficient_Supply)
-    //    return Running;
     if (err == BWAPI::Errors::Unit_Busy || err == BWAPI::Errors::Incompatible_State)
     {
         //LOG << "MorphUnitAction: unit busy - trying to stop: " << err.toString();
         unit->stop();
         return Running;
     }
-    //LOG << "MorphUnitAction failed with " << err.toString();
-    //if (err == BWAPI::Errors::Incompatible_UnitType)
-    //    return Failed;
-    //if (err == BWAPI::Errors::Insufficient_Tech)
-    //    return Failed;
+    LOG << "MorphUnitAction failed with " << err;
     return Failed;
 }
 
@@ -189,11 +170,15 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
     if (unit->getPosition().getDistance(pos) < 32.0)
         return Finished;
 
-    if (!unit->isMoving())
-        unit->move(pos);
-
     drawInformations("moving");
-    return Running;
+    if (unit->isMoving())
+        return Running;
+    
+    if (unit->move(pos))
+        return Running;
+
+    LOG << "MoveToPositionAction failed with " << BWAPI::Broodwar->getLastError();
+    return Failed;
 }
 
 
@@ -214,12 +199,15 @@ AttackPositionAction::Status AttackPositionAction::onTick(AbstractExecutionEngin
     if (unit->getPosition().getDistance(pos) < 32.0 && unit->isIdle())
         return Finished;
 
-    //if (!unit->isAttacking() && !unit->isMoving())
-    if(unit->isIdle())
-        unit->attack(pos);
-
     drawInformations("attackingPosition");
-    return Running;
+    if(!unit->isIdle())
+        return Running;
+
+    if (unit->attack(pos))
+        return Running;
+
+    LOG << "AttackPositionAction failed with " << BWAPI::Broodwar->getLastError();
+    return Failed;
 }
 
 
@@ -235,11 +223,15 @@ AttackUnitAction::Status AttackUnitAction::onTick(AbstractExecutionEngine* /*eng
     if (!e->exists())
         return Finished;
 
-    if (!unit->isMoving() || !unit->isAttacking())
-        unit->attack(e);
-
     drawInformations("attackingUnit");
-    return Running;
+    if (!unit->isIdle())
+        return Running;
+
+    if (unit->attack(e))
+        return Running;
+
+    LOG << "AttackUnitAction failed with " << BWAPI::Broodwar->getLastError();
+    return Failed;
 }
 
 

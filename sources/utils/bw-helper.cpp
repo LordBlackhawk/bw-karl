@@ -45,3 +45,8 @@ std::ostream& operator << (std::ostream& stream, const BWAPI::UnitType& type)
 {
     return stream << type.c_str();
 }
+
+std::ostream& operator << (std::ostream& stream, const BWAPI::Error& err)
+{
+    return stream << err.toString();
+}
