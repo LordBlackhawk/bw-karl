@@ -13,31 +13,25 @@ class RequireMineralFieldPort;
 class ProvideUnitPort final : public BasicPortImpl<ProvideUnitPort, RequireUnitPort, false, false>
 {
     public:
-        ProvideUnitPort(AbstractItem* o, BWAPI::Unit* u, bool od = false);
+        ProvideUnitPort(AbstractItem* o, bool od = false);
 
         void updateData(BWAPI::UnitType ut, BWAPI::Position p);
         void updateData(RequireUnitPort* port);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
-
-        inline BWAPI::Unit* getUnit() const { return unit; }
+        BWAPI::Unit* getUnit() const;
         inline BWAPI::UnitType getUnitType() const { return unitType; }
         inline BWAPI::Position getPosition() const { return pos; }
         inline bool isOnDemand() const { return onDemand; }
 
-        inline void setUnit(BWAPI::Unit* u) { unit = u; }
-        inline void setPreviousAction(AbstractAction* action) { previousAction = action; }
-
     protected:
         friend class RequireUnitPort;
 
-        BWAPI::Unit*        unit;
         BWAPI::UnitType     unitType;
         BWAPI::Position     pos;
         bool                onDemand;
-        AbstractAction*     previousAction;
 };
 
 class RequireUnitPort final : public BasicPortImpl<RequireUnitPort, ProvideUnitPort, true, false>
@@ -46,11 +40,11 @@ class RequireUnitPort final : public BasicPortImpl<RequireUnitPort, ProvideUnitP
         RequireUnitPort(AbstractItem* o, BWAPI::UnitType ut);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
         void bridge(ProvideUnitPort* port);
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
 
-        inline BWAPI::Unit* getUnit() const { return (connection != NULL) ? connection->unit : NULL; }
+        inline BWAPI::Unit* getUnit() const { return (connection != NULL) ? connection->getUnit() : NULL; }
         inline BWAPI::UnitType getUnitType() const { return unitType; }
         inline BWAPI::Position getPosition() const { return (connection != NULL) ? connection->pos : BWAPI::Positions::Unknown; }
 
@@ -186,6 +180,7 @@ class ProvideUnitExistancePort final : public BasicPortImpl<ProvideUnitExistance
     public:
         ProvideUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut);
         void acceptVisitor(AbstractVisitor* visitor) override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
         BWAPI::UnitType getUnitType() const { return unitType; }
 
@@ -198,6 +193,7 @@ class RequireUnitExistancePort final : public BasicPortImpl<RequireUnitExistance
     public:
         RequireUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut);
         void acceptVisitor(AbstractVisitor* visitor) override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
         void connectTo(AbstractItem* provider);
         using BaseClass::connectTo;
 

@@ -4,7 +4,7 @@
 
 BOOST_AUTO_TEST_SUITE( assert_test )
 
-BOOST_AUTO_TEST_CASE( basic )
+BOOST_AUTO_TEST_CASE( basic_assert )
 {
     BOOST_REQUIRE_THROW(assert(false), AssertException);
 }

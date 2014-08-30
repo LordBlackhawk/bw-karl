@@ -21,7 +21,7 @@ class MockupPlanItem : public AbstractSimpleUnitPlanItem, public ObjectCounter<M
         MockupPlanItem(int time);
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates(Time current) override;
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* buildAction() override;
 };
 
 class MockupExecutionEngine : public AbstractExecutionEngine
@@ -55,6 +55,7 @@ class BlackboardFixture
         T* addItem(T* item)
         { blackboard->addItem(item); return item; }
 
+        int numberOfActions();
         AbstractAction* popAction();
         void addEvent(AbstractEvent* event);
         void addEvent(const BWAPI::Event& event);

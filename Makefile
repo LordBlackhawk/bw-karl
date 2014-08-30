@@ -15,11 +15,11 @@ MODULEFILES         = $(LIBFILES) $(EXEFILES)
 all: $(MODULEFILES)
 
 run: karl.exe
-	$< --hud --speed=0 --parallel --webgui --disable GiveUpExpert
+	$< --hud --speed=0 --secure --parallel --webgui --disable GiveUpExpert
 # --report=1000
 
 debug: karl.exe
-	gdb --args $< --hud --speed=0 --webgui
+	gdb --args $< --hud --secure --speed=0 --webgui
 
 test: tests.exe
 	@echo ' ##############################################################################'
@@ -64,7 +64,7 @@ cleancov:
 
 clean: cleancov
 	rm -rf $(BASEOUTPATH)
-	rm $(MODULEFILES)
+	rm -f $(MODULEFILES)
 	rm -rf doxygen/html
 
 lines:

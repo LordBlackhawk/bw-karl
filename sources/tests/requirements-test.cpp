@@ -29,7 +29,7 @@ namespace
 
 BOOST_FIXTURE_TEST_SUITE( requirements_test, BlackboardFixture )
 
-BOOST_AUTO_TEST_CASE( basic )
+BOOST_AUTO_TEST_CASE( basic_requirements )
 {
     auto pool = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Spawning_Pool);
     auto ling = blackboard->morph(BWAPI::UnitTypes::Zerg_Zergling);

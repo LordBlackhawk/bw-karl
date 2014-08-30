@@ -4,8 +4,8 @@
 #include "blackboard-informations.hpp"
 #include "engine/basic-actions.hpp"
 
-ProvideUnitPort::ProvideUnitPort(AbstractItem* o, BWAPI::Unit* u, bool od)
-    : BaseClass(o), unit(u), unitType(BWAPI::UnitTypes::Unknown), pos(BWAPI::Positions::Unknown), onDemand(od), previousAction(NULL)
+ProvideUnitPort::ProvideUnitPort(AbstractItem* o, bool od)
+    : BaseClass(o), unitType(BWAPI::UnitTypes::Unknown), pos(BWAPI::Positions::Unknown), onDemand(od)
 { }
 
 void ProvideUnitPort::updateData(BWAPI::UnitType ut, BWAPI::Position p)
@@ -16,7 +16,6 @@ void ProvideUnitPort::updateData(BWAPI::UnitType ut, BWAPI::Position p)
 
 void ProvideUnitPort::updateData(RequireUnitPort* port)
 {
-    unit        = port->getUnit();
     unitType    = port->getUnitType();
     pos         = port->getPosition();
 }
@@ -28,9 +27,16 @@ void ProvideUnitPort::acceptVisitor(AbstractVisitor* visitor)
 
 AbstractAction* ProvideUnitPort::prepareForExecution(AbstractExecutionEngine* engine)
 {
+    auto planitem = dynamic_cast<AbstractPlanItem*>(owner);
+    AbstractAction* previousAction = (planitem != NULL) ? planitem->getAction() : NULL;
     if (onDemand)
         engine->addAction(new TerminateAction(previousAction, false));
     return previousAction;
+}
+
+BWAPI::Unit* ProvideUnitPort::getUnit() const
+{
+    return owner->getUnit();
 }
 
 RequireUnitPort::RequireUnitPort(AbstractItem* o, BWAPI::UnitType ut)
@@ -50,10 +56,7 @@ void RequireUnitPort::bridge(ProvideUnitPort* port)
 
 AbstractAction* RequireUnitPort::prepareForExecution(AbstractExecutionEngine* engine)
 {
-    if (connection == NULL)
-        return NULL;
-
-    return connection->prepareForExecution(engine);
+    return (connection != NULL) ? connection->prepareForExecution(engine) : NULL;
 }
 
 ResourcePort::ResourcePort(AbstractItem* o, int m, int g)
@@ -291,6 +294,12 @@ void ProvideUnitExistancePort::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitProvideUnitExistancePort(this);
 }
 
+AbstractAction* ProvideUnitExistancePort::prepareForExecution(AbstractExecutionEngine* /*engine*/)
+{
+    auto planitem = dynamic_cast<AbstractPlanItem*>(owner);
+    return (planitem != NULL) ? planitem->getAction() : NULL;
+}
+
 RequireUnitExistancePort::RequireUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut)
     : BaseClass(o), unitType(ut)
 { }
@@ -305,4 +314,9 @@ void RequireUnitExistancePort::connectTo(AbstractItem* provider)
     if (isConnected() && (getConnectedPort()->getOwner() == provider))
         return;
     BaseClass::connectTo(new ProvideUnitExistancePort(provider, unitType));
+}
+
+AbstractAction* RequireUnitExistancePort::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    return (connection != NULL) ? connection->prepareForExecution(engine) : NULL;
 }

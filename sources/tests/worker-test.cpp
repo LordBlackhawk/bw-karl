@@ -5,7 +5,7 @@
 
 BOOST_FIXTURE_TEST_SUITE( worker_test, BlackboardFixture )
 
-BOOST_AUTO_TEST_CASE( basic )
+BOOST_AUTO_TEST_CASE( basic_worker )
 {
     buildBaseLocations();
 
@@ -21,6 +21,9 @@ BOOST_AUTO_TEST_CASE( basic )
     BOOST_CHECK( worker->isConnected() );
     BOOST_REQUIRE_EQUAL( blackboard->getItems().size(), 1U );
 
+    auto planitem = dynamic_cast<AbstractPlanItem*>(worker->provideUnit.getConnectedPort()->getOwner());
+    BOOST_REQUIRE( planitem != NULL );
+    planitem->setFinished();
     destroyBoundaryItem(worker);
 
     BOOST_REQUIRE_EQUAL( blackboard->getItems().size(), 1U );

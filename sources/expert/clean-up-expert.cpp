@@ -14,6 +14,8 @@ void CleanUpExpert::visitAbstractPlanItem(AbstractPlanItem* item)
 
 void CleanUpExpert::visitMoveToPositionPlanItem(MoveToPositionPlanItem* item)
 {
+    if (item->isActive())
+        return;
     if (item->requireUnit.isConnected())
         return;
 
@@ -22,6 +24,8 @@ void CleanUpExpert::visitMoveToPositionPlanItem(MoveToPositionPlanItem* item)
 
 void CleanUpExpert::visitAttackUnitPlanItem(AttackUnitPlanItem* item)
 {
+    if (item->isActive())
+        return;
     if (item->requireUnit.isConnected() && item->enemyUnit.isConnected())
         return;
 
@@ -30,6 +34,8 @@ void CleanUpExpert::visitAttackUnitPlanItem(AttackUnitPlanItem* item)
 
 void CleanUpExpert::visitAttackPositionPlanItem(AttackPositionPlanItem* item)
 {
+    if (item->isActive())
+        return;
     if (item->requireUnit.isConnected())
         return;
 

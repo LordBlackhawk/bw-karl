@@ -26,11 +26,9 @@ void MockupPlanItem::acceptVisitor(AbstractVisitor* /*visitor*/)
 void MockupPlanItem::updateEstimates(Time /*current*/)
 { }
 
-AbstractAction* MockupPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+AbstractAction* MockupPlanItem::buildAction()
 {
-    AbstractAction* action = new MockupAction();
-    engine->addAction(action);
-    return action;
+    return new MockupAction();
 }
 
 void MockupExecutionEngine::terminateAction(AbstractAction* /*action*/, bool /*cleanup*/)
@@ -98,6 +96,11 @@ void BlackboardFixture::addEvent(const BWAPI::Event& event)
     addEvent(new BroodwarEvent(event));
 }
 
+int BlackboardFixture::numberOfActions()
+{
+    return engine.actions.size();
+}
+
 AbstractAction* BlackboardFixture::popAction()
 {
     if (engine.actions.empty())
@@ -149,7 +152,7 @@ ResourceBoundaryItem* BlackboardFixture::createResourceBoundaryItem(BWAPI::TileP
 
 void BlackboardFixture::destroyBoundaryItem(AbstractBoundaryItem* item)
 {
-    BWAPI::Unit* unit = item->unit;
+    BWAPI::Unit* unit = item->getUnit();
     addEvent(BWAPI::Event::UnitDestroy(unit));
     tick();
     BOOST_REQUIRE( blackboard->lookupUnit(unit) == NULL );
@@ -184,12 +187,14 @@ namespace
         public:
             ProvideUnitPort provideUnit;
 
-            ProvideUnitPlanItem(BWAPI::UnitType ut, BWAPI::Position pos, int time)
-                : provideUnit(this, NULL)
+            ProvideUnitPlanItem(BWAPI::UnitType ut, BWAPI::Position pos, int time, BWAPI::Unit* u)
+                : provideUnit(this)
             {
                 provideUnit.updateData(ut, pos);
                 provideUnit.estimatedTime = time;
                 estimatedStartTime = time;
+                if (estimatedStartTime < 1)
+                    unit = u;
             }
 
             void acceptVisitor(AbstractVisitor* visitor) override
@@ -202,7 +207,7 @@ namespace
                 // Do not change estimatedStartTime on tick!!!
             }
 
-            AbstractAction* prepareForExecution(AbstractExecutionEngine* /*engine*/) override
+            AbstractAction* buildAction() override
             {
                 return NULL;
             }
@@ -214,11 +219,12 @@ namespace
 
 ProvideUnitPort* BlackboardFixture::createProvideUnitPort(BWAPI::UnitType ut, Time estimatedStartTime, BWAPI::Position pos)
 {
-    return &(new ProvideUnitPlanItem(ut, pos, estimatedStartTime))->provideUnit;
+    return &(new ProvideUnitPlanItem(ut, pos, estimatedStartTime, createUniqueUnit()))->provideUnit;
 }
 
 void BlackboardFixture::finishPlanItem(AbstractPlanItem* item)
 {
+    item->setFinished();
     item->removeFinished(NULL);
     blackboard->removeItem(item);
 }

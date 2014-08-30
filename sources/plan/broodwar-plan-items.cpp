@@ -6,15 +6,8 @@
 #include "utils/assert-throw.hpp"
 
 AbstractSimpleUnitPlanItem::AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool od)
-    : requireUnit(this, ut), provideUnit(this, NULL, od)
+    : requireUnit(this, ut), provideUnit(this, od)
 { }
-
-AbstractAction* AbstractSimpleUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
-{
-    BWAPI::Unit* unit = requireUnit.getUnit();
-    provideUnit.setUnit(unit);
-    return requireUnit.prepareForExecution(engine);
-}
 
 void AbstractSimpleUnitPlanItem::removeFinished(AbstractAction* /*action*/)
 {
@@ -67,14 +60,12 @@ void GatherMineralsPlanItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitGatherMineralPlanItem(this);
 }
 
-AbstractAction* GatherMineralsPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+AbstractAction* GatherMineralsPlanItem::buildAction()
 {
-    //LOG << "Prepare for execution(GatherMinerals) ...";
-    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
-    AbstractAction* action = new CollectMineralsAction(requireUnit.getUnit(), requireMineralField.getUnit(), req);
-    provideUnit.setPreviousAction(action);
-    engine->addAction(action);
-    return action;
+    unit = requireUnit.getUnit();
+    if (unit == NULL)
+        return NULL;
+    return new CollectMineralsAction(unit, requireMineralField.getUnit());
 }
 
 
@@ -95,13 +86,12 @@ void MorphUnitPlanItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitMorphUnitPlanItem(this);
 }
 
-AbstractAction* MorphUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+AbstractAction* MorphUnitPlanItem::buildAction()
 {
-    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
-    AbstractAction* action = new MorphUnitAction(requireUnit.getUnit(), unitType, req);
-    provideUnit.setPreviousAction(action);
-    engine->addAction(action);
-    return action;
+    unit = requireUnit.getUnit();
+    if (unit == NULL)
+        return NULL;
+    return new MorphUnitAction(unit, unitType);
 }
 
 void MorphUnitPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
@@ -141,13 +131,12 @@ void MoveToPositionPlanItem::updateEstimates(Time current)
     AbstractSimpleUnitPlanItem::updateEstimates(current);
 }
 
-AbstractAction* MoveToPositionPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+AbstractAction* MoveToPositionPlanItem::buildAction()
 {
-    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
-    AbstractAction* action = new MoveToPositionAction(requireUnit.getUnit(), position, req);
-    provideUnit.setPreviousAction(action);
-    engine->addAction(action);
-    return action;
+    unit = requireUnit.getUnit();
+    if (unit == NULL)
+        return NULL;
+    return new MoveToPositionAction(unit, position);
 }
 
 
@@ -169,13 +158,12 @@ void AttackPositionPlanItem::updateEstimates(Time current)
     AbstractSimpleUnitPlanItem::updateEstimates(current);
 }
 
-AbstractAction* AttackPositionPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+AbstractAction* AttackPositionPlanItem::buildAction()
 {
-    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
-    AbstractAction* action = new AttackPositionAction(requireUnit.getUnit(), position, req);
-    provideUnit.setPreviousAction(action);
-    engine->addAction(action);
-    return action;
+    unit = requireUnit.getUnit();
+    if (unit == NULL)
+        return NULL;
+    return new AttackPositionAction(unit, position);
 }
 
 
@@ -197,13 +185,12 @@ void AttackUnitPlanItem::updateEstimates(Time current)
     AbstractSimpleUnitPlanItem::updateEstimates(current);
 }
 
-AbstractAction* AttackUnitPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+AbstractAction* AttackUnitPlanItem::buildAction()
 {
-    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
-    AbstractAction* action = new AttackUnitAction(requireUnit.getUnit(), enemyUnit.getUnit(), req);
-    provideUnit.setPreviousAction(action);
-    engine->addAction(action);
-    return action;
+    unit = requireUnit.getUnit();
+    if (unit == NULL)
+        return NULL;
+    return new AttackUnitAction(unit, enemyUnit.getUnit());
 }
 
 
@@ -226,14 +213,12 @@ void BuildPlanItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitBuildPlanItem(this);
 }
 
-AbstractAction* BuildPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+AbstractAction* BuildPlanItem::buildAction()
 {
-    //LOG << "Prepare for execution(Build) ...";
-    AbstractAction* req = AbstractSimpleUnitPlanItem::prepareForExecution(engine);
-    AbstractAction* action = new ZergBuildAction(requireUnit.getUnit(), unitType, requireSpace.getTilePosition(), req);
-    engine->addAction(action);
-    provideUnit.setPreviousAction(action);
-    return action;
+    unit = requireUnit.getUnit();
+    if (unit == NULL)
+        return NULL;
+    return new ZergBuildAction(unit, unitType, requireSpace.getTilePosition());
 }
 
 void BuildPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
@@ -263,11 +248,9 @@ void GiveUpPlanItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitGiveUpPlanItem(this);
 }
 
-AbstractAction* GiveUpPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+AbstractAction* GiveUpPlanItem::buildAction()
 {
-    AbstractAction* action = new GiveUpAction(NULL);
-    engine->addAction(action);
-    return action;
+    return new GiveUpAction();
 }
 
 void GiveUpPlanItem::removeFinished(AbstractAction* /*action*/)

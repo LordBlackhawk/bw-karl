@@ -12,7 +12,6 @@ class AbstractSimpleUnitPlanItem : public AbstractPlanItem
 
         AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool od = false);
 
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
         void removeFinished(AbstractAction* action) override;
 
     protected:
@@ -29,7 +28,7 @@ class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
         GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* buildAction() override;
 };
 
 class MorphUnitPlanItem : public AbstractSimpleUnitPlanItem
@@ -41,7 +40,7 @@ class MorphUnitPlanItem : public AbstractSimpleUnitPlanItem
         MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* provider = NULL);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* buildAction() override;
         void removeFinished(AbstractAction* action) override;
 
         void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
@@ -59,7 +58,7 @@ class MoveToPositionPlanItem : public AbstractSimpleUnitPlanItem
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates(Time current) override;
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* buildAction() override;
 
         inline BWAPI::Position getPosition() const { return position; }
 
@@ -74,7 +73,7 @@ class AttackPositionPlanItem : public AbstractSimpleUnitPlanItem
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates(Time current) override;
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* buildAction() override;
 
         inline BWAPI::Position getPosition() const { return position; }
 
@@ -91,7 +90,7 @@ class AttackUnitPlanItem : public AbstractSimpleUnitPlanItem
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void updateEstimates(Time current) override;
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* buildAction() override;
 };
 
 class BuildPlanItem : public AbstractSimpleUnitPlanItem
@@ -104,7 +103,7 @@ class BuildPlanItem : public AbstractSimpleUnitPlanItem
         BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* buildAction() override;
         void removeFinished(AbstractAction* action) override;
 
         void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
@@ -122,7 +121,7 @@ class GiveUpPlanItem : public AbstractPlanItem
         GiveUpPlanItem();
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        AbstractAction* buildAction() override;
         void removeFinished(AbstractAction* /*action*/) override;
 
     protected:

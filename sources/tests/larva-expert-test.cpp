@@ -5,7 +5,7 @@
 
 BOOST_FIXTURE_TEST_SUITE( larva_test, BlackboardFixture )
 
-BOOST_AUTO_TEST_CASE( basic )
+BOOST_AUTO_TEST_CASE( basic_larva )
 {
     auto b1 = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Larva);
     createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Larva);

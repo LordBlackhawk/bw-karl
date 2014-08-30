@@ -68,7 +68,8 @@ void WorkerExpert::visitRequireUnitPort(RequireUnitPort* port)
 void WorkerExpert::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
 {
     if (!item->requireUnit.isConnected() || !item->requireMineralField.isConnected()) {
-        currentBlackboard->removeItem(item);
+        if (!item->isActive())
+            currentBlackboard->removeItem(item);
         return;
     }
 

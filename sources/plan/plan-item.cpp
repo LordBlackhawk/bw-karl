@@ -4,6 +4,7 @@
 #include "engine/abstract-action.hpp"
 #include "engine/broodwar-events.hpp"
 #include "engine/broodwar-scanners.hpp"
+#include "engine/basic-actions.hpp"
 #include "utils/log.hpp"
 #include "utils/assert-throw.hpp"
 #include "utils/bw-helper.hpp"
@@ -24,6 +25,15 @@ bool AbstractPort::isActive() const
 {
     return owner->isBoundaryItem() || dynamic_cast<AbstractPlanItem*>(owner)->isActive();
 }
+
+AbstractAction* AbstractPort::prepareForExecution(AbstractExecutionEngine* /*engine*/)
+{
+    return NULL;
+}
+
+AbstractItem::AbstractItem(BWAPI::Unit* u)
+    : unit(u)
+{ }
 
 AbstractItem::~AbstractItem()
 {
@@ -61,11 +71,11 @@ void AbstractItem::update(AbstractEvent* event)
 }
 
 AbstractBoundaryItem::AbstractBoundaryItem(BWAPI::Unit* u)
-    : unit(u)
+    : AbstractItem(u)
 { }
 
 AbstractPlanItem::AbstractPlanItem()
-    : estimatedStartTime(INFINITE_TIME), status(Planned)
+    : estimatedStartTime(INFINITE_TIME), status(Planned), action(NULL)
 { }
 
 void AbstractPlanItem::updateEstimates(Time current)
@@ -87,6 +97,36 @@ void AbstractPlanItem::updateEstimates(Time current)
     }
 }
 
+namespace
+{
+    AbstractAction* andAction(AbstractExecutionEngine* engine, AbstractAction* first, AbstractAction* second)
+    {
+        if (first == NULL)
+            return second;
+        if (second == NULL)
+            return first;
+        auto waitAction = new InfiniteAction(first);
+        engine->addAction(waitAction);
+        engine->addAction(new TerminateAction(waitAction, false, second));
+        return waitAction;
+    }
+}
+
+AbstractAction* AbstractPlanItem::prepareForExecution(AbstractExecutionEngine* engine)
+{
+    assert(action == NULL && unit == NULL);
+    action = buildAction();
+    if (action != NULL) {
+        AbstractAction* pre = NULL;
+        for (auto it : ports)
+            if (it->isRequirePort())
+                pre = andAction(engine, pre, it->prepareForExecution(engine));
+        action->precondition = pre;
+        engine->addAction(action);
+    }
+    return action;
+}
+
 void AbstractPlanItem::setActive()
 {
     assert(status == Planned);
@@ -97,6 +137,12 @@ void AbstractPlanItem::setExecuting()
 {
     assert(status == Active);
     status = Executing;
+}
+
+void AbstractPlanItem::setFinished()
+{
+    assert(status == Active || status == Executing);
+    status = Finished;
 }
 
 void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
@@ -124,6 +170,7 @@ void Blackboard::addItem(AbstractPlanItem* item)
 
 void Blackboard::removeItem(AbstractPlanItem* item)
 {
+    assert(!item->isActive());
     items.erase(std::remove(items.begin(), items.end(), item), items.end());
     delete item;
 }
@@ -266,9 +313,6 @@ void Blackboard::tick()
             it->setActive();
         }
     }
-    
-    //if (informations.lastUpdateTime % 500 == 10)
-    //    informations.printFieldInformations(std::cout);
 }
 
 void Blackboard::prepare()
@@ -276,7 +320,7 @@ void Blackboard::prepare()
     informations.prepare();
     for (auto base : informations.allBaseLocations)
         for (auto mineral : base->minerals)
-            unitBoundaries[mineral->unit] = mineral;
+            unitBoundaries[mineral->getUnit()] = mineral;
     for (auto it : experts)
         it->prepare();
     engine->addAction(new FieldScannerAction());
@@ -295,7 +339,6 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
           || (event.getType() == BWAPI::EventType::UnitComplete))
         {
             BWAPI::Unit* unit = event.getUnit();
-            //LOG << BWAPI::Broodwar->getFrameCount() << " event " << event.getType() << ": " << unit << " " << unit->getType();
             engine->generateEvent(new CompleteUnitUpdateEvent(unit, unit->getType(), unit->getTilePosition(), unit->getPosition(), unit->getPlayer()));
         } else {
             engine->generateEvent(new BroodwarEvent(event));
@@ -320,6 +363,7 @@ void Blackboard::visitActionEvent(ActionEvent* event)
         {
             case ActionEvent::ActionTerminated:
             case ActionEvent::ActionFinished:
+                it->second->setFinished();
                 it->second->removeFinished(event->sender);
                 removeItem(it->second);
                 break;
@@ -356,9 +400,6 @@ void Blackboard::visitBroodwarEvent(BroodwarEvent* event)
         BWAPI::Unit* unit = e.getUnit();
         auto it = unitBoundaries.find(unit);
         if (it != unitBoundaries.end()) {
-            //auto item = dynamic_cast<OwnUnitBoundaryItem*>(it->second);
-            //if (item != NULL)
-            //    LOG << "Unit removed: " << item->getUnitType().getName();
             delete it->second;
             unitBoundaries.erase(it);
         }

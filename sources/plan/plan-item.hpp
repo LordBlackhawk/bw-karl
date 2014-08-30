@@ -31,6 +31,7 @@ class AbstractPort : public AssertBase
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
         virtual void disconnect() = 0;
         virtual void updateEstimates() = 0;
+        virtual AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
 
     protected:
         AbstractItem*   owner;
@@ -41,6 +42,7 @@ class AbstractItem : public BasicEventVisitor, public AssertBase
     public:
         std::vector<AbstractPort*>  ports;
 
+        AbstractItem(BWAPI::Unit* u = NULL);
         virtual ~AbstractItem();
         virtual void acceptVisitor(AbstractVisitor* visitor) = 0;
 
@@ -50,22 +52,23 @@ class AbstractItem : public BasicEventVisitor, public AssertBase
 
         bool isBoundaryItem() const;
         bool isPlanItem() const;
+
+        inline BWAPI::Unit* getUnit() const { return unit; }
+
+    protected:
+        BWAPI::Unit* unit;
 };
 
 class AbstractBoundaryItem : public AbstractItem
 {
     public:
-        BWAPI::Unit* unit;
-
         AbstractBoundaryItem(BWAPI::Unit* u);
-
-        inline BWAPI::Unit* getUnit() const { return unit; }
 };
 
 class AbstractPlanItem : public AbstractItem
 {
     public:
-        enum Status { Planned, Active, Executing, Failed };
+        enum Status { Planned, Active, Executing, Finished, Failed };
 
         Time estimatedStartTime;
 
@@ -76,17 +79,21 @@ class AbstractPlanItem : public AbstractItem
         inline bool isImpossible() const { return isImpossibleTime(estimatedStartTime); }
         inline bool operator < (const AbstractPlanItem& rhs) const { return estimatedStartTime < rhs.estimatedStartTime; }
         inline Status getStatus() const { return status; }
+        inline AbstractAction* getAction() const { return action; }
 
         void setActive();
         void setExecuting();
+        void setFinished();
         void setErrorState(AbstractAction* action);
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
 
         virtual void updateEstimates(Time current);
-        virtual AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) = 0;
+        virtual AbstractAction* buildAction() = 0;
         virtual void removeFinished(AbstractAction* action) = 0;
 
     protected:
-        Status status;
+        Status          status;
+        AbstractAction* action;
 };
 
 class AbstractExpert : public AssertBase

@@ -242,7 +242,7 @@ namespace
             void visitAbstractBoundaryItem(AbstractBoundaryItem* item) override
             {
                 mg_printf_data(conn,",\"unitID\":\"%i\",",
-                        item->unit?item->unit->getID():0
+                        item->getUnit() ? item->getUnit()->getID() : 0
                         );
                 mg_printf_data(conn,"\"ports\":[");
                 int pcount=0;

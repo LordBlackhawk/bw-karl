@@ -28,7 +28,7 @@ void AbstractSpaceUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpd
 
 OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f)
     : AbstractSpaceUnitBoundaryItem(u, f, ut),
-      provideUnit(this, u),
+      provideUnit(this),
       supply(this, ut)
 {
     provideUnit.estimatedTime = ACTIVE_TIME;

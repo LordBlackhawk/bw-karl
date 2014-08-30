@@ -5,7 +5,7 @@
 
 BOOST_FIXTURE_TEST_SUITE( supply_test, BlackboardFixture )
 
-BOOST_AUTO_TEST_CASE( basic )
+BOOST_AUTO_TEST_CASE( basic_supply )
 {
     auto o1 = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Overlord);
     for (int k=0; k<7; ++k)
