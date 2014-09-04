@@ -19,7 +19,7 @@ run: karl.exe
 # --report=1000
 
 debug: karl.exe
-	gdb --args $< --hud --secure --speed=0 --webgui
+	gdb --args $< --hud --secure --speed=0 --webgui --disable GiveUpExpert
 
 test: tests.exe
 	@echo ' ##############################################################################'

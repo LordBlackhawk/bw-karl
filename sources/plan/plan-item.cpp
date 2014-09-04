@@ -175,6 +175,12 @@ void Blackboard::removeItem(AbstractPlanItem* item)
     delete item;
 }
 
+void Blackboard::terminate(AbstractPlanItem* item)
+{
+    assert(item->isActive());
+    engine->addAction(new TerminateAction(item->getAction(), false));
+}
+
 bool Blackboard::includeItem(AbstractPlanItem* item) const
 {
     return (std::find(items.begin(), items.end(), item) != items.end());
@@ -284,6 +290,8 @@ void Blackboard::tick()
 {
     // 1. Receive events
     AbstractEvent* event = engine->popEvent();
+    if (event == NULL)
+        return;
     while (event != NULL) {
         event->acceptVisitor(this);
         delete event;

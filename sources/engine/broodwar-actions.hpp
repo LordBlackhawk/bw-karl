@@ -54,6 +54,7 @@ class MoveToPositionAction : public UnitAction
 {
     public:
         MoveToPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre = NULL);
+        void onBegin(AbstractExecutionEngine* engine) override;
         Status onTick(AbstractExecutionEngine* engine) override;
 
     protected:
@@ -77,6 +78,7 @@ class AttackUnitAction : public UnitAction
 {
     public:
         AttackUnitAction(BWAPI::Unit* myunit, BWAPI::Unit* enemy, AbstractAction* pre = NULL);
+        void onBegin(AbstractExecutionEngine* engine) override;
         Status onTick(AbstractExecutionEngine* engine) override;
 
     protected:

@@ -49,6 +49,7 @@ class BasicPortImpl : public AbstractPort
             staticDisconnect();
             if (port != NULL) {
                 if (Require) {
+                    port->staticDisconnect();
                     connection = port;
                     port->connection = This();
                 } else {

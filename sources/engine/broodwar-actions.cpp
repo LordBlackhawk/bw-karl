@@ -162,15 +162,22 @@ MoveToPositionAction::MoveToPositionAction(BWAPI::Unit* w, BWAPI::Position p, Ab
     : UnitAction(w, pre), pos(p)
 { }
 
+void MoveToPositionAction::onBegin(AbstractExecutionEngine* /*engine*/)
+{
+    unit->move(pos);
+}
+
 MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngine* /*engine*/)
 {
     if (!unit->exists())
         return Failed;
 
-    if (unit->getPosition().getDistance(pos) < 32.0)
+    BWAPI::Position myPos = unit->getPosition();
+    if (myPos.getDistance(pos) < 32.0)
         return Finished;
 
     drawInformations("moving");
+    BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), pos.x(), pos.y(), BWAPI::Colors::Green);
     if (unit->isMoving())
         return Running;
     
@@ -188,7 +195,7 @@ AttackPositionAction::AttackPositionAction(BWAPI::Unit* w, BWAPI::Position p, Ab
 
 void AttackPositionAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
-    unit->stop();
+    unit->attack(pos);
 }
 
 AttackPositionAction::Status AttackPositionAction::onTick(AbstractExecutionEngine* /*engine*/)
@@ -196,10 +203,12 @@ AttackPositionAction::Status AttackPositionAction::onTick(AbstractExecutionEngin
     if (!unit->exists())
         return Failed;
 
-    if (unit->getPosition().getDistance(pos) < 32.0 && unit->isIdle())
+    BWAPI::Position myPos = unit->getPosition();
+    if (myPos.getDistance(pos) < 32.0)
         return Finished;
 
     drawInformations("attackingPosition");
+    BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), pos.x(), pos.y(), BWAPI::Colors::Green);
     if(!unit->isIdle())
         return Running;
 
@@ -215,6 +224,11 @@ AttackUnitAction::AttackUnitAction(BWAPI::Unit* w, BWAPI::Unit* enemy, AbstractA
     : UnitAction(w, pre), e(enemy)
 { }
 
+void AttackUnitAction::onBegin(AbstractExecutionEngine* /*engine*/)
+{
+    unit->attack(e);
+}
+
 AttackUnitAction::Status AttackUnitAction::onTick(AbstractExecutionEngine* /*engine*/)
 {
     if (!unit->exists())
@@ -224,6 +238,9 @@ AttackUnitAction::Status AttackUnitAction::onTick(AbstractExecutionEngine* /*eng
         return Finished;
 
     drawInformations("attackingUnit");
+    BWAPI::Position myPos = unit->getPosition();
+    BWAPI::Position pos = e->getPosition();
+    BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), pos.x(), pos.y(), BWAPI::Colors::Green);
     if (!unit->isIdle())
         return Running;
 

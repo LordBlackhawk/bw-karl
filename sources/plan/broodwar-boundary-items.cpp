@@ -25,6 +25,17 @@ void AbstractSpaceUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpd
     }
 }
 
+int AbstractSpaceUnitBoundaryItem::getHealth() const
+{
+    return unitType.maxHitPoints() + unitType.maxShields();
+}
+
+double AbstractSpaceUnitBoundaryItem::getGroundDPS() const
+{
+    auto weapon = unitType.groundWeapon();
+    return (double)weapon.damageAmount() / (double)weapon.damageCooldown() * 24.0;
+}
+
 
 OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f)
     : AbstractSpaceUnitBoundaryItem(u, f, ut),

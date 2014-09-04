@@ -134,6 +134,7 @@ class Blackboard : public BasicEventVisitor
 
         void addItem(AbstractPlanItem* item);
         void removeItem(AbstractPlanItem* item);
+        void terminate(AbstractPlanItem* item);
 
         void addExpert(AbstractExpert* expert);
         void removeExpert(AbstractExpert* expert);

@@ -20,7 +20,7 @@ void AttackExpert::visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item)
 
 void AttackExpert::visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item)
 {
-    if (item->getUnitType().isFlyer() || (!item->isVisible() && !item->getUnitType().isBuilding()))
+    if (item->isFlying() || (!item->isVisible() && !item->isBuilding()))
         return;
     enemies.push_back(item);
 }
