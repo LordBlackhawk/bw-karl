@@ -2,7 +2,6 @@
 #include "abstract-visitor.hpp"
 #include "broodwar-boundary-items.hpp"
 #include "blackboard-informations.hpp"
-#include "engine/basic-actions.hpp"
 
 ProvideUnitPort::ProvideUnitPort(AbstractItem* o, bool od)
     : BaseClass(o), unitType(BWAPI::UnitTypes::Unknown), pos(BWAPI::Positions::Unknown), onDemand(od)
@@ -27,11 +26,12 @@ void ProvideUnitPort::acceptVisitor(AbstractVisitor* visitor)
 
 AbstractAction* ProvideUnitPort::prepareForExecution(AbstractExecutionEngine* engine)
 {
-    auto planitem = dynamic_cast<AbstractPlanItem*>(owner);
-    AbstractAction* previousAction = (planitem != NULL) ? planitem->getAction() : NULL;
+    auto planItem = dynamic_cast<AbstractPlanItem*>(owner);
+    if (planItem == NULL)
+        return NULL;
     if (onDemand)
-        engine->addAction(new TerminateAction(previousAction, false));
-    return previousAction;
+        planItem->setTerminated(engine);
+    return planItem->getAction();
 }
 
 BWAPI::Unit* ProvideUnitPort::getUnit() const

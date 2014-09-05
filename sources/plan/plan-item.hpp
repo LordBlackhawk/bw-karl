@@ -11,6 +11,7 @@ class AbstractAction;
 class AbstractExecutionEngine;
 class AbstractVisitor;
 class Blackboard;
+class AbstractExpert;
 
 class AbstractPort : public AssertBase
 {
@@ -71,6 +72,7 @@ class AbstractPlanItem : public AbstractItem
         enum Status { Planned, Active, Executing, Terminated, Finished, Failed };
 
         Time estimatedStartTime;
+        AbstractExpert* creator;
 
         AbstractPlanItem();
 
@@ -174,4 +176,5 @@ class Blackboard : public BasicEventVisitor
         BlackboardInformations                          informations;
         std::map<BWAPI::Unit*, AbstractBoundaryItem*>   unitBoundaries;
         std::map<AbstractAction*, AbstractPlanItem*>    actionMap;
+        AbstractExpert*                                 activeExpert;
 };

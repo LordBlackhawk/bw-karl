@@ -75,7 +75,7 @@ AbstractBoundaryItem::AbstractBoundaryItem(BWAPI::Unit* u)
 { }
 
 AbstractPlanItem::AbstractPlanItem()
-    : estimatedStartTime(INFINITE_TIME), status(Planned), action(NULL)
+    : estimatedStartTime(INFINITE_TIME), creator(NULL), status(Planned), action(NULL)
 { }
 
 void AbstractPlanItem::updateEstimates(Time current)
@@ -161,7 +161,7 @@ void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
 }
 
 Blackboard::Blackboard(AbstractExecutionEngine* e)
-    : engine(e)
+    : engine(e), activeExpert(NULL)
 { }
 
 Blackboard::~Blackboard()
@@ -174,6 +174,8 @@ Blackboard::~Blackboard()
 
 void Blackboard::addItem(AbstractPlanItem* item)
 {
+    if (item->creator == NULL)
+        item->creator = activeExpert;
     items.push_back(item);
 }
 
@@ -310,7 +312,9 @@ void Blackboard::tick()
     experts.erase(std::remove_if(experts.begin(), experts.end(), [&] (AbstractExpert* expert)
             {
                 recalculateEstimatedTimes();
+                activeExpert = expert;
                 bool remove = !expert->tick(this);
+                activeExpert = NULL;
                 if (remove) delete expert;
                 return remove;
             }), experts.end());

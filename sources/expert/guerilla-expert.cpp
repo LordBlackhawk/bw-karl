@@ -85,14 +85,18 @@ void GuerillaExpert::analyzeSituation(const std::vector<AbstractSpaceUnitBoundar
         }
     }
 
-    if (ownUnits.empty() || enemyUnits.empty())
+    if (ownUnits.empty() || enemyUnits.empty()) {
+        cleanup(ownUnits);
         return;
+    }
 
     double ownPower = valueOfUnits(ownUnits);
     double enemyPower = valueOfUnits(enemyUnits);
 
-    if (ownPower > enemyPower)
+    if (ownPower > enemyPower) {
+        cleanup(ownUnits);
         return;
+    }
 
     std::cout << currentBlackboard->getLastUpdateTime() << ": Retreating " << ownUnits.size() << " units from " << enemyUnits.size() << " enemy units...\n";
     retreat(ownUnits, enemyUnits);
@@ -143,15 +147,34 @@ void GuerillaExpert::retreatTo(OwnUnitBoundaryItem* ownUnit, BWAPI::Position pos
         auto planItem = dynamic_cast<AbstractSimpleUnitPlanItem*>(provider->getConnectedPort()->getOwner());
         if (planItem == NULL)
             return;
+        provider = &planItem->provideUnit;
+        if (provider->isActiveConnection())
+            return;
         auto moveItem = dynamic_cast<MoveToPositionPlanItem*>(planItem);
         if ((moveItem != NULL) && (moveItem->getPosition().getDistance(pos) < 32.0))
             return;
         currentBlackboard->terminate(planItem);
-        provider = &planItem->provideUnit;
         // ToDo: Copy active plan item...
     }
 
     auto nextRequirePort = provider->getConnectedPort();
     auto newPlanItem = currentBlackboard->move(provider, pos);
     newPlanItem->provideUnit.connectTo(nextRequirePort);
+}
+
+void GuerillaExpert::cleanup(const std::vector<OwnUnitBoundaryItem*>& ownUnits)
+{
+    for (auto it : ownUnits) {
+        auto provider = &it->provideUnit;
+        if (!provider->isConnected())
+            continue;
+        auto planItem = dynamic_cast<AbstractPlanItem*>(provider->getConnectedPort()->getOwner());
+        if ((planItem == NULL) || (planItem->creator != this))
+            continue;
+        if (planItem->isActive()) {
+            currentBlackboard->terminate(planItem);
+        } else {
+            currentBlackboard->removeItem(planItem);
+        }
+    }
 }
