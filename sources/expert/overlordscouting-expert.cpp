@@ -24,7 +24,7 @@ void OverlordScoutingExpert::visitProvideUnitPort(ProvideUnitPort* port)
 
 void OverlordScoutingExpert::visitResourceBoundaryItem(ResourceBoundaryItem* item){
 
-    if(!item->getUnitType().isMineralField())
+    if(!item->getUnitType().isMineralField() || item->isVisible())
         return;
     minerals.push_back(item);
 }
@@ -35,15 +35,17 @@ void OverlordScoutingExpert::endTraversal()
 {
     std::vector<int> value;
 
-    for(auto o:overlords) {
-        for(auto m:minerals) {
-            value.push_back(- 3*m->getLastSeen()  - m->getPosition().getDistance(o->getPosition()));
+    if (!minerals.empty()) {
+        for(auto o:overlords) {
+            for(auto m:minerals) {
+                value.push_back(- 3*m->getLastSeen()  - m->getPosition().getDistance(o->getPosition()));
+            }
+            auto it = std::max_element(value.begin(),value.end());
+            int index = it-value.begin();
+            auto m = minerals[index];
+            currentBlackboard->move(o, m->getTilePosition());
+            value.clear();
         }
-        auto it = std::max_element(value.begin(),value.end());
-        int index = it-value.begin();
-        auto m = minerals[index];
-        currentBlackboard->move(o, m->getTilePosition());
-        value.clear();
     }
 
     overlords.clear();

@@ -8,7 +8,6 @@ class AbstractSpaceUnitBoundaryItem;
 class GuerillaExpert : public BasicExpert
 {
     public:
-        void beginTraversal() override;
         void endTraversal() override;
 
         void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) override;

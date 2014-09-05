@@ -52,6 +52,7 @@ class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem
         inline int mineralsLeft() const { return minerals; }
         inline Time getLastSeen() const { return lastSeen; }
         inline BWAPI::Position getPosition() const { return BWAPI::Position(getTilePosition()); }
+        inline bool isVisible() const { return lastSeen > info->lastUpdateTime - 5; }
 
     protected:
         BlackboardInformations* info;

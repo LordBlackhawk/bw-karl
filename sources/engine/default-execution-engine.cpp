@@ -17,7 +17,7 @@ std::vector<ActionInfo>::const_iterator DefaultExecutionEngine::findAction(Abstr
 void DefaultExecutionEngine::terminateAction(AbstractAction* action, bool cleanup)
 {
     auto it = findAction(action);
-    if (it == actions.end())
+    if ((it == actions.end()) || (it->info == ActionInfo::Removed))
         return;
 
     if (it->info == ActionInfo::Active)

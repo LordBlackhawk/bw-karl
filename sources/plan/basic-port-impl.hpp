@@ -28,7 +28,7 @@ class BasicPortImpl : public AbstractPort
 
         bool isActiveConnection() const override
         {
-            return isActive() && isConnected() && connection->isActive();
+            return isConnected() && isActive() && connection->isActive();
         }
 
         void updateEstimates() override

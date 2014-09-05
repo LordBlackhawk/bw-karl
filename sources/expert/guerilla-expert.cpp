@@ -8,11 +8,6 @@
 
 REGISTER_EXPERT(GuerillaExpert)
 
-void GuerillaExpert::beginTraversal()
-{
-    allUnits.clear();
-}
-
 void GuerillaExpert::visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item)
 {
     if (    item->isBuilding()
@@ -41,22 +36,16 @@ void GuerillaExpert::visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item)
 // 1. Cluster units
 void GuerillaExpert::endTraversal()
 {
-    if (currentBlackboard->getLastUpdateTime() % 100 == 0) {
-        while (!allUnits.empty()) {
-            std::vector<AbstractSpaceUnitBoundaryItem*> cluster = { allUnits.back() };
-            allUnits.pop_back();
-            for (unsigned int k=0; k<cluster.size(); ++k) {
-                auto position = cluster[k]->getPosition();
-                auto seperator = std::remove_if(allUnits.begin(), allUnits.end(), [&](AbstractSpaceUnitBoundaryItem* unit) {
-                        bool result = (position.getDistance(unit->getPosition()) < 128.0);
-                        if (result)
-                            cluster.push_back(unit);
-                        return result;
-                    });
-                allUnits.erase(seperator, allUnits.end());
-            }
-            analyzeSituation(cluster);
+    while (!allUnits.empty()) {
+        std::vector<AbstractSpaceUnitBoundaryItem*> cluster = { allUnits.back() };
+        allUnits.pop_back();
+        for (unsigned int k=0; k<cluster.size(); ++k) {
+            auto position = cluster[k]->getPosition();
+            allUnits.erase(std::remove_if(allUnits.begin(), allUnits.end(), [&](AbstractSpaceUnitBoundaryItem* unit) {
+                    return (position.getDistance(unit->getPosition()) < 128.0) && (cluster.push_back(unit), true);
+                }), allUnits.end());
         }
+        analyzeSituation(cluster);
     }
 
     allUnits.clear();
@@ -132,8 +121,8 @@ void GuerillaExpert::retreat(const std::vector<OwnUnitBoundaryItem*>& ownUnits, 
                 return angleOf(enemy->getPosition() - unit->getPosition());
             });
         std::sort(angles.begin(), angles.end());
-        double bestArc    = M_PI + 0.5 * (angles.front() + angles.back());
-        double bestAngle  = 2.0 * M_PI + angles.front() - angles.back();
+        double bestArc    = 2.0 * M_PI + angles.front() - angles.back();
+        double bestAngle  = M_PI + 0.5 * (angles.front() + angles.back());
         for (unsigned int k=1, size=angles.size(); k<size; ++k) {
             double arc = angles[k] - angles[k-1];
             if (arc > bestArc) {
@@ -145,15 +134,10 @@ void GuerillaExpert::retreat(const std::vector<OwnUnitBoundaryItem*>& ownUnits, 
         BWAPI::Position dir((int)(distance * cos(bestAngle)), (int)(distance * sin(bestAngle)));
         retreatTo(unit, unit->getPosition() + dir);
     }
-    //std::cout << "enemyUnits:\n";
-    //for (auto it : enemyUnits)
-    //    std::cout << it << "; type: " << it->getUnitType() << "; id: " << it->getUnit()->getID() << "; pos: " << it->getPosition() << "\n";
-    //interrupt();
 }
 
 void GuerillaExpert::retreatTo(OwnUnitBoundaryItem* ownUnit, BWAPI::Position pos)
 {
-    //std::cout << ownUnit << "; type: " << ownUnit->getUnitType() << "; id: " << ownUnit->getUnit()->getID() << "; pos: " << ownUnit->getPosition() << "\n";
     auto provider = &ownUnit->provideUnit;
     if (provider->isActiveConnection()) {
         auto planItem = dynamic_cast<AbstractSimpleUnitPlanItem*>(provider->getConnectedPort()->getOwner());

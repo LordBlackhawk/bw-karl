@@ -139,15 +139,24 @@ void AbstractPlanItem::setExecuting()
     status = Executing;
 }
 
+void AbstractPlanItem::setTerminated(AbstractExecutionEngine* engine)
+{
+    if (status == Terminated)
+        return;
+    assert(isActive());
+    status = Terminated;
+    engine->addAction(new TerminateAction(action, false));
+}
+
 void AbstractPlanItem::setFinished()
 {
-    assert(status == Active || status == Executing);
+    assert(isActive());
     status = Finished;
 }
 
 void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
 {
-    assert(status == Active || status == Executing);
+    assert(isActive());
     status = Failed;
 }
 
@@ -177,8 +186,7 @@ void Blackboard::removeItem(AbstractPlanItem* item)
 
 void Blackboard::terminate(AbstractPlanItem* item)
 {
-    assert(item->isActive());
-    engine->addAction(new TerminateAction(item->getAction(), false));
+    item->setTerminated(engine);
 }
 
 bool Blackboard::includeItem(AbstractPlanItem* item) const

@@ -68,14 +68,14 @@ class AbstractBoundaryItem : public AbstractItem
 class AbstractPlanItem : public AbstractItem
 {
     public:
-        enum Status { Planned, Active, Executing, Finished, Failed };
+        enum Status { Planned, Active, Executing, Terminated, Finished, Failed };
 
         Time estimatedStartTime;
 
         AbstractPlanItem();
 
         inline bool isPlanned() const { return (status == Planned); }
-        inline bool isActive() const { return (status == Active) || (status == Executing); }
+        inline bool isActive() const { return (status == Active) || (status == Executing) || (status == Terminated); }
         inline bool isImpossible() const { return isImpossibleTime(estimatedStartTime); }
         inline bool operator < (const AbstractPlanItem& rhs) const { return estimatedStartTime < rhs.estimatedStartTime; }
         inline Status getStatus() const { return status; }
@@ -83,6 +83,7 @@ class AbstractPlanItem : public AbstractItem
 
         void setActive();
         void setExecuting();
+        void setTerminated(AbstractExecutionEngine* engine);
         void setFinished();
         void setErrorState(AbstractAction* action);
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
