@@ -43,7 +43,7 @@ class BasicPortImpl : public AbstractPort
 
         void connectTo(ConnectionClass* port)
         {
-            //assert(!isActiveConnection() && "Active connection can not be changed!");
+            assert(!isActiveConnection() && "Active connection can not be changed!");
             if (connection == port)
                 return;
             staticDisconnect();

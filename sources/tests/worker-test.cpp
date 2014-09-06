@@ -13,24 +13,19 @@ BOOST_AUTO_TEST_CASE( basic_worker )
 
     WorkerExpert expert;
     expert.tick(blackboard);
-
-    BOOST_REQUIRE( popAction() == NULL );
-    tick();
-    BOOST_REQUIRE( popAction() != NULL );
-
     BOOST_CHECK( worker->isConnected() );
-    BOOST_REQUIRE_EQUAL( blackboard->getItems().size(), 1U );
 
-    auto planitem = dynamic_cast<AbstractPlanItem*>(worker->provideUnit.getConnectedPort()->getOwner());
-    BOOST_REQUIRE( planitem != NULL );
-    planitem->setFinished();
+    tick();
+
+    auto planItem = dynamic_cast<GatherMineralsPlanItem*>(worker->provideUnit.getConnectedPort()->getOwner());
+    BOOST_REQUIRE( planItem != NULL );
+    BOOST_REQUIRE( planItem->isActive() );
+    planItem->setFinished();
     destroyBoundaryItem(worker);
-
-    BOOST_REQUIRE_EQUAL( blackboard->getItems().size(), 1U );
 
     expert.tick(blackboard);
 
-    BOOST_CHECK_EQUAL( blackboard->getItems().size(), 0U );
+    BOOST_CHECK( !blackboard->includeItem(planItem) );
 }
 
 BOOST_AUTO_TEST_CASE( minerals_destroyed )

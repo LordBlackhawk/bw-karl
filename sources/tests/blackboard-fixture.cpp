@@ -83,6 +83,7 @@ BlackboardFixture::~BlackboardFixture()
 
 void BlackboardFixture::tick()
 {
+    addEvent(new FrameEvent(blackboard->getLastUpdateTime(), blackboard->getInformations()->currentMinerals, blackboard->getInformations()->currentGas));
     blackboard->tick();
 }
 
