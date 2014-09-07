@@ -166,7 +166,7 @@ class Blackboard : public BasicEventVisitor
         GiveUpPlanItem* giveUp();
 
         // for test propose only:
-        bool includeItem(AbstractPlanItem* item) const;
+        bool includesItem(AbstractPlanItem* item) const;
         AbstractBoundaryItem* lookupUnit(BWAPI::Unit* unit) const;
 
     protected:

@@ -1,7 +1,6 @@
 #include "supply-expert.hpp"
 #include "expert-registrar.hpp"
 #include "plan/broodwar-ports.hpp"
-#include "utils/log.hpp"
 
 REGISTER_EXPERT(SupplyExpert)
 
@@ -28,34 +27,35 @@ void SupplyExpert::visitSupplyPort(SupplyPort* port)
     }
 }
 
-namespace
+bool SupplyExpert::process(std::vector<SupplyPort*>& provide, std::vector<SupplyPort*>& require)
 {
-    bool process(std::vector<SupplyPort*>& provide, std::vector<SupplyPort*>& require)
-    {
-        //LOG << "provide.size(): " << provide.size() << "; require.size(): " << require.size();
-        Time currentTime = 0;
-        int currentSupply = 0;
-        auto itProvide = provide.begin();
-        bool result = false;
-        for (auto itRequire : require) {
-            while ((itProvide != provide.end()) && (currentSupply < itRequire->getRequiredAmount())) {
-                currentTime = (*itProvide)->estimatedTime;
-                currentSupply += (*itProvide)->getProvidedAmount();
-                ++itProvide;
-            }
-            if (result || (currentSupply < itRequire->getRequiredAmount())) {
-                itRequire->estimatedTime = INFINITE_TIME;
-                result = true;
-            } else {
-                itRequire->estimatedTime = currentTime;
-                currentSupply -= itRequire->getRequiredAmount();
-            }
+    Time currentTime = 0;
+    int currentSupply = 0;
+    auto itProvide = provide.begin();
+    bool result = false;
+    for (auto itRequire : require) {
+        while ((itProvide != provide.end()) && (currentSupply < itRequire->getRequiredAmount())) {
+            currentTime = (*itProvide)->estimatedTime;
+            currentSupply += (*itProvide)->getProvidedAmount();
+            ++itProvide;
         }
-        //LOG << "supply remaining: " << currentSupply;
-        provide.clear();
-        require.clear();
-        return result;
+        if (result || (currentSupply < itRequire->getRequiredAmount())) {
+            itRequire->estimatedTime = INFINITE_TIME;
+            result = true;
+        } else {
+            itRequire->estimatedTime = currentTime;
+            currentSupply -= itRequire->getRequiredAmount();
+        }
     }
+    while (itProvide != provide.end()) {
+        auto planItem = dynamic_cast<AbstractPlanItem*>((*itProvide)->getOwner());
+        if ((planItem != NULL) && (planItem->creator == this) && !planItem->isActive())
+            currentBlackboard->removeItem(planItem);
+        ++itProvide;
+    }
+    provide.clear();
+    require.clear();
+    return result;
 }
 
 void SupplyExpert::endTraversal()

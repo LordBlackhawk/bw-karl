@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE( remove_after_finished )
     addEvent(new ActionEvent(action, ActionEvent::ActionFinished));
     tick();
 
-    BOOST_CHECK( !blackboard->includeItem(a) );
+    BOOST_CHECK( !blackboard->includesItem(a) );
 }
 
 BOOST_AUTO_TEST_CASE( continue_after_failed )
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE( continue_after_failed )
     addEvent(new ActionEvent(action, ActionEvent::ActionFailed));
     tick();
 
-    BOOST_REQUIRE( blackboard->includeItem(a) );
+    BOOST_REQUIRE( blackboard->includesItem(a) );
     BOOST_CHECK_EQUAL( a->getStatus(), AbstractPlanItem::Failed );
 }
 

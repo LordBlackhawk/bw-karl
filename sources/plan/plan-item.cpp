@@ -191,7 +191,7 @@ void Blackboard::terminate(AbstractPlanItem* item)
     item->setTerminated(engine);
 }
 
-bool Blackboard::includeItem(AbstractPlanItem* item) const
+bool Blackboard::includesItem(AbstractPlanItem* item) const
 {
     return (std::find(items.begin(), items.end(), item) != items.end());
 }

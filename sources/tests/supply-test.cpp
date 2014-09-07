@@ -41,6 +41,27 @@ BOOST_AUTO_TEST_CASE( basic_supply )
     BOOST_CHECK_EQUAL( p2->supply.estimatedTime, 1000 );
 }
 
+BOOST_AUTO_TEST_CASE( remove_supply )
+{
+    auto morphDrone = blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
+
+    blackboard->addExpert(new SupplyExpert());
+    tick();
+
+    auto& items = blackboard->getItems();
+    auto it = std::find_if(items.begin(), items.end(), [&] (AbstractPlanItem* i) {
+                auto m = dynamic_cast<MorphUnitPlanItem*>(i);
+                return (m != NULL) && (m->getUnitType() == BWAPI::UnitTypes::Zerg_Overlord);
+            });
+    BOOST_REQUIRE( it != items.end() );
+    auto morphOverlord = *it;
+
+    blackboard->removeItem(morphDrone);
+    tick();
+
+    BOOST_CHECK( !blackboard->includesItem(morphOverlord) );
+}
+
 BOOST_AUTO_TEST_CASE( two_in_one_egg )
 {
     auto h = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Hatchery);

@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE( basic_worker )
 
     expert.tick(blackboard);
 
-    BOOST_CHECK( !blackboard->includeItem(planItem) );
+    BOOST_CHECK( !blackboard->includesItem(planItem) );
 }
 
 BOOST_AUTO_TEST_CASE( minerals_destroyed )

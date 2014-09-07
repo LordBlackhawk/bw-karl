@@ -18,4 +18,5 @@ class SupplyExpert : public BasicPortExpert
         std::vector<SupplyPort*> requireZerg;
         std::vector<SupplyPort*> provideProtoss;
         std::vector<SupplyPort*> requireProtoss;
+        bool process(std::vector<SupplyPort*>& provide, std::vector<SupplyPort*>& require);
 };

@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE( no_worker_infinte_time )
     ResourceExpert expert;
     expert.tick(blackboard);
 
-    BOOST_REQUIRE( blackboard->includeItem(a) );
+    BOOST_REQUIRE( blackboard->includesItem(a) );
     BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, INFINITE_TIME );
 }
 
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( simple_worker )
     expert.tick(blackboard);
 
     // 200 / (2 * 0.045) = 2222,222...
-    BOOST_REQUIRE( blackboard->includeItem(a) );
+    BOOST_REQUIRE( blackboard->includesItem(a) );
     BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, 2223 );
 }
 
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( delayed_worker )
     expert.tick(blackboard);
 
     // 1 + 1000 + (200 - 1000 * 0.045) / (2 * 0.045) = 2723,2222
-    BOOST_REQUIRE( blackboard->includeItem(a) );
+    BOOST_REQUIRE( blackboard->includesItem(a) );
     BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, 2722 );
 }
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( delayed_worker_diff_numbers )
     expert.tick(blackboard);
 
     // last test case + 10000
-    BOOST_REQUIRE( blackboard->includeItem(a) );
+    BOOST_REQUIRE( blackboard->includesItem(a) );
     BOOST_CHECK_EQUAL( a->requireResources.estimatedTime, 12722 );
 }
 

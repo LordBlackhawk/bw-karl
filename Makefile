@@ -11,15 +11,16 @@ COVERAGELIBFILES    = $(addprefix $(LIBPATH)libcoverage_, $(addsuffix .a, $(LIBR
 EXEFILES            = $(addsuffix .exe, $(EXECUTABLES))
 MODULES             = $(LIBRARIES) $(EXECUTABLES)
 MODULEFILES         = $(LIBFILES) $(EXEFILES)
+KARLPARAMS          = --hud --speed=0 --secure --webgui --disable GiveUpExpert
 
 all: $(MODULEFILES)
 
 run: karl.exe
-	$< --hud --speed=0 --secure --parallel --webgui --disable GiveUpExpert
+	$< --parallel $(KARLPARAMS)
 # --report=1000
 
 debug: karl.exe
-	gdb --args $< --hud --secure --speed=0 --webgui --disable GiveUpExpert
+	gdb --args $< $(KARLPARAMS)
 
 test: tests.exe
 	@echo ' ##############################################################################'
