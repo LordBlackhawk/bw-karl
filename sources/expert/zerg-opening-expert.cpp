@@ -11,6 +11,8 @@ bool ZergOpeningExpert::isApplicable(Blackboard* /*blackboard*/)
 bool ZergOpeningExpert::tick(Blackboard* blackboard)
 {
     blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
+    //blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
     blackboard->build(BWAPI::UnitTypes::Zerg_Spawning_Pool);
+    //blackboard->create(BWAPI::UnitTypes::Zerg_Sunken_Colony);
     return false;
 }

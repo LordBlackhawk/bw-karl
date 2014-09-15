@@ -93,7 +93,7 @@ void GuerillaExpert::analyzeSituation(const std::vector<AbstractSpaceUnitBoundar
     double ownPower = valueOfUnits(ownUnits);
     double enemyPower = valueOfUnits(enemyUnits);
 
-    if (ownPower > enemyPower) {
+    if (ownPower > 0.9 * enemyPower) {
         cleanup(ownUnits);
         return;
     }

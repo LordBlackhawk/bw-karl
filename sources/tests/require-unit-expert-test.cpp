@@ -1,7 +1,7 @@
 #include "blackboard-fixture.hpp"
 #include "plan/broodwar-boundary-items.hpp"
 #include "plan/broodwar-plan-items.hpp"
-#include "expert/larva-expert.hpp"
+#include "expert/require-unit-expert.hpp"
 
 BOOST_FIXTURE_TEST_SUITE( larva_test, BlackboardFixture )
 
@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE( basic_larva )
     BOOST_CHECK_EQUAL( p1->requireUnit.getUnitType(), BWAPI::UnitTypes::Zerg_Larva );
     BOOST_CHECK( !p1->isActive() );
 
-    LarvaExpert expert;
+    RequireUnitExpert expert;
     expert.tick(blackboard);
 
     BOOST_CHECK( p1->requireUnit.isConnected() );
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( active_plan_items )
     BOOST_CHECK( b1->provideUnit.isActiveConnection() );
     BOOST_CHECK( p1->requireUnit.isActiveConnection() );
 
-    LarvaExpert expert;
+    RequireUnitExpert expert;
     expert.tick(blackboard);
 
     BOOST_CHECK( b1->provideUnit.isConnected() );
