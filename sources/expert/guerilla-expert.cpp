@@ -108,35 +108,92 @@ namespace
     double angleOf(const BWAPI::Position& pos)
     {
         if (pos.x() > 0.0) {
-            return atan((double)pos.y() / (double)pos.x());
+            double result = atan((double)pos.y() / (double)pos.x());
+            return (result < 0.0) ? 2*M_PI + result : result;
         } else if (pos.x() < 0.0) {
             return M_PI + atan((double)pos.y() / (double)pos.x());
         } else {
-            return (pos.y() > 0.0) ? 0.5 * M_PI : -0.5 * M_PI;
+            return (pos.y() > 0.0) ? 0.5 * M_PI : 1.5 * M_PI;
         }
     }
+
+    double angleDistance(double a, double b)
+    {
+        return std::min<double>(std::fabs(a - b), std::min<double>(std::fabs(a - b + 2*M_PI), std::fabs(a - b - 2*M_PI))); 
+    }
+}
+
+void ObstacleSolver::add(double direction, double width)
+{
+    obstacles.push_back(Obstacle(direction, width));
+}
+
+void ObstacleSolver::add(const BWAPI::Position& relPosition, BWAPI::UnitType unitType)
+{
+    double distance = relPosition.getLength();
+    double width = 0.5 * std::max(unitType.dimensionLeft() + unitType.dimensionRight(), unitType.dimensionUp() + unitType.dimensionDown());
+    add(angleOf(relPosition), atan(width/distance));
+}
+
+void ObstacleSolver::add(const BWAPI::Position& tileCenter)
+{
+    BWAPI::Position dx(16, 0), dy(0, 16);
+    BWAPI::Position corners[4] = { tileCenter - dx - dy, tileCenter + dx - dy, tileCenter - dx + dy, tileCenter + dx + dy };
+    double direction = angleOf(tileCenter);
+    double width = 0.0;
+    for (unsigned int k=0; k<4; ++k)
+        width = std::max(width, angleDistance(angleOf(corners[k]), direction));
+    add(direction, width);
+}
+
+BWAPI::Position ObstacleSolver::solve()
+{
+    if (obstacles.empty())
+        return BWAPI::Positions::Unknown;
+    double bestDirection   = 0.0;
+    double bestWidth       = 0.0;
+    std::sort(obstacles.begin(), obstacles.end());
+    add(2 * M_PI + obstacles.front().direction, obstacles.front().width);
+    //for (auto it : obstacles)
+    //    std::cout << "direction: " << it.direction << "; " << it.width << "\n";
+    for (unsigned int k=1, size=obstacles.size(); k<size; ++k) {
+        auto& lower = obstacles[k-1];
+        auto& upper = obstacles[k];
+        double width = upper.direction - lower.direction - lower.width - upper.width;
+        if (width > bestWidth) {
+            bestWidth = width;
+            bestDirection = lower.direction + lower.width + 0.5 * width;
+        }
+    }
+    obstacles.clear();
+    if (bestWidth <= 0.0)
+        return BWAPI::Positions::Unknown;
+    double distance = 96.0;
+    return BWAPI::Position((int)(distance * cos(bestDirection)), (int)(distance * sin(bestDirection)));
 }
 
 void GuerillaExpert::retreat(const std::vector<OwnUnitBoundaryItem*>& ownUnits, const std::vector<EnemyUnitBoundaryItem*>& enemyUnits)
 {
-    std::vector<double> angles(enemyUnits.size(), 0.0);
+    ObstacleSolver solver;
     for (auto unit : ownUnits) {
-        std::transform(enemyUnits.begin(), enemyUnits.end(), angles.begin(), [unit] (EnemyUnitBoundaryItem* enemy) {
-                return angleOf(enemy->getPosition() - unit->getPosition());
-            });
-        std::sort(angles.begin(), angles.end());
-        double bestArc    = 2.0 * M_PI + angles.front() - angles.back();
-        double bestAngle  = M_PI + 0.5 * (angles.front() + angles.back());
-        for (unsigned int k=1, size=angles.size(); k<size; ++k) {
-            double arc = angles[k] - angles[k-1];
-            if (arc > bestArc) {
-                bestArc   = arc;
-                bestAngle = 0.5 * (angles[k] + angles[k-1]);
-            }
+        BWAPI::Position basePosition = unit->getPosition();
+        for (auto enemy : enemyUnits)
+            solver.add(enemy->getPosition() - basePosition, enemy->getUnitType());
+
+        BWAPI::TilePosition baseTile(basePosition);
+        auto& fields = currentBlackboard->getInformations()->fields;
+        for (int x=-3; x<=3; ++x)
+            for (int y=-3; y<=3; ++y)
+                if ((x != 0) && (y != 0))
+        {
+            BWAPI::TilePosition tile = baseTile + BWAPI::TilePosition(x, y);
+            if (!fields.isValid(tile) || !fields[tile].isMovable())
+                solver.add(BWAPI::Position(tile) - basePosition);
         }
-        double distance = 96.0;
-        BWAPI::Position dir((int)(distance * cos(bestAngle)), (int)(distance * sin(bestAngle)));
-        retreatTo(unit, unit->getPosition() + dir);
+
+        BWAPI::Position dir = solver.solve();
+        if (dir != BWAPI::Positions::Unknown)
+            retreatTo(unit, basePosition + dir);
     }
 }
 

@@ -20,3 +20,28 @@ class GuerillaExpert : public BasicExpert
         void retreat(const std::vector<OwnUnitBoundaryItem*>& ownUnits, const std::vector<EnemyUnitBoundaryItem*>& enemyUnits);
         void retreatTo(OwnUnitBoundaryItem* ownUnit, BWAPI::Position pos);
 };
+
+struct Obstacle
+{
+    double direction;
+    double width;
+    Obstacle(double d, double w)
+        : direction(d), width(w)
+    { }
+    bool operator < (const Obstacle& other) const
+    {
+        return direction < other.direction;
+    }
+};
+
+class ObstacleSolver
+{
+    public:
+        void add(double direction, double width);
+        void add(const BWAPI::Position& relPosition, BWAPI::UnitType unitType);
+        void add(const BWAPI::Position& tileCenter);
+        BWAPI::Position solve();
+
+    private:
+        std::vector<Obstacle>   obstacles;
+};
