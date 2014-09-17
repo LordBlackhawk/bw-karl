@@ -81,6 +81,11 @@ class Array2d
             return (*this)[pos.x()][pos.y()];
         }
 
+        bool isValid(const BWAPI::TilePosition& pos) const
+        {
+            return (0 <= pos.x()) && (pos.x() < sizex) && (0 <= pos.y()) && (pos.y() < sizey);
+        }
+
         int getWidth() const
         {
             return sizex;

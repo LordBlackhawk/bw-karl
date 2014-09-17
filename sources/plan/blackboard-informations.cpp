@@ -52,6 +52,14 @@ void BlackboardInformations::prepare()
         FieldInformations& field = fields[x][y];
         field.buildable = BWAPI::Broodwar->isBuildable(x, y);
         field.creep     = BWAPI::Broodwar->hasCreep(x, y);
+        field.movable = true;
+        for (int k=0; k<4; ++k)
+            for (int l=0; l<4; ++l)
+        {
+            bool value = BWAPI::Broodwar->isWalkable(4*x+k, 4*y+l);
+            field.subtiles[k][l] = value;
+            field.movable = field.movable && value;
+        }
     }
 
     auto mybase = BWTA::getStartLocation(self);

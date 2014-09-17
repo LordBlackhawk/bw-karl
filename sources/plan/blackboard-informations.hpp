@@ -31,9 +31,12 @@ struct FieldInformations
     Time                lastSeen    = -1;
     bool                buildable   = false;
     bool                creep       = false;
+    bool                movable     = false;
+    bool                subtiles[4][4];
     RequireSpacePort*   blocker     = NULL;
 
     inline bool isExplored() const { return lastSeen > 1; }
+    inline bool isMovable() const { return movable && (blocker == NULL); }
 };
 
 struct BlackboardInformations

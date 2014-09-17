@@ -3,11 +3,23 @@
 
 std::ostream& operator << (std::ostream& stream, const BWAPI::Position& pos)
 {
+    if (pos == BWAPI::Positions::Unknown)
+        return stream << "(Unknown)";
+    if (pos == BWAPI::Positions::Invalid)
+        return stream << "(Invalid)";
+    if (pos == BWAPI::Positions::None)
+        return stream << "(None)";
     return stream << "(" << pos.x() << "," << pos.y() << ")";
 }
 
 std::ostream& operator << (std::ostream& stream, const BWAPI::TilePosition& pos)
 {
+    if (pos == BWAPI::TilePositions::Unknown)
+        return stream << "(Unknown)";
+    if (pos == BWAPI::TilePositions::Invalid)
+        return stream << "(Invalid)";
+    if (pos == BWAPI::TilePositions::None)
+        return stream << "(None)";
     return stream << "(" << pos.x() << "," << pos.y() << ")";
 }
 
