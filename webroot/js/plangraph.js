@@ -86,7 +86,11 @@ function plangraphInit()
                     case "executing":
                         return "E";
                     case "failed":
-                        return "F";
+                        return "Fail";
+                    case "finished":
+                        return "Fin";
+                    case "terminated":
+                        return "Term";
                     default:
                         return "?";
                 }
@@ -191,7 +195,9 @@ function plangraphInit()
                 }
                 if(type==="planitem")
                 {
-                    label="<span class=\"active_indicator\">"+getStatusEstimatedString(item.status,item.estimatedStartTime)+"</span>"+label;
+                    label="<span class=\"active_indicator\">"+getStatusEstimatedString(item.status,item.estimatedStartTime)+"</span>"
+                            +label
+                            +"<span class=\"item_modify\"></span>";
                 }
 
                 if(config.skipUnconnected)
@@ -473,6 +479,11 @@ function plangraphInit()
 
         var tooltip="<h3>"+item.name+typename+"</h3>";
 
+        if(typename==="PlanItem")
+        {
+            tooltip+="<button class=\"button_terminate_plan_item\" data-id=\""+item.id+"\">terminate</button>";
+        }
+
         tooltip+="<table>";
         for(var field in item)
         {
@@ -523,5 +534,12 @@ function plangraphInit()
             return getTooltipForItem("Port",currentPlanData.ports[this.getAttribute('original-title')]);
         }
     });
-    
+
+    $('body').on('click','button.button_terminate_plan_item',function(){
+        $.post('terminate', {itemID:$(this).data('id')},function(data)
+        {
+            if(data!=="ok")
+                alert(data);
+        },'text');
+    });
 }
