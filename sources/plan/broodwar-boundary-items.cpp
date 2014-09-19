@@ -23,6 +23,7 @@ void AbstractSpaceUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpd
         requireSpace.disconnect();
         removePort(&requireSpace);
     }
+    AbstractBoundaryItem::visitCompleteUnitUpdateEvent(event);
 }
 
 int AbstractSpaceUnitBoundaryItem::getHealth() const
@@ -68,7 +69,7 @@ void OwnUnitBoundaryItem::visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* even
 ResourceBoundaryItem::ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, BlackboardInformations* i, BaseLocation* b)
     : AbstractSpaceUnitBoundaryItem(u, &i->fields, ut),
       info(i),
-      lastSeen(-1),
+      lastSeen(-100),
       base(b),
       minerals(-1)
 { }
@@ -103,7 +104,7 @@ int ResourceBoundaryItem::numberOfWorkers() const
 EnemyUnitBoundaryItem::EnemyUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, BlackboardInformations* i)
     : AbstractSpaceUnitBoundaryItem(u, &i->fields, ut),
       info(i),
-      lastSeen(-1),
+      lastSeen(-100),
       position(BWAPI::Positions::Unknown)
 { }
 

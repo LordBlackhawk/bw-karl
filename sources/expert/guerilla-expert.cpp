@@ -4,7 +4,8 @@
 #include "utils/bw-helper.hpp"
 #include <algorithm>
 
-# define M_PI 3.141592653589793238462643383279502884L
+#define M_PI 3.141592653589793238462643383279502884L
+//#define DEBUG_PRINT
 
 REGISTER_EXPERT(GuerillaExpert)
 
@@ -36,6 +37,7 @@ void GuerillaExpert::visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item)
 // 1. Cluster units
 void GuerillaExpert::endTraversal()
 {
+    int index = 0;
     while (!allUnits.empty()) {
         std::vector<AbstractSpaceUnitBoundaryItem*> cluster = { allUnits.back() };
         allUnits.pop_back();
@@ -45,7 +47,7 @@ void GuerillaExpert::endTraversal()
                     return (position.getDistance(unit->getPosition()) < 128.0) && (cluster.push_back(unit), true);
                 }), allUnits.end());
         }
-        analyzeSituation(cluster);
+        analyzeSituation(index++, cluster);
     }
 
     allUnits.clear();
@@ -70,7 +72,7 @@ namespace
     }
 }
 
-void GuerillaExpert::analyzeSituation(const std::vector<AbstractSpaceUnitBoundaryItem*>& units)
+void GuerillaExpert::analyzeSituation(int clusterIndex, const std::vector<AbstractSpaceUnitBoundaryItem*>& units)
 {
     std::vector<OwnUnitBoundaryItem*> ownUnits;
     std::vector<EnemyUnitBoundaryItem*> enemyUnits;
@@ -90,6 +92,18 @@ void GuerillaExpert::analyzeSituation(const std::vector<AbstractSpaceUnitBoundar
         return;
     }
 
+    #ifdef DEBUG_PRINT
+        static BWAPI::Color colors[] = { BWAPI::Colors::Red, BWAPI::Colors::Green, BWAPI::Colors::Yellow, BWAPI::Colors::Teal, BWAPI::Colors::Purple, 
+                                        BWAPI::Colors::Orange, BWAPI::Colors::Brown, BWAPI::Colors::White, BWAPI::Colors::Blue, BWAPI::Colors::Cyan, BWAPI::Colors::Grey };
+        static int numberOfColors = sizeof(colors) / sizeof(BWAPI::Color);
+        for (auto it : units) {
+            BWAPI::Position pos = it->getPosition();
+            BWAPI::Broodwar->drawCircleMap(pos.x(), pos.y(), 20, colors[clusterIndex % numberOfColors]);
+        }
+    #else
+        (void) clusterIndex;
+    #endif // DEBUG_PRINT
+
     double ownPower = valueOfUnits(ownUnits);
     double enemyPower = valueOfUnits(enemyUnits);
 
@@ -98,7 +112,9 @@ void GuerillaExpert::analyzeSituation(const std::vector<AbstractSpaceUnitBoundar
         return;
     }
 
-    std::cout << currentBlackboard->getLastUpdateTime() << ": Retreating " << ownUnits.size() << " units from " << enemyUnits.size() << " enemy units...\n";
+    #ifdef DEBUG_PRINT
+        std::cout << currentBlackboard->getLastUpdateTime() << ": Retreating " << ownUnits.size() << " units from " << enemyUnits.size() << " enemy units...\n";
+    #endif // DEBUG_PRINT
     retreat(ownUnits, enemyUnits);
 }
 
@@ -200,18 +216,25 @@ void GuerillaExpert::retreat(const std::vector<OwnUnitBoundaryItem*>& ownUnits, 
 void GuerillaExpert::retreatTo(OwnUnitBoundaryItem* ownUnit, BWAPI::Position pos)
 {
     auto provider = &ownUnit->provideUnit;
-    if (provider->isActiveConnection()) {
+    if (provider->isConnected()) {
         auto planItem = dynamic_cast<AbstractSimpleUnitPlanItem*>(provider->getConnectedPort()->getOwner());
         if (planItem == NULL)
-            return;
-        provider = &planItem->provideUnit;
-        if (provider->isActiveConnection())
             return;
         auto moveItem = dynamic_cast<MoveToPositionPlanItem*>(planItem);
         if ((moveItem != NULL) && (moveItem->getPosition().getDistance(pos) < 32.0))
             return;
-        currentBlackboard->terminate(planItem);
-        // ToDo: Copy active plan item...
+        if (provider->isActiveConnection()) {
+            provider = &planItem->provideUnit;
+            if (provider->isActiveConnection())
+                return;
+            currentBlackboard->terminate(planItem);
+            // ToDo: Copy active plan item (if not created by GuerillaExpert)...
+        }
+        if (provider->isConnected()) {
+            auto nextItem = dynamic_cast<AbstractSimpleUnitPlanItem*>(provider->getConnectedPort()->getOwner());
+            if ((nextItem != NULL) && (nextItem->creator == this))
+                currentBlackboard->removeItem(nextItem);
+        }
     }
 
     auto nextRequirePort = provider->getConnectedPort();

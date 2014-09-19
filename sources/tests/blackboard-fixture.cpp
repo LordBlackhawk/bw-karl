@@ -144,6 +144,13 @@ OwnUnitBoundaryItem* BlackboardFixture::createOwnUnitBoundaryItem(BWAPI::UnitTyp
     return result;
 }
 
+EnemyUnitBoundaryItem* BlackboardFixture::createEnemyUnitBoundaryItem(BWAPI::UnitType ut, BWAPI::Position pos)
+{
+    auto result = dynamic_cast<EnemyUnitBoundaryItem*>(createBoundaryItem(ut, static_cast<BWAPI::Player*>(NULL)+1, pos, BWAPI::TilePositions::Unknown));
+    BOOST_REQUIRE( result != NULL );
+    return result;
+}
+
 ResourceBoundaryItem* BlackboardFixture::createResourceBoundaryItem(BWAPI::TilePosition tp)
 {
     auto result = dynamic_cast<ResourceBoundaryItem*>(createBoundaryItem(BWAPI::UnitTypes::Resource_Mineral_Field, NULL, BWAPI::Positions::Unknown, tp));
