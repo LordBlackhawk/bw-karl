@@ -34,7 +34,7 @@ void GasTestingExpert::endTraversal()
 {
     if(needGas && !haveGas)
     {
-        LOG << std::cout<<"GasTestingExpert: need gas and have none -> build refinery!";
+        LOG << "GasTestingExpert: need gas and have none -> build refinery!";
         currentBlackboard->build(currentBlackboard->self()->getRace().getRefinery());
     }
 }
@@ -72,7 +72,7 @@ void GasTestingExpert::visitResourceBoundaryItem(ResourceBoundaryItem* item)
         haveGas=true;
         if(item->numberOfWorkers()<3)
         {
-            LOG<<"GasTestingExpert: found refinery with only "<<item->numberOfWorkers()<<" workers assigned, morphing another one.";
+            LOG << "GasTestingExpert: found refinery with only "<<item->numberOfWorkers()<<" workers assigned, morphing another one.";
             currentBlackboard->addItem(new GatherResourcesPlanItem(item, &currentBlackboard->morph(BWAPI::UnitTypes::Zerg_Drone)->provideUnit));
         }
     }
