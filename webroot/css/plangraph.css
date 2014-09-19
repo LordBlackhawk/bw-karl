@@ -118,3 +118,13 @@ span.active_indicator
     color: #666;
 }
 
+span.item_modify
+{
+    border-radius: 50%;
+    height: 36px;
+    padding: 4px;
+    border: 1px solid #666;
+    color: #DDD;
+    text-align: center;
+    background-color: gray;
+}

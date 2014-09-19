@@ -104,6 +104,10 @@ namespace
                 return "executing";
             case AbstractPlanItem::Status::Failed:
                 return "failed";
+            case AbstractPlanItem::Status::Finished:
+                return "finished";
+            case AbstractPlanItem::Status::Terminated:
+                return "terminated";
             default:
                 return "unknown";
         }
@@ -440,6 +444,7 @@ namespace
                     mg_printf_data(conn, "\"items\":{");
                     count=0;
                     WebGUIOutputVisitor outputVisitor(conn);
+
                     for(auto it:currentBlackboard->getItems())
                     {
                         AbstractPlanItem *item=it;
@@ -642,6 +647,53 @@ namespace
                     }
                     else
                         mg_printf_data(conn,"err: unknown planitem type '%s'!",type.c_str());
+                }
+
+                return MG_TRUE;
+            }
+            else if(strcmp(conn->uri,"/terminate")==0)
+            {
+                std::string itemID;
+
+                mg_send_header(conn, "Content-Type", "text/plain");
+
+                if(!webgui)
+                {
+                    mg_printf_data(conn,"err: not in game.");
+                    return MG_TRUE;
+                }
+
+                if(get_request_string(conn,"itemID",itemID))
+                {
+                    if(itemID!="")
+                    {
+                        LOG << "WebGUIExpert: terminate: ("<<itemID<<");";
+                        try
+                        {
+                            AbstractPlanItem *item=dynamic_cast<AbstractPlanItem*>((AbstractPlanItem*)std::strtoul(itemID.c_str(),0,16));
+
+                            LOG << "WebGUIExpert: parsed as: "<<item<<"";
+
+                            if(currentBlackboard->includesItem(item))
+                            {
+                                LOG << "WebGUIExpert: terminating.";
+                                currentBlackboard->terminate(item);
+                                mg_printf_data(conn,"ok");
+                            }
+                            else
+                            {
+                                LOG << "WebGUIExpert: not in currentBlackboard.";
+                                mg_printf_data(conn,"err: no such item.");
+                            }
+
+                        }catch(std::exception& e)
+                        {
+                            LOG << " exception: " << e.what();
+                            mg_printf_data(conn,"err: internal error: %s",e.what());
+                        }
+                    }
+                    else
+                        mg_printf_data(conn,"err: unknown itemID '%s'!",itemID.c_str());
                 }
 
                 return MG_TRUE;
