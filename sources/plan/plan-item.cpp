@@ -206,6 +206,11 @@ void Blackboard::removeExpert(AbstractExpert* expert)
     experts.erase(std::remove(experts.begin(), experts.end(), expert), experts.end());
 }
 
+void Blackboard::setActiveExpert(AbstractExpert* expert)
+{
+    activeExpert = expert;
+}
+
 AbstractBoundaryItem* Blackboard::lookupUnit(BWAPI::Unit* unit) const
 {
     auto it = unitBoundaries.find(unit);

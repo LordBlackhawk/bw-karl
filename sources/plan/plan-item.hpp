@@ -141,6 +141,7 @@ class Blackboard : public BasicEventVisitor
 
         void addExpert(AbstractExpert* expert);
         void removeExpert(AbstractExpert* expert);
+        void setActiveExpert(AbstractExpert* expert);
 
         void prepare();
         void recalculateEstimatedTimes();

@@ -25,6 +25,7 @@ void SecureExpert::prepare()
 bool SecureExpert::tick(Blackboard* blackboard)
 {
     try {
+        blackboard->setActiveExpert(expert);
         return expert->tick(blackboard);
     } catch (std::exception& e) {
         LOG << blackboard->getLastUpdateTime() << ": Expert '" << name << "' raised exception '" << e.what() << "' while 'tick'.";

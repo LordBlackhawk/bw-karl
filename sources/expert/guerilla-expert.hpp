@@ -15,7 +15,7 @@ class GuerillaExpert : public BasicExpert
 
     protected:
         std::vector<AbstractSpaceUnitBoundaryItem*>   allUnits;
-        void analyzeSituation(const std::vector<AbstractSpaceUnitBoundaryItem*>& units);
+        void analyzeSituation(int clusterIndex, const std::vector<AbstractSpaceUnitBoundaryItem*>& units);
         void cleanup(const std::vector<OwnUnitBoundaryItem*>& ownUnits);
         void retreat(const std::vector<OwnUnitBoundaryItem*>& ownUnits, const std::vector<EnemyUnitBoundaryItem*>& enemyUnits);
         void retreatTo(OwnUnitBoundaryItem* ownUnit, BWAPI::Position pos);

@@ -201,7 +201,8 @@ bool BuildingPlacementExpert::buildable(int x, int y)
 
 bool BuildingPlacementExpert::movable(int x, int y)
 {
-    return buildable(x, y);
+    auto& field = currentBlackboard->getInformations()->fields[x][y];
+    return field.isMovable();
 }
 
 bool BuildingPlacementExpert::isResourceAt(int x, int y)

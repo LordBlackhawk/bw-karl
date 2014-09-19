@@ -66,6 +66,7 @@ class BlackboardFixture
         AbstractBoundaryItem* createBoundaryItem(BWAPI::UnitType ut, BWAPI::Position pos);
         AbstractBoundaryItem* createBoundaryItem(BWAPI::UnitType ut);
         OwnUnitBoundaryItem* createOwnUnitBoundaryItem(BWAPI::UnitType ut, BWAPI::Position pos = BWAPI::Positions::Unknown);
+        EnemyUnitBoundaryItem* createEnemyUnitBoundaryItem(BWAPI::UnitType ut, BWAPI::Position pos = BWAPI::Positions::Unknown);
         ResourceBoundaryItem* createResourceBoundaryItem(BWAPI::TilePosition tp);
         void destroyBoundaryItem(AbstractBoundaryItem* item);
         void setupFields();
