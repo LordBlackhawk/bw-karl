@@ -68,6 +68,8 @@ void BlackboardInformations::prepare()
         baselocation->origin = base;
         for (auto unit : base->getMinerals())
             baselocation->minerals.insert(new ResourceBoundaryItem(unit, unit->getType(), this, baselocation));
+        for (auto unit : base->getGeysers())    //FIXME: is it a good idea to create new BoundaryItems besides the ones already in the plan?
+            baselocation->geysers.insert(new ResourceBoundaryItem(unit, unit->getType(), this, baselocation));
         allBaseLocations.insert(baselocation);
         if (base == mybase)
             ownBaseLocations.insert(baselocation);

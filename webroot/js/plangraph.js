@@ -130,7 +130,11 @@ function plangraphInit()
                             break;
 
                         case "Resource":
-                            label=port.data.minerals?"minerals: "+port.data.minerals+" ":""+port.data.gas?"gas: "+port.data.gas:"";
+                            label="";
+                            if(port.data.minerals)
+                                label+=" minerals: "+port.data.minerals;
+                            if(port.data.gas)
+                                label+=" gas: "+port.data.gas;
                             break;
 
                         case "Supply":
@@ -169,7 +173,9 @@ function plangraphInit()
                     case "Resource":
                         if(config.skipResources)
                             return;
-                        label=getShortUnitType(item.data.unitType)+" ("+item.data.unitID+")"+"<br />"+"worker: "+item.data.numberOfWorkers+", minerals: "+item.data.mineralsLeft;
+                        label=getShortUnitType(item.data.unitType)+" ("+item.data.unitID+")"+"<br />"+"worker: "+item.data.numberOfWorkers;
+                        if(item.data.mineralsLeft>0)label+=", minerals: "+item.data.mineralsLeft;
+                        if(item.data.gasLeft>0)label+=", gas: "+item.data.gasLeft;
                         break;
 
                     case "MorphUnit":
@@ -185,7 +191,7 @@ function plangraphInit()
                         label="Attack: "+getPositionString(item.data.pos);
                         break;
 
-                    case "GatherMinerals":
+                    case "GatherResources":
                     case "AttackUnit":
                         label=item.name;
                         break;

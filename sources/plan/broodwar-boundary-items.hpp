@@ -46,10 +46,11 @@ class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem
         ~ResourceBoundaryItem();
 
         void acceptVisitor(AbstractVisitor* visitor) override;
-        void visitMineralUpdateEvent(MineralUpdateEvent* event) override;
+        void visitResourceUpdateEvent(ResourceUpdateEvent* event) override;
 
         int numberOfWorkers() const;
         inline int mineralsLeft() const { return minerals; }
+        inline int gasLeft() const { return gas; }
         inline Time getLastSeen() const { return lastSeen; }
         inline BWAPI::Position getPosition() const { return BWAPI::Position(getTilePosition()); }
         inline bool isVisible() const { return lastSeen > info->lastUpdateTime - 5; }
@@ -59,6 +60,7 @@ class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem
         Time                    lastSeen;
         BaseLocation*           base;
         int                     minerals;
+        int                     gas;
 };
 
 class EnemyUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem

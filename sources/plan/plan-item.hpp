@@ -114,7 +114,7 @@ class EnemyUnitBoundaryItem;
 
 class BuildPlanItem;
 class MorphUnitPlanItem;
-class GatherMineralsPlanItem;
+class GatherResourcesPlanItem;
 class MoveToPositionPlanItem;
 class AttackUnitPlanItem;
 class AttackPositionPlanItem;
@@ -158,7 +158,7 @@ class Blackboard : public BasicEventVisitor
         AbstractPlanItem* create(BWAPI::UnitType ut);
         BuildPlanItem* build(BWAPI::UnitType ut);
         MorphUnitPlanItem* morph(BWAPI::UnitType ut);
-        GatherMineralsPlanItem* gather(ProvideUnitPort* provider, ResourceBoundaryItem* m);
+        GatherResourcesPlanItem* gather(ProvideUnitPort* provider, ResourceBoundaryItem* m);
         MoveToPositionPlanItem* move(ProvideUnitPort* provider, BWAPI::Position p);
         MoveToPositionPlanItem* move(ProvideUnitPort* provider, BWAPI::TilePosition tp);
         AttackUnitPlanItem* attack(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy);

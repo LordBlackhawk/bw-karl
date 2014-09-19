@@ -11,7 +11,7 @@ class WorkerExpert : public BasicPortExpert
 
         void visitProvideUnitPort(ProvideUnitPort* port) override;
         void visitRequireUnitPort(RequireUnitPort* port) override;
-        void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) override;
+        void visitGatherResourcesPlanItem(GatherResourcesPlanItem* item) override;
 
         void beginTraversal() override;
         void endTraversal() override;

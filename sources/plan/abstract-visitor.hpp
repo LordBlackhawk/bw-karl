@@ -8,8 +8,8 @@ class ProvideUnitPort;
 class RequireUnitPort;
 class ResourcePort;
 class SupplyPort;
-class ProvideMineralFieldPort;
-class RequireMineralFieldPort;
+class ProvideResourcePort;
+class RequireResourcePort;
 class RequireSpacePort;
 class ProvideEnemyUnitPort;
 class RequireEnemyUnitPort;
@@ -22,7 +22,7 @@ class ResourceBoundaryItem;
 class EnemyUnitBoundaryItem;
 
 class AbstractPlanItem;
-class GatherMineralsPlanItem;
+class GatherResourcesPlanItem;
 class MorphUnitPlanItem;
 class MoveToPositionPlanItem;
 class BuildPlanItem;
@@ -37,8 +37,8 @@ class AbstractVisitor
         virtual void visitRequireUnitPort(RequireUnitPort* port) = 0;
         virtual void visitResourcePort(ResourcePort* port) = 0;
         virtual void visitSupplyPort(SupplyPort* port) = 0;
-        virtual void visitProvideMineralFieldPort(ProvideMineralFieldPort* port) = 0;
-        virtual void visitRequireMineralFieldPort(RequireMineralFieldPort* port) = 0;
+        virtual void visitProvideResourcePort(ProvideResourcePort* port) = 0;
+        virtual void visitRequireResourcePort(RequireResourcePort* port) = 0;
         virtual void visitRequireSpacePort(RequireSpacePort* port) = 0;
         virtual void visitProvideEnemyUnitPort(ProvideEnemyUnitPort* port) = 0;
         virtual void visitRequireEnemyUnitPort(RequireEnemyUnitPort* port) = 0;
@@ -51,7 +51,7 @@ class AbstractVisitor
         virtual void visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item) = 0;
 
         virtual void visitAbstractPlanItem(AbstractPlanItem* item) = 0;
-        virtual void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) = 0;
+        virtual void visitGatherResourcesPlanItem(GatherResourcesPlanItem* item) = 0;
         virtual void visitMorphUnitPlanItem(MorphUnitPlanItem* item) = 0;
         virtual void visitMoveToPositionPlanItem(MoveToPositionPlanItem* item) = 0;
         virtual void visitBuildPlanItem(BuildPlanItem* item) = 0;
@@ -68,8 +68,8 @@ class BasicVisitor : public AbstractVisitor
         void visitRequireUnitPort(RequireUnitPort* port) override;
         void visitResourcePort(ResourcePort* port) override;
         void visitSupplyPort(SupplyPort* port) override;
-        void visitProvideMineralFieldPort(ProvideMineralFieldPort* port) override;
-        void visitRequireMineralFieldPort(RequireMineralFieldPort* port) override;
+        void visitProvideResourcePort(ProvideResourcePort* port) override;
+        void visitRequireResourcePort(RequireResourcePort* port) override;
         void visitRequireSpacePort(RequireSpacePort* port) override;
         void visitProvideEnemyUnitPort(ProvideEnemyUnitPort* port) override;
         void visitRequireEnemyUnitPort(RequireEnemyUnitPort* port) override;
@@ -82,7 +82,7 @@ class BasicVisitor : public AbstractVisitor
         void visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item) override;
 
         void visitAbstractPlanItem(AbstractPlanItem* item) override;
-        void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) override;
+        void visitGatherResourcesPlanItem(GatherResourcesPlanItem* item) override;
         void visitMorphUnitPlanItem(MorphUnitPlanItem* item) override;
         void visitMoveToPositionPlanItem(MoveToPositionPlanItem* item) override;
         void visitBuildPlanItem(BuildPlanItem* item) override;

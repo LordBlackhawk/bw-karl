@@ -10,7 +10,7 @@ void ResourceExpert::visitResourcePort(ResourcePort* port)
     resources.push_back(port);
 }
 
-void ResourceExpert::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
+void ResourceExpert::visitGatherResourcesPlanItem(GatherResourcesPlanItem* item)
 {
     if (!item->isImpossible())
         worker.push_back(item);

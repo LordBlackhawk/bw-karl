@@ -7,8 +7,8 @@
 class AbstractAction;
 class ProvideUnitPort;
 class RequireUnitPort;
-class ProvideMineralFieldPort;
-class RequireMineralFieldPort;
+class ProvideResourcePort;
+class RequireResourcePort;
 
 class ProvideUnitPort final : public BasicPortImpl<ProvideUnitPort, RequireUnitPort, false, false>
 {
@@ -98,20 +98,20 @@ class SupplyPort final : public AbstractPort
 
 class ResourceBoundaryItem;
 
-class ProvideMineralFieldPort final : public BasicPortImpl<ProvideMineralFieldPort, RequireMineralFieldPort, false, true>
+class ProvideResourcePort final : public BasicPortImpl<ProvideResourcePort, RequireResourcePort, false, true>
 {
     public:
-        ProvideMineralFieldPort(ResourceBoundaryItem* o);
+        ProvideResourcePort(ResourceBoundaryItem* o);
         void acceptVisitor(AbstractVisitor* visitor) override;
 
         BWAPI::Unit* getUnit() const;
         ResourceBoundaryItem* getOwner() const;
 };
 
-class RequireMineralFieldPort final : public BasicPortImpl<RequireMineralFieldPort, ProvideMineralFieldPort, true, false>
+class RequireResourcePort final : public BasicPortImpl<RequireResourcePort, ProvideResourcePort, true, false>
 {
     public:
-        RequireMineralFieldPort(AbstractItem* o, ResourceBoundaryItem* m);
+        RequireResourcePort(AbstractItem* o, ResourceBoundaryItem* m);
         void acceptVisitor(AbstractVisitor* visitor) override;
 
         inline BWAPI::Unit* getUnit() const { return connection->getUnit(); }

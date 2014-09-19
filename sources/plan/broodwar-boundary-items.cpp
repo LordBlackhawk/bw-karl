@@ -70,7 +70,8 @@ ResourceBoundaryItem::ResourceBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, B
       info(i),
       lastSeen(-1),
       base(b),
-      minerals(-1)
+      minerals(-1),
+      gas(-1)
 { }
 
 ResourceBoundaryItem::~ResourceBoundaryItem()
@@ -84,17 +85,23 @@ void ResourceBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitResourceBoundaryItem(this);
 }
 
-void ResourceBoundaryItem::visitMineralUpdateEvent(MineralUpdateEvent* event)
+void ResourceBoundaryItem::visitResourceUpdateEvent(ResourceUpdateEvent* event)
 {
     lastSeen = info->lastUpdateTime;
-    minerals = event->minerals;
+
+    if(getUnitType().isMineralField())
+        minerals = event->resources;
+    else
+    {
+        gas = event->resources;
+    }
 }
 
 int ResourceBoundaryItem::numberOfWorkers() const
 {
     int result = 0;
     for (auto port : ports)
-        if (dynamic_cast<ProvideMineralFieldPort*>(port) != NULL)
+        if (dynamic_cast<ProvideResourcePort*>(port) != NULL)
             ++result;
     return result;
 }

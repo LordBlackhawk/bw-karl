@@ -139,36 +139,36 @@ void SupplyPort::updateEstimates()
     }
 }
 
-ProvideMineralFieldPort::ProvideMineralFieldPort(ResourceBoundaryItem* o)
+ProvideResourcePort::ProvideResourcePort(ResourceBoundaryItem* o)
     : BaseClass(o)
 {
     estimatedTime = ACTIVE_TIME;
 }
 
-void ProvideMineralFieldPort::acceptVisitor(AbstractVisitor* visitor)
+void ProvideResourcePort::acceptVisitor(AbstractVisitor* visitor)
 {
-    visitor->visitProvideMineralFieldPort(this);
+    visitor->visitProvideResourcePort(this);
 }
 
-BWAPI::Unit* ProvideMineralFieldPort::getUnit() const
+BWAPI::Unit* ProvideResourcePort::getUnit() const
 {
     return getOwner()->getUnit();
 }
 
-ResourceBoundaryItem* ProvideMineralFieldPort::getOwner() const
+ResourceBoundaryItem* ProvideResourcePort::getOwner() const
 {
     return static_cast<ResourceBoundaryItem*>(owner);
 }
 
-RequireMineralFieldPort::RequireMineralFieldPort(AbstractItem* o, ResourceBoundaryItem* m)
+RequireResourcePort::RequireResourcePort(AbstractItem* o, ResourceBoundaryItem* m)
     : BaseClass(o)
 {
-    connectTo(new ProvideMineralFieldPort(m));
+    connectTo(new ProvideResourcePort(m));
 }
 
-void RequireMineralFieldPort::acceptVisitor(AbstractVisitor* visitor)
+void RequireResourcePort::acceptVisitor(AbstractVisitor* visitor)
 {
-    visitor->visitRequireMineralFieldPort(this);
+    visitor->visitRequireResourcePort(this);
 }
 
 RequireSpacePort::RequireSpacePort(AbstractItem* o, Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p)

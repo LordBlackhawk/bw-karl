@@ -237,9 +237,9 @@ MorphUnitPlanItem* Blackboard::morph(BWAPI::UnitType ut)
     return result;
 }
 
-GatherMineralsPlanItem* Blackboard::gather(ProvideUnitPort* provider, ResourceBoundaryItem* m)
+GatherResourcesPlanItem* Blackboard::gather(ProvideUnitPort* provider, ResourceBoundaryItem* m)
 {
-    auto result = new GatherMineralsPlanItem(m, provider);
+    auto result = new GatherResourcesPlanItem(m, provider);
     addItem(result);
     return result;
 }
@@ -367,8 +367,8 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
 
     BWAPI::Player* neutral = BWAPI::Broodwar->neutral();
     for (auto unit : BWAPI::Broodwar->getAllUnits()) {
-        if (unit->getType().isMineralField()) {
-            engine->generateEvent(new MineralUpdateEvent(unit, unit->getResources()));
+        if (unit->getType().isMineralField() || unit->getType().isRefinery() || unit->getType()==BWAPI::UnitTypes::Resource_Vespene_Geyser) {
+            engine->generateEvent(new ResourceUpdateEvent(unit, unit->getResources()));
         } else if (unit->getPlayer() != neutral) {
             engine->generateEvent(new SimpleUnitUpdateEvent(unit, unit->getPosition()));
         }

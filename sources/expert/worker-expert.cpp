@@ -43,8 +43,8 @@ void WorkerExpert::visitProvideUnitPort(ProvideUnitPort* port)
 
     auto mineral = findMineralForWorker(port);
     if (mineral != NULL) {
-        //LOG << currentBlackboard->getLastUpdateTime() << ": Add GatherMineralPlanItem...";
-        auto newItem = new GatherMineralsPlanItem(mineral, port);
+        //LOG << currentBlackboard->getLastUpdateTime() << ": Add GatherResourcesPlanItem...";
+        auto newItem = new GatherResourcesPlanItem(mineral, port);
         currentBlackboard->addItem(newItem);
         providePorts.insert(&newItem->provideUnit);
     } else {
@@ -65,15 +65,15 @@ void WorkerExpert::visitRequireUnitPort(RequireUnitPort* port)
     providePorts.erase(it);
 }
 
-void WorkerExpert::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
+void WorkerExpert::visitGatherResourcesPlanItem(GatherResourcesPlanItem* item)
 {
-    if (!item->requireUnit.isConnected() || !item->requireMineralField.isConnected()) {
+    if (!item->requireUnit.isConnected() || !item->requireResource.isConnected()) {
         if (!item->isActive())
             currentBlackboard->removeItem(item);
         return;
     }
 
-    BasicPortExpert::visitGatherMineralPlanItem(item);
+    BasicPortExpert::visitGatherResourcesPlanItem(item);
 }
 
 void WorkerExpert::endTraversal()
