@@ -202,8 +202,6 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
 			double cosAngle = (pos.x() - myPos.x())/dist;
 			double sinAngle = (pos.y() - myPos.y())/dist;
 			double currentAngle = unit->getAngle();
-			int fghj= round(100*std::abs(cos(currentAngle) - cosAngle));
-			int fghj2= round(100*std::abs(sin(currentAngle) - sinAngle));
 			if ((std::abs(cos(currentAngle) - cosAngle) + std::abs(sin(currentAngle) - sinAngle)) > 0.1)
 				{
 					double angle = atan2(sinAngle, cosAngle);
