@@ -33,7 +33,7 @@
 #include "plan/broodwar-ports.hpp"
 #include "plan/broodwar-plan-items.hpp"
 #include "plan/broodwar-boundary-items.hpp"
-#include <boost/program_options.hpp>
+#include "utils/options.hpp"
 #include <algorithm>
 #include <sstream>
 #include <fstream>
@@ -42,14 +42,12 @@
 
 REGISTER_EXPERT(ReportExpert)
 
-namespace po = boost::program_options;
-
 namespace
 {
     int reportInterval = 0;
 }
 
-boost::program_options::options_description ReportExpert::getOptions()
+DEF_OPTIONS
 {
     po::options_description options("Report options");
     options.add_options()

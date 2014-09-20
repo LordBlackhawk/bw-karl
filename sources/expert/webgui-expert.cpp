@@ -1,13 +1,12 @@
 #include "webgui-expert.hpp"
 #include "utils/log.hpp"
 #include "utils/assert-throw.hpp"
+#include "utils/options.hpp"
 #include "plan/broodwar-ports.hpp"
 #include "plan/broodwar-plan-items.hpp"
 #include "plan/broodwar-boundary-items.hpp"
 #include "expert-registrar.hpp"
 #include "engine/broodwar-actions.hpp"
-
-REGISTER_EXPERT(WebGUIExpert);
 
 #include <mongoose.hpp>
 
@@ -16,6 +15,18 @@ REGISTER_EXPERT(WebGUIExpert);
 #include <string>
 #include <typeinfo>
 #include <sstream>
+
+REGISTER_EXPERT(WebGUIExpert)
+
+DEF_OPTIONS
+{
+    po::options_description options("WebGUI options");
+    options.add_options()
+            ("webgui",      po::bool_switch(&WebGUIExpert::enabled),                    "Enable WebGUI.")
+            ("port",        po::value<int>(&WebGUIExpert::port)->default_value(8080),   "TCP/IP port for WebGUI.")
+        ;
+    return options;
+}
 
 namespace 
 {
@@ -670,7 +681,7 @@ namespace
                         LOG << "WebGUIExpert: terminate: ("<<itemID<<");";
                         try
                         {
-                            AbstractPlanItem *item=dynamic_cast<AbstractPlanItem*>((AbstractPlanItem*)std::strtoul(itemID.c_str(),0,16));
+                            AbstractPlanItem *item=(AbstractPlanItem*)std::strtoul(itemID.c_str(),0,16);
 
                             LOG << "WebGUIExpert: parsed as: "<<item<<"";
 
@@ -719,6 +730,7 @@ WebGUIExpert::~WebGUIExpert()
 }
 
 bool WebGUIExpert::enabled = false;
+int  WebGUIExpert::port = 8080;
 bool WebGUIExpert::isApplicable(Blackboard* /*blackboard*/)
 {
     return WebGUIExpert::enabled;
@@ -754,7 +766,7 @@ bool WebGUIExpert::pauseGame = false;
 void WebGUIExpert::interruptEngineExecution(Blackboard* blackboard)
 {
     interruptLoopRunning=true;
-    std::cout << "\n###### execution interrupted, WebGUI active on port 8080 ######\n";
+    std::cout << "\n###### execution interrupted, WebGUI active on port " << port << " ######\n";
     pauseGame = true;
     while(interruptLoopRunning)
     {
@@ -769,9 +781,11 @@ void WebGUIExpert::initialize()
 {
     if(WebGUIExpert::enabled && server==NULL)
     {
+        std::stringstream stream;
+        stream << port;
         server = mg_create_server(NULL, event_handler);
-        mg_set_option(server, "document_root", "webroot");      // Serve current directory
-        mg_set_option(server, "listening_port", "8080");  // Open port 8080
+        mg_set_option(server, "document_root", "webroot");              // Serve current directory
+        mg_set_option(server, "listening_port", stream.str().c_str());  // Open port 8080
     }
 }
 

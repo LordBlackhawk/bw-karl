@@ -2,6 +2,7 @@
 #include "broodwar-events.hpp"
 #include "utils/log.hpp"
 #include "utils/bw-helper.hpp"
+#include "utils/options.hpp"
 #include <cstring>
 
 UnitAction::UnitAction(BWAPI::Unit* u, AbstractAction* pre)
@@ -10,6 +11,8 @@ UnitAction::UnitAction(BWAPI::Unit* u, AbstractAction* pre)
 
 void UnitAction::drawInformations(const char* name)
 {
+    if (!OptionsRegistrar::optHUD())
+        return;
     BWAPI::Position pos = unit->getPosition();
     BWAPI::Broodwar->drawTextMap(pos.x() - 2*strlen(name), pos.y(), "%s", name);
 }
@@ -177,7 +180,8 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
         return Finished;
 
     drawInformations("moving");
-    BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), pos.x(), pos.y(), BWAPI::Colors::Green);
+    if (OptionsRegistrar::optHUD())
+        BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), pos.x(), pos.y(), BWAPI::Colors::Green);
     if (unit->isMoving())
         return Running;
     
@@ -208,7 +212,8 @@ AttackPositionAction::Status AttackPositionAction::onTick(AbstractExecutionEngin
         return Finished;
 
     drawInformations("attackingPosition");
-    BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), pos.x(), pos.y(), BWAPI::Colors::Green);
+    if (OptionsRegistrar::optHUD())
+        BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), pos.x(), pos.y(), BWAPI::Colors::Green);
     if(!unit->isIdle())
         return Running;
 
@@ -238,9 +243,11 @@ AttackUnitAction::Status AttackUnitAction::onTick(AbstractExecutionEngine* /*eng
         return Finished;
 
     drawInformations("attackingUnit");
-    BWAPI::Position myPos = unit->getPosition();
-    BWAPI::Position pos = e->getPosition();
-    BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), pos.x(), pos.y(), BWAPI::Colors::Green);
+    if (OptionsRegistrar::optHUD()) {
+        BWAPI::Position myPos = unit->getPosition();
+        BWAPI::Position pos = e->getPosition();
+        BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), pos.x(), pos.y(), BWAPI::Colors::Green);
+    }
     if (!unit->isIdle())
         return Running;
 

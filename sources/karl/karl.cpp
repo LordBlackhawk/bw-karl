@@ -1,6 +1,7 @@
 #include "utils/myseh.hpp"
 #include "utils/log.hpp"
 #include "utils/thread.hpp"
+#include "utils/options.hpp"
 #include "engine/default-execution-engine.hpp"
 #include "engine/mutex-execution-engine.hpp"
 #include "engine/broodwar-actions.hpp"
@@ -8,27 +9,20 @@
 #include "plan/broodwar-plan-items.hpp"
 #include "plan/broodwar-boundary-items.hpp"
 #include "expert/expert-registrar.hpp"
-#include "expert/report-expert.hpp"
-
 #include "expert/webgui-expert.hpp"
 
 #include <BWAPI.h>
 #include <BWAPI/Client.h>
 #include <BWTA.h>
 
-#include <boost/program_options.hpp>
-
 #include <windows.h>
 #include <time.h>
 #include <iostream>
 
 using namespace BWAPI;
-namespace po = boost::program_options;
 
 namespace
 {
-    bool doParallel = false;
-
     class ExpertThread : public Thread
     {
         public:
@@ -61,14 +55,14 @@ namespace
             {
                 engine = defaultEngine = new DefaultExecutionEngine();
 
-                if (doParallel)
+                if (OptionsRegistrar::optParallel())
                     engine = new MutexExecutionEngine(engine);
 
                 blackboard = new Blackboard(engine);
                 ExpertRegistrar::prepareBlackboard(blackboard);
                 blackboard->prepare();
 
-                if (doParallel)
+                if (OptionsRegistrar::optParallel())
                     thread = new ExpertThread(blackboard);
             }
 
@@ -142,9 +136,6 @@ namespace
         }
     }
 
-    bool showhud = false;
-    int speed = 0;
-
     void mainLoop()
     {
         LOG << "Parameter loading...";
@@ -152,7 +143,7 @@ namespace
 
         LOG << "Setup of BWAPI...";
         BWAPI::BWAPI_init();
-        
+
         WebGUIExpert::initialize();
 
         LOG << "Connecting...";
@@ -173,11 +164,11 @@ namespace
             LOG << "Starting match...";
             Broodwar->sendText("Hello world from Karl 3.0!");
             Broodwar->enableFlag(Flag::UserInput);
-            Broodwar->setLocalSpeed(speed);
+            Broodwar->setLocalSpeed(OptionsRegistrar::optSpeed());
 
             AI ai;
             while (Broodwar->isInGame()) {
-                if (showhud)
+                if (OptionsRegistrar::optHUD())
                     ai.drawHUD();
                 if (Broodwar->isPaused()) {
                     if (!WebGUIExpert::pauseGame)
@@ -191,49 +182,16 @@ namespace
             }
             LOG << "Game ended.\n";
         }
-        
+
         WebGUIExpert::quit(); //FIXME: won't get here anyways...
     }
 }
 
 int main(int argc, char* argv[])
 {
-    bool showhelp       = false;
-    bool writelogfiles  = false;
+    OptionsRegistrar::evaluateOptions(argc, argv);
 
-    po::options_description general("General options");
-    general.add_options()
-            ("help",        po::bool_switch(&showhelp),                 "Show this help message.")
-            ("log",         po::bool_switch(&writelogfiles),            "Write log files on windows exceptions.")
-            ("hud",         po::bool_switch(&showhud),                  "Show HUD.")
-            ("speed",       po::value<int>(&speed)->default_value(0),   "Set game speed (-1 = default, 0 maximum speed, ...)")
-            ("parallel",    po::bool_switch(&doParallel),               "Run experts parallel to StarCraft.")
-            ("webgui",      po::bool_switch(&WebGUIExpert::enabled),    "Enable WebGUI on port 8080.")
-        ;
-
-    po::options_description all("All options");
-    all.add(general);
-    all.add(ExpertRegistrar::getOptions());
-    all.add(ReportExpert::getOptions());
-
-    try {
-        po::variables_map vm;
-        po::store(po::command_line_parser(argc, argv).options(all).run(), vm);
-        po::notify(vm);
-    } catch (po::error& e) {
-        std::cout << e.what() << "\n\n" << all;
-        return 1;
-    }
-
-    if (showhelp) {
-        std::cout << all;
-        ExpertRegistrar::listExperts(std::cout);
-        return 0;
-    }
-
-    ExpertRegistrar::evaluateOptions();
-
-    seh::Registrar handler(argv[0], writelogfiles ? "./logs/" : NULL);
+    seh::Registrar handler(argv[0], OptionsRegistrar::optLog() ? "./logs/" : NULL);
     try {
         mainLoop();
     } catch (std::exception& e) {

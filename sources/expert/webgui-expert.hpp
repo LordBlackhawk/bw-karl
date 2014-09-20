@@ -12,6 +12,7 @@ class WebGUIExpert : public BasicExpert
         inline Blackboard *getCurrentBlackboard() { return currentBlackboard; }
 
         static bool enabled;
+        static int  port;
         static bool pauseGame;
         static bool isApplicable(Blackboard* blackboard);
         

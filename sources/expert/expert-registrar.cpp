@@ -1,10 +1,8 @@
 #include "expert-registrar.hpp"
 #include "secure-expert.hpp"
 #include "utils/log.hpp"
-#include <boost/program_options.hpp>
+#include "utils/options.hpp"
 #include <algorithm>
-
-namespace po = boost::program_options;
 
 namespace
 {
@@ -47,7 +45,7 @@ void ExpertRegistrar::prepareBlackboard(Blackboard* blackboard)
     }
 }
 
-boost::program_options::options_description ExpertRegistrar::getOptions()
+DEF_OPTIONS
 {
     po::options_description options("Expert options");
     options.add_options()
@@ -57,7 +55,7 @@ boost::program_options::options_description ExpertRegistrar::getOptions()
     return options;
 }
 
-void ExpertRegistrar::evaluateOptions()
+DEF_OPTION_EVENT(onEvaluate)
 {
     auto& map = instance();
     for (auto name : disabledExperts) {
@@ -71,11 +69,11 @@ void ExpertRegistrar::evaluateOptions()
     disabledExperts.clear();
 }
 
-void ExpertRegistrar::listExperts(std::ostream& stream)
+DEF_OPTION_EVENT(onHelp)
 {
     std::cout << "\nExpert names:\n\n";
     auto& map = instance();
     for (auto it : map) {
-        stream << "  " << it.first << "\n";
+        std::cout << "  " << it.first << "\n";
     }
 }

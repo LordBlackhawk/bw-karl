@@ -2,10 +2,10 @@
 #include "expert-registrar.hpp"
 #include "plan/broodwar-boundary-items.hpp"
 #include "utils/bw-helper.hpp"
+#include "utils/options.hpp"
 #include <algorithm>
 
 #define M_PI 3.141592653589793238462643383279502884L
-//#define DEBUG_PRINT
 
 REGISTER_EXPERT(GuerillaExpert)
 
@@ -92,7 +92,7 @@ void GuerillaExpert::analyzeSituation(int clusterIndex, const std::vector<Abstra
         return;
     }
 
-    #ifdef DEBUG_PRINT
+    if (OptionsRegistrar::optHUD() && !OptionsRegistrar::optParallel()) {
         static BWAPI::Color colors[] = { BWAPI::Colors::Red, BWAPI::Colors::Green, BWAPI::Colors::Yellow, BWAPI::Colors::Teal, BWAPI::Colors::Purple, 
                                         BWAPI::Colors::Orange, BWAPI::Colors::Brown, BWAPI::Colors::White, BWAPI::Colors::Blue, BWAPI::Colors::Cyan, BWAPI::Colors::Grey };
         static int numberOfColors = sizeof(colors) / sizeof(BWAPI::Color);
@@ -100,9 +100,7 @@ void GuerillaExpert::analyzeSituation(int clusterIndex, const std::vector<Abstra
             BWAPI::Position pos = it->getPosition();
             BWAPI::Broodwar->drawCircleMap(pos.x(), pos.y(), 20, colors[clusterIndex % numberOfColors]);
         }
-    #else
-        (void) clusterIndex;
-    #endif // DEBUG_PRINT
+    }
 
     double ownPower = valueOfUnits(ownUnits);
     double enemyPower = valueOfUnits(enemyUnits);
@@ -112,9 +110,7 @@ void GuerillaExpert::analyzeSituation(int clusterIndex, const std::vector<Abstra
         return;
     }
 
-    #ifdef DEBUG_PRINT
-        std::cout << currentBlackboard->getLastUpdateTime() << ": Retreating " << ownUnits.size() << " units from " << enemyUnits.size() << " enemy units...\n";
-    #endif // DEBUG_PRINT
+    //std::cout << currentBlackboard->getLastUpdateTime() << ": Retreating " << ownUnits.size() << " units from " << enemyUnits.size() << " enemy units...\n";
     retreat(ownUnits, enemyUnits);
 }
 

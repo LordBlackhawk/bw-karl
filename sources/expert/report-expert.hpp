@@ -2,14 +2,6 @@
 
 #include "basic-expert.hpp"
 
-namespace boost
-{
-    namespace program_options
-    {
-        class options_description;
-    }
-}
-
 class ReportExpert final : public BasicExpert
 {
     public:
@@ -19,8 +11,6 @@ class ReportExpert final : public BasicExpert
         bool tick(Blackboard* blackboard) override;
 
         static bool isApplicable(Blackboard* blackboard);
-
-        static boost::program_options::options_description getOptions();
 
     protected:
         int nextReportTime;
