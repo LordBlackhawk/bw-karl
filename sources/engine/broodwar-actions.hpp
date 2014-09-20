@@ -56,6 +56,7 @@ class MoveToPositionAction : public UnitAction
         MoveToPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre = NULL);
         void onBegin(AbstractExecutionEngine* engine) override;
         Status onTick(AbstractExecutionEngine* engine) override;
+		bool isTurning = true;
 
     protected:
         BWAPI::Position     pos;

@@ -43,6 +43,8 @@ void OverlordScoutingExpert::endTraversal()
             auto it = std::max_element(value.begin(),value.end());
             int index = it-value.begin();
             auto m = minerals[index];
+			// Test-movements
+			//currentBlackboard->move(o, BWAPI::Position((rand() % 500),(rand() % 500)));
             currentBlackboard->move(o, m->getTilePosition());
             value.clear();
         }
