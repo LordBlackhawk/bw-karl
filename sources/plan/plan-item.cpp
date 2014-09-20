@@ -351,6 +351,17 @@ void Blackboard::prepare()
     engine->addAction(new FieldScannerAction());
 }
 
+namespace
+{
+    int getHealth(BWAPI::Unit* unit, BWAPI::UnitType unitType)
+    {
+        int result = unit->getHitPoints();
+        if (unitType.getRace() == BWAPI::Races::Protoss)
+            result += unit->getShields();
+        return result;
+    }
+}
+
 void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
 {
     BWAPI::Player* self = BWAPI::Broodwar->self();
@@ -364,7 +375,9 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
           || (event.getType() == BWAPI::EventType::UnitComplete))
         {
             BWAPI::Unit* unit = event.getUnit();
-            engine->generateEvent(new CompleteUnitUpdateEvent(unit, unit->getType(), unit->getTilePosition(), unit->getPosition(), unit->getPlayer()));
+            BWAPI::UnitType unitType = unit->getType();
+            engine->generateEvent(new CompleteUnitUpdateEvent(unit, unitType, getHealth(unit, unitType), BWAction::read(unit),
+                                                              unit->getTilePosition(), unit->getPosition(), unit->getPlayer()));
         } else {
             engine->generateEvent(new BroodwarEvent(event));
         }
@@ -372,10 +385,11 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
 
     BWAPI::Player* neutral = BWAPI::Broodwar->neutral();
     for (auto unit : BWAPI::Broodwar->getAllUnits()) {
-        if (unit->getType().isMineralField() || unit->getType().isRefinery() || unit->getType()==BWAPI::UnitTypes::Resource_Vespene_Geyser) {
+        BWAPI::UnitType unitType = unit->getType();
+        if (unitType.isMineralField() || unitType.isRefinery() || (unitType == BWAPI::UnitTypes::Resource_Vespene_Geyser)) {
             engine->generateEvent(new ResourceUpdateEvent(unit, unit->getResources()));
         } else if (unit->getPlayer() != neutral) {
-            engine->generateEvent(new SimpleUnitUpdateEvent(unit, unit->getPosition()));
+            engine->generateEvent(new SimpleUnitUpdateEvent(unit, unit->getPosition(), getHealth(unit, unitType), BWAction::read(unit)));
         }
     }
 }

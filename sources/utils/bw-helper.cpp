@@ -62,3 +62,14 @@ std::ostream& operator << (std::ostream& stream, const BWAPI::Error& err)
 {
     return stream << err.toString();
 }
+
+BWAction::Type BWAction::read(BWAPI::Unit* unit)
+{
+    if (unit->isBeingConstructed())
+        return BeingConstructed;
+    if (unit->isGatheringMinerals())
+        return GatheringMinerals;
+    if (unit->isGatheringGas())
+        return GatheringGas;
+    return Unknown;
+}

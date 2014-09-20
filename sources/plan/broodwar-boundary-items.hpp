@@ -1,6 +1,7 @@
 #pragma once
 
 #include "broodwar-ports.hpp"
+#include "utils/bw-helper.hpp"
 
 class AbstractSpaceUnitBoundaryItem : public AbstractBoundaryItem
 {
@@ -11,7 +12,7 @@ class AbstractSpaceUnitBoundaryItem : public AbstractBoundaryItem
 
         void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) override;
         virtual BWAPI::Position getPosition() const = 0;
-        int getHealth() const;
+        int getMaxHealth() const;
         double getGroundDPS() const;
 
         inline BWAPI::TilePosition getTilePosition() const { return requireSpace.getTilePosition(); }
@@ -37,6 +38,10 @@ class OwnUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
 
         inline BWAPI::Position getPosition() const { return provideUnit.getPosition(); }
         inline bool isConnected() const { return provideUnit.isConnected(); }
+        inline int getHealth() const { return health; }
+
+    protected:
+        int health;
 };
 
 class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem
@@ -74,9 +79,15 @@ class EnemyUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
         inline BWAPI::Position getPosition() const { return position; }
         inline Time getLastSeen() const { return lastSeen; }
         inline bool isVisible() const { return lastSeen > info->lastUpdateTime - 5; }
+        inline int getHealth() const { return health; }
+        inline bool isGatheringMinerals() const { return currentAction == BWAction::GatheringMinerals; }
+        inline bool isGatheringGas() const { return currentAction == BWAction::GatheringGas; }
+        inline bool isBeingConstructed() const { return currentAction == BWAction::BeingConstructed; }
 
     protected:
         BlackboardInformations* info;
         Time                    lastSeen;
         BWAPI::Position         position;
+        int                     health;
+        BWAction::Type          currentAction;
 };

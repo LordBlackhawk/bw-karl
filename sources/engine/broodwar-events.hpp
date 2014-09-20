@@ -1,8 +1,8 @@
 #pragma once
 
-#include "utils/time.hpp"
 #include "abstract-action.hpp"
-#include <BWAPI.h>
+#include "utils/time.hpp"
+#include "utils/bw-helper.hpp"
 
 class FrameEvent : public AbstractEvent
 {
@@ -28,8 +28,10 @@ class SimpleUnitUpdateEvent : public UnitUpdateEvent
 {
     public:
         BWAPI::Position pos;
+        int             health;
+        BWAction::Type  currentAction;
 
-        SimpleUnitUpdateEvent(BWAPI::Unit* u, BWAPI::Position p);
+        SimpleUnitUpdateEvent(BWAPI::Unit* u, BWAPI::Position p, int h, BWAction::Type a);
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 
@@ -40,7 +42,7 @@ class CompleteUnitUpdateEvent : public SimpleUnitUpdateEvent
         BWAPI::Player*      owner;
         BWAPI::TilePosition tilePos;
 
-        CompleteUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o);
+        CompleteUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, int h, BWAction::Type a, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o);
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 

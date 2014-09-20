@@ -120,7 +120,8 @@ BWAPI::Unit* BlackboardFixture::createUniqueUnit()
 AbstractBoundaryItem* BlackboardFixture::createBoundaryItem(BWAPI::UnitType ut, BWAPI::Player* player, BWAPI::Position pos, BWAPI::TilePosition tp)
 {
     BWAPI::Unit* unit = createUniqueUnit();
-    addEvent(new CompleteUnitUpdateEvent(unit, ut, tp, pos, player));
+    int health = ut.maxHitPoints() + ut.maxShields();
+    addEvent(new CompleteUnitUpdateEvent(unit, ut, health, BWAction::Unknown, tp, pos, player));
     tick();
     auto result = blackboard->lookupUnit(unit);
     BOOST_REQUIRE( result != NULL );

@@ -29,6 +29,8 @@ void GuerillaExpert::visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item)
          || (item->getUnitType() == BWAPI::UnitTypes::Zerg_Larva)
          || (item->getUnitType() == BWAPI::UnitTypes::Zerg_Egg)
          || !item->isVisible()
+         || item->isGatheringMinerals()
+         || item->isGatheringGas()
         )
         return;
     allUnits.push_back(item);

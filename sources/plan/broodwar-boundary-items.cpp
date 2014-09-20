@@ -26,7 +26,7 @@ void AbstractSpaceUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpd
     AbstractBoundaryItem::visitCompleteUnitUpdateEvent(event);
 }
 
-int AbstractSpaceUnitBoundaryItem::getHealth() const
+int AbstractSpaceUnitBoundaryItem::getMaxHealth() const
 {
     return unitType.maxHitPoints() + unitType.maxShields();
 }
@@ -41,7 +41,8 @@ double AbstractSpaceUnitBoundaryItem::getGroundDPS() const
 OwnUnitBoundaryItem::OwnUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f)
     : AbstractSpaceUnitBoundaryItem(u, f, ut),
       provideUnit(this),
-      supply(this, ut)
+      supply(this, ut),
+      health(getMaxHealth())
 {
     provideUnit.estimatedTime = ACTIVE_TIME;
     supply.estimatedTime = ACTIVE_TIME;
@@ -63,6 +64,7 @@ void OwnUnitBoundaryItem::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* 
 void OwnUnitBoundaryItem::visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event)
 {
     provideUnit.updateData(getUnitType(), event->pos);
+    health = event->health;
 }
 
 
@@ -112,7 +114,9 @@ EnemyUnitBoundaryItem::EnemyUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut,
     : AbstractSpaceUnitBoundaryItem(u, &i->fields, ut),
       info(i),
       lastSeen(-100),
-      position(BWAPI::Positions::Unknown)
+      position(BWAPI::Positions::Unknown),
+      health(getMaxHealth()),
+      currentAction(BWAction::Unknown)
 { }
 
 void EnemyUnitBoundaryItem::acceptVisitor(AbstractVisitor* visitor)
@@ -124,4 +128,6 @@ void EnemyUnitBoundaryItem::visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* ev
 {
     lastSeen = info->lastUpdateTime;
     position = event->pos;
+    health = event->health;
+    currentAction = event->currentAction;
 }

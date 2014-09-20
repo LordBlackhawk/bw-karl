@@ -52,8 +52,9 @@ BOOST_AUTO_TEST_CASE( add_remove_unit )
     const BWAPI::UnitType ut = BWAPI::UnitTypes::Zerg_Zergling;
     const BWAPI::TilePosition tp = BWAPI::TilePositions::Unknown;
     const BWAPI::Position pos = BWAPI::Positions::Unknown;
+    const int health = 100;
 
-    addEvent(new CompleteUnitUpdateEvent(unit, ut, tp, pos, player));
+    addEvent(new CompleteUnitUpdateEvent(unit, ut, health, BWAction::Unknown, tp, pos, player));
     tick();
     BOOST_REQUIRE_EQUAL( blackboard->getBoundaries().size(), 1U );
 
@@ -73,6 +74,7 @@ BOOST_AUTO_TEST_CASE( own_unit_update )
     const BWAPI::Position pos4(20, 20);
     const BWAPI::TilePosition tp3(1, 1);
     const BWAPI::TilePosition tp4(2, 2);
+    const int health = 100;
 
     setupFields();
 
@@ -81,18 +83,18 @@ BOOST_AUTO_TEST_CASE( own_unit_update )
     BOOST_CHECK( !item->requireSpace.isConnected() );
     BOOST_CHECK_EQUAL( item->getPosition(), pos1 );
 
-    addEvent(new SimpleUnitUpdateEvent(unit, pos2));
+    addEvent(new SimpleUnitUpdateEvent(unit, pos2, health, BWAction::Unknown));
     tick();
     BOOST_CHECK( !item->requireSpace.isConnected() );
     BOOST_CHECK_EQUAL( item->getPosition(), pos2 );
 
-    addEvent(new CompleteUnitUpdateEvent(unit, ut3, tp3, pos3, NULL));
+    addEvent(new CompleteUnitUpdateEvent(unit, ut3, health, BWAction::Unknown, tp3, pos3, NULL));
     tick();
     BOOST_CHECK( item->requireSpace.isConnected() );
     BOOST_CHECK_EQUAL( item->getPosition(), pos3 );
     BOOST_CHECK_EQUAL( item->getTilePosition(), tp3 );
 
-    addEvent(new CompleteUnitUpdateEvent(unit, ut4, tp4, pos4, NULL));
+    addEvent(new CompleteUnitUpdateEvent(unit, ut4, health, BWAction::Unknown, tp4, pos4, NULL));
     tick();
     BOOST_CHECK( !item->requireSpace.isConnected() );
     BOOST_CHECK_EQUAL( item->getPosition(), pos4 );
