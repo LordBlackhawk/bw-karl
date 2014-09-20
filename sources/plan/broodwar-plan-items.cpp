@@ -47,25 +47,25 @@ void AbstractSimpleUnitPlanItem::removeRequireExistancePorts()
 }
 
 
-GatherMineralsPlanItem::GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider)
-    : AbstractSimpleUnitPlanItem(provider->getUnitType(), true), requireMineralField(this, m)
+GatherResourcesPlanItem::GatherResourcesPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType(), true), requireResource(this, m)
 {
     provideUnit.updateData(provider->getUnitType(), BWAPI::Position(m->getTilePosition()));
     if (provider != NULL)
         requireUnit.connectTo(provider);
 }
 
-void GatherMineralsPlanItem::acceptVisitor(AbstractVisitor* visitor)
+void GatherResourcesPlanItem::acceptVisitor(AbstractVisitor* visitor)
 {
-    visitor->visitGatherMineralPlanItem(this);
+    visitor->visitGatherResourcesPlanItem(this);
 }
 
-AbstractAction* GatherMineralsPlanItem::buildAction()
+AbstractAction* GatherResourcesPlanItem::buildAction()
 {
     unit = requireUnit.getUnit();
     if (unit == NULL)
         return NULL;
-    return new CollectMineralsAction(unit, requireMineralField.getUnit());
+    return new CollectResourcesAction(unit, requireResource.getUnit());
 }
 
 

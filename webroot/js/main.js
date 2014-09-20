@@ -61,6 +61,14 @@ $(document).ready(function()
         },'text');
     });
 
+    $('#game-giveup').on('click',function(){
+        $.post('giveup', {},function(data)
+        {
+            if(data!=="ok")
+                alert(data);
+        },'text');
+    });
+
     $('#engine-interrupt').on('click',function(){
         $.post('interrupt', {},function(data)
         {

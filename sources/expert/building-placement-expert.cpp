@@ -9,6 +9,7 @@
 #include "expert-registrar.hpp"
 #include "plan/broodwar-ports.hpp"
 #include "plan/broodwar-plan-items.hpp"
+#include "plan/broodwar-boundary-items.hpp"
 #include "utils/log.hpp"
 
 REGISTER_EXPERT(BuildingPlacementExpert)
@@ -33,6 +34,26 @@ void BuildingPlacementExpert::visitRequireSpacePort(RequireSpacePort* port)
         return;
 
     unitType = port->getUnitType();
+
+    if(unitType.isRefinery())   //find suitable geyser for refinery...
+    {
+            //... by going through our bases...
+        for (auto base : currentBlackboard->getInformations()->ownBaseLocations)
+        {
+                //... and all geysers nearby...
+            for (auto geyser : base->geysers)
+            {
+                    //... if there is not already a refinery there,
+                if(!geyser->getUnit()->getType().isRefinery())
+                {
+                        //FIXME: geyser->getTilePosition() seems to be invalid!?!
+                    port->connectTo(geyser->getUnit()->getTilePosition());   //take it!
+                    return;
+                }
+            }
+        }
+    }
+
     BWAPI::TilePosition pos = getBuildLocationNear();
     if (pos != BWAPI::TilePositions::None) {
         //LOG << "found position: " << pos.x() << ", " << pos.y();

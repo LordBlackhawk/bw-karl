@@ -14,6 +14,7 @@ struct BaseLocation
     public:
         BWTA::BaseLocation*             origin;
         std::set<ResourceBoundaryItem*> minerals;
+        std::set<ResourceBoundaryItem*> geysers;
 
         BaseLocation(BlackboardInformations* o);
         Time lastSeenComplete() const;

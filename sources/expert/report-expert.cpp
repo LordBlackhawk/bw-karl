@@ -118,9 +118,9 @@ namespace
             writeNode(item, buffer.str());
         }
         
-        void visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
+        void visitGatherResourcesPlanItem(GatherResourcesPlanItem* item)
         {
-            writePlanItem(item, "GatherMinerals");
+            writePlanItem(item, "GatherResources");
         }
 
         void visitMorphUnitPlanItem(MorphUnitPlanItem* item)
@@ -161,7 +161,7 @@ namespace
                 writeEdge(port->getOwner(), port->getConnectedPort()->getOwner(), "black");
         }
         
-        void visitProvideMineralFieldPort(ProvideMineralFieldPort* port)
+        void visitProvideResourcePort(ProvideResourcePort* port)
         {
             if (port->isConnected())
                 writeEdge(port->getOwner(), port->getConnectedPort()->getOwner(), "black");

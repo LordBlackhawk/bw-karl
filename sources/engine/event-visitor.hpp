@@ -9,7 +9,7 @@ class FieldSeenEvent;
 class UnitUpdateEvent;
 class SimpleUnitUpdateEvent;
 class CompleteUnitUpdateEvent;
-class MineralUpdateEvent;
+class ResourceUpdateEvent;
 
 class AbstractActionEvent;
 class ResourcesConsumedEvent;
@@ -25,7 +25,7 @@ class AbstractEventVisitor
         virtual void visitUnitUpdateEvent(UnitUpdateEvent* event) = 0;
         virtual void visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event) = 0;
         virtual void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) = 0;
-        virtual void visitMineralUpdateEvent(MineralUpdateEvent* event) = 0;
+        virtual void visitResourceUpdateEvent(ResourceUpdateEvent* event) = 0;
 
         virtual void visitAbstractActionEvent(AbstractActionEvent* event) = 0;
         virtual void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) = 0;
@@ -42,7 +42,7 @@ class BasicEventVisitor : public AbstractEventVisitor
         void visitUnitUpdateEvent(UnitUpdateEvent* event) override;
         void visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event) override;
         void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) override;
-        void visitMineralUpdateEvent(MineralUpdateEvent* event) override;
+        void visitResourceUpdateEvent(ResourceUpdateEvent* event) override;
 
         void visitAbstractActionEvent(AbstractActionEvent* event) override;
         void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;

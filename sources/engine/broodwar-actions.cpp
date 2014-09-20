@@ -18,22 +18,26 @@ void UnitAction::drawInformations(const char* name)
 }
 
 
-CollectMineralsAction::CollectMineralsAction(BWAPI::Unit* w, BWAPI::Unit* m, AbstractAction* pre)
-    : UnitAction(w, pre), mineral(m)
+CollectResourcesAction::CollectResourcesAction(BWAPI::Unit* w, BWAPI::Unit* m, AbstractAction* pre)
+    : UnitAction(w, pre), resource(m)
 { }
 
-CollectMineralsAction::Status CollectMineralsAction::onTick(AbstractExecutionEngine* /*engine*/)
+CollectResourcesAction::Status CollectResourcesAction::onTick(AbstractExecutionEngine* /*engine*/)
 {
     if (!unit->exists())
         return Failed;
 
-    if (!mineral->exists())
+    if (!resource->exists())
         return Finished;
 
-    if (!unit->isGatheringMinerals())
-        unit->rightClick(mineral);
+    if (unit->isGatheringMinerals())
+        drawInformations("gathering minerals");
+    else if (unit->isGatheringGas())
+        drawInformations("gathering gas");
+    else
+        unit->rightClick(resource);
 
-    drawInformations("gathering minerals");
+    
     return Running;
 }
 

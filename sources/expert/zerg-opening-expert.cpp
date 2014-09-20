@@ -13,6 +13,7 @@ bool ZergOpeningExpert::tick(Blackboard* blackboard)
     blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
     //blackboard->morph(BWAPI::UnitTypes::Zerg_Drone);
     blackboard->build(BWAPI::UnitTypes::Zerg_Spawning_Pool);
+    //blackboard->build(BWAPI::UnitTypes::Zerg_Extractor);
     //blackboard->create(BWAPI::UnitTypes::Zerg_Sunken_Colony);
     return false;
 }

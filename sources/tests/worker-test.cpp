@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE( basic_worker )
 
     tick();
 
-    auto planItem = dynamic_cast<GatherMineralsPlanItem*>(worker->provideUnit.getConnectedPort()->getOwner());
+    auto planItem = dynamic_cast<GatherResourcesPlanItem*>(worker->provideUnit.getConnectedPort()->getOwner());
     BOOST_REQUIRE( planItem != NULL );
     BOOST_REQUIRE( planItem->isActive() );
     planItem->setFinished();

@@ -13,14 +13,14 @@ class UnitAction : public AbstractAction
         BWAPI::Unit*    unit;
 };
 
-class CollectMineralsAction : public UnitAction
+class CollectResourcesAction : public UnitAction
 {
     public:
-        CollectMineralsAction(BWAPI::Unit* w, BWAPI::Unit* m, AbstractAction* pre = NULL);
+        CollectResourcesAction(BWAPI::Unit* w, BWAPI::Unit* m, AbstractAction* pre = NULL);
         Status onTick(AbstractExecutionEngine* engine) override;
 
     protected:
-        BWAPI::Unit*    mineral;
+        BWAPI::Unit*    resource;
 };
 
 class ZergBuildAction : public UnitAction

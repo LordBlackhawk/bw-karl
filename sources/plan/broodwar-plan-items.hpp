@@ -20,12 +20,12 @@ class AbstractSimpleUnitPlanItem : public AbstractPlanItem
         void removeRequireExistancePorts();
 };
 
-class GatherMineralsPlanItem : public AbstractSimpleUnitPlanItem
+class GatherResourcesPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
-        RequireMineralFieldPort requireMineralField;
+        RequireResourcePort requireResource;
 
-        GatherMineralsPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider);
+        GatherResourcesPlanItem(ResourceBoundaryItem* m, ProvideUnitPort* provider);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* buildAction() override;

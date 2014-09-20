@@ -44,12 +44,12 @@ class CompleteUnitUpdateEvent : public SimpleUnitUpdateEvent
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 
-class MineralUpdateEvent : public UnitUpdateEvent
+class ResourceUpdateEvent : public UnitUpdateEvent
 {
     public:
-        int minerals;
+        int resources;
 
-        MineralUpdateEvent(BWAPI::Unit* u, int m);
+        ResourceUpdateEvent(BWAPI::Unit* u, int res);
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 

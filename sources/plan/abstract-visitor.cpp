@@ -26,12 +26,12 @@ void BasicVisitor::visitSupplyPort(SupplyPort* port)
     visitAbstractPort(port);
 }
 
-void BasicVisitor::visitProvideMineralFieldPort(ProvideMineralFieldPort* port)
+void BasicVisitor::visitProvideResourcePort(ProvideResourcePort* port)
 {
     visitAbstractPort(port);
 }
 
-void BasicVisitor::visitRequireMineralFieldPort(RequireMineralFieldPort* port)
+void BasicVisitor::visitRequireResourcePort(RequireResourcePort* port)
 {
     visitAbstractPort(port);
 }
@@ -83,7 +83,7 @@ void BasicVisitor::visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item)
 void BasicVisitor::visitAbstractPlanItem(AbstractPlanItem* /*item*/)
 { }
 
-void BasicVisitor::visitGatherMineralPlanItem(GatherMineralsPlanItem* item)
+void BasicVisitor::visitGatherResourcesPlanItem(GatherResourcesPlanItem* item)
 {
     visitAbstractPlanItem(item);
 }

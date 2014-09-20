@@ -10,11 +10,11 @@ class ResourceExpert : public BasicPortExpert
         void endTraversal() override;
 
         void visitResourcePort(ResourcePort* port) override;
-        void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) override;
+        void visitGatherResourcesPlanItem(GatherResourcesPlanItem* item) override;
 
     protected:
         std::vector<ResourcePort*>              resources;
-        std::vector<GatherMineralsPlanItem*>    worker;
+        std::vector<GatherResourcesPlanItem*>   worker;
 
         void simulate();
 };

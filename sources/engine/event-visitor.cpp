@@ -26,7 +26,7 @@ void BasicEventVisitor::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* ev
     visitSimpleUnitUpdateEvent(event);
 }
 
-void BasicEventVisitor::visitMineralUpdateEvent(MineralUpdateEvent* event)
+void BasicEventVisitor::visitResourceUpdateEvent(ResourceUpdateEvent* event)
 {
     visitUnitUpdateEvent(event);
 }

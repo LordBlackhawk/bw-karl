@@ -183,7 +183,7 @@ namespace
                     port->getRace().c_str(),
                     port->getRequiredAmount());
             }
-            void visitProvideMineralFieldPort(ProvideMineralFieldPort* port) override
+            void visitProvideResourcePort(ProvideResourcePort* port) override
             {
                 visitAbstractPort(port);
                 mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"estimatedDuration\":\"%i\",\"unitID\":\"%i\",\"connectedPort\":\"%p\",\"connected\":%s}",
@@ -193,7 +193,7 @@ namespace
                     port->getConnectedPort(),
                     port->isConnected()?"true":"false");
             }
-            void visitRequireMineralFieldPort(RequireMineralFieldPort* port) override
+            void visitRequireResourcePort(RequireResourcePort* port) override
             {
                 visitAbstractPort(port);
                 mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"estimatedDuration\":\"%i\",\"unitID\":\"%i\",\"connectedPort\":\"%p\",\"connected\":%s}",
@@ -284,12 +284,13 @@ namespace
             void visitResourceBoundaryItem(ResourceBoundaryItem* item) override
             {
                 visitAbstractBoundaryItem(item);
-                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"unitType\":\"%s\",\"unitID\":\"%i\",\"numberOfWorkers\":\"%i\",\"mineralsLeft\":\"%i\"}",
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"unitType\":\"%s\",\"unitID\":\"%i\",\"numberOfWorkers\":\"%i\",\"mineralsLeft\":\"%i\",\"gasLeft\":\"%i\"}",
                     "Resource",
                     item->getUnitType().getName().c_str(),
                     item->getUnit()?item->getUnit()->getID():0,
                     item->numberOfWorkers(),
-                    item->mineralsLeft());
+                    item->mineralsLeft(),
+                    item->gasLeft());
                     //FIXME: item->getTilePosition()
             }
             void visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item) override
@@ -322,11 +323,11 @@ namespace
                 }
                 mg_printf_data(conn,"]");
             }
-            void visitGatherMineralPlanItem(GatherMineralsPlanItem* item) override
+            void visitGatherResourcesPlanItem(GatherResourcesPlanItem* item) override
             {
                 visitAbstractPlanItem(item);
                 mg_printf_data(conn,",\"name\":\"%s\",\"data\":{}",
-                        "GatherMinerals");
+                        "GatherResources");
             }
             void visitMorphUnitPlanItem(MorphUnitPlanItem* item) override
             {
@@ -488,74 +489,7 @@ namespace
                         count++;
                     }
 
-                    mg_printf_data(conn, "},");
-                    mg_printf_data(conn, "\"actions\":[");
-                    /*
-                    count=0;
-                    for(auto act:currentBlackboard->actionMap)
-                    {
-
-                        if(count>0)
-                            mg_printf_data(conn,",");
-
-                        AbstractAction *action=act.first;
-                        AbstractPlanItem *planItem=act.second;
-
-                        mg_printf_data(conn,"{\"id\":\"%p\",",
-                            action);
-
-                        if(CollectMineralsAction *collectMinerals=dynamic_cast<CollectMineralsAction*>(action))
-                        {
-                            mg_printf_data(conn,"\"name\":\"%s\",\"data\":{}",
-                                    "CollectMinerals");
-                        }
-                        else if(ZergBuildAction *zergBuild=dynamic_cast<ZergBuildAction*>(action))
-                        {
-                            mg_printf_data(conn,"\"name\":\"%s\",\"data\":{}",
-                                    "ZergBuild");
-                        }
-                        else if(MorphUnitAction *morphUnit=dynamic_cast<MorphUnitAction*>(action))
-                        {
-                            mg_printf_data(conn,"\"name\":\"%s\",\"data\":{}",
-                                    "MorphUnit");
-                        }
-                        else if(MoveToPositionAction *moveToPosition=dynamic_cast<MoveToPositionAction*>(action))
-                        {
-                            mg_printf_data(conn,"\"name\":\"%s\",\"data\":{}",
-                                    "MoveToPosition");
-                        }
-                        else if(AttackPositionAction *attackPosition=dynamic_cast<AttackPositionAction*>(action))
-                        {
-                            mg_printf_data(conn,"\"name\":\"%s\",\"data\":{}",
-                                    "AttackPosition");
-                        }
-                        else if(AttackUnitAction *attackUnit=dynamic_cast<AttackUnitAction*>(action))
-                        {
-                            mg_printf_data(conn,"\"name\":\"%s\",\"data\":{}",
-                                    "AttackUnit");
-                        }
-                        else if(SendTextAction *sendText=dynamic_cast<SendTextAction*>(action))
-                        {
-                            mg_printf_data(conn,"\"name\":\"%s\",\"data\":{}",
-                                    "SendText");
-                        }
-                        else if(GiveUpAction *giveUp=dynamic_cast<GiveUpAction*>(action))
-                        {
-                            mg_printf_data(conn,"\"name\":\"%s\",\"data\":{}",
-                                    "GiveUp");
-                        }
-                        else
-                        {
-                            mg_printf_data(conn,"\"name\":\"%s\",\"data\":{}",
-                                typeid(*action).name());
-                        }
-
-                        mg_printf_data(conn,"}");
-                        count++;
-                    }
-                     */
-
-                    mg_printf_data(conn, "]");        
+                    mg_printf_data(conn, "}");       
                 }
                 mg_printf_data(conn, "}");
                 return MG_TRUE;
@@ -707,6 +641,19 @@ namespace
                         mg_printf_data(conn,"err: unknown itemID '%s'!",itemID.c_str());
                 }
 
+                return MG_TRUE;
+            }
+            else if(strcmp(conn->uri,"/giveup")==0)
+            {
+                mg_send_header(conn, "Content-Type", "text/plain");
+                if(!webgui)
+                {
+                    mg_printf_data(conn,"err: not in game.");
+                    return MG_TRUE;
+                }
+
+                currentBlackboard->giveUp();
+                mg_printf_data(conn,"ok");
                 return MG_TRUE;
             }
         }

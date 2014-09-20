@@ -46,13 +46,13 @@ void CompleteUnitUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
     visitor->visitCompleteUnitUpdateEvent(this);
 }
 
-MineralUpdateEvent::MineralUpdateEvent(BWAPI::Unit* u, int m)
-    : UnitUpdateEvent(u), minerals(m)
+ResourceUpdateEvent::ResourceUpdateEvent(BWAPI::Unit* u, int res)
+    : UnitUpdateEvent(u), resources(res)
 { }
 
-void MineralUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
+void ResourceUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
 {
-    visitor->visitMineralUpdateEvent(this);
+    visitor->visitResourceUpdateEvent(this);
 }
 
 FieldSeenEvent::FieldSeenEvent(const BWAPI::TilePosition& tp, bool c)
