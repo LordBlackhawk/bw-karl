@@ -49,7 +49,7 @@ debug: karl.exe deploy-$(DEPLOYMODE)
 	gdb --args $< $(KARLPARAMS)
 
 test-smart-turn: karl.exe $(STARCRAFTMAPSPATH)test-smart-turn-around.scx deploy-test-smart-turn
-	$< --parallel --hud --only TestSmartTurnAroundExpert
+	$< --parallel --hud --speed=100 --only TestSmartTurnAroundExpert
 
 test: tests.exe
 	@echo ' ##############################################################################'

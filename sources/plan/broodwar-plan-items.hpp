@@ -54,6 +54,8 @@ class MorphUnitPlanItem : public AbstractSimpleUnitPlanItem
 class MoveToPositionPlanItem : public AbstractSimpleUnitPlanItem
 {
     public:
+        bool useSmartTurnAround;
+
         MoveToPositionPlanItem(ProvideUnitPort* provider, BWAPI::Position p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;

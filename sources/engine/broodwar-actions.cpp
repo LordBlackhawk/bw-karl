@@ -40,7 +40,7 @@ CollectResourcesAction::Status CollectResourcesAction::onTick(AbstractExecutionE
     else
         unit->rightClick(resource);
 
-    
+
     return Running;
 }
 
@@ -168,13 +168,14 @@ void MorphUnitAction::onEnd(AbstractExecutionEngine* /*engine*/)
 }
 
 
-MoveToPositionAction::MoveToPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre)
-    : UnitAction(w, pre), pos(p)
+MoveToPositionAction::MoveToPositionAction(BWAPI::Unit* w, BWAPI::Position p, bool useSTA, AbstractAction* pre)
+    : UnitAction(w, pre), pos(p), useSmartTurnAround(useSTA)
 { }
 
 void MoveToPositionAction::onBegin(AbstractExecutionEngine* /*engine*/)
 {
     unit->move(pos);
+    isTurning = useSmartTurnAround;
 }
 
 MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngine* /*engine*/)
@@ -183,51 +184,51 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
         return Failed;
 
     BWAPI::Position myPos = unit->getPosition();
-	double dist = myPos.getDistance(pos);
+    double dist = myPos.getDistance(pos);
     if (dist < 32.0)
-		{
-		unit->move(pos);   // if we want to move for less than 32 in micro management
+        {
+        unit->move(pos);   // if we want to move for less than 32 in micro management
         return Finished;
-		}
+        }
 
     if(!isTurning) drawInformations("moving");
     if (OptionsRegistrar::optHUD())
         BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), pos.x(), pos.y(), BWAPI::Colors::Green);
     if (unit->isMoving())
-		{
-		// optimizing the turning around of units
-		if(isTurning) //&& (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord))
-			{
-			drawInformations("turning");
-			double cosAngle = (pos.x() - myPos.x())/dist;
-			double sinAngle = (pos.y() - myPos.y())/dist;
-			double currentAngle = unit->getAngle();
-			if ((std::abs(cos(currentAngle) - cosAngle) + std::abs(sin(currentAngle) - sinAngle)) > 0.1)
-				{
-					double angle = atan2(sinAngle, cosAngle);
-					if (angle < 0) angle = angle + 2*M_PI;
-					double diffAngle = angle-currentAngle;
-					// Rechts oder Links herum drehen?
-					if(diffAngle > M_PI) diffAngle = diffAngle-2*M_PI;
-					if(diffAngle < -M_PI) diffAngle = 2*M_PI+diffAngle;
-					// the function unit->getAngle() is unstable and needs local treatment depending on the angle
-					if(std::abs(diffAngle) > 2) diffAngle = diffAngle/10;
-					if(std::abs(diffAngle) > 1) diffAngle = diffAngle/5;
-					if(std::abs(diffAngle) > 0.4) diffAngle = diffAngle/2;
-					double newAngle = currentAngle + diffAngle;
-					//BWAPI::Broodwar->drawTextScreen(160, 26, "Angle: %f vs %f, %f und %f", angle, currentAngle, diffAngle, newAngle);
-					unit->move(BWAPI::Position(myPos.x()+round(100*cos(newAngle)),myPos.y()+round(100*sin(newAngle))));
-					BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), myPos.x()+round(100*cos(newAngle)), myPos.y()+round(100*sin(newAngle)), BWAPI::Colors::Red);
-				}
-			else 
-				{
-					unit->move(pos);
-					isTurning = false;
-				}
-			}
-		}
-		return Running;
-	
+        {
+        // optimizing the turning around of units
+        if(isTurning) //&& (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord))
+            {
+            drawInformations("turning");
+            double cosAngle = (pos.x() - myPos.x())/dist;
+            double sinAngle = (pos.y() - myPos.y())/dist;
+            double currentAngle = unit->getAngle();
+            if ((std::abs(cos(currentAngle) - cosAngle) + std::abs(sin(currentAngle) - sinAngle)) > 0.1)
+                {
+                    double angle = atan2(sinAngle, cosAngle);
+                    if (angle < 0) angle = angle + 2*M_PI;
+                    double diffAngle = angle-currentAngle;
+                    // Rechts oder Links herum drehen?
+                    if(diffAngle > M_PI) diffAngle = diffAngle-2*M_PI;
+                    if(diffAngle < -M_PI) diffAngle = 2*M_PI+diffAngle;
+                    // the function unit->getAngle() is unstable and needs local treatment depending on the angle
+                    if(std::abs(diffAngle) > 2) diffAngle = diffAngle/10;
+                    if(std::abs(diffAngle) > 1) diffAngle = diffAngle/5;
+                    if(std::abs(diffAngle) > 0.4) diffAngle = diffAngle/2;
+                    double newAngle = currentAngle + diffAngle;
+                    //BWAPI::Broodwar->drawTextScreen(160, 26, "Angle: %f vs %f, %f und %f", angle, currentAngle, diffAngle, newAngle);
+                    unit->move(BWAPI::Position(myPos.x()+round(100*cos(newAngle)),myPos.y()+round(100*sin(newAngle))));
+                    BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), myPos.x()+round(100*cos(newAngle)), myPos.y()+round(100*sin(newAngle)), BWAPI::Colors::Red);
+                }
+            else
+                {
+                    unit->move(pos);
+                    isTurning = false;
+                }
+            }
+        return Running;
+        }
+
     if (unit->move(pos))
         return Running;
 

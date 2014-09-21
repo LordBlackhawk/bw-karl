@@ -114,7 +114,7 @@ void MorphUnitPlanItem::removeFinished(AbstractAction* action)
 
 
 MoveToPositionPlanItem::MoveToPositionPlanItem(ProvideUnitPort* provider, BWAPI::Position p)
-    : AbstractSimpleUnitPlanItem(provider->getUnitType()), position(p)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType()), useSmartTurnAround(false), position(p)
 {
     provideUnit.updateData(provider->getUnitType(), position);
     requireUnit.connectTo(provider);
@@ -136,7 +136,7 @@ AbstractAction* MoveToPositionPlanItem::buildAction()
     unit = requireUnit.getUnit();
     if (unit == NULL)
         return NULL;
-    return new MoveToPositionAction(unit, position);
+    return new MoveToPositionAction(unit, position, useSmartTurnAround);
 }
 
 

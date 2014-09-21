@@ -121,14 +121,7 @@ namespace
 {
     double angleOf(const BWAPI::Position& pos)
     {
-        if (pos.x() > 0.0) {
-            double result = atan((double)pos.y() / (double)pos.x());
-            return (result < 0.0) ? 2*M_PI + result : result;
-        } else if (pos.x() < 0.0) {
-            return M_PI + atan((double)pos.y() / (double)pos.x());
-        } else {
-            return (pos.y() > 0.0) ? 0.5 * M_PI : 1.5 * M_PI;
-        }
+        return atan2((double)pos.y(), (double)pos.x());
     }
 
     double angleDistance(double a, double b)

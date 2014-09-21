@@ -53,13 +53,14 @@ class MorphUnitAction : public UnitAction
 class MoveToPositionAction : public UnitAction
 {
     public:
-        MoveToPositionAction(BWAPI::Unit* w, BWAPI::Position p, AbstractAction* pre = NULL);
+        MoveToPositionAction(BWAPI::Unit* w, BWAPI::Position p, bool useSTA, AbstractAction* pre = NULL);
         void onBegin(AbstractExecutionEngine* engine) override;
         Status onTick(AbstractExecutionEngine* engine) override;
-		bool isTurning = true;
 
     protected:
         BWAPI::Position     pos;
+        bool isTurning;
+        bool useSmartTurnAround;
 };
 
 
