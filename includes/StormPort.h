@@ -36,7 +36,7 @@
 //-----------------------------------------------------------------------------
 // Defines for Windows
 
-#if !defined(PLATFORM_DEFINED) && (defined(WIN32) || defined(WIN64))
+#if !defined(PLATFORM_DEFINED) && (defined(WIN32) || defined(WIN64) || defined(__MINGW32__))
 
   // In MSVC 8.0, there are some functions declared as deprecated.
   #if _MSC_VER >= 1400
