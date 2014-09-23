@@ -3,7 +3,7 @@
 -include user.mk
 
 LIBRARIES           = utils engine plan expert
-EXECUTABLES         = karl tests
+EXECUTABLES         = karl tests bwmapmodifier
 
 BASEOUTPATH         = ./out/
 COVERAGEPATH        = ./coverage/

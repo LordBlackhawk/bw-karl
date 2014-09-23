@@ -23,7 +23,7 @@ CXX          = g++
 CXXINCLUDES  = -I$(BWAPIPATH) -I$(INCLUDEPATH)
 CXXFLAGSPURE = -Wall -Wextra -fno-omit-frame-pointer $(CXXINCLUDES)
 CXXFLAGS     = -g -O3 $(CXXFLAGSPURE)
-CXXLIBS      = -L$(LIBPATH) $(BOOST_LIBS) -lBWTA -lBWAPI -lCGAL -lmpfr -lgmp -static-libgcc -static-libstdc++ -lmongoose -lwsock32
+CXXLIBS      = -L$(LIBPATH) $(BOOST_LIBS) -lBWTA -lBWAPI -lCGAL -lmpfr -lgmp -static-libgcc -static-libstdc++ -lmongoose -lwsock32 -lstorm -lwininet
 COVFLAGS     = -O0 -fprofile-arcs -ftest-coverage $(CXXFLAGSPURE)
 
 SOURCES      = $(wildcard $(SOURCEPATH)*.cpp)
