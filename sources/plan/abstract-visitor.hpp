@@ -15,6 +15,8 @@ class ProvideEnemyUnitPort;
 class RequireEnemyUnitPort;
 class ProvideUnitExistancePort;
 class RequireUnitExistancePort;
+class ProvidePurposePort;
+class RequirePurposePort;
 
 class AbstractBoundaryItem;
 class OwnUnitBoundaryItem;
@@ -44,6 +46,8 @@ class AbstractVisitor
         virtual void visitRequireEnemyUnitPort(RequireEnemyUnitPort* port) = 0;
         virtual void visitProvideUnitExistancePort(ProvideUnitExistancePort* port) = 0;
         virtual void visitRequireUnitExistancePort(RequireUnitExistancePort* port) = 0;
+        virtual void visitProvidePurposePort(ProvidePurposePort* port) = 0;
+        virtual void visitRequirePurposePort(RequirePurposePort* port) = 0;
 
         virtual void visitAbstractBoundaryItem(AbstractBoundaryItem* item) = 0;
         virtual void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) = 0;
@@ -75,6 +79,8 @@ class BasicVisitor : public AbstractVisitor
         void visitRequireEnemyUnitPort(RequireEnemyUnitPort* port) override;
         void visitProvideUnitExistancePort(ProvideUnitExistancePort* port) override;
         void visitRequireUnitExistancePort(RequireUnitExistancePort* port) override;
+        void visitProvidePurposePort(ProvidePurposePort* port) override;
+        void visitRequirePurposePort(RequirePurposePort* port) override;
         
         void visitAbstractBoundaryItem(AbstractBoundaryItem* item) override;
         void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) override;

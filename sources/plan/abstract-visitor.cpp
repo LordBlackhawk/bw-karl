@@ -61,6 +61,16 @@ void BasicVisitor::visitRequireUnitExistancePort(RequireUnitExistancePort* port)
     visitAbstractPort(port);
 }
 
+void BasicVisitor::visitProvidePurposePort(ProvidePurposePort* port)
+{
+    visitAbstractPort(port);
+}
+
+void BasicVisitor::visitRequirePurposePort(RequirePurposePort* port)
+{
+    visitAbstractPort(port);
+}
+
 
 void BasicVisitor::visitAbstractBoundaryItem(AbstractBoundaryItem* /*item*/)
 { }

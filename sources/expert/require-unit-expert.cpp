@@ -76,7 +76,14 @@ void RequireUnitExpert::handleCreepColony(std::vector<ProvideUnitPort*>& provide
     unsigned int provideSize = provide.size();
     unsigned int requireSize = require.size();
     for (unsigned int k=0; k<requireSize; ++k) {
-        ProvideUnitPort* port = (k < provideSize) ? provide[k] : &currentBlackboard->build(BWAPI::UnitTypes::Zerg_Creep_Colony)->provideUnit;
+        ProvideUnitPort* port;
+        if (k < provideSize) {
+            port = provide[k];
+        } else {
+            auto planItem = currentBlackboard->build(BWAPI::UnitTypes::Zerg_Creep_Colony);
+            port = &planItem->provideUnit;
+            planItem->addPurpose(port, dynamic_cast<AbstractPlanItem*>(require[k]->getOwner()));
+        }
         require[k]->connectTo(port);
     }
 }

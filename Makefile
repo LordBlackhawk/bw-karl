@@ -45,6 +45,9 @@ all: $(MODULEFILES)
 run: karl.exe deploy-$(DEPLOYMODE)
 	$< --parallel $(KARLPARAMS)
 
+runseq: karl.exe deploy-$(DEPLOYMODE)
+	$< $(KARLPARAMS)
+
 debug: karl.exe deploy-$(DEPLOYMODE)
 	gdb --args $< $(KARLPARAMS)
 

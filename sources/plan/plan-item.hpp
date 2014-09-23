@@ -89,6 +89,7 @@ class AbstractPlanItem : public AbstractItem
         void setFinished();
         void setErrorState(AbstractAction* action);
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
+        void addPurpose(AbstractPort* port, AbstractPlanItem* item);
 
         virtual void updateEstimates(Time current);
         virtual AbstractAction* buildAction() = 0;
