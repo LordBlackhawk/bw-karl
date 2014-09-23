@@ -160,6 +160,12 @@ void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
     status = Failed;
 }
 
+void AbstractPlanItem::addPurpose(AbstractPort* port, AbstractPlanItem* item)
+{
+    auto newport = new RequirePurposePort(this, port);
+    newport->connectTo(item);
+}
+
 Blackboard::Blackboard(AbstractExecutionEngine* e)
     : engine(e), activeExpert(NULL)
 { }

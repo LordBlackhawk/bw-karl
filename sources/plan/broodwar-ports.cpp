@@ -258,8 +258,8 @@ BWAPI::Unit* ProvideEnemyUnitPort::getUnit() const
     return getOwner()->getUnit();
 }
 
-BWAPI::Position ProvideEnemyUnitPort::getPosition() const 
-{ 
+BWAPI::Position ProvideEnemyUnitPort::getPosition() const
+{
     return getOwner()->getPosition();
 }
 
@@ -309,14 +309,65 @@ void RequireUnitExistancePort::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitRequireUnitExistancePort(this);
 }
 
-void RequireUnitExistancePort::connectTo(AbstractItem* provider)
+ProvideUnitExistancePort* RequireUnitExistancePort::connectTo(AbstractItem* provider)
 {
     if (isConnected() && (getConnectedPort()->getOwner() == provider))
-        return;
-    BaseClass::connectTo(new ProvideUnitExistancePort(provider, unitType));
+        return getConnectedPort();
+    auto result = new ProvideUnitExistancePort(provider, unitType);
+    BaseClass::connectTo(result);
+    return result;
 }
 
 AbstractAction* RequireUnitExistancePort::prepareForExecution(AbstractExecutionEngine* engine)
 {
     return (connection != NULL) ? connection->prepareForExecution(engine) : NULL;
+}
+
+
+ProvidePurposePort::ProvidePurposePort(AbstractPlanItem* o)
+    : BaseClass(o)
+{
+    estimatedDuration = 0;
+}
+
+void ProvidePurposePort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitProvidePurposePort(this);
+}
+
+AbstractAction* ProvidePurposePort::prepareForExecution(AbstractExecutionEngine* /*engine*/)
+{
+    return NULL;
+}
+
+
+RequirePurposePort::RequirePurposePort(AbstractPlanItem* o, AbstractPort* p)
+    : BaseClass(o), providePort(p)
+{ }
+
+void RequirePurposePort::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitRequirePurposePort(this);
+}
+
+AbstractAction* RequirePurposePort::prepareForExecution(AbstractExecutionEngine* /*engine*/)
+{
+    return NULL;
+}
+
+void RequirePurposePort::updateEstimates()
+{
+    if (!isConnected() || !owner->isPortRegistered(providePort)) {
+        estimatedTime = INFINITE_TIME;
+        return;
+    }
+    estimatedDuration = getOwner()->estimatedStartTime - providePort->estimatedTime;
+    estimatedTime     = getConnectedPort()->getOwner()->estimatedStartTime + estimatedDuration;
+}
+
+void RequirePurposePort::connectTo(AbstractPlanItem* provider)
+{
+    if (isConnected() && (getConnectedPort()->getOwner() == provider))
+        return;
+    BaseClass::connectTo(new ProvidePurposePort(provider));
 }

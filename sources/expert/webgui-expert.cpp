@@ -253,6 +253,22 @@ namespace
                     port->getConnectedPort(),
                     port->isConnected()?"true":"false");
             }
+            void visitProvidePurposePort(ProvidePurposePort* port) override
+            {
+                visitAbstractPort(port);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"connectedPort\":\"%p\",\"connected\":%s}",
+                    "ProvidePurposeExistance",
+                    port->getConnectedPort(),
+                    port->isConnected()?"true":"false");
+            }
+            void visitRequirePurposePort(RequirePurposePort* port) override
+            {
+                visitAbstractPort(port);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"connectedPort\":\"%p\",\"connected\":%s}",
+                    "RequirePurposeExistance",
+                    port->getConnectedPort(),
+                    port->isConnected()?"true":"false");
+            }
 
             void visitAbstractBoundaryItem(AbstractBoundaryItem* item) override
             {

@@ -194,11 +194,39 @@ class RequireUnitExistancePort final : public BasicPortImpl<RequireUnitExistance
         RequireUnitExistancePort(AbstractItem* o, BWAPI::UnitType ut);
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
-        void connectTo(AbstractItem* provider);
+        ProvideUnitExistancePort* connectTo(AbstractItem* provider);
         using BaseClass::connectTo;
 
         BWAPI::UnitType getUnitType() const { return unitType; }
 
     protected:
         BWAPI::UnitType unitType;
+};
+
+class RequirePurposePort;
+
+class ProvidePurposePort final : public BasicPortImpl<ProvidePurposePort, RequirePurposePort, false, true>
+{
+    public:
+        ProvidePurposePort(AbstractPlanItem* o);
+        void acceptVisitor(AbstractVisitor* visitor) override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+
+        inline AbstractPlanItem* getOwner() const { return static_cast<AbstractPlanItem*>(BaseClass::getOwner()); }
+};
+
+class RequirePurposePort final : public BasicPortImpl<RequirePurposePort, ProvidePurposePort, true, false>
+{
+    public:
+        RequirePurposePort(AbstractPlanItem* o, AbstractPort* p);
+        void acceptVisitor(AbstractVisitor* visitor) override;
+        AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
+        void updateEstimates() override;
+        void connectTo(AbstractPlanItem* provider);
+        using BaseClass::connectTo;
+
+        inline AbstractPlanItem* getOwner() const { return static_cast<AbstractPlanItem*>(BaseClass::getOwner()); }
+
+    protected:
+        AbstractPort* providePort;
 };

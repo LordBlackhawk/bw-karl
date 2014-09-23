@@ -2,7 +2,7 @@
 
 #include "basic-expert.hpp"
 
-class CleanUpExpert : public BasicPortExpert
+class CleanUpExpert : public BasicExpert
 {
     public:
         void visitAbstractPlanItem(AbstractPlanItem* item) override;
