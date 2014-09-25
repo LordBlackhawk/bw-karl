@@ -52,4 +52,6 @@ class AbstractExecutionEngine
         virtual AbstractEvent* popEvent() = 0;
         virtual void tick() = 0;
         virtual bool isActive(AbstractAction* action) const = 0;
+
+        virtual bool havePendingEvents() = 0;
 };

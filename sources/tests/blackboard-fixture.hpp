@@ -36,6 +36,7 @@ class MockupExecutionEngine : public AbstractExecutionEngine
         AbstractEvent* popEvent() override;
         void tick() override;
         bool isActive(AbstractAction* action) const override;
+        bool havePendingEvents() override;
 };
 
 class BlackboardFixture 

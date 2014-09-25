@@ -29,6 +29,9 @@ bool BasicExpert::tick(Blackboard* blackboard)
     return true;
 }
 
+void BasicExpert::matchEnd(Blackboard */*blackboard*/)
+{ }
+
 void BasicExpert::beginTraversal()
 { }
 

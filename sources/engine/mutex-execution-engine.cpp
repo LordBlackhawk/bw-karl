@@ -47,6 +47,12 @@ AbstractEvent* MutexExecutionEngine::popEvent()
     return result;
 }
 
+bool MutexExecutionEngine::havePendingEvents()
+{
+    return !events.empty();
+}
+
+
 void MutexExecutionEngine::tick()
 {
     exchangeInformations();

@@ -36,6 +36,7 @@ namespace
                     blackboard->tick();
                     Sleep(1);
                 }
+                blackboard->matchEnd();
             }
 
         private:
@@ -76,7 +77,31 @@ namespace
 
             void tick()
             {
-                Blackboard::sendFrameEvent(engine);
+                if(!Blackboard::sendFrameEvent(engine))
+                {
+                    LOG << "Match ended, waiting for remaining events to be processed...";
+
+                        //received MatchEnd event, continue to tick (without generating new frame events and without updating Broodwar) until all events are processed.
+                    while(engine->havePendingEvents())
+                    {
+                        if (thread == NULL)
+                            blackboard->tick();
+                        else
+                        {
+                            engine->tick();
+                            Sleep(1);
+                        }
+                    }
+
+                        //then tell everyone that the match ended and prepare shutdown.
+                    if (thread == NULL)
+                        blackboard->matchEnd();
+                    else
+                        thread->terminate();
+
+                    return;
+                }
+
                 if (thread == NULL)
                     blackboard->tick();
                 engine->tick();

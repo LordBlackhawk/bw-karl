@@ -10,6 +10,7 @@ class SecureExpert : public AbstractExpert
 
         void prepare() override;
         bool tick(Blackboard* blackboard) override;
+        void matchEnd(Blackboard* blackboard) override;
 
     protected:
         std::string     name;

@@ -28,6 +28,7 @@ class DefaultExecutionEngine : public AbstractExecutionEngine
         void tick();
         bool isActive(AbstractAction* action) const;
         bool containsAction(AbstractAction* action) const;
+        bool havePendingEvents() override;
 
         int numberOfActions() const { return actions.size(); }
         int numberOfActiveActions() const;

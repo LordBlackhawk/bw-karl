@@ -58,6 +58,8 @@ struct BlackboardInformations
     BWAPI::Player* self = NULL;
     BWAPI::Player* neutral = NULL;
 
+    bool isWinner = false;
+
     std::set<BaseLocation*>     allBaseLocations;
     std::set<BaseLocation*>     ownBaseLocations;
 

@@ -67,6 +67,11 @@ AbstractEvent* MockupExecutionEngine::popEvent()
     return event;
 }
 
+bool MockupExecutionEngine::havePendingEvents()
+{
+    return !events.empty();
+}
+
 BlackboardFixture::BlackboardFixture()
     : blackboard(new Blackboard(&engine)), unitCounter(0), numMockupActions(MockupAction::objectsAlive), numMockupPlanItems(MockupPlanItem::objectsAlive)
 {

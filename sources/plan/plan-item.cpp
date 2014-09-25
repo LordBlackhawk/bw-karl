@@ -346,6 +346,12 @@ void Blackboard::tick()
     }
 }
 
+void Blackboard::matchEnd()
+{
+    for(auto expert : experts)
+        expert->matchEnd(this);
+}
+
 void Blackboard::prepare()
 {
     informations.prepare();
@@ -368,7 +374,7 @@ namespace
     }
 }
 
-void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
+bool Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
 {
     BWAPI::Player* self = BWAPI::Broodwar->self();
     engine->generateEvent(new FrameEvent(BWAPI::Broodwar->getFrameCount(), self->minerals(), self->gas()));
@@ -386,6 +392,8 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
                                                               unit->getTilePosition(), unit->getPosition(), unit->getPlayer()));
         } else {
             engine->generateEvent(new BroodwarEvent(event));
+            if (event.getType() == BWAPI::EventType::MatchEnd)
+                return false;
         }
     }
 
@@ -398,6 +406,8 @@ void Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
             engine->generateEvent(new SimpleUnitUpdateEvent(unit, unit->getPosition(), getHealth(unit, unitType), BWAction::read(unit)));
         }
     }
+
+    return true;
 }
 
 void Blackboard::visitActionEvent(ActionEvent* event)
@@ -448,6 +458,10 @@ void Blackboard::visitBroodwarEvent(BroodwarEvent* event)
             delete it->second;
             unitBoundaries.erase(it);
         }
+    }
+    else if (e.getType() == BWAPI::EventType::MatchEnd) {
+        getInformations()->isWinner=e.isWinner();
+        LOG << "We "<<(e.isWinner()?"won.":"lost.");
     }
 }
 

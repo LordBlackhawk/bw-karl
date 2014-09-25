@@ -10,6 +10,7 @@ class BasicExpert : public AbstractExpert, public BasicVisitor
 
         void prepare() override;
         bool tick(Blackboard* blackboard) override;
+        void matchEnd(Blackboard* blackboard) override;
 
         virtual void beginTraversal();
         virtual void endTraversal();

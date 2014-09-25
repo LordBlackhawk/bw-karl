@@ -68,6 +68,11 @@ AbstractEvent* DefaultExecutionEngine::popEvent()
     return event;
 }
 
+bool DefaultExecutionEngine::havePendingEvents()
+{
+    return !events.empty();
+}
+
 void DefaultExecutionEngine::tick()
 {
     for (auto& it : actions)

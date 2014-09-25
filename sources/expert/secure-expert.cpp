@@ -32,3 +32,13 @@ bool SecureExpert::tick(Blackboard* blackboard)
     }
     return true;
 }
+
+void SecureExpert::matchEnd(Blackboard *blackboard)
+{
+    try {
+        blackboard->setActiveExpert(expert);
+        return expert->matchEnd(blackboard);
+    } catch (std::exception& e) {
+        LOG << blackboard->getLastUpdateTime() << ": Expert '" << name << "' raised exception '" << e.what() << "' while 'matchEnd'.";
+    }
+}

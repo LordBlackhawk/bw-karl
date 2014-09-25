@@ -106,6 +106,7 @@ class AbstractExpert : public AssertBase
         virtual ~AbstractExpert() = default;
         virtual void prepare() = 0;
         virtual bool tick(Blackboard* blackboard) = 0; // returns false if it should be removed.
+        virtual void matchEnd(Blackboard* blackboard) = 0;
 };
 
 class ProvideUnitPort;
@@ -127,7 +128,7 @@ class Blackboard : public BasicEventVisitor
         Blackboard(AbstractExecutionEngine* e);
         virtual ~Blackboard();
 
-        static void sendFrameEvent(AbstractExecutionEngine* engine);
+        static bool sendFrameEvent(AbstractExecutionEngine* engine);
 
         inline const std::vector<AbstractPlanItem*>& getItems() const { return items; }
         inline const std::map<BWAPI::Unit*, AbstractBoundaryItem*>& getBoundaries() const { return unitBoundaries; }
@@ -147,6 +148,7 @@ class Blackboard : public BasicEventVisitor
         void prepare();
         void recalculateEstimatedTimes();
         void tick();
+        void matchEnd();
 
         void visitActionEvent(ActionEvent* event) override;
         void visitFrameEvent(FrameEvent* event) override;
