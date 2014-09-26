@@ -120,6 +120,10 @@ function plangraphInit()
                         case "ProvideUnitExistance":
                             label="Existance: "+getShortUnitType(port.data.unitType);
                             break;
+                        case "RequirePurpose":
+                        case "ProvidePurpose":
+                            label="Purpose";
+                            break;
                         case "RequireEnemyUnit":
                         case "ProvideEnemyUnit":
                             label="Enemy: "+getShortUnitType(port.data.unitType);

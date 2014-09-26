@@ -257,7 +257,7 @@ namespace
             {
                 visitAbstractPort(port);
                 mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"connectedPort\":\"%p\",\"connected\":%s}",
-                    "ProvidePurposeExistance",
+                    "ProvidePurpose",
                     port->getConnectedPort(),
                     port->isConnected()?"true":"false");
             }
@@ -265,7 +265,7 @@ namespace
             {
                 visitAbstractPort(port);
                 mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"connectedPort\":\"%p\",\"connected\":%s}",
-                    "RequirePurposeExistance",
+                    "RequirePurpose",
                     port->getConnectedPort(),
                     port->isConnected()?"true":"false");
             }
