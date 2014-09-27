@@ -40,25 +40,30 @@ ifndef DEPLOYMODE
     DEPLOYMODE = single
 endif
 
+ifndef DONOTBUILD
+    KARLEXE   = karl.exe
+    TESTSEXE  = tests.exe
+endif
+
 all: $(MODULEFILES)
 
-run: karl.exe deploy-$(DEPLOYMODE)
+run: $(KARLEXE) deploy-$(DEPLOYMODE)
 	$< --parallel $(KARLPARAMS)
 
-runseq: karl.exe deploy-$(DEPLOYMODE)
+runseq: $(KARLEXE) deploy-$(DEPLOYMODE)
 	$< $(KARLPARAMS)
 
-debug: karl.exe deploy-$(DEPLOYMODE)
+debug: $(KARLEXE) deploy-$(DEPLOYMODE)
 	gdb --args $< $(KARLPARAMS)
 
-test-smart-turn: karl.exe $(STARCRAFTMAPSPATH)test-smart-turn-around.scx deploy-test-smart-turn
+test-smart-turn: $(KARLEXE) $(STARCRAFTMAPSPATH)test-smart-turn-around.scx deploy-test-smart-turn
 	$< --parallel --hud --speed=100 --only TestSmartTurnAroundExpert
 
-test: tests.exe
+test: $(TESTSEXE)
 	@echo ' ##############################################################################'
 	@$< -p
 
-showtest: tests.exe
+showtest: $(TESTSEXE)
 	@echo ' ##############################################################################'
 	$< -l test_suite
 
