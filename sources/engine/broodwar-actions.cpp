@@ -185,9 +185,9 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
 
     BWAPI::Position myPos = unit->getPosition();
     double dist = myPos.getDistance(pos);
-    if (dist < 32.0)
+    if (dist < 64.0)
         {
-        unit->move(pos);   // if we want to move for less than 32 in micro management
+        unit->move(pos);   // if we want to move for less than 64 in micro management
         return Finished;
         }
 
@@ -202,7 +202,10 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
             drawInformations("turning");
             double cosAngle = (pos.x() - myPos.x())/dist;
             double sinAngle = (pos.y() - myPos.y())/dist;
-            double currentAngle = unit->getAngle();
+            if(firstCall == true) {
+			currentAngle = unit->getAngle();
+			firstCall = false;
+			}
             if ((std::abs(cos(currentAngle) - cosAngle) + std::abs(sin(currentAngle) - sinAngle)) > 0.1)
                 {
                     double angle = atan2(sinAngle, cosAngle);
@@ -211,14 +214,13 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
                     // Rechts oder Links herum drehen?
                     if(diffAngle > M_PI) diffAngle = diffAngle-2*M_PI;
                     if(diffAngle < -M_PI) diffAngle = 2*M_PI+diffAngle;
-                    // the function unit->getAngle() is unstable and needs local treatment depending on the angle
-                    if(std::abs(diffAngle) > 2) diffAngle = diffAngle/10;
-                    if(std::abs(diffAngle) > 1) diffAngle = diffAngle/5;
-                    if(std::abs(diffAngle) > 0.4) diffAngle = diffAngle/2;
-                    double newAngle = currentAngle + diffAngle;
+					// Sign + cutoff function
+                    if(diffAngle > 0.2) diffAngle = 0.2;
+					if(diffAngle < -0.2) diffAngle = -0.2;
+					currentAngle = currentAngle + diffAngle;
                     //BWAPI::Broodwar->drawTextScreen(160, 26, "Angle: %f vs %f, %f und %f", angle, currentAngle, diffAngle, newAngle);
-                    unit->move(BWAPI::Position(myPos.x()+round(100*cos(newAngle)),myPos.y()+round(100*sin(newAngle))));
-                    BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), myPos.x()+round(100*cos(newAngle)), myPos.y()+round(100*sin(newAngle)), BWAPI::Colors::Red);
+                    unit->move(BWAPI::Position(myPos.x()+round(100*cos(currentAngle)),myPos.y()+round(100*sin(currentAngle))));
+					BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), myPos.x()+round(100*cos(currentAngle)), myPos.y()+round(100*sin(currentAngle)), BWAPI::Colors::Blue);
                 }
             else
                 {
@@ -253,7 +255,10 @@ AttackPositionAction::Status AttackPositionAction::onTick(AbstractExecutionEngin
 
     BWAPI::Position myPos = unit->getPosition();
     if (myPos.getDistance(pos) < 32.0)
-        return Finished;
+		{
+			unit->attack(pos);
+			return Finished;
+		}
 
     drawInformations("attackingPosition");
     if (OptionsRegistrar::optHUD())

@@ -60,6 +60,8 @@ class MoveToPositionAction : public UnitAction
     protected:
         BWAPI::Position     pos;
         bool isTurning;
+		double currentAngle;
+		bool firstCall = true;
         bool useSmartTurnAround;
 };
 
