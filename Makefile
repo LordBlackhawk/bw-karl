@@ -43,6 +43,8 @@ endif
 ifndef DONOTBUILD
     KARLEXE   = karl.exe
     TESTSEXE  = tests.exe
+else
+    KARLEXE   = karl.sh
 endif
 
 all: $(MODULEFILES)
@@ -58,6 +60,15 @@ debug: $(KARLEXE) deploy-$(DEPLOYMODE)
 
 test-smart-turn: $(KARLEXE) $(STARCRAFTMAPSPATH)test-smart-turn-around.scx deploy-test-smart-turn
 	$< --parallel --hud --speed=100 --only TestSmartTurnAroundExpert
+	
+ifndef EXPERIMENT_UNITTYPE
+    EXPERIMENT_UNITTYPE="Terran Marine"
+endif
+ifndef EXPERIMENT_REPETITIONS
+    EXPERIMENT_REPETITIONS=2
+endif
+learning-fight-winnable: $(KARLEXE) $(STARCRAFTMAPSPATH)learn-fight-winnable-1.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-2.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-3.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-4.scx deploy-learning-fight-winnable
+	$< --parallel --hud --speed=0 --only LearningFightWinnableExperimentExpert --experiment sametype --unittype $(EXPERIMENT_UNITTYPE) --mappath $(STARCRAFTMAPSPATH) --repetitions $(EXPERIMENT_REPETITIONS) 
 
 test: $(TESTSEXE)
 	@echo ' ##############################################################################'
@@ -123,6 +134,9 @@ cppcheck: CPPCHECK-exists
 	$(CPPCHECK) -j4 -I./includes/ -i$(BOOST_PATH) --std=c++11 --enable=all --max-configs=1 --library=std $(CPPCHECKDEFINES) sources/*/*.cpp --xml 2> cppcheck-errors.xml
 
 $(STARCRAFTMAPSPATH)%.scx: $(MAPSPATH)%.scx | $(STARCRAFTMAPSPATH)
+	cp $< $@
+	
+$(STARCRAFTMAPSPATH)learn-fight-winnable-%.scx: $(MAPSPATH)template-fight-winnable.scx | $(STARCRAFTMAPSPATH)
 	cp $< $@
 
 ifdef STARCRAFTPATH
