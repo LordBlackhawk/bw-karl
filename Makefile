@@ -67,8 +67,11 @@ endif
 ifndef EXPERIMENT_REPETITIONS
     EXPERIMENT_REPETITIONS=2
 endif
+ifdef EXPERIMENT_NODRAW
+    EXPERIMENT_NODRAW=--nodraw
+endif
 learning-fight-winnable: $(KARLEXE) $(STARCRAFTMAPSPATH)learn-fight-winnable-1.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-2.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-3.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-4.scx deploy-learning-fight-winnable
-	$< --parallel --hud --speed=0 --only LearningFightWinnableExperimentExpert --experiment sametype --unittype $(EXPERIMENT_UNITTYPE) --mappath $(STARCRAFTMAPSPATH) --repetitions $(EXPERIMENT_REPETITIONS) 
+	$< --parallel --hud --speed=0 --only LearningFightWinnableExperimentExpert --experiment sametype --unittype $(EXPERIMENT_UNITTYPE) --mappath $(STARCRAFTMAPSPATH) --repetitions $(EXPERIMENT_REPETITIONS) $(EXPERIMENT_NODRAW)
 
 test: $(TESTSEXE)
 	@echo ' ##############################################################################'

@@ -77,6 +77,14 @@ $(document).ready(function()
         },'text');
     });
 
+    $('#engine-draw').on('change',function(){
+        $.post('gamedraw', {value:$(this).is(':checked')?1:0},function(data)
+        {
+            if(data!=="ok")
+                alert(data);
+        },'text');
+    });
+
     $('#engine-step').on('click', function(){
         $.post('step', {}, function(data)
         {
