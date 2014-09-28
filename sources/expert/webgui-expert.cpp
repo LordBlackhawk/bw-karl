@@ -541,17 +541,37 @@ namespace
 
                 return MG_TRUE;
             }
-            else if(strcmp(conn->uri,"/interrupt")==0)
+            else if(strcmp(conn->uri,"/gamespeed")==0)
             {
+                int speed=0;
+
                 mg_send_header(conn, "Content-Type", "text/plain");
 
-                if(!currentBlackboard)
+                if(get_request_int(conn,"value",speed))
                 {
-                    mg_printf_data(conn,"err: not in game.");
+                    BWAPI::Broodwar->setLocalSpeed(speed);
+
+                    LOG << "WebGUIExpert: setLocalSpeed("<<speed<<");";
+
+                    mg_printf_data(conn,"ok");
                 }
-                else
+
+                return MG_TRUE;
+            }
+            else if(strcmp(conn->uri,"/gamedraw")==0)
+            {
+                int draw;
+
+                mg_send_header(conn, "Content-Type", "text/plain");
+
+                if(get_request_int(conn,"value",draw))
                 {
-                    requestInterruptLoop=true;
+                    if(draw==0)
+                        BWAPI::Broodwar->setLocalSpeed(0);
+                    BWAPI::Broodwar->setGUI(draw!=0);
+
+                    LOG << "WebGUIExpert: setGUI("<<(draw!=0)<<");";
+
                     mg_printf_data(conn,"ok");
                 }
 
