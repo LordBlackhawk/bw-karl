@@ -127,3 +127,13 @@ void BasicVisitor::visitGiveUpPlanItem(GiveUpPlanItem* item)
 {
     visitAbstractPlanItem(item);
 }
+
+void BasicVisitor::visitResearchTechPlanItem(ResearchTechPlanItem* item)
+{
+    visitAbstractPlanItem(item);
+}
+
+void BasicVisitor::visitUpgradePlanItem(UpgradePlanItem* item)
+{
+    visitAbstractPlanItem(item);
+}

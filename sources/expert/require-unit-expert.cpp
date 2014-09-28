@@ -1,9 +1,17 @@
 #include "require-unit-expert.hpp"
 #include "expert-registrar.hpp"
 #include "plan/broodwar-ports.hpp"
+#include "utils/log.hpp"
 #include <algorithm>
+#include <queue>
 
 REGISTER_EXPERT(RequireUnitExpert)
+
+void RequireUnitExpert::beginTraversal()
+{
+    provideMap.clear();
+    requireMap.clear();
+}
 
 bool RequireUnitExpert::activeUnitType(const BWAPI::UnitType unitType) const
 {
@@ -12,14 +20,16 @@ bool RequireUnitExpert::activeUnitType(const BWAPI::UnitType unitType) const
 
 void RequireUnitExpert::visitProvideUnitPort(ProvideUnitPort* port)
 {
+    assert(!port->isActiveConnection());
     BWAPI::UnitType unitType = port->getUnitType();
-    if (!activeUnitType(unitType) || port->isImpossible())
+    if (!activeUnitType(unitType))
         return;
     provideMap[unitType].push_back(port);
 }
 
 void RequireUnitExpert::visitRequireUnitPort(RequireUnitPort* port)
 {
+    assert(!port->isActiveConnection());
     BWAPI::UnitType unitType = port->getUnitType();
     if (!activeUnitType(unitType))
         return;
@@ -46,9 +56,65 @@ void RequireUnitExpert::endTraversal()
     requireMap.clear();
 }
 
-void RequireUnitExpert::handleQueued(const BWAPI::UnitType /*unitType*/, const std::vector<ProvideUnitPort*>& /*provide*/, const std::vector<RequireUnitPort*>& /*require*/)
+namespace
 {
-    assert( false && "not yet implemented!" );
+    struct RequireProvideUnitPair
+    {
+        RequireUnitPort*    require = NULL;
+        ProvideUnitPort*    provide = NULL;
+        bool operator < (const RequireProvideUnitPair& other) const
+        {
+            return require->estimatedTime < other.require->estimatedTime;
+        }
+    };
+    struct ProviderWithTime
+    {
+        ProvideUnitPort*    provide;
+        Time                estimatedTime;
+        ProviderWithTime(ProvideUnitPort* p, Time t)
+            : provide(p), estimatedTime(t)
+        { }
+        bool operator < (const ProviderWithTime& other) const
+        {
+            return estimatedTime < other.estimatedTime;
+        }
+    };
+}
+
+void RequireUnitExpert::handleQueued(const BWAPI::UnitType /*unitType*/, const std::vector<ProvideUnitPort*>& provide, const std::vector<RequireUnitPort*>& require)
+{
+    if ((provide.size() == 0) || (require.size() == 0))
+        return;
+
+    // 1. Collect items, which are owned by the same plan item.
+    std::map<AbstractItem*, RequireProvideUnitPair>  items;
+    for (auto it : provide)
+        items[it->getOwner()].provide = it;
+    for (auto it : require)
+        items[it->getOwner()].require = it;
+
+    // 2. There are simple provider and require/provider, but no only require. Sort them...
+    std::priority_queue<ProviderWithTime> provider;
+    std::vector<RequireProvideUnitPair> pairs;
+    for (auto it : items) {
+        auto& pair = it.second;
+        assert(pair.provide != NULL);
+        if (pair.require == NULL) {
+            provider.push(ProviderWithTime(pair.provide, pair.provide->estimatedTime));
+        } else {
+            pairs.push_back(pair);
+        }
+    }
+    std::sort(pairs.begin(), pairs.end());
+
+    // 3. Distribute pairs among the provider:
+    for (auto it : pairs) {
+        auto& top = provider.top();
+        Time estimatedTime = top.estimatedTime + it.provide->estimatedTime - it.require->estimatedTime;
+        top.provide->connectTo(it.require);
+        provider.pop();
+        provider.push(ProviderWithTime(it.provide, estimatedTime));
+    }
 }
 
 void RequireUnitExpert::handleLarva(const std::vector<ProvideUnitPort*>& provide, const std::vector<RequireUnitPort*>& require)

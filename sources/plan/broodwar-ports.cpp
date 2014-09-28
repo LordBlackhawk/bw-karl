@@ -160,6 +160,11 @@ ResourceBoundaryItem* ProvideResourcePort::getOwner() const
     return static_cast<ResourceBoundaryItem*>(owner);
 }
 
+bool ProvideResourcePort::isMineralField() const
+{
+    return getOwner()->getUnitType().isMineralField();
+}
+
 RequireResourcePort::RequireResourcePort(AbstractItem* o, ResourceBoundaryItem* m)
     : BaseClass(o)
 {

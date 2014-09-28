@@ -8,6 +8,7 @@
 class RequireUnitExpert : public BasicPortExpert
 {
     public:
+        void beginTraversal() override;
         void endTraversal() override;
 
         void visitProvideUnitPort(ProvideUnitPort* port) override;

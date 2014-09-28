@@ -68,6 +68,11 @@ AbstractAction* GatherResourcesPlanItem::buildAction()
     return new CollectResourcesAction(unit, requireResource.getUnit());
 }
 
+bool GatherResourcesPlanItem::isGatherMinerals() const
+{
+    return requireResource.isMineralField();
+}
+
 
 MorphUnitPlanItem::MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* provider)
     : AbstractSimpleUnitPlanItem(type.whatBuilds().first),
@@ -237,6 +242,61 @@ void BuildPlanItem::removeFinished(AbstractAction* action)
 }
 
 
+ResearchTechPlanItem::ResearchTechPlanItem(BWAPI::TechType t)
+    : AbstractSimpleUnitPlanItem(t.whatResearches()),
+      requireResources(this, t.mineralPrice(), t.gasPrice()),
+      tech(t)
+{
+    provideUnit.updateData(t.whatResearches(), BWAPI::Positions::Unknown);
+}
+
+void ResearchTechPlanItem::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitResearchTechPlanItem(this);
+}
+
+AbstractAction* ResearchTechPlanItem::buildAction()
+{
+    unit = requireUnit.getUnit();
+    if (unit == NULL)
+        return NULL;
+    return new ResearchTechAction(unit, tech);
+}
+
+void ResearchTechPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
+{
+    setExecuting();
+    removePort(&requireResources);
+}
+
+
+UpgradePlanItem::UpgradePlanItem(BWAPI::UpgradeType u, int l)
+    : AbstractSimpleUnitPlanItem(u.whatUpgrades()),
+      requireResources(this, u.mineralPrice(l), u.gasPrice(l)),
+      upgrade(u),
+      level(l)
+{
+    provideUnit.updateData(u.whatUpgrades(), BWAPI::Positions::Unknown);
+}
+
+void UpgradePlanItem::acceptVisitor(AbstractVisitor* visitor)
+{
+    visitor->visitUpgradePlanItem(this);
+}
+
+AbstractAction* UpgradePlanItem::buildAction()
+{
+    unit = requireUnit.getUnit();
+    if (unit == NULL)
+        return NULL;
+    return new UpgradeAction(unit, upgrade);
+}
+
+void UpgradePlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
+{
+    setExecuting();
+    removePort(&requireResources);
+}
 
 
 GiveUpPlanItem::GiveUpPlanItem()

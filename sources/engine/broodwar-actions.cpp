@@ -307,6 +307,73 @@ AttackUnitAction::Status AttackUnitAction::onTick(AbstractExecutionEngine* /*eng
     return Failed;
 }
 
+ResearchTechAction::ResearchTechAction(BWAPI::Unit* myunit, BWAPI::TechType t, AbstractAction* pre)
+    : UnitAction(myunit, pre), tech(t), waitFrames(5)
+{ }
+
+ResearchTechAction::Status ResearchTechAction::onTick(AbstractExecutionEngine* /*engine*/)
+{
+    if (!unit->exists())
+        return Failed;
+
+    if (unit->isResearching()) {
+        waitFrames = -1;
+        return Running;
+    }
+
+    if (!unit->isIdle())
+        return Running;
+
+    if (waitFrames == -1)
+        return Finished;
+
+    if (waitFrames > 0) {
+        --waitFrames;
+        return Running;
+    }
+
+    if (unit->research(tech))
+        return Running;
+
+    LOG << "ResearchTechAction failed with " << BWAPI::Broodwar->getLastError();
+    return Failed;
+}
+
+
+UpgradeAction::UpgradeAction(BWAPI::Unit* myunit, BWAPI::UpgradeType u, AbstractAction* pre)
+    : UnitAction(myunit, pre), upgrade(u), waitFrames(5)
+{ }
+
+UpgradeAction::Status UpgradeAction::onTick(AbstractExecutionEngine* /*engine*/)
+{
+    // There is a bug in StarCraft: If upgrade(...) is called one of the first frames after a building is finished, the upgrade does not really start but blocks the building.
+
+    if (!unit->exists())
+        return Failed;
+
+    if (unit->isUpgrading()) {
+        waitFrames = -1;
+        return Running;
+    }
+
+    if (!unit->isIdle())
+        return Running;
+
+    if (waitFrames == -1)
+        return Finished;
+
+    if (waitFrames > 0) {
+        --waitFrames;
+        return Running;
+    }
+
+    if (unit->upgrade(upgrade))
+        return Running;
+
+    LOG << "UpgradeAction failed with " << BWAPI::Broodwar->getLastError();
+    return Failed;
+}
+
 
 SendTextAction::SendTextAction(std::string msg, bool toAlliesOnly, AbstractAction* pre)
     : AbstractAction(pre), message(msg), toAllies(toAlliesOnly)
