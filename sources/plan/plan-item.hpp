@@ -138,6 +138,7 @@ class Blackboard : public BasicEventVisitor
         inline Time getLastUpdateTime() const { return informations.lastUpdateTime; }
         inline BWAPI::Player* self() const { return informations.self; }
         inline BWAPI::Player* neutral() const { return informations.neutral; }
+        inline Time getActionHorizon() const { return informations.lastUpdateTime + 10; }
 
         void addItem(AbstractPlanItem* item);
         void removeItem(AbstractPlanItem* item);

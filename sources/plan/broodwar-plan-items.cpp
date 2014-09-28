@@ -68,6 +68,11 @@ AbstractAction* GatherResourcesPlanItem::buildAction()
     return new CollectResourcesAction(unit, requireResource.getUnit());
 }
 
+bool GatherResourcesPlanItem::isGatherMinerals() const
+{
+    return requireResource.isMineralField();
+}
+
 
 MorphUnitPlanItem::MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* provider)
     : AbstractSimpleUnitPlanItem(type.whatBuilds().first),

@@ -29,6 +29,9 @@ class GatherResourcesPlanItem : public AbstractSimpleUnitPlanItem
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* buildAction() override;
+
+        bool isGatherMinerals() const;
+        inline bool isGatherGas() const { return !isGatherMinerals(); }
 };
 
 class MorphUnitPlanItem : public AbstractSimpleUnitPlanItem

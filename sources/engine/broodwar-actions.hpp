@@ -97,6 +97,7 @@ class ResearchTechAction : public UnitAction
 
     protected:
         BWAPI::TechType tech;
+        int waitFrames;
 };
 
 class UpgradeAction : public UnitAction
@@ -106,9 +107,8 @@ class UpgradeAction : public UnitAction
         Status onTick(AbstractExecutionEngine* engine) override;
 
     protected:
-        enum Mode { started, waitFrame, waitFinished, commandGiven, commandAccepted };
         BWAPI::UpgradeType upgrade;
-        Mode mode;
+        int waitFrames;
 };
 
 

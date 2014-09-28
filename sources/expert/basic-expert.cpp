@@ -63,7 +63,7 @@ void BasicPortExpert::visitAbstractPlanItem(AbstractPlanItem* item)
     if (item->isActive()) {
         // Do not visit active connection to avoid mistakes.
         for (auto it : item->ports)
-            if (!it->isActiveConnection() && !it->isRequirePort())
+            if (!it->isActiveConnection())
                 it->acceptVisitor(this);
     } else {
         for (auto it : item->ports)

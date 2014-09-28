@@ -348,9 +348,9 @@ void Blackboard::tick()
     recalculateEstimatedTimes();
 
     // 4. Execute actions which are planned soon
-    const Time timeHorizont = getLastUpdateTime() + 10;
+    const Time timeHorizon = getActionHorizon();
     for (auto it : items)
-        if (it->isPlanned() && (it->estimatedStartTime < timeHorizont))
+        if (it->isPlanned() && (it->estimatedStartTime < timeHorizon))
     {
         AbstractAction* action = it->prepareForExecution(engine);
         if (action != NULL) {
