@@ -1,5 +1,5 @@
 # The user.mk is used for adaption to a computer configuration.
-# You can specify STARCRAFTPATH, CPPCHECK, MAKEFLAGS, DEPLOYMODE, DONOTBUILD.
+# You can specify STARCRAFTPATH, CPPCHECK, MAKEFLAGS, DEPLOYMODE, DONOTBUILD, KARLPARAMS.
 -include user.mk
 
 LIBRARIES           = utils engine plan expert
@@ -40,29 +40,29 @@ ifndef DEPLOYMODE
 endif
 
 ifndef KARLPARAMS
-    KARLPARAMS          = --hud --speed=0 --secure --webgui --disable GiveUpExpert
+    KARLPARAMS = --hud --speed=0 --secure --webgui --disable GiveUpExpert
 endif
 
+KARLEXE   = karl.exe
+TESTSEXE  = tests.exe
 ifndef DONOTBUILD
-    KARLEXE   = karl.exe
-    TESTSEXE  = tests.exe
-else
-    KARLEXE   = karl.sh
+    KARLEXE-DONOTBUILD = $(KARLEXE)
+    TESTSEXE-DONOTBUILD = $(TESTSEXE)
 endif
 
 all: $(MODULEFILES)
 
-run: $(KARLEXE) deploy-$(DEPLOYMODE)
-	$< --parallel $(KARLPARAMS)
+run: $(KARLEXE-DONOTBUILD) deploy-$(DEPLOYMODE)
+	$(KARLEXE) --parallel $(KARLPARAMS)
 
-runseq: $(KARLEXE) deploy-$(DEPLOYMODE)
-	$< $(KARLPARAMS)
+runseq: $(KARLEXE-DONOTBUILD) deploy-$(DEPLOYMODE)
+	$(KARLEXE) $(KARLPARAMS)
 
-debug: $(KARLEXE) deploy-$(DEPLOYMODE)
-	gdb --args karl.exe $(KARLPARAMS)
+debug: $(KARLEXE-DONOTBUILD) deploy-$(DEPLOYMODE)
+	gdb --args $(KARLEXE) $(KARLPARAMS)
 
-test-smart-turn: $(KARLEXE) $(STARCRAFTMAPSPATH)test-smart-turn-around.scx deploy-test-smart-turn
-	$< --parallel --hud --speed=100 --only TestSmartTurnAroundExpert
+test-smart-turn: $(KARLEXE-DONOTBUILD) $(STARCRAFTMAPSPATH)test-smart-turn-around.scx deploy-test-smart-turn
+	$(KARLEXE) --parallel --hud --speed=100 --only TestSmartTurnAroundExpert
 
 ifndef EXPERIMENT_UNITTYPE
     EXPERIMENT_UNITTYPE="Terran Marine"
@@ -73,16 +73,16 @@ endif
 ifdef EXPERIMENT_NODRAW
     EXPERIMENT_NODRAW=--nodraw
 endif
-learning-fight-winnable: $(KARLEXE) $(STARCRAFTMAPSPATH)learn-fight-winnable-1.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-2.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-3.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-4.scx deploy-learning-fight-winnable
-	$< --parallel --hud --speed=0 --only LearningFightWinnableExperimentExpert --experiment sametype --unittype $(EXPERIMENT_UNITTYPE) --mappath $(STARCRAFTMAPSPATH) --repetitions $(EXPERIMENT_REPETITIONS) $(EXPERIMENT_NODRAW)
+learning-fight-winnable: $(KARLEXE-DONOTBUILD) $(STARCRAFTMAPSPATH)learn-fight-winnable-1.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-2.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-3.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-4.scx deploy-learning-fight-winnable
+	$(KARLEXE) --parallel --hud --speed=0 --only LearningFightWinnableExperimentExpert --experiment sametype --unittype $(EXPERIMENT_UNITTYPE) --mappath $(STARCRAFTMAPSPATH) --repetitions $(EXPERIMENT_REPETITIONS) $(EXPERIMENT_NODRAW)
 
-test: $(TESTSEXE)
+test: $(TESTSEXE-DONOTBUILD)
 	@echo ' ##############################################################################'
-	@tests.exe -p
+	@$(TESTSEXE) -p
 
-showtest: $(TESTSEXE)
+showtest: $(TESTSEXE-DONOTBUILD)
 	@echo ' ##############################################################################'
-	$tests.exe -l test_suite
+	$$(TESTSEXE) -l test_suite
 
 testcov: coverage_tests.exe
 	$< -p
