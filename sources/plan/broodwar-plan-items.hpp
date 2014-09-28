@@ -116,6 +116,43 @@ class BuildPlanItem : public AbstractSimpleUnitPlanItem
         BWAPI::UnitType     unitType;
 };
 
+class ResearchTechPlanItem : public AbstractSimpleUnitPlanItem
+{
+    public:
+        ResourcePort        requireResources;
+
+        ResearchTechPlanItem(BWAPI::TechType t);
+
+        void acceptVisitor(AbstractVisitor* visitor) override;
+        AbstractAction* buildAction() override;
+
+        void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
+
+        inline BWAPI::TechType getTechType() const { return tech; }
+
+    protected:
+        BWAPI::TechType     tech;
+};
+
+class UpgradePlanItem : public AbstractSimpleUnitPlanItem
+{
+    public:
+        ResourcePort        requireResources;
+
+        UpgradePlanItem(BWAPI::UpgradeType u, int l = 1);
+
+        void acceptVisitor(AbstractVisitor* visitor) override;
+        AbstractAction* buildAction() override;
+
+        void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
+
+        inline BWAPI::UpgradeType getUpgradeType() const { return upgrade; }
+
+    protected:
+        BWAPI::UpgradeType  upgrade;
+        int                 level;
+};
+
 
 class GiveUpPlanItem : public AbstractPlanItem
 {

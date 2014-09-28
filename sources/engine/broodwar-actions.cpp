@@ -302,6 +302,73 @@ AttackUnitAction::Status AttackUnitAction::onTick(AbstractExecutionEngine* /*eng
     return Failed;
 }
 
+ResearchTechAction::ResearchTechAction(BWAPI::Unit* myunit, BWAPI::TechType t, AbstractAction* pre)
+    : UnitAction(myunit, pre), tech(t)
+{ }
+
+ResearchTechAction::Status ResearchTechAction::onTick(AbstractExecutionEngine* /*engine*/)
+{
+    if (!unit->exists())
+        return Failed;
+
+    if (unit->isResearching())
+        return Running;
+
+    if (unit->research(tech))
+        return Running;
+
+    LOG << "ResearchTechAction failed with " << BWAPI::Broodwar->getLastError();
+    return Failed;
+}
+
+
+UpgradeAction::UpgradeAction(BWAPI::Unit* myunit, BWAPI::UpgradeType u, AbstractAction* pre)
+    : UnitAction(myunit, pre), upgrade(u), mode(started)
+{ }
+
+UpgradeAction::Status UpgradeAction::onTick(AbstractExecutionEngine* /*engine*/)
+{
+    if (!unit->exists())
+        return Failed;
+
+    if (unit->isUpgrading()) {
+        if (mode != commandAccepted)
+            LOG << "Upgrade command accepted.";
+        mode = commandAccepted;
+        return Running;
+    }
+
+    switch (mode)
+    {
+        case waitFrame:
+            if (unit->isIdle())
+                mode = waitFinished;
+            return Running;
+        case waitFinished:
+            break;
+        case commandAccepted:
+            LOG << "Upgrade finished.";
+            return Finished;
+        case commandGiven:
+            return Running;
+    }
+
+    if (!unit->isIdle())
+        return Running;
+
+    //if (BWAPI::Broodwar->getFrameCount() % 100 != 50)
+    //    return Running;
+
+    if (unit->upgrade(upgrade)) {
+        LOG << "Upgrade started.";
+        mode = commandGiven;
+        return Running;
+    }
+
+    LOG << "UpgradeAction failed with " << BWAPI::Broodwar->getLastError();
+    return Failed;
+}
+
 
 SendTextAction::SendTextAction(std::string msg, bool toAlliesOnly, AbstractAction* pre)
     : AbstractAction(pre), message(msg), toAllies(toAlliesOnly)

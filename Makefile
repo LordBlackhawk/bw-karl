@@ -1,5 +1,5 @@
 # The user.mk is used for adaption to a computer configuration.
-# You can specify STARCRAFTPATH, CPPCHECK, MAKEFLAGS, DEPLOYMODE.
+# You can specify STARCRAFTPATH, CPPCHECK, MAKEFLAGS, DEPLOYMODE, DONOTBUILD.
 -include user.mk
 
 LIBRARIES           = utils engine plan expert
@@ -12,7 +12,6 @@ BOOST_PATH          = ./includes/boost/
 MYBWAPIDATAPATH     = ./bwapi-data/
 MAPSPATH            = $(MYBWAPIDATAPATH)maps/
 CPPCHECKDEFINES     = -UBOOST_BORLAND_DEBUG -UBOOST_DEBUG_PYTHON -UBOOST_ALL_DYN_LINK -U__BORLANDC__ -U_RTLDLL -UBOOST_ABI_PREFIX -UBOOST_ABI_SUFFIX -UBOOST_ASSERT_CONFIG
-KARLPARAMS          = --hud --speed=0 --secure --webgui --disable GiveUpExpert
 
 LIBFILES            = $(addprefix $(LIBPATH)lib, $(addsuffix .a, $(LIBRARIES)))
 COVERAGELIBFILES    = $(addprefix $(LIBPATH)libcoverage_, $(addsuffix .a, $(LIBRARIES)))
@@ -40,6 +39,10 @@ ifndef DEPLOYMODE
     DEPLOYMODE = single
 endif
 
+ifndef KARLPARAMS
+    KARLPARAMS          = --hud --speed=0 --secure --webgui --disable GiveUpExpert
+endif
+
 ifndef DONOTBUILD
     KARLEXE   = karl.exe
     TESTSEXE  = tests.exe
@@ -48,24 +51,24 @@ endif
 all: $(MODULEFILES)
 
 run: $(KARLEXE) deploy-$(DEPLOYMODE)
-	$< --parallel $(KARLPARAMS)
+	karl.exe --parallel $(KARLPARAMS)
 
 runseq: $(KARLEXE) deploy-$(DEPLOYMODE)
-	$< $(KARLPARAMS)
+	karl.exe $(KARLPARAMS)
 
 debug: $(KARLEXE) deploy-$(DEPLOYMODE)
-	gdb --args $< $(KARLPARAMS)
+	gdb --args karl.exe $(KARLPARAMS)
 
 test-smart-turn: $(KARLEXE) $(STARCRAFTMAPSPATH)test-smart-turn-around.scx deploy-test-smart-turn
-	$< --parallel --hud --speed=100 --only TestSmartTurnAroundExpert
+	karl.exe --parallel --hud --speed=100 --only TestSmartTurnAroundExpert
 
 test: $(TESTSEXE)
 	@echo ' ##############################################################################'
-	@$< -p
+	@tests.exe -p
 
 showtest: $(TESTSEXE)
 	@echo ' ##############################################################################'
-	$< -l test_suite
+	$tests.exe -l test_suite
 
 testcov: coverage_tests.exe
 	$< -p

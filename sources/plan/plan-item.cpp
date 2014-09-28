@@ -281,6 +281,20 @@ AttackPositionPlanItem* Blackboard::attack(ProvideUnitPort* provider, BWAPI::Pos
     return result;
 }
 
+ResearchTechPlanItem* Blackboard::research(BWAPI::TechType tech)
+{
+    auto result = new ResearchTechPlanItem(tech);
+    addItem(result);
+    return result;
+}
+
+UpgradePlanItem* Blackboard::upgrade(BWAPI::UpgradeType upgrade)
+{
+    auto result = new UpgradePlanItem(upgrade);
+    addItem(result);
+    return result;
+}
+
 GiveUpPlanItem* Blackboard::giveUp()
 {
     auto result = new GiveUpPlanItem();

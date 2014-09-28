@@ -30,6 +30,8 @@ class MoveToPositionPlanItem;
 class BuildPlanItem;
 class AttackUnitPlanItem;
 class AttackPositionPlanItem;
+class ResearchTechPlanItem;
+class UpgradePlanItem;
 
 class AbstractVisitor
 {
@@ -62,6 +64,8 @@ class AbstractVisitor
         virtual void visitAttackUnitPlanItem(AttackUnitPlanItem* item) = 0;
         virtual void visitAttackPositionPlanItem(AttackPositionPlanItem* item) = 0;
         virtual void visitGiveUpPlanItem(GiveUpPlanItem* item) = 0;
+        virtual void visitResearchTechPlanItem(ResearchTechPlanItem* item) = 0;
+        virtual void visitUpgradePlanItem(UpgradePlanItem* item) = 0;
 };
 
 class BasicVisitor : public AbstractVisitor
@@ -95,4 +99,6 @@ class BasicVisitor : public AbstractVisitor
         void visitAttackUnitPlanItem(AttackUnitPlanItem* item) override;
         void visitAttackPositionPlanItem(AttackPositionPlanItem* item) override;
         void visitGiveUpPlanItem(GiveUpPlanItem* item) override;
+        void visitResearchTechPlanItem(ResearchTechPlanItem* item) override;
+        void visitUpgradePlanItem(UpgradePlanItem* item) override;
 };

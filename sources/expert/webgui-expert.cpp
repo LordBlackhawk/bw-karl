@@ -379,6 +379,20 @@ namespace
                         "AttackPosition",
                         position2JSON(item->getPosition()).c_str());
             }
+            void visitResearchTechPlanItem(ResearchTechPlanItem* item) override
+            {
+                visitAbstractPlanItem(item);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"tech\":\"%s\"}",
+                        "ResearchTech",
+                        item->getTechType().c_str());
+            }
+            void visitUpgradePlanItem(UpgradePlanItem* item) override
+            {
+                visitAbstractPlanItem(item);
+                mg_printf_data(conn,",\"name\":\"%s\",\"data\":{\"tech\":\"%s\"}",
+                        "Upgrade",
+                        item->getUpgradeType().c_str());
+            }
             void visitGiveUpPlanItem(GiveUpPlanItem* item) override
             {
                 visitAbstractPlanItem(item);
