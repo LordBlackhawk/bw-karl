@@ -10,12 +10,14 @@
 #include <stdlib.h>
 #include <ios>
 #include <fstream>
+#include <vector>
 
 namespace
 {
         //internal experiment counters
     int ownUnitCount=0;
     int enemyUnitCount=1;
+    int enemyUnitTypeIndex=0;
     int experimentCount=99999999;
 
         //parameters:
@@ -26,6 +28,23 @@ namespace
 
     std::string unitTypeName="";    //unit type to place on map
     BWAPI::UnitType unitType;
+
+
+    const char *otherUnitTypes[]={
+        "Zerg Drone",
+        "Zerg Zergling",
+        "Zerg Hydralisk",
+        "Zerg Ultralisk",
+        "Terran SCV",
+        "Terran Marine",
+        "Terran Firebat",
+        "Terran Vulture",
+        "Terran Goliath",
+        "Protoss Probe",
+        "Protoss Zealot",
+        "Protoss Dragoon"
+    };
+#define NUMBER_OF_OTHER_UNITS (int)(sizeof(otherUnitTypes)/sizeof(otherUnitTypes[0]))
 }
 
 
@@ -51,6 +70,9 @@ DEF_OPTION_EVENT(onEvaluate)
         LOG << "LearningFightWinnableExperimentExpert:";
 
         if(experiment=="sametype")
+        {
+        }
+        else if(experiment=="othertype")
         {
         }
         else
@@ -94,6 +116,7 @@ DEF_OPTION_EVENT(onHelp)
 {
     std::cout << "\nExperiments:\n";
     std::cout<<"  sametype:             only units of the same type.\n";
+    std::cout<<"  othertype:            test unittype against various other types.\n";
 }
 
 
@@ -188,6 +211,8 @@ namespace
 
 void LearningFightWinnableExperimentExpert::matchEnd(Blackboard* blackboard)
 {
+    BWMapModifier map("bwapi-data/maps/template-fight-winnable.scx");
+
     if(experiment=="sametype")
     {
         if(ownUnitCount>0 && enemyUnitCount<=MAX_UNIT_COUNT)
@@ -236,7 +261,6 @@ void LearningFightWinnableExperimentExpert::matchEnd(Blackboard* blackboard)
 
         LOG << "placing "<<ownUnitCount<<" own "<<unitType.getName()<<" and "<<enemyUnitCount<<" enemy "<<unitType.getName()<<" on next map.";
         int cnt;
-        BWMapModifier map("bwapi-data/maps/template-fight-winnable.scx");
 
         for(cnt=0;cnt<ownUnitCount;cnt++)
         {
@@ -246,6 +270,90 @@ void LearningFightWinnableExperimentExpert::matchEnd(Blackboard* blackboard)
         {
             map.addUnit(unitType,BWAPI::Position(32*32 + 32*cnt - 16*enemyUnitCount,32*64-64),1);
         }
+    }
+    if(experiment=="othertype")
+    {
+        int result=blackboard->getInformations()->isWinner?1:0;
+        if(ownUnitCount>0 && enemyUnitTypeIndex<NUMBER_OF_OTHER_UNITS)
+        {
+            std::ofstream csv("learning/data/othertype.csv", std::ios_base::app | std::ios_base::out);
+
+            for(int i=0;i<NUMBER_OF_OTHER_UNITS;i++)
+            {
+                if(unitType.getName()==otherUnitTypes[i])
+                    csv<<ownUnitCount<<",";
+                else
+                    csv<<"0,";
+            }
+            for(int i=0;i<NUMBER_OF_OTHER_UNITS;i++)
+            {
+                if(i==enemyUnitTypeIndex)
+                    csv<<enemyUnitCount<<",";
+                else
+                    csv<<"0,";
+            }
+            csv<<result<<"\n";
+
+            LOG << "Result: "<<ownUnitCount<<" "<<unitType.getName()<<" vs "<<enemyUnitCount<<" "<<otherUnitTypes[enemyUnitTypeIndex]<<": "<<result;
+        }
+        else
+            LOG<<"Ignoring out-of-bound dataset.";
+
+        bool skipped=true;
+        while(skipped)  //determine next experiment setup
+        {
+            if(++experimentCount>=repetitions)
+            {
+                experimentCount=0;
+                ownUnitCount++;
+                if(ownUnitCount>6)
+                {
+                    ownUnitCount=1;
+                    enemyUnitCount++;
+                    if(enemyUnitCount>6)
+                    {
+                        enemyUnitCount=1;
+                        enemyUnitTypeIndex++;
+                        if(enemyUnitTypeIndex>=NUMBER_OF_OTHER_UNITS)
+                        {
+                            BWAPI::Broodwar->pauseGame();
+                            LOG<<"all experiments done.";
+                            exit(0);
+                        }
+                    }
+                }
+            }
+
+            skipped=false;
+            if(SKIP_OBVIOUS)    //report default win/los if player/enemy has way more units
+            {
+                /*
+                if(ownUnitCount>enemyUnitCount+2+enemyUnitCount/8)
+                {
+                    appendResultToCSV("learning/data/othertype.csv",1);
+                    skipped=true;
+                }
+                else if(ownUnitCount<enemyUnitCount-2-enemyUnitCount/8)
+                {
+                    appendResultToCSV("learning/data/othertype.csv",0);
+                    skipped=true;
+                }
+                 * */
+            }
+        }
+
+        LOG << "placing "<<ownUnitCount<<" own "<<unitType.getName()<<" and "<<enemyUnitCount<<" enemy "<<otherUnitTypes[enemyUnitTypeIndex]<<" on next map.";
+        int cnt;
+
+        for(cnt=0;cnt<ownUnitCount;cnt++)
+        {
+            map.addUnit(unitType,BWAPI::Position(32*32 + 32*cnt - 16*ownUnitCount,64),0);
+        }
+        for(cnt=0;cnt<enemyUnitCount;cnt++)
+        {
+            map.addUnit(BWAPI::UnitTypes::getUnitType(otherUnitTypes[enemyUnitTypeIndex]),BWAPI::Position(32*32 + 32*cnt - 16*enemyUnitCount,32*64-64),1);
+        }
+    }
 
             //HACK: we overwrite all 4 files (except the current map) to make sure we hit the next map
             // (BWAPI seems to only load *-2 and *-4 ?)
@@ -257,5 +365,5 @@ void LearningFightWinnableExperimentExpert::matchEnd(Blackboard* blackboard)
             map.save(starcraftMapPath+"learn-fight-winnable-3.scx");
         if(BWAPI::Broodwar->mapFileName()!="learn-fight-winnable-4.scx")
             map.save(starcraftMapPath+"learn-fight-winnable-4.scx");
-    }
+
 }
