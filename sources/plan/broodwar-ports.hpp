@@ -106,6 +106,7 @@ class ProvideResourcePort final : public BasicPortImpl<ProvideResourcePort, Requ
 
         BWAPI::Unit* getUnit() const;
         ResourceBoundaryItem* getOwner() const;
+        bool isMineralField() const;
 };
 
 class RequireResourcePort final : public BasicPortImpl<RequireResourcePort, ProvideResourcePort, true, false>
@@ -115,6 +116,7 @@ class RequireResourcePort final : public BasicPortImpl<RequireResourcePort, Prov
         void acceptVisitor(AbstractVisitor* visitor) override;
 
         inline BWAPI::Unit* getUnit() const { return connection->getUnit(); }
+        inline bool isMineralField() const { return (connection != NULL) && connection->isMineralField(); }
 };
 
 struct FieldInformations;

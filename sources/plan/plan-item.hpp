@@ -121,6 +121,8 @@ class MoveToPositionPlanItem;
 class AttackUnitPlanItem;
 class AttackPositionPlanItem;
 class GiveUpPlanItem;
+class ResearchTechPlanItem;
+class UpgradePlanItem;
 
 class Blackboard : public BasicEventVisitor
 {
@@ -136,6 +138,7 @@ class Blackboard : public BasicEventVisitor
         inline Time getLastUpdateTime() const { return informations.lastUpdateTime; }
         inline BWAPI::Player* self() const { return informations.self; }
         inline BWAPI::Player* neutral() const { return informations.neutral; }
+        inline Time getActionHorizon() const { return informations.lastUpdateTime + 10; }
 
         void addItem(AbstractPlanItem* item);
         void removeItem(AbstractPlanItem* item);
@@ -167,6 +170,8 @@ class Blackboard : public BasicEventVisitor
         MoveToPositionPlanItem* move(ProvideUnitPort* provider, BWAPI::TilePosition tp);
         AttackUnitPlanItem* attack(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy);
         AttackPositionPlanItem* attack(ProvideUnitPort* provider, BWAPI::Position p);
+        ResearchTechPlanItem* research(BWAPI::TechType tech);
+        UpgradePlanItem* upgrade(BWAPI::UpgradeType upgrade);
         GiveUpPlanItem* giveUp();
 
         // for test propose only:

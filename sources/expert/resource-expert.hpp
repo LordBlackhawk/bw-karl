@@ -14,7 +14,9 @@ class ResourceExpert : public BasicPortExpert
 
     protected:
         std::vector<ResourcePort*>              resources;
-        std::vector<GatherResourcesPlanItem*>   worker;
+        std::vector<GatherResourcesPlanItem*>   workerMinerals;
+        std::vector<GatherResourcesPlanItem*>   workerGas;
 
-        void simulate();
+        void simulateMinerals();
+        void simulateGas();
 };

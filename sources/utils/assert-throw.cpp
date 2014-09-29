@@ -1,11 +1,8 @@
 #include "assert-throw.hpp"
 #include <sstream>
-#include <typeinfo>
 
-void AssertBase::writeDebugInformations(std::ostream& stream)
-{
-    stream << "typeid(this) = " << typeid(this).name();
-}
+void AssertBase::writeDebugInformations(std::ostream& /*stream*/)
+{ }
 
 void AssertBase::throwAssertException(const char* file, int line, const char* txt)
 {

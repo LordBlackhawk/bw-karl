@@ -281,6 +281,20 @@ AttackPositionPlanItem* Blackboard::attack(ProvideUnitPort* provider, BWAPI::Pos
     return result;
 }
 
+ResearchTechPlanItem* Blackboard::research(BWAPI::TechType tech)
+{
+    auto result = new ResearchTechPlanItem(tech);
+    addItem(result);
+    return result;
+}
+
+UpgradePlanItem* Blackboard::upgrade(BWAPI::UpgradeType upgrade)
+{
+    auto result = new UpgradePlanItem(upgrade);
+    addItem(result);
+    return result;
+}
+
 GiveUpPlanItem* Blackboard::giveUp()
 {
     auto result = new GiveUpPlanItem();
@@ -334,9 +348,9 @@ void Blackboard::tick()
     recalculateEstimatedTimes();
 
     // 4. Execute actions which are planned soon
-    const Time timeHorizont = getLastUpdateTime() + 10;
+    const Time timeHorizon = getActionHorizon();
     for (auto it : items)
-        if (it->isPlanned() && (it->estimatedStartTime < timeHorizont))
+        if (it->isPlanned() && (it->estimatedStartTime < timeHorizon))
     {
         AbstractAction* action = it->prepareForExecution(engine);
         if (action != NULL) {

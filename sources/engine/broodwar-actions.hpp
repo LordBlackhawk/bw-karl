@@ -89,6 +89,28 @@ class AttackUnitAction : public UnitAction
         BWAPI::Unit*     e;
 };
 
+class ResearchTechAction : public UnitAction
+{
+    public:
+        ResearchTechAction(BWAPI::Unit* myunit, BWAPI::TechType t, AbstractAction* pre = NULL);
+        Status onTick(AbstractExecutionEngine* engine) override;
+
+    protected:
+        BWAPI::TechType tech;
+        int waitFrames;
+};
+
+class UpgradeAction : public UnitAction
+{
+    public:
+        UpgradeAction(BWAPI::Unit* myunit, BWAPI::UpgradeType u, AbstractAction* pre = NULL);
+        Status onTick(AbstractExecutionEngine* engine) override;
+
+    protected:
+        BWAPI::UpgradeType upgrade;
+        int waitFrames;
+};
+
 
 class SendTextAction : public AbstractAction
 {
