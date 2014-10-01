@@ -40,6 +40,9 @@ void BasicExpert::endTraversal()
 
 void BasicExpert::interrupt()
 {
+    if(currentBlackboard==NULL)
+        std::cout<<"BasicExpert::interrupt() unable to interrupt since we do not have a blackboard!";
+    
     if ((currentBlackboard != NULL) && (WebGUIExpert::instance() != NULL))
         WebGUIExpert::interruptEngineExecution(currentBlackboard);
 }

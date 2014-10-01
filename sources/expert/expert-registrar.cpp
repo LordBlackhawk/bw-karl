@@ -69,8 +69,8 @@ DEF_OPTION_EVENT(onEvaluate)
             if (it.first == onlyExpert) {
                 found = true;
                 it.second.disabled = false;
-            } else {
-                it.second.disabled = true;
+            } else if(it.first!="WebGUIExpert") {
+                it.second.disabled = true; //disable all other experts, except WebGUI
             }
         }
         if (!found) {

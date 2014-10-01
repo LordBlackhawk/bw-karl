@@ -783,6 +783,7 @@ void WebGUIExpert::initialize()
         server = mg_create_server(NULL, event_handler);
         mg_set_option(server, "document_root", "webroot");              // Serve current directory
         mg_set_option(server, "listening_port", stream.str().c_str());  // Open port 8080
+        LOG<<"WebGUI: listening on port "<<port;
     }
 }
 
