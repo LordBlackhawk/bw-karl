@@ -101,12 +101,12 @@ public:
             <<"\n";
     }
 
-    void addFromTemplate(EntryUnit *unit_template, int16_t x,int16_t y, int8_t player)
+    EntryUnit* addFromTemplate(EntryUnit *unit_template, int16_t x,int16_t y, int8_t player)
     {
         if(!unit_template)
         {
             std::cout<<"no template to add from!\n";
-            return;
+            return NULL;
         }
         EntryUnit *unew=new EntryUnit(*unit_template);
         unew->serial=++max_serial;
@@ -114,6 +114,7 @@ public:
         unew->y=y;
         unew->player=player;
         units.push_back(unew);
+        return unew;
     }
 
     EntryUnit *findByID(int16_t id)
@@ -316,9 +317,9 @@ public:
         scxMap.write(filename);
     }
 
-    void addUnit(BWAPI::UnitType type, BWAPI::Position pos, int playerID)
+    EntryUnit *addUnit(BWAPI::UnitType type, BWAPI::Position pos, int playerID)
     {
-        units.addFromTemplate(unitTemplate.findByID(type.getID()),(int16_t)pos.x(),(int16_t)pos.y(),(int8_t)playerID);
+        return units.addFromTemplate(unitTemplate.findByID(type.getID()),(int16_t)pos.x(),(int16_t)pos.y(),(int8_t)playerID);
     }
 
 private:

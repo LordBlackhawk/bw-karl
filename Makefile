@@ -78,7 +78,7 @@ ifdef EXPERIMENT_NODRAW
 endif
 
 learning-fight-winnable: $(KARLEXE-DONOTBUILD) $(STARCRAFTMAPSPATH)learn-fight-winnable-1.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-2.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-3.scx $(STARCRAFTMAPSPATH)learn-fight-winnable-4.scx deploy-learning-fight-winnable
-	$(KARLEXE) --secure --hud --speed=0 --only LearningFightWinnableExperimentExpert --experiment $(EXPERIMENT_TYPE) --unittype $(EXPERIMENT_UNITTYPE) --mappath $(STARCRAFTMAPSPATH) --repetitions $(EXPERIMENT_REPETITIONS) $(EXPERIMENT_NODRAW)
+	$(KARLEXE) --secure --webgui --hud --speed=0 --only LearningFightWinnableExperimentExpert --experiment $(EXPERIMENT_TYPE) --unittype $(EXPERIMENT_UNITTYPE) --mappath $(STARCRAFTMAPSPATH) --repetitions $(EXPERIMENT_REPETITIONS) $(EXPERIMENT_NODRAW)
 
 test: $(TESTSEXE-DONOTBUILD)
 	@echo ' ##############################################################################'
