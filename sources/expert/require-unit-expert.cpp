@@ -42,7 +42,6 @@ void RequireUnitExpert::endTraversal()
         auto unitType = it.first;
         auto& require = it.second;
         auto& provide = provideMap[unitType];
-        //std::cout << "provide.size(): " << provide.size() << "; require.size(): " << require.size() << "\n";
         if (unitType == BWAPI::UnitTypes::Zerg_Larva) {
             handleLarva(provide, require);
         } else if (unitType == BWAPI::UnitTypes::Zerg_Creep_Colony) {
@@ -81,7 +80,7 @@ namespace
     };
 }
 
-void RequireUnitExpert::handleQueued(const BWAPI::UnitType /*unitType*/, const std::vector<ProvideUnitPort*>& provide, const std::vector<RequireUnitPort*>& require)
+void RequireUnitExpert::handleQueued(const BWAPI::UnitType unitType, const std::vector<ProvideUnitPort*>& provide, const std::vector<RequireUnitPort*>& require)
 {
     if ((provide.size() == 0) || (require.size() == 0))
         return;
@@ -98,6 +97,11 @@ void RequireUnitExpert::handleQueued(const BWAPI::UnitType /*unitType*/, const s
     std::vector<RequireProvideUnitPair> pairs;
     for (auto it : items) {
         auto& pair = it.second;
+        if (((unitType == BWAPI::UnitTypes::Zerg_Hatchery) || (unitType == BWAPI::UnitTypes::Zerg_Lair)) && (pair.provide == NULL)) {
+            auto planItem = dynamic_cast<MorphUnitPlanItem*>(pair.require->getOwner());
+            if (planItem != NULL)
+                pair.provide = &planItem->provideUnit;
+        }
         assert(pair.provide != NULL);
         if (pair.require == NULL) {
             provider.push(ProviderWithTime(pair.provide, pair.provide->estimatedTime));
@@ -107,7 +111,11 @@ void RequireUnitExpert::handleQueued(const BWAPI::UnitType /*unitType*/, const s
     }
     std::sort(pairs.begin(), pairs.end());
 
-    // 3. Distribute pairs among the provider:
+    // 3. Create a provider if none exists:
+    if (provider.size() == 0U)
+        provider.push(ProviderWithTime(&currentBlackboard->build(unitType)->provideUnit, INFINITE_TIME));
+
+    // 4. Distribute pairs among the provider:
     for (auto it : pairs) {
         auto& top = provider.top();
         Time estimatedTime = top.estimatedTime + it.provide->estimatedTime - it.require->estimatedTime;

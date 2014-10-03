@@ -112,7 +112,6 @@ void GuerillaExpert::analyzeSituation(int clusterIndex, const std::vector<Abstra
         return;
     }
 
-    //std::cout << currentBlackboard->getLastUpdateTime() << ": Retreating " << ownUnits.size() << " units from " << enemyUnits.size() << " enemy units...\n";
     retreat(ownUnits, enemyUnits);
 }
 
@@ -161,8 +160,6 @@ BWAPI::Position ObstacleSolver::solve()
     double bestWidth       = 0.0;
     std::sort(obstacles.begin(), obstacles.end());
     add(2 * M_PI + obstacles.front().direction, obstacles.front().width);
-    //for (auto it : obstacles)
-    //    std::cout << "direction: " << it.direction << "; " << it.width << "\n";
     for (unsigned int k=1, size=obstacles.size(); k<size; ++k) {
         auto& lower = obstacles[k-1];
         auto& upper = obstacles[k];

@@ -4,6 +4,7 @@
 #include "engine/broodwar-actions.hpp"
 #include "utils/log.hpp"
 #include "utils/assert-throw.hpp"
+#include "utils/bw-helper.hpp"
 
 AbstractSimpleUnitPlanItem::AbstractSimpleUnitPlanItem(BWAPI::UnitType ut, bool od)
     : requireUnit(this, ut), provideUnit(this, od)
@@ -82,7 +83,11 @@ MorphUnitPlanItem::MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* prov
 {
     addRequirements(unitType);
     provideUnit.updateData(unitType, (provider != NULL) ? provider->getPosition() : BWAPI::Positions::Unknown);
-    supply.estimatedDuration = provideUnit.estimatedDuration = unitType.buildTime();
+    if ((unitType == BWAPI::UnitTypes::Zerg_Lair) || (unitType == BWAPI::UnitTypes::Zerg_Hive)) {
+        removePort(&supply);
+    } else {
+        supply.estimatedDuration = provideUnit.estimatedDuration = unitType.buildTime();
+    }
     requireUnit.connectTo(provider);
 }
 
@@ -119,7 +124,7 @@ void MorphUnitPlanItem::removeFinished(AbstractAction* action)
 
 
 MoveToPositionPlanItem::MoveToPositionPlanItem(ProvideUnitPort* provider, BWAPI::Position p)
-    : AbstractSimpleUnitPlanItem(provider->getUnitType()), useSmartTurnAround(false), position(p)
+    : AbstractSimpleUnitPlanItem(provider->getUnitType()), useSmartTurnAround(true), position(p)
 {
     provideUnit.updateData(provider->getUnitType(), position);
     requireUnit.connectTo(provider);
@@ -276,6 +281,9 @@ UpgradePlanItem::UpgradePlanItem(BWAPI::UpgradeType u, int l)
       upgrade(u),
       level(l)
 {
+    auto requiredUnitType = upgrade.whatsRequired(level);
+    if (requiredUnitType != BWAPI::UnitTypes::None)
+        new RequireUnitExistancePort(this, requiredUnitType);
     provideUnit.updateData(u.whatUpgrades(), BWAPI::Positions::Unknown);
 }
 
@@ -296,6 +304,7 @@ void UpgradePlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*even
 {
     setExecuting();
     removePort(&requireResources);
+    removeRequireExistancePorts();
 }
 
 
