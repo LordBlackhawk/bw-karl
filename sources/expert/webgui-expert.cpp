@@ -577,6 +577,22 @@ namespace
 
                 return MG_TRUE;
             }
+            else if(strcmp(conn->uri,"/interrupt")==0)
+            {
+                mg_send_header(conn, "Content-Type", "text/plain");
+
+                if(!currentBlackboard)
+                {
+                    mg_printf_data(conn,"err: not in game.");
+                }
+                else
+                {
+                    requestInterruptLoop=true;
+                    mg_printf_data(conn,"ok");
+                }
+
+                return MG_TRUE;
+            }
             else if(strcmp(conn->uri,"/step")==0)
             {
                 mg_send_header(conn, "Content-Type", "text/plain");
