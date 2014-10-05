@@ -6,11 +6,17 @@
 #include "utils/options.hpp"
 
 #include "bwmapmodifier/bwmapmodifier.hpp"
+#include "plan/broodwar-boundary-items.hpp"
 
 #include <stdlib.h>
 #include <ios>
 #include <fstream>
 #include <vector>
+
+
+
+#define MAX_UNIT_COUNT 30
+#define SKIP_OBVIOUS true
 
 namespace
 {
@@ -30,6 +36,17 @@ namespace
     BWAPI::UnitType unitType;
 
 
+    const int healthPercentages[]=
+    {
+        100,
+        50
+    };
+#define NUMBER_OF_HEALTH_PERCENTAGES (int)(sizeof(healthPercentages)/sizeof(healthPercentages[0]))
+    inline int randomHealthPercentage()
+    {
+        return healthPercentages[rand()%NUMBER_OF_HEALTH_PERCENTAGES];
+    }
+
     const char *otherUnitTypes[]={
         "Zerg Drone",
         "Zerg Zergling",
@@ -45,6 +62,379 @@ namespace
         "Protoss Dragoon"
     };
 #define NUMBER_OF_OTHER_UNITS (int)(sizeof(otherUnitTypes)/sizeof(otherUnitTypes[0]))
+
+    const char *universalUnitTypes[]=
+    {
+            //Terran Ground
+        "Terran Firebat",
+        "Terran Ghost",
+        "Terran Goliath",
+        "Terran Marine",
+        "Terran Medic",
+        "Terran SCV",
+        "Terran Siege Tank Siege Mode",
+        "Terran Siege Tank Tank Mode",
+        "Terran Vulture",
+        "Terran Vulture Spider Mine",
+
+            //Terran Air
+        "Terran Battlecruiser",
+        "Terran Dropship",
+        "Terran Science Vessel",
+        "Terran Valkyrie",
+        "Terran Wraith",
+
+            //Terran Buildings
+        "Terran Bunker",
+        "Terran Missile Turret",
+
+
+            //Protoss Ground
+        "Protoss Archon",
+        "Protoss Dark Archon",
+        "Protoss Dark Templar",
+        "Protoss Dragoon",
+        "Protoss High Templar",
+        "Protoss Probe",
+        "Protoss Reaver",
+        "Protoss Scarab",
+        "Protoss Zealot",
+
+            //Protoss Air Units
+        "Protoss Arbiter",
+        "Protoss Carrier",
+        "Protoss Corsair",
+        "Protoss Interceptor",
+        "Protoss Observer",
+        "Protoss Scout",
+        "Protoss Shuttle",
+
+            //Protoss Buildings
+        "Protoss Photon Cannon",
+        "Protoss Pylon",
+
+            //Zerg Ground
+        "Zerg Broodling",
+        "Zerg Defiler",
+        "Zerg Drone",
+        "Zerg Egg",
+        "Zerg Hydralisk",
+        "Zerg Infested Terran",
+        "Zerg Larva",
+        "Zerg Lurker",
+        "Zerg Lurker Egg",
+        "Zerg Ultralisk",
+        "Zerg Zergling",
+
+            //Zerg Air
+        "Zerg Cocoon",
+        "Zerg Devourer",
+        "Zerg Guardian",
+        "Zerg Mutalisk",
+        "Zerg Overlord",
+        "Zerg Queen",
+        "Zerg Scourge",
+
+            //Zerg Buildings
+        "Zerg Spore Colony",
+        "Zerg Sunken Colony"
+    };
+#define NUMBER_OF_UNIVERSAL_UNIT_TYPES (int)(sizeof(universalUnitTypes)/sizeof(universalUnitTypes[0]))
+    inline int getUniversalUnitTypeIndex(std::string unitTypeName)
+    {
+        for(int u=0;u<NUMBER_OF_UNIVERSAL_UNIT_TYPES;u++)
+        {
+            if(universalUnitTypes[u]==unitTypeName)
+                return u;
+        }
+        assert(false && "getUniversalUnitTypeIndex: failed to find unittype!");
+        return 0;
+    }
+    inline int getUniversalUnitTypeIndex(const BWAPI::UnitType &ut)
+    {
+        return getUniversalUnitTypeIndex(ut.getName());
+    }
+
+    const char *universalUpgradeTypes[]=
+    {
+        "Adrenal_Glands",
+        "Anabolic_Synthesis",
+        "Antennae",
+        "Apial_Sensors",
+        "Apollo_Reactor",
+        "Argus_Jewel",
+        "Argus_Talisman",
+        "Caduceus_Reactor",
+        "Carrier_Capacity",
+        "Charon_Boosters",
+        "Chitinous_Plating",
+        "Colossus_Reactor",
+        "Gamete_Meiosis",
+        "Gravitic_Boosters",
+        "Gravitic_Drive",
+        "Gravitic_Thrusters",
+        "Grooved_Spines",
+        "Ion_Thrusters",
+        "Khaydarin_Amulet",
+        "Khaydarin_Core",
+        "Leg_Enhancements",
+        "Metabolic_Boost",
+        "Metasynaptic_Node",
+        "Moebius_Reactor",
+        "Muscular_Augments",
+        "Ocular_Implants",
+        "Pneumatized_Carapace",
+        "Protoss_Air_Weapons",
+        "Protoss_Ground_Armor",
+        "Protoss_Ground_Weapons",
+        "Protoss_Plasma_Shields",
+        "Protoss_Air_Armor",
+        "Reaver_Capacity",
+        "Scarab_Damage",
+        "Sensor_Array",
+        "Singularity_Charge",
+        "Terran_Infantry_Armor",
+        "Terran_Infantry_Weapons",
+        "Terran_Ship_Plating",
+        "Terran_Ship_Weapons",
+        "Terran_Vehicle_Plating",
+        "Terran_Vehicle_Weapons",
+        "Titan_Reactor",
+        "U_238_Shells",
+        "Ventral_Sacs",
+        "Zerg_Carapace",
+        "Zerg_Flyer_Attacks",
+        "Zerg_Flyer_Carapace",
+        "Zerg_Melee_Attacks",
+        "Zerg_Missile_Attacks"
+    };
+#define NUMBER_OF_UNIVERSAL_UPGRADE_TYPES (int)(sizeof(universalUpgradeTypes)/sizeof(universalUpgradeTypes[0]))
+
+    const char *universalTechTypes[]=
+    {
+        "Archon_Warp",
+        "Burrowing",
+        "Cloaking_Field",
+        "Consume",
+        "Dark_Archon_Meld",
+        "Dark_Swarm",
+        "Defensive_Matrix",
+        "Disruption_Web",
+        "EMP_Shockwave",
+        "Ensnare",
+        "Feedback",
+        "Hallucination",
+        "Healing",
+        "Infestation",
+        "Irradiate",
+        "Lockdown",
+        "Lurker_Aspect",
+        "Maelstrom",
+        "Mind_Control",
+        "Nuclear_Strike",
+        "Optical_Flare",
+        "Parasite",
+        "Personnel_Cloaking",
+        "Plague",
+        "Psionic_Storm",
+        "Recall",
+        "Restoration",
+        "Scanner_Sweep",
+        "Spawn_Broodlings",
+        "Spider_Mines",
+        "Stasis_Field",
+        "Stim_Packs",
+        "Tank_Siege_Mode",
+        "Yamato_Gun"
+    };
+#define NUMBER_OF_UNIVERSAL_TECH_TYPES (int)(sizeof(universalTechTypes)/sizeof(universalTechTypes[0]))
+
+    struct compactUnitStateEntry
+    {
+        int typeID;
+        int health;
+        int shield;
+        int energy;
+    };
+
+    struct compactUnitState
+    {
+        std::vector<compactUnitStateEntry> units;
+
+        inline void reset()
+        {
+            units.clear();
+        }
+
+        inline int unitCount()
+        {
+            return units.size();
+        }
+        inline int unitHealthSum()
+        {
+            int ret=0;
+            for(auto u:units)
+            {
+                ret+=u.health;
+            }
+            return ret;
+        }
+
+        inline void add(AbstractSpaceUnitBoundaryItem *unit)
+        {
+            units.push_back({getUniversalUnitTypeIndex(unit->getUnitType()),unit->getUnit()->getHitPoints(),unit->getUnit()->getShields(),unit->getUnit()->getEnergy()});
+        }
+        inline void add(const compactUnitStateEntry &unit)
+        {
+            units.push_back(unit);
+        }
+    };
+    std::ostream& operator << (std::ostream& stream, const compactUnitStateEntry& unit)
+    {
+        return stream<<"U"<<unit.typeID<<" "<<unit.health<<" "<<unit.shield<<" "<<unit.energy<<";";
+    }
+    std::ostream& operator << (std::ostream& stream, const compactUnitState& state)
+    {
+        stream<<"S";
+        for(auto u:state.units)
+            stream<<u;
+        return stream<<".";
+    }
+    struct compactResearchState
+    {
+        int upgrade[NUMBER_OF_UNIVERSAL_UPGRADE_TYPES];
+        bool tech[NUMBER_OF_UNIVERSAL_TECH_TYPES];
+
+        compactResearchState()
+        {
+            reset();
+        }
+
+        inline void reset()
+        {
+            for(int i=0;i<NUMBER_OF_UNIVERSAL_UPGRADE_TYPES;i++)
+                upgrade[i]=0;
+            for(int i=0;i<NUMBER_OF_UNIVERSAL_TECH_TYPES;i++)
+                tech[i]=0;
+        }
+    };
+    std::ostream& operator << (std::ostream& stream, const compactResearchState& res)
+    {
+        stream<<"R";
+        for(int i=0;i<NUMBER_OF_UNIVERSAL_UPGRADE_TYPES;i++)
+            stream<<res.upgrade[i];
+        for(int i=0;i<NUMBER_OF_UNIVERSAL_TECH_TYPES;i++)
+            stream<<(res.tech[i]?"Y":"N");
+        return stream<<".";
+    }
+
+    compactUnitState stateOwnStart, stateEnemyStart, stateOwnEnd, stateEnemyEnd;
+    compactResearchState researchOwn, researchEnemy;
+
+
+
+    void saveCurrentState()
+    {
+        std::ofstream state("learning/data/"+experiment+".state", std::ios_base::out);
+        state<<ownUnitCount<<" "<<enemyUnitCount<<" "<<experimentCount<<" "<<enemyUnitTypeIndex;
+    }
+    void loadAndContinueFromLastState()
+    {
+        std::ifstream state("learning/data/"+experiment+".state", std::ios_base::in);
+        if(!state.fail())
+        {
+            state>>ownUnitCount;
+            state>>enemyUnitCount;
+            state>>experimentCount;
+            state>>enemyUnitTypeIndex;
+            LOG<<"continuing from "<<ownUnitCount<<" own units and "<<enemyUnitCount<<" enemy "<<otherUnitTypes[enemyUnitTypeIndex]<<", experiment "<<experimentCount;
+        }
+    }
+
+    void appendSametypeResultToCSV(std::string filename,int result)
+    {
+        std::ofstream csv(filename, std::ios_base::app | std::ios_base::out);
+
+        assert((int)stateOwnStart.units.size()==ownUnitCount);
+        assert((int)stateEnemyStart.units.size()==enemyUnitCount);
+
+        for(int i=0;i<(int)stateOwnStart.units.size();i++)
+            csv<<stateOwnStart.units[i].health<<",";
+        for(int i=stateOwnStart.units.size();i<MAX_UNIT_COUNT;i++)
+            csv<<"0,";
+        for(int i=0;i<(int)stateEnemyStart.units.size();i++)
+            csv<<stateEnemyStart.units[i].health<<",";
+        for(int i=stateEnemyStart.units.size();i<MAX_UNIT_COUNT;i++)
+            csv<<"0,";
+        csv<<result<<"\n";
+
+        LOG << "Result: "<<ownUnitCount<<" vs "<<enemyUnitCount<<": "<<result;
+    }
+
+    void appendCompactResult(std::string filename,int time)
+    {
+        assert((int)stateOwnStart.units.size()==ownUnitCount);
+        assert((int)stateEnemyStart.units.size()==enemyUnitCount);
+        
+        std::ofstream data(filename, std::ios_base::app | std::ios_base::out);
+
+        data<<stateOwnStart;
+        data<<stateEnemyStart;
+        data<<stateOwnEnd;
+        data<<stateEnemyEnd;
+        data<<researchOwn;
+        data<<researchEnemy;
+        data<<"t"<<time<<";\n";
+
+        saveCurrentState();
+
+        LOG << "Result: "<<stateOwnStart.unitCount()<<" vs "<<stateEnemyStart.unitCount()<<": "<<(stateOwnEnd.unitCount()>stateEnemyEnd.unitCount()?"WIN":"LOS");
+    }
+
+    void generateMap() //using ownStart and enemyStart information
+    {
+        BWMapModifier map("bwapi-data/maps/template-fight-winnable.scx");
+
+        LOG << "placing "<<stateOwnStart.unitCount()<<" own and "<<stateEnemyStart.unitCount()<<" enemy units on next map.";
+        int cnt;
+
+        cnt=0;
+        for(auto u:stateOwnStart.units)
+        {
+            const BWAPI::UnitType &ut=BWAPI::UnitTypes::getUnitType(universalUnitTypes[u.typeID]);
+            EntryUnit *unit=map.addUnit(ut,BWAPI::Position(32*32 + 32*cnt - 16*stateOwnStart.unitCount(),64),0);
+            unit->hitPoints=100*u.health/ut.maxHitPoints();
+            if(ut.maxShields()>0)unit->shieldPoints=100*u.shield/ut.maxShields();
+            if(ut.maxEnergy()>0)unit->energyPoints=100*u.energy/ut.maxEnergy();
+            cnt++;
+        }
+        cnt=0;
+        for(auto u:stateEnemyStart.units)
+        {
+            const BWAPI::UnitType &ut=BWAPI::UnitTypes::getUnitType(universalUnitTypes[u.typeID]);
+            EntryUnit *unit=map.addUnit(ut,BWAPI::Position(32*32 + 32*cnt - 16*stateEnemyStart.unitCount(),32*64-64),1);
+            unit->hitPoints=100*u.health/ut.maxHitPoints();
+            if(ut.maxShields()>0)unit->shieldPoints=100*u.shield/ut.maxShields();
+            if(ut.maxEnergy()>0)unit->energyPoints=100*u.energy/ut.maxEnergy();
+            cnt++;
+        }
+
+            //FIXME: also take researchOwn and researchEnemy into account...
+        
+
+
+            //HACK: we overwrite all 4 files (except the current map) to make sure we hit the next map
+            // (BWAPI seems to only load *-2 and *-4 ?)
+        if(BWAPI::Broodwar->mapFileName()!="learn-fight-winnable-1.scx")
+            map.save(starcraftMapPath+"learn-fight-winnable-1.scx");
+        if(BWAPI::Broodwar->mapFileName()!="learn-fight-winnable-2.scx")
+            map.save(starcraftMapPath+"learn-fight-winnable-2.scx");
+        if(BWAPI::Broodwar->mapFileName()!="learn-fight-winnable-3.scx")
+            map.save(starcraftMapPath+"learn-fight-winnable-3.scx");
+        if(BWAPI::Broodwar->mapFileName()!="learn-fight-winnable-4.scx")
+            map.save(starcraftMapPath+"learn-fight-winnable-4.scx");    
+    }
+
 }
 
 
@@ -53,11 +443,11 @@ DEF_OPTIONS
 {
     po::options_description options("LearningFightWinnableExperiment Options");
     options.add_options()
-            ("mappath",        po::value<std::string>(&starcraftMapPath),      "Path to the Starcraft map folder.")
-            ("experiment",     po::value<std::string>(&experiment),            "Experiment to run.")
-            ("unittype",       po::value<std::string>(&unitTypeName),          "UnitType to place on map.")
-            ("repetitions",    po::value<int>(&repetitions)->default_value(1), "How often to repeat the same experiment.")
-            ("nodraw",         po::bool_switch(&nodraw),                   "Disable drawing to speed up experiments.")
+            ("mappath",        po::value<std::string>(&starcraftMapPath),       "Path to the Starcraft map folder.")
+            ("experiment",     po::value<std::string>(&experiment),             "Experiment to run.")
+            ("unittype",       po::value<std::string>(&unitTypeName),           "UnitType to place on map.")
+            ("repetitions",    po::value<int>(&repetitions)->default_value(1),  "How often to repeat the same experiment.")
+            ("nodraw",         po::bool_switch(&nodraw),                        "Disable drawing to speed up experiments.")
         ;
     return options;
 }
@@ -150,6 +540,9 @@ bool LearningFightWinnableExperimentExpert::isApplicable(Blackboard* /*blackboar
                 BWAPI::Broodwar->setLocalSpeed(0);
                 BWAPI::Broodwar->setGUI(false);
             }
+
+            stateOwnStart.reset();
+            stateEnemyStart.reset();
             return true;
         }
         else
@@ -157,74 +550,118 @@ bool LearningFightWinnableExperimentExpert::isApplicable(Blackboard* /*blackboar
     }
     return false;
 }
+
+void LearningFightWinnableExperimentExpert::beginTraversal()
+{
+    ownUnits.clear();
+    enemyUnits.clear();
+}
+
+void LearningFightWinnableExperimentExpert::endTraversal()
+{
+    if(stateOwnStart.unitCount()==0 && stateEnemyStart.unitCount()==0)
+    {    //not initialized yet -> fill with current units
+        for(auto u:ownUnits)
+            stateOwnStart.add(u);
+        for(auto u:enemyUnits)
+            stateEnemyStart.add(u);
+        LOG << "found "<<stateOwnStart.unitCount()<<" own and "<<stateEnemyStart.unitCount()<<" enemy units on map.";
+    }
+
+        //send idle units to fight
+    for(auto u:ownUnits)
+    {
+        if(!u->isConnected())
+        {
+            for(auto e:enemyUnits)
+            {
+                    //FIXME: units might block if continously attacking the same position
+                if(u->getPosition().getDistance(e->getPosition())>32)
+                    currentBlackboard->attack(&u->provideUnit,e->getPosition());
+                break;
+            }
+        }
+    }
+}
+
 void LearningFightWinnableExperimentExpert::visitProvideUnitPort(ProvideUnitPort* port)
 {
     if (port->isConnected() || port->estimatedTime > currentBlackboard->getLastUpdateTime()+100)
         return;
-
+/*
     BWAPI::TilePosition tp=currentBlackboard->self()->getStartLocation();
 
         //send idle units to attack the area of our starting position
     if(port->getPosition().getDistance((BWAPI::Position)tp)>32*10)
         currentBlackboard->attack(port, (BWAPI::Position)tp);
+*/
 }
 
-void LearningFightWinnableExperimentExpert::visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* /*item*/)
+void LearningFightWinnableExperimentExpert::visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item)
 {
+    if(item->getUnitType().isHero()
+        || item->getUnitType().isSpecialBuilding()
+        || item->getUnitType().isBeacon()
+        || item->getUnitType().isFlagBeacon()
+        || item->getUnitType().getRace() == BWAPI::Races::None
+        || item->getUnitType().getRace() == BWAPI::Races::Other)
+        return;
 
+    ownUnits.insert(item);
 }
 
-void LearningFightWinnableExperimentExpert::visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* /*item*/)
+void LearningFightWinnableExperimentExpert::visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item)
 {
-
-}
-
-
-#define MAX_UNIT_COUNT 30
-#define SKIP_OBVIOUS true
-
-namespace
-{
-    void appendResultToCSV(std::string filename,int result)
-    {
-        std::ofstream csv(filename, std::ios_base::app | std::ios_base::out);
-
-        for(int i=0;i<MAX_UNIT_COUNT;i++)
-        {
-            if(i<ownUnitCount)
-                csv<<unitType.maxHitPoints()<<",";
-            else
-                csv<<"0,";
-        }
-        for(int i=0;i<MAX_UNIT_COUNT;i++)
-        {
-            if(i<enemyUnitCount)
-                csv<<unitType.maxHitPoints()<<",";
-            else
-                csv<<"0,";
-        }
-        csv<<result<<"\n";
-
-        LOG << "Result: "<<ownUnitCount<<" vs "<<enemyUnitCount<<": "<<result;
-    }
+    if(item->getUnitType().isHero()
+        || item->getUnitType().isSpecialBuilding()
+        || item->getUnitType().isBeacon()
+        || item->getUnitType().isFlagBeacon()
+        || item->getUnitType().getRace() == BWAPI::Races::None
+        || item->getUnitType().getRace() == BWAPI::Races::Other)
+        return;
+    
+    enemyUnits.insert(item);
 }
 
 void LearningFightWinnableExperimentExpert::matchEnd(Blackboard* blackboard)
 {
-    BWMapModifier map("bwapi-data/maps/template-fight-winnable.scx");
+    //universalOwnEnd.reset();
+    stateOwnEnd.reset();
+    for(auto u:ownUnits)
+    {
+        //universalOwnEnd.add(u);
+        stateOwnEnd.add(u);
+    }
+    //universalEnemyEnd.reset();
+    stateEnemyEnd.reset();
+    for(auto u:enemyUnits)
+    {
+        //universalEnemyEnd.add(u);
+        stateEnemyEnd.add(u);
+    }
+
+    if(ownUnitCount==0)
+    {
+        loadAndContinueFromLastState();
+    }
+    else if(ownUnitCount>0 && enemyUnitCount<=MAX_UNIT_COUNT && enemyUnitTypeIndex<NUMBER_OF_OTHER_UNITS)
+    {
+        appendCompactResult("learning/data/"+experiment+".data",blackboard->getLastUpdateTime());
+        if(experiment=="sametype")
+            appendSametypeResultToCSV("learning/data/sametype.csv",blackboard->getInformations()->isWinner?1:0);
+    }
+    else
+        LOG<<"Ignoring out-of-bound dataset.";
+
+
 
     if(experiment=="sametype")
     {
-        if(ownUnitCount>0 && enemyUnitCount<=MAX_UNIT_COUNT)
-        {
-            appendResultToCSV("learning/data/sametype.csv",blackboard->getInformations()->isWinner?1:0);
-        }
-        else
-            LOG<<"Ignoring out-of-bound dataset.";
-
         bool skipped=true;
         while(skipped)  //determine next experiment setup
         {
+            skipped=false;
+
             if(++experimentCount>=repetitions)
             {
                 ownUnitCount++;
@@ -242,66 +679,47 @@ void LearningFightWinnableExperimentExpert::matchEnd(Blackboard* blackboard)
                 }
                 experimentCount=0;
             }
-            
-            skipped=false;
+
+            int cnt;
+            stateOwnStart.reset();
+            stateEnemyStart.reset();
+            for(cnt=0;cnt<ownUnitCount;cnt++)
+                stateOwnStart.add({getUniversalUnitTypeIndex(unitType),
+                    unitType.maxHitPoints()*randomHealthPercentage()/100,
+                    unitType.maxShields()*randomHealthPercentage()/100,
+                    unitType.maxEnergy()*randomHealthPercentage()/100});
+            for(cnt=0;cnt<enemyUnitCount;cnt++)
+                stateEnemyStart.add({getUniversalUnitTypeIndex(unitType),
+                    unitType.maxHitPoints()*randomHealthPercentage()/100,
+                    unitType.maxShields()*randomHealthPercentage()/100,
+                    unitType.maxEnergy()*randomHealthPercentage()/100});
+
             if(SKIP_OBVIOUS)    //report default win/los if player/enemy has way more units
             {
-                if(ownUnitCount>enemyUnitCount+2+enemyUnitCount/8)
+                if(ownUnitCount>enemyUnitCount+2+enemyUnitCount/8
+                        && stateOwnStart.unitHealthSum()>stateEnemyStart.unitHealthSum())
                 {
-                    appendResultToCSV("learning/data/sametype.csv",1);
+                    appendSametypeResultToCSV("learning/data/sametype.csv",1);
+                    LOG<<"    ---  skipped: default win  ---  ";
                     skipped=true;
                 }
-                else if(ownUnitCount<enemyUnitCount-2-enemyUnitCount/8)
+                else if(ownUnitCount<enemyUnitCount-2-enemyUnitCount/8
+                        && stateOwnStart.unitHealthSum()<stateEnemyStart.unitHealthSum())
                 {
-                    appendResultToCSV("learning/data/sametype.csv",0);
+                    appendSametypeResultToCSV("learning/data/sametype.csv",0);
+                    LOG<<"    ---  skipped: default los  ---  ";
                     skipped=true;
                 }
             }
-        }
-
-        LOG << "placing "<<ownUnitCount<<" own "<<unitType.getName()<<" and "<<enemyUnitCount<<" enemy "<<unitType.getName()<<" on next map.";
-        int cnt;
-
-        for(cnt=0;cnt<ownUnitCount;cnt++)
-        {
-            map.addUnit(unitType,BWAPI::Position(32*32 + 32*cnt - 16*ownUnitCount,64),0);
-        }
-        for(cnt=0;cnt<enemyUnitCount;cnt++)
-        {
-            map.addUnit(unitType,BWAPI::Position(32*32 + 32*cnt - 16*enemyUnitCount,32*64-64),1);
         }
     }
-    if(experiment=="othertype")
+    else if(experiment=="othertype")
     {
-        int result=blackboard->getInformations()->isWinner?1:0;
-        if(ownUnitCount>0 && enemyUnitTypeIndex<NUMBER_OF_OTHER_UNITS)
-        {
-            std::ofstream csv("learning/data/othertype.csv", std::ios_base::app | std::ios_base::out);
-
-            for(int i=0;i<NUMBER_OF_OTHER_UNITS;i++)
-            {
-                if(unitType.getName()==otherUnitTypes[i])
-                    csv<<ownUnitCount<<",";
-                else
-                    csv<<"0,";
-            }
-            for(int i=0;i<NUMBER_OF_OTHER_UNITS;i++)
-            {
-                if(i==enemyUnitTypeIndex)
-                    csv<<enemyUnitCount<<",";
-                else
-                    csv<<"0,";
-            }
-            csv<<result<<"\n";
-
-            LOG << "Result: "<<ownUnitCount<<" "<<unitType.getName()<<" vs "<<enemyUnitCount<<" "<<otherUnitTypes[enemyUnitTypeIndex]<<": "<<result;
-        }
-        else
-            LOG<<"Ignoring out-of-bound dataset.";
-
         bool skipped=true;
         while(skipped)  //determine next experiment setup
         {
+            skipped=false;
+
             if(++experimentCount>=repetitions)
             {
                 experimentCount=0;
@@ -324,7 +742,19 @@ void LearningFightWinnableExperimentExpert::matchEnd(Blackboard* blackboard)
                 }
             }
 
-            skipped=false;
+            stateOwnStart.reset();
+            stateEnemyStart.reset();
+            for(int i=0;i<ownUnitCount;i++)
+                stateOwnStart.add({getUniversalUnitTypeIndex(unitType),
+                    unitType.maxHitPoints()*randomHealthPercentage()/100,
+                    unitType.maxShields()*randomHealthPercentage()/100,
+                    unitType.maxEnergy()*randomHealthPercentage()/100});
+            for(int i=0;i<enemyUnitCount;i++)
+                stateEnemyStart.add({getUniversalUnitTypeIndex(otherUnitTypes[enemyUnitTypeIndex]),
+                    BWAPI::UnitTypes::getUnitType(otherUnitTypes[enemyUnitTypeIndex]).maxHitPoints()*randomHealthPercentage()/100,
+                    BWAPI::UnitTypes::getUnitType(otherUnitTypes[enemyUnitTypeIndex]).maxShields()*randomHealthPercentage()/100,
+                    BWAPI::UnitTypes::getUnitType(otherUnitTypes[enemyUnitTypeIndex]).maxEnergy()*randomHealthPercentage()/100});
+
             if(SKIP_OBVIOUS)    //report default win/los if player/enemy has way more units
             {
                 /*
@@ -338,32 +768,17 @@ void LearningFightWinnableExperimentExpert::matchEnd(Blackboard* blackboard)
                     appendResultToCSV("learning/data/othertype.csv",0);
                     skipped=true;
                 }
-                 * */
+                */
             }
         }
-
-        LOG << "placing "<<ownUnitCount<<" own "<<unitType.getName()<<" and "<<enemyUnitCount<<" enemy "<<otherUnitTypes[enemyUnitTypeIndex]<<" on next map.";
-        int cnt;
-
-        for(cnt=0;cnt<ownUnitCount;cnt++)
-        {
-            map.addUnit(unitType,BWAPI::Position(32*32 + 32*cnt - 16*ownUnitCount,64),0);
-        }
-        for(cnt=0;cnt<enemyUnitCount;cnt++)
-        {
-            map.addUnit(BWAPI::UnitTypes::getUnitType(otherUnitTypes[enemyUnitTypeIndex]),BWAPI::Position(32*32 + 32*cnt - 16*enemyUnitCount,32*64-64),1);
-        }
+    }
+    else
+    {
+        LOG << "experiment "<<experiment<<" not fully implemented yet.";
+        return;
     }
 
-            //HACK: we overwrite all 4 files (except the current map) to make sure we hit the next map
-            // (BWAPI seems to only load *-2 and *-4 ?)
-        if(BWAPI::Broodwar->mapFileName()!="learn-fight-winnable-1.scx")
-            map.save(starcraftMapPath+"learn-fight-winnable-1.scx");
-        if(BWAPI::Broodwar->mapFileName()!="learn-fight-winnable-2.scx")
-            map.save(starcraftMapPath+"learn-fight-winnable-2.scx");
-        if(BWAPI::Broodwar->mapFileName()!="learn-fight-winnable-3.scx")
-            map.save(starcraftMapPath+"learn-fight-winnable-3.scx");
-        if(BWAPI::Broodwar->mapFileName()!="learn-fight-winnable-4.scx")
-            map.save(starcraftMapPath+"learn-fight-winnable-4.scx");
-
+    generateMap();
+    stateOwnStart.reset();
+    stateEnemyStart.reset();
 }
