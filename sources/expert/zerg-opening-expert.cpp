@@ -7,56 +7,36 @@ REGISTER_EXPERT(ZergOpeningExpert)
 
 namespace
 {
-    enum OpeningType { open4Pool, open6PoolSunken, open9PoolSpeed, openRandom }; // Random has to be last element!
+    enum OpeningType {
+                open4Pool, open6PoolSunken, open9PoolSpeed,
+                openRandom, numberOfOpenings = openRandom // Random has to be last element!
+            };
 
-    bool play4Pool          = false;
-    bool play6PoolSunken    = false;
-    bool play9PoolSpeed     = false;
-    OpeningType opening     = openRandom;
+    bool play[numberOfOpenings];
+    OpeningType opening = openRandom;
 }
 
 DEF_OPTIONS
 {
+    for (int k=0; k<numberOfOpenings; ++k) {
+        OpeningType type = (OpeningType)k;
+        play[type] = false;
+    }
+
     po::options_description options("Zerg opening options");
     options.add_options()
-            ("4pool",           po::bool_switch(&play4Pool),          "Play always 4 pool.")
-            ("6poolsunken",     po::bool_switch(&play6PoolSunken),    "Play always 5 pool + sunken.")
-            ("9poolspeed",      po::bool_switch(&play9PoolSpeed),     "Play always 9 pool + speed.")
+            ("4pool",           po::bool_switch(&play[open4Pool]),          "Play always 4 pool.")
+            ("6poolsunken",     po::bool_switch(&play[open6PoolSunken]),    "Play always 5 pool + sunken.")
+            ("9poolspeed",      po::bool_switch(&play[open9PoolSpeed]),     "Play always 9 pool + speed.")
         ;
     return options;
-}
-
-DEF_OPTION_EVENT(onEvaluate)
-{
-    int numOptionsSet = 0;
-    if (play4Pool) {
-        opening = open4Pool;
-        ++numOptionsSet;
-    }
-    if (play6PoolSunken) {
-        opening = open6PoolSunken;
-        ++numOptionsSet;
-    }
-    if (play9PoolSpeed) {
-        opening = open9PoolSpeed;
-        ++numOptionsSet;
-    }
-    if (numOptionsSet > 1) {
-        std::cout << "ERROR: Multiple options for Zerg opening set, but only one possible.\n";
-        exit(1);
-    }
-}
-
-bool ZergOpeningExpert::isApplicable(Blackboard* /*blackboard*/)
-{
-    return BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Zerg;
 }
 
 bool ZergOpeningExpert::tick(Blackboard* blackboard)
 {
     OpeningType thisOpening = opening;
     if (thisOpening == openRandom)
-        thisOpening = (OpeningType)(rand() % (int)openRandom);
+        thisOpening = (OpeningType)(rand() % (int)numberOfOpenings);
 
     switch (thisOpening)
     {
@@ -87,4 +67,25 @@ bool ZergOpeningExpert::tick(Blackboard* blackboard)
     }
 
     return false;
+}
+
+DEF_OPTION_EVENT(onEvaluate)
+{
+    int numOptionsSet = 0;
+    for (int k=0; k<numberOfOpenings; ++k) {
+        OpeningType type = (OpeningType)k;
+        if (play[type]) {
+            opening = type;
+            ++numOptionsSet;
+        }
+    }
+    if (numOptionsSet > 1) {
+        std::cout << "ERROR: Multiple options for Zerg opening set, but only one possible.\n";
+        exit(1);
+    }
+}
+
+bool ZergOpeningExpert::isApplicable(Blackboard* /*blackboard*/)
+{
+    return BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Zerg;
 }
