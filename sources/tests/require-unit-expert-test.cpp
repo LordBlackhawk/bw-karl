@@ -53,4 +53,31 @@ BOOST_AUTO_TEST_CASE( active_plan_items )
     BOOST_CHECK( p2->requireUnit.isConnected() );
 }
 
+BOOST_AUTO_TEST_CASE( two_provider )
+{
+    auto pool = createOwnUnitBoundaryItem(BWAPI::UnitTypes::Zerg_Spawning_Pool);
+    blackboard->build(BWAPI::UnitTypes::Zerg_Spawning_Pool);
+
+    auto upgrade = blackboard->upgrade(BWAPI::UpgradeTypes::Metabolic_Boost);
+
+    RequireUnitExpert expert;
+    expert.tick(blackboard);
+
+    BOOST_REQUIRE( upgrade->requireUnit.isConnected() );
+    BOOST_CHECK( upgrade->requireUnit.getConnectedPort()->getOwner() == pool );
+}
+
+BOOST_AUTO_TEST_CASE( no_provider )
+{
+    auto upgrade = blackboard->upgrade(BWAPI::UpgradeTypes::Metabolic_Boost);
+
+    RequireUnitExpert expert;
+    expert.tick(blackboard);
+
+    BOOST_REQUIRE( upgrade->requireUnit.isConnected() );
+    auto planItem = dynamic_cast<BuildPlanItem*>(upgrade->requireUnit.getConnectedPort()->getOwner());
+    BOOST_REQUIRE( planItem != NULL );
+    BOOST_CHECK_EQUAL( planItem->getUnitType(), BWAPI::UnitTypes::Zerg_Spawning_Pool );
+}
+
 BOOST_AUTO_TEST_SUITE_END()

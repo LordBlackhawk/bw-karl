@@ -75,7 +75,7 @@ namespace
         { }
         bool operator < (const ProviderWithTime& other) const
         {
-            return estimatedTime < other.estimatedTime;
+            return estimatedTime > other.estimatedTime;
         }
     };
 }
