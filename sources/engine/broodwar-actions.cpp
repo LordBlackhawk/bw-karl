@@ -202,10 +202,11 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
             drawInformations("turning");
             double cosAngle = (pos.x() - myPos.x())/dist;
             double sinAngle = (pos.y() - myPos.y())/dist;
-            if(firstCall == true) {
-			currentAngle = unit->getAngle();
-			firstCall = false;
-			}
+            if(firstCall == true) 
+				{
+					currentAngle = unit->getAngle();
+					firstCall = false;
+				}
             if ((std::abs(cos(currentAngle) - cosAngle) + std::abs(sin(currentAngle) - sinAngle)) > 0.1)
                 {
                     double angle = atan2(sinAngle, cosAngle);
@@ -218,15 +219,22 @@ MoveToPositionAction::Status MoveToPositionAction::onTick(AbstractExecutionEngin
                     if(diffAngle > 0.2) diffAngle = 0.2;
 					if(diffAngle < -0.2) diffAngle = -0.2;
 					currentAngle = currentAngle + diffAngle;
-                    //BWAPI::Broodwar->drawTextScreen(160, 26, "Angle: %f vs %f, %f und %f", angle, currentAngle, diffAngle, newAngle);
                     unit->move(BWAPI::Position(myPos.x()+round(100*cos(currentAngle)),myPos.y()+round(100*sin(currentAngle))));
-					BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), myPos.x()+round(100*cos(currentAngle)), myPos.y()+round(100*sin(currentAngle)), BWAPI::Colors::Blue);
+					//BWAPI::Broodwar->drawLineMap(myPos.x(), myPos.y(), myPos.x()+round(100*cos(currentAngle)), myPos.y()+round(100*sin(currentAngle)), BWAPI::Colors::Blue);
                 }
             else
                 {
                     unit->move(pos);
                     isTurning = false;
                 }
+			double vx = unit->getVelocityX();
+			double vy = unit->getVelocityY();
+			double vmax = unit->getType().topSpeed();
+			if((vx*vx+vy*vy)/(vmax*vmax) < 0.1) 
+				{
+					unit->move(pos);
+                    isTurning = false;
+				}
             }
         return Running;
         }
