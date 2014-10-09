@@ -1,3 +1,4 @@
+#include "draw-terrain.hpp"
 #include "utils/myseh.hpp"
 #include "utils/log.hpp"
 #include "utils/thread.hpp"
@@ -195,6 +196,10 @@ namespace
             while (Broodwar->isInGame()) {
                 if (OptionsRegistrar::optHUD())
                     ai.drawHUD();
+                if (OptionsRegistrar::optTerrain())
+                    drawTerrainData();
+                if (OptionsRegistrar::optBullets())
+                    drawBullets();
                 if (Broodwar->isPaused()) {
                     if (!WebGUIExpert::pauseGame)
                         Broodwar->resumeGame();

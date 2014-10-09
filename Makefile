@@ -40,7 +40,7 @@ ifndef DEPLOYMODE
 endif
 
 ifndef KARLPARAMS
-    KARLPARAMS = --hud --speed=0 --secure --webgui --disable GiveUpExpert
+    KARLPARAMS = --hud --speed=0 --secure --terrain --webgui --disable GiveUpExpert
 endif
 
 KARLEXE   = karl.exe

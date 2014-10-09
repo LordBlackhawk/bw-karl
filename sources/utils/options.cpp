@@ -53,6 +53,8 @@ namespace
     bool writelogfiles = false;
     bool showhud = false;
     bool doParallel = false;
+    bool drawTerrain = false;
+    bool drawBullets = false;
     int speed = 0;
 }
 
@@ -67,6 +69,8 @@ void OptionsRegistrar::evaluateOptions(int argc, char* argv[])
             ("help",        po::bool_switch(&showhelp),                 "Show this help message.")
             ("log",         po::bool_switch(&writelogfiles),            "Write log files on windows exceptions.")
             ("hud",         po::bool_switch(&showhud),                  "Show HUD.")
+            ("terrain",     po::bool_switch(&drawTerrain),              "Draw BWTA terrain.")
+            ("bullets",     po::bool_switch(&drawBullets),              "Draw bullets.")
             ("speed",       po::value<int>(&speed)->default_value(0),   "Set game speed (-1 = default, 0 maximum speed, ...)")
             ("parallel",    po::bool_switch(&doParallel),               "Run experts parallel to StarCraft.")
         ;
@@ -104,6 +108,16 @@ bool OptionsRegistrar::optParallel()
 bool OptionsRegistrar::optHUD()
 {
     return showhud;
+}
+
+bool OptionsRegistrar::optTerrain()
+{
+    return drawTerrain;
+}
+
+bool OptionsRegistrar::optBullets()
+{
+    return drawBullets;
 }
 
 int OptionsRegistrar::optSpeed()

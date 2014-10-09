@@ -22,6 +22,8 @@ class OptionsRegistrar
         static bool optLog();
         static bool optParallel();
         static bool optHUD();
+        static bool optTerrain();
+        static bool optBullets();
         static int  optSpeed();
 };
 
