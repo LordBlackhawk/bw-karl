@@ -69,10 +69,12 @@ void AttackExpert::endTraversal()
 double AttackExpert::valueEnemyUnit(ProvideUnitPort* ling, EnemyUnitBoundaryItem* enemy)
 {
     double distance = ling->getPosition().getDistance(enemy->getPosition());
-    double value = 0.0;
-    if (enemy->getUnitType().isBuilding())
+    double value = 2000-2*enemy->getHealth();  //Is this the current health??
+	if (enemy->getUnitType() == BWAPI::UnitTypes::Zerg_Larva)
+        value += -500.0;
+    /*if (enemy->getUnitType().isBuilding())
         value += 500.0;
     if (enemy->getUnitType().isWorker())
-        value += 100.0;
+        value += 100.0;*/
     return value - distance;
 }

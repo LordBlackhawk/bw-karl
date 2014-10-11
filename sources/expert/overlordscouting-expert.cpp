@@ -38,7 +38,8 @@ void OverlordScoutingExpert::endTraversal()
     if (!minerals.empty()) {
         for(auto o:overlords) {
             for(auto m:minerals) {
-                value.push_back(- 3*m->getLastSeen()  - m->getPosition().getDistance(o->getPosition()));
+                value.push_back(- 3*m->getLastSeen()  - m->getPosition().getDistance(o->getPosition())+
+							std::abs(m->getPosition().x()-8*BWAPI::Broodwar->mapWidth())/2+std::abs(m->getPosition().y()-8*BWAPI::Broodwar->mapHeight())/2);
             }
             auto it = std::max_element(value.begin(),value.end());
             int index = it-value.begin();

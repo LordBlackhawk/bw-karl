@@ -66,6 +66,7 @@ namespace
             });
         double value = 0.0;
         double strength = 0.0;
+		// This will only yield meaningful results if we use one unittype ?
         for (auto it : units) {
             strength += it->getGroundDPS();
             value += it->getHealth() * strength;
@@ -107,7 +108,7 @@ void GuerillaExpert::analyzeSituation(int clusterIndex, const std::vector<Abstra
     double ownPower = valueOfUnits(ownUnits);
     double enemyPower = valueOfUnits(enemyUnits);
 
-    if (ownPower > 0.9 * enemyPower) {
+    if (ownPower > 1.2 * enemyPower) {
         cleanup(ownUnits);
         return;
     }
