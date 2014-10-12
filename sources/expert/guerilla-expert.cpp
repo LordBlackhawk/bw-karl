@@ -3,6 +3,7 @@
 #include "plan/broodwar-boundary-items.hpp"
 #include "utils/bw-helper.hpp"
 #include "utils/options.hpp"
+#include "utils/log.hpp"
 #include <algorithm>
 
 #define M_PI 3.141592653589793238462643383279502884L
@@ -73,6 +74,28 @@ namespace
         }
         return value;
     }
+	
+	double expectedRetreatDamage(std::vector<OwnUnitBoundaryItem*>& units,std::vector<EnemyUnitBoundaryItem*>& enemy) {
+		double damage = 0.0;
+		double factor = 0.0;
+		for (auto it : enemy) {
+			bool influence = false;	
+			factor = 0.0;
+			double range = it->getUnitType().groundWeapon().maxRange();
+			double cool = it->getUnitType().groundWeapon().damageCooldown();
+			for (auto is : units) {
+				double dist = is->getPosition().getDistance(it->getPosition());
+				if(dist <= range)
+					{
+						influence = true;
+						factor = std::max(factor,(range-dist)/(is->getUnitType().topSpeed()*cool));
+					}
+			}
+			//dosn't take upgrades and resistance of units into account
+			if(influence==true) damage += it->getGroundDPS()*factor;
+		}
+		return damage;
+	}
 }
 
 void GuerillaExpert::analyzeSituation(int clusterIndex, const std::vector<AbstractSpaceUnitBoundaryItem*>& units)
@@ -108,10 +131,18 @@ void GuerillaExpert::analyzeSituation(int clusterIndex, const std::vector<Abstra
     double ownPower = valueOfUnits(ownUnits);
     double enemyPower = valueOfUnits(enemyUnits);
 
+	// attack, if we are stronger than the enemy
     if (ownPower > 1.2 * enemyPower) {
-        cleanup(ownUnits);
+		cleanup(ownUnits);
         return;
-    }
+		}
+	// or if the expected value of retreat is smaller than of a fight
+	//double expRetDam = expectedRetreatDamage(ownUnits,enemyUnits);
+	// ad hoc version...needs to be improved...
+	/*if (expRetDam > 3*ownUnits.size()) {
+       cleanup(ownUnits);
+        return;
+    }*/
 
     retreat(ownUnits, enemyUnits);
 }
