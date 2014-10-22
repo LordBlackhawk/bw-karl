@@ -160,6 +160,12 @@ void AbstractPlanItem::setErrorState(AbstractAction* /*action*/)
     status = Failed;
 }
 
+void AbstractPlanItem::setPlanned()
+{
+    assert(isFailed());
+    status = Planned;
+}
+
 void AbstractPlanItem::addPurpose(AbstractPort* port, AbstractPlanItem* item)
 {
     auto newport = new RequirePurposePort(this, port);

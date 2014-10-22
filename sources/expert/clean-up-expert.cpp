@@ -5,13 +5,8 @@
 
 REGISTER_EXPERT(CleanUpExpert)
 
-void CleanUpExpert::visitAbstractPlanItem(AbstractPlanItem* item)
+void CleanUpExpert::checkPorts(AbstractPlanItem* item)
 {
-    if (item->getStatus() == AbstractPlanItem::Failed) {
-        currentBlackboard->removeItem(item);
-        return;
-    }
-
     auto& ports = item->ports;
     auto it = std::find_if(ports.begin(), ports.end(), [] (AbstractPort* port) {
             auto purposePort = dynamic_cast<RequirePurposePort*>(port);
@@ -21,6 +16,22 @@ void CleanUpExpert::visitAbstractPlanItem(AbstractPlanItem* item)
         currentBlackboard->removeItem(item);
         return;
     }
+}
+
+void CleanUpExpert::visitAbstractPlanItem(AbstractPlanItem* item)
+{
+    if (item->isFailed()) {
+        currentBlackboard->removeItem(item);
+        return;
+    }
+
+    checkPorts(item);
+}
+
+void CleanUpExpert::visitBuildPlanItem(BuildPlanItem* item)
+{
+    // Do not check for failed, BuildingPlacementExpert is responsible.
+    checkPorts(item);
 }
 
 void CleanUpExpert::visitMoveToPositionPlanItem(MoveToPositionPlanItem* item)

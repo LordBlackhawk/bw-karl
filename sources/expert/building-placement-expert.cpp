@@ -55,10 +55,26 @@ void BuildingPlacementExpert::visitRequireSpacePort(RequireSpacePort* port)
     }
 
     BWAPI::TilePosition pos = getBuildLocationNear();
-    if (pos != BWAPI::TilePositions::None) {
-        //LOG << "found position: " << pos.x() << ", " << pos.y();
+    if (pos != BWAPI::TilePositions::None)
         port->connectTo(pos);
+}
+
+void BuildingPlacementExpert::visitBuildPlanItem(BuildPlanItem* item)
+{
+    if (!item->isFailed()) {
+        BasicPortExpert::visitBuildPlanItem(item);
+        return;
     }
+
+    BWAPI::TilePosition pos = getBuildLocationNear();
+    if (pos == BWAPI::TilePositions::None) {
+        currentBlackboard->removeItem(item);
+        return;
+    }
+
+    item->requireSpace.connectTo(pos);
+    item->requireUnit.disconnect();
+    item->setPlanned();
 }
 
 BWAPI::TilePosition BuildingPlacementExpert::getBuildLocationNear()

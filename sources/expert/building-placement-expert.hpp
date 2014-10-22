@@ -7,6 +7,7 @@ class BuildingPlacementExpert : public BasicPortExpert
     public:
         void beginTraversal() override;
         void visitRequireSpacePort(RequireSpacePort* port) override;
+        void visitBuildPlanItem(BuildPlanItem* item) override;
 
     protected:
         int                 mapWidth;

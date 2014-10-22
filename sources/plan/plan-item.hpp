@@ -78,6 +78,7 @@ class AbstractPlanItem : public AbstractItem
 
         inline bool isPlanned() const { return (status == Planned); }
         inline bool isActive() const { return (status == Active) || (status == Executing) || (status == Terminated); }
+        inline bool isFailed() const { return (status == Failed); }
         inline bool isImpossible() const { return isImpossibleTime(estimatedStartTime); }
         inline bool operator < (const AbstractPlanItem& rhs) const { return estimatedStartTime < rhs.estimatedStartTime; }
         inline Status getStatus() const { return status; }
@@ -88,6 +89,7 @@ class AbstractPlanItem : public AbstractItem
         void setTerminated(AbstractExecutionEngine* engine);
         void setFinished();
         void setErrorState(AbstractAction* action);
+        void setPlanned();
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine);
         void addPurpose(AbstractPort* port, AbstractPlanItem* item);
 
