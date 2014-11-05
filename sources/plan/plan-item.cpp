@@ -9,6 +9,7 @@
 #include "utils/assert-throw.hpp"
 #include "utils/bw-helper.hpp"
 #include <algorithm>
+#include <typeinfo>
 
 AbstractPort::AbstractPort(AbstractItem* o)
     : estimatedTime(INFINITE_TIME), owner(o)
@@ -70,8 +71,17 @@ void AbstractItem::update(AbstractEvent* event)
     event->acceptVisitor(this);
 }
 
+void AbstractItem::setUnit(BWAPI::Unit* u)
+{
+    assert(unit == NULL);
+    unit = u;
+}
+
 AbstractBoundaryItem::AbstractBoundaryItem(BWAPI::Unit* u)
     : AbstractItem(u)
+{ }
+
+void AbstractBoundaryItem::takeConnectionsFrom(AbstractBoundaryItem* /*other*/)
 { }
 
 AbstractPlanItem::AbstractPlanItem()
@@ -164,6 +174,8 @@ void AbstractPlanItem::setPlanned()
 {
     assert(isFailed());
     status = Planned;
+    action = NULL;
+    unit = NULL;
 }
 
 void AbstractPlanItem::addPurpose(AbstractPort* port, AbstractPlanItem* item)
@@ -409,7 +421,7 @@ bool Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
             BWAPI::Unit* unit = event.getUnit();
             BWAPI::UnitType unitType = unit->getType();
             engine->generateEvent(new CompleteUnitUpdateEvent(unit, unitType, getHealth(unit, unitType), BWAction::read(unit),
-                                                              unit->getTilePosition(), unit->getPosition(), unit->getPlayer()));
+                                                              unit->getTilePosition(), unit->getPosition(), unit->getPlayer(), unit->getHatchery()));
         } else {
             engine->generateEvent(new BroodwarEvent(event));
             if (event.getType() == BWAPI::EventType::MatchEnd)
@@ -494,27 +506,63 @@ void Blackboard::visitUnitUpdateEvent(UnitUpdateEvent* event)
     it->second->update(event);
 }
 
+namespace
+{
+    template <class T>
+    AbstractBoundaryItem* becomeBoundaryItem(AbstractBoundaryItem* oldItem, BWAPI::Unit* unit, BWAPI::UnitType unitType, BlackboardInformations* info)
+    {
+        if ((oldItem == NULL) || (typeid(*oldItem) != typeid(T))) {
+            auto result = new T(unit, unitType, info);
+            result->takeConnectionsFrom(oldItem);
+            return result;
+        } else {
+            return oldItem;
+        }
+    }
+}
+
 void Blackboard::visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event)
 {
+    AbstractBoundaryItem* oldItem = NULL;
     auto it = unitBoundaries.find(event->unit);
     if (it != unitBoundaries.end()) {
-        it->second->update(event);
-        return;
+        oldItem = it->second;
+    } else if ((event->unitType == BWAPI::UnitTypes::Zerg_Larva) && (event->hatchery != NULL)) {
+        auto hatchery = dynamic_cast<OwnHatcheryBoundaryItem*>(lookupUnit(event->hatchery));
+        if (hatchery != NULL) {
+            oldItem = hatchery->removeFirstPlanedLarva();
+            if (oldItem != NULL)
+                oldItem->setUnit(event->unit);
+        }
     }
 
-    AbstractBoundaryItem* item = NULL;
+    AbstractBoundaryItem* newItem = NULL;
     if (event->unitType.isResourceContainer()) {
-        item = new ResourceBoundaryItem(event->unit, event->unitType, &informations);
+        newItem = becomeBoundaryItem<ResourceBoundaryItem>(oldItem, event->unit, event->unitType, &informations);
     } else if (event->owner == self()) {
-        //LOG << "Own unit added: " << event->unitType.getName();
-        item = new OwnUnitBoundaryItem(event->unit, event->unitType, &informations.fields);
+        if (   (event->unitType == BWAPI::UnitTypes::Zerg_Hatchery)
+            || (event->unitType == BWAPI::UnitTypes::Zerg_Lair)
+            || (event->unitType == BWAPI::UnitTypes::Zerg_Hive))
+        {
+            newItem = becomeBoundaryItem<OwnHatcheryBoundaryItem>(oldItem, event->unit, event->unitType, &informations);
+        } else {
+            newItem = becomeBoundaryItem<OwnUnitBoundaryItem>(oldItem, event->unit, event->unitType, &informations);
+        }
     } else if (event->owner != neutral()) {
-        //LOG << "Enemy unit added: " << event->unitType.getName();
-        item = new EnemyUnitBoundaryItem(event->unit, event->unitType, &informations);
+        newItem = becomeBoundaryItem<EnemyUnitBoundaryItem>(oldItem, event->unit, event->unitType, &informations);
     }
-    if (item != NULL) {
-        unitBoundaries[event->unit] = item;
-        item->update(event);
+
+    if (newItem == oldItem) {
+        oldItem = NULL;
+    } else if (oldItem != NULL) {
+        delete oldItem;
+    }
+
+    if (newItem != NULL) {
+        unitBoundaries[event->unit] = newItem;
+        newItem->update(event);
+    } else {
+        unitBoundaries.erase(event->unit);
     }
 }
 

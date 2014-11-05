@@ -100,4 +100,30 @@ BOOST_AUTO_TEST_CASE( own_unit_update )
     BOOST_CHECK_EQUAL( item->getPosition(), pos4 );
 }
 
+BOOST_AUTO_TEST_CASE( hatchery_boundary_item )
+{
+    const BWAPI::UnitType ut1 = BWAPI::UnitTypes::Zerg_Drone;
+    const BWAPI::UnitType ut2 = BWAPI::UnitTypes::Zerg_Hatchery;
+    const BWAPI::UnitType ut3 = ut1;
+    const BWAPI::Position pos1(5, 5);
+    const BWAPI::Position pos2(10, 10);
+    const BWAPI::Position pos3(15, 15);
+    const BWAPI::TilePosition tp2(1, 1);
+    const BWAPI::TilePosition tp3(2, 2);
+    const int health = 100;
+
+    setupFields();
+
+    auto item = createOwnUnitBoundaryItem(ut1, pos1);
+    auto unit = item->getUnit();
+
+    addEvent(new CompleteUnitUpdateEvent(unit, ut2, health, BWAction::Unknown, tp2, pos2, NULL));
+    tick();
+    BOOST_CHECK( dynamic_cast<OwnHatcheryBoundaryItem*>(blackboard->lookupUnit(unit)) != NULL );
+
+    addEvent(new CompleteUnitUpdateEvent(unit, ut3, health, BWAction::Unknown, tp3, pos3, NULL));
+    tick();
+    BOOST_CHECK( dynamic_cast<OwnHatcheryBoundaryItem*>(blackboard->lookupUnit(unit)) == NULL );
+}
+
 BOOST_AUTO_TEST_SUITE_END()

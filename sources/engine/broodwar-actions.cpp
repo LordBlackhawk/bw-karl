@@ -87,7 +87,7 @@ ZergBuildAction::Status ZergBuildAction::onTick(AbstractExecutionEngine* engine)
         return Running;
     if (err == BWAPI::Errors::Unit_Busy)
         return Running;
-    LOG << "ZergBuildAction failed with " << err;
+    LOG << "ZergBuildAction(" << unitType << ") failed with " << err;
     return Failed;
 }
 

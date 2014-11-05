@@ -37,8 +37,8 @@ void SimpleUnitUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)
     visitor->visitSimpleUnitUpdateEvent(this);
 }
 
-CompleteUnitUpdateEvent::CompleteUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, int h, BWAction::Type a, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o)
-    : SimpleUnitUpdateEvent(u, p, h, a), unitType(t), owner(o), tilePos(tp)
+CompleteUnitUpdateEvent::CompleteUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, int h, BWAction::Type a, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o, BWAPI::Unit* hatch)
+    : SimpleUnitUpdateEvent(u, p, h, a), unitType(t), owner(o), tilePos(tp), hatchery(hatch)
 { }
 
 void CompleteUnitUpdateEvent::acceptVisitor(AbstractEventVisitor* visitor)

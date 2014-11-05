@@ -1,11 +1,17 @@
 #include "require-unit-expert.hpp"
 #include "expert-registrar.hpp"
 #include "plan/broodwar-ports.hpp"
+#include "plan/broodwar-boundary-items.hpp"
 #include "utils/log.hpp"
 #include <algorithm>
 #include <queue>
 
 REGISTER_EXPERT(RequireUnitExpert)
+
+bool OwnHatcherySorter::operator () (OwnHatcheryBoundaryItem* lhs, OwnHatcheryBoundaryItem* rhs) const
+{
+    return lhs->lastPlanedLarva() < rhs->lastPlanedLarva();
+}
 
 void RequireUnitExpert::beginTraversal()
 {
@@ -36,6 +42,13 @@ void RequireUnitExpert::visitRequireUnitPort(RequireUnitPort* port)
     requireMap[unitType].push_back(port);
 }
 
+void RequireUnitExpert::visitOwnHatcheryBoundaryItem(OwnHatcheryBoundaryItem* item)
+{
+    hatcheries.push(item);
+    for (auto it : item->getLarvas())
+        provideMap[BWAPI::UnitTypes::Zerg_Larva].push_back(&it->provideUnit);
+}
+
 void RequireUnitExpert::endTraversal()
 {
     for (auto it : requireMap) {
@@ -53,6 +66,8 @@ void RequireUnitExpert::endTraversal()
     currentBlackboard->getInformations()->unusedLarvaCount = std::max(0, ((int)provideMap[BWAPI::UnitTypes::Zerg_Larva].size()-(int)requireMap[BWAPI::UnitTypes::Zerg_Larva].size()));
     provideMap.clear();
     requireMap.clear();
+    while (!hatcheries.empty())
+        hatcheries.pop();
 }
 
 namespace
@@ -125,8 +140,27 @@ void RequireUnitExpert::handleQueued(const BWAPI::UnitType unitType, const std::
     }
 }
 
-void RequireUnitExpert::handleLarva(const std::vector<ProvideUnitPort*>& provide, const std::vector<RequireUnitPort*>& require)
+namespace
 {
+    class PortSorter
+    {
+        public:
+            bool operator () (AbstractPort* lhs, AbstractPort* rhs) const
+            {
+                return lhs->estimatedTime < rhs->estimatedTime;
+            }
+    };
+}
+
+void RequireUnitExpert::handleLarva(std::vector<ProvideUnitPort*>& provide, const std::vector<RequireUnitPort*>& require)
+{
+    while ((provide.size() < require.size()) && !hatcheries.empty()) {
+        auto hatch = hatcheries.top();
+        hatcheries.pop();
+        provide.push_back(hatch->createNewLarva());
+        hatcheries.push(hatch);
+    }
+    std::sort(provide.begin(), provide.end(), PortSorter());
     int size = std::min(provide.size(), require.size());
     for (int k=0; k<size; ++k)
         require[k]->connectTo(provide[k]);

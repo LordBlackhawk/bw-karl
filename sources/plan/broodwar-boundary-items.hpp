@@ -8,12 +8,14 @@ class AbstractSpaceUnitBoundaryItem : public AbstractBoundaryItem
     public:
         RequireSpacePort    requireSpace;
 
-        AbstractSpaceUnitBoundaryItem(BWAPI::Unit* u, Array2d<FieldInformations>* f, BWAPI::UnitType ut = BWAPI::UnitTypes::Unknown);
+        AbstractSpaceUnitBoundaryItem(BWAPI::Unit* u, BlackboardInformations* i, BWAPI::UnitType ut = BWAPI::UnitTypes::Unknown);
 
         void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) override;
         virtual BWAPI::Position getPosition() const = 0;
         int getMaxHealth() const;
         double getGroundDPS() const;
+
+        void takeConnectionsFrom(AbstractBoundaryItem* other);
 
         inline BWAPI::TilePosition getTilePosition() const { return requireSpace.getTilePosition(); }
         inline BWAPI::UnitType getUnitType() const { return unitType; }
@@ -21,8 +23,11 @@ class AbstractSpaceUnitBoundaryItem : public AbstractBoundaryItem
         inline bool isFlying() const { return unitType.isFlyer(); }
 
     protected:
-        BWAPI::UnitType     unitType;
+        BWAPI::UnitType         unitType;
+        BlackboardInformations* info;
 };
+
+class OwnHatcheryBoundaryItem;
 
 class OwnUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
 {
@@ -30,11 +35,13 @@ class OwnUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
         ProvideUnitPort     provideUnit;
         SupplyPort          supply;
 
-        OwnUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, Array2d<FieldInformations>* f);
+        OwnUnitBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, BlackboardInformations* i);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         void visitCompleteUnitUpdateEvent(CompleteUnitUpdateEvent* event) override;
         void visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event) override;
+
+        void takeConnectionsFrom(AbstractBoundaryItem* other);
 
         inline BWAPI::Position getPosition() const { return provideUnit.getPosition(); }
         inline bool isConnected() const { return provideUnit.isConnected(); }
@@ -42,6 +49,25 @@ class OwnUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
 
     protected:
         int health;
+};
+
+class OwnHatcheryBoundaryItem : public OwnUnitBoundaryItem
+{
+    public:
+        OwnHatcheryBoundaryItem(BWAPI::Unit* u, BWAPI::UnitType ut, BlackboardInformations* i);
+        ~OwnHatcheryBoundaryItem();
+
+        void acceptVisitor(AbstractVisitor* visitor) override;
+        void visitSimpleUnitUpdateEvent(SimpleUnitUpdateEvent* event) override;
+
+        Time lastPlanedLarva() const;
+        ProvideUnitPort* createNewLarva();
+        OwnUnitBoundaryItem* removeFirstPlanedLarva();
+
+        inline const std::vector<OwnUnitBoundaryItem*> getLarvas() const { return larvas; }
+
+    protected:
+        std::vector<OwnUnitBoundaryItem*>   larvas;
 };
 
 class ResourceBoundaryItem : public AbstractSpaceUnitBoundaryItem

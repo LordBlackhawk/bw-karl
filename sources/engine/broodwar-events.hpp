@@ -41,8 +41,9 @@ class CompleteUnitUpdateEvent : public SimpleUnitUpdateEvent
         BWAPI::UnitType     unitType;
         BWAPI::Player*      owner;
         BWAPI::TilePosition tilePos;
+        BWAPI::Unit*        hatchery; // only for larva!
 
-        CompleteUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, int h, BWAction::Type a, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o);
+        CompleteUnitUpdateEvent(BWAPI::Unit* u, BWAPI::UnitType t, int h, BWAction::Type a, const BWAPI::TilePosition& tp, const BWAPI::Position& p, BWAPI::Player* o, BWAPI::Unit* hatch = NULL);
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 

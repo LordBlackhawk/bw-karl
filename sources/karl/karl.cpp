@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
 {
     OptionsRegistrar::evaluateOptions(argc, argv);
 
-    seh::Registrar handler(argv[0], OptionsRegistrar::optLog() ? "./logs/" : NULL);
+    //seh::Registrar handler(argv[0], OptionsRegistrar::optLog() ? "./logs/" : NULL);
     try {
         mainLoop();
     } catch (std::exception& e) {

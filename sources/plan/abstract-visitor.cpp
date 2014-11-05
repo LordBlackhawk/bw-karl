@@ -80,6 +80,11 @@ void BasicVisitor::visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item)
     visitAbstractBoundaryItem(item);
 }
 
+void BasicVisitor::visitOwnHatcheryBoundaryItem(OwnHatcheryBoundaryItem* item)
+{
+    visitOwnUnitBoundaryItem(item);
+}
+
 void BasicVisitor::visitResourceBoundaryItem(ResourceBoundaryItem* item)
 {
     visitAbstractBoundaryItem(item);

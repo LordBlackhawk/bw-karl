@@ -55,6 +55,7 @@ class AbstractItem : public BasicEventVisitor, public AssertBase
         bool isPlanItem() const;
 
         inline BWAPI::Unit* getUnit() const { return unit; }
+        void setUnit(BWAPI::Unit* u);
 
     protected:
         BWAPI::Unit* unit;
@@ -64,6 +65,8 @@ class AbstractBoundaryItem : public AbstractItem
 {
     public:
         AbstractBoundaryItem(BWAPI::Unit* u);
+
+        void takeConnectionsFrom(AbstractBoundaryItem* other);
 };
 
 class AbstractPlanItem : public AbstractItem

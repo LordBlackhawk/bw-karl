@@ -20,6 +20,7 @@ class RequirePurposePort;
 
 class AbstractBoundaryItem;
 class OwnUnitBoundaryItem;
+class OwnHatcheryBoundaryItem;
 class ResourceBoundaryItem;
 class EnemyUnitBoundaryItem;
 
@@ -53,6 +54,7 @@ class AbstractVisitor
 
         virtual void visitAbstractBoundaryItem(AbstractBoundaryItem* item) = 0;
         virtual void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) = 0;
+        virtual void visitOwnHatcheryBoundaryItem(OwnHatcheryBoundaryItem* item) = 0;
         virtual void visitResourceBoundaryItem(ResourceBoundaryItem* item) = 0;
         virtual void visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item) = 0;
 
@@ -88,6 +90,7 @@ class BasicVisitor : public AbstractVisitor
         
         void visitAbstractBoundaryItem(AbstractBoundaryItem* item) override;
         void visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item) override;
+        void visitOwnHatcheryBoundaryItem(OwnHatcheryBoundaryItem* item) override;
         void visitResourceBoundaryItem(ResourceBoundaryItem* item) override;
         void visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item) override;
 

@@ -43,7 +43,11 @@ bool SupplyExpert::process(std::vector<SupplyPort*>& provide, std::vector<Supply
             itRequire->estimatedTime = INFINITE_TIME;
             result = true;
         } else {
-            itRequire->estimatedTime = currentTime;
+            if (currentTime <= 0) {
+                itRequire->estimatedTime = 0;
+            } else {
+                itRequire->estimatedTime = std::max(currentTime, currentBlackboard->getActionHorizon());
+            }
             currentSupply -= itRequire->getRequiredAmount();
         }
     }

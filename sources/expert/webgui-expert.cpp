@@ -297,6 +297,13 @@ namespace
                     item->getUnit()?item->getUnit()->getID():0);
                     //FIXME: item->getPosition(),item->getTilePosition()
             }
+            void visitOwnHatcheryBoundaryItem(OwnHatcheryBoundaryItem* item) override
+            {
+                visitOwnUnitBoundaryItem(item);
+                // FIXME: This does not work, since the surrounding text is missing...
+                //for (auto it : item->getLarvas())
+                //    visitOwnUnitBoundaryItem(it);
+            }
             void visitResourceBoundaryItem(ResourceBoundaryItem* item) override
             {
                 visitAbstractBoundaryItem(item);
