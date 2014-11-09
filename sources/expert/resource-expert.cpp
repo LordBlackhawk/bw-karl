@@ -6,6 +6,10 @@
 
 REGISTER_EXPERT(ResourceExpert)
 
+ResourceExpert::ResourceExpert()
+    : counter(0), lastCollectedMinerals(0), lastCollectedGas(0)
+{ }
+
 void ResourceExpert::visitResourcePort(ResourcePort* port)
 {
     resources.push_back(port);
@@ -24,6 +28,9 @@ void ResourceExpert::visitGatherResourcesPlanItem(GatherResourcesPlanItem* item)
 
 void ResourceExpert::endTraversal()
 {
+    if (++counter % 13 == 1)
+        resort();
+
     simulateMinerals();
     simulateGas();
     resources.clear();
@@ -111,5 +118,82 @@ void ResourceExpert::simulateGas()
 
         itResources->estimatedTime = std::max(itResources->estimatedTime, finishTime);
         currentGas -= neededGas;
+    }
+}
+
+void ResourceExpert::resort()
+{
+    auto info = currentBlackboard->getInformations();
+
+    // Minerals:
+    int newValue            = info->collectedMinerals;
+    int newMinerals         = newValue - lastCollectedMinerals;
+    lastCollectedMinerals   = newValue;
+
+    // Gas:
+    newValue            = info->collectedGas;
+    int newGas          = newValue - lastCollectedGas;
+    lastCollectedGas    = newValue;
+
+    int sum = newMinerals + newGas;
+    for (auto& it : info->resourceCategories)
+        it.amount += it.ratio * sum;
+
+    // Sort ports to category lists:
+    EnumArray<std::vector<ResourcePort*>, ResourceCategory> categoryLists;
+    for (auto it : resources)
+        for (auto c : it->getCategory())
+            categoryLists[c].push_back(it);
+
+    // Copy amount of category:
+    EnumArray<double, ResourceCategory> amount;
+    EnumArray<unsigned int, ResourceCategory> indices;
+    for (auto c : EnumSet<ResourceCategory>::all()) {
+        amount[c] = info->resourceCategories[c].amount;
+        indices[c] = 0;
+    }
+
+    // Calculate new ordering (ratio != 0.0):
+    std::set<ResourcePort*> done;
+    resources.clear();
+    while (true) {
+        ResourceCategory bestCategory = ResourceCategory::Economy;
+        ResourcePort*    bestPort = NULL;
+        double           bestValue = 1e10;
+        for (auto c : EnumSet<ResourceCategory>::all()) {
+            // Remove already taken elements
+            auto& list = categoryLists[c];
+            auto& index = indices[c];
+            while (true) {
+                if (index >= list.size())
+                    break;
+                if (done.find(list[index]) == done.end())
+                    break;
+                ++index;
+            }
+            if (index >= list.size())
+                continue;
+
+            auto& ratio = info->resourceCategories[c].ratio;
+            assert(ratio != 0.0);
+            double value = (list[index]->getMinerals() + list[index]->getGas() - amount[c]) / ratio;
+            if (value < bestValue) {
+                bestCategory = c;
+                bestPort     = list[index];
+                bestValue    = value;
+            }
+        }
+        if (bestPort != NULL) {
+            resources.push_back(bestPort);
+            double sumRatio = 0.0;
+            for (auto c : bestPort->getCategory())
+                sumRatio += info->resourceCategories[c].ratio;
+            for (auto c : bestPort->getCategory())
+                amount[c] -= info->resourceCategories[c].ratio / sumRatio * (bestPort->getMinerals() + bestPort->getGas());
+            ++indices[bestCategory];
+            done.insert(bestPort);
+        } else {
+            break;
+        }
     }
 }

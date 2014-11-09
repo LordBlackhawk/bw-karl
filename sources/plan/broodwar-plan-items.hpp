@@ -40,7 +40,7 @@ class MorphUnitPlanItem : public AbstractSimpleUnitPlanItem
         ResourcePort requireResources;
         SupplyPort supply;
 
-        MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* provider = NULL);
+        MorphUnitPlanItem(BlackboardInformations* i, BWAPI::UnitType type, ResourceCategorySet c, ProvideUnitPort* provider = NULL);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* buildAction() override;
@@ -49,6 +49,7 @@ class MorphUnitPlanItem : public AbstractSimpleUnitPlanItem
         void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
 
         inline BWAPI::UnitType getUnitType() const { return unitType; }
+        inline ResourceCategorySet getCategory() const { return requireResources.getCategory(); }
 
     protected:
         BWAPI::UnitType unitType;
@@ -105,7 +106,7 @@ class BuildPlanItem : public AbstractSimpleUnitPlanItem
         RequireSpacePort    requireSpace;
         SupplyPort          supply;
 
-        BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p);
+        BuildPlanItem(BlackboardInformations* i, BWAPI::UnitType ut, ResourceCategorySet c, BWAPI::TilePosition p);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* buildAction() override;
@@ -114,6 +115,7 @@ class BuildPlanItem : public AbstractSimpleUnitPlanItem
         void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
 
         inline BWAPI::UnitType getUnitType() const { return unitType; }
+        inline ResourceCategorySet getCategory() const { return requireResources.getCategory(); }
 
     protected:
         BWAPI::UnitType     unitType;
@@ -124,7 +126,7 @@ class ResearchTechPlanItem : public AbstractSimpleUnitPlanItem
     public:
         ResourcePort        requireResources;
 
-        ResearchTechPlanItem(BWAPI::TechType t);
+        ResearchTechPlanItem(BlackboardInformations* i, BWAPI::TechType t, ResourceCategorySet c);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* buildAction() override;
@@ -132,6 +134,7 @@ class ResearchTechPlanItem : public AbstractSimpleUnitPlanItem
         void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
 
         inline BWAPI::TechType getTechType() const { return tech; }
+        inline ResourceCategorySet getCategory() const { return requireResources.getCategory(); }
 
     protected:
         BWAPI::TechType     tech;
@@ -142,7 +145,7 @@ class UpgradePlanItem : public AbstractSimpleUnitPlanItem
     public:
         ResourcePort        requireResources;
 
-        UpgradePlanItem(BWAPI::UpgradeType u, int l = 1);
+        UpgradePlanItem(BlackboardInformations* i, BWAPI::UpgradeType u, ResourceCategorySet c, int l = 1);
 
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* buildAction() override;
@@ -150,6 +153,7 @@ class UpgradePlanItem : public AbstractSimpleUnitPlanItem
         void visitResourcesConsumedEvent(ResourcesConsumedEvent* event) override;
 
         inline BWAPI::UpgradeType getUpgradeType() const { return upgrade; }
+        inline ResourceCategorySet getCategory() const { return requireResources.getCategory(); }
 
     protected:
         BWAPI::UpgradeType  upgrade;

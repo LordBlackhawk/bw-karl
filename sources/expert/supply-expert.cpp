@@ -44,7 +44,7 @@ bool SupplyExpert::process(std::vector<SupplyPort*>& provide, std::vector<Supply
             result = true;
         } else {
             if (currentTime <= 0) {
-                itRequire->estimatedTime = 0;
+                itRequire->estimatedTime = ACTIVE_TIME;
             } else {
                 itRequire->estimatedTime = std::max(currentTime, currentBlackboard->getActionHorizon());
             }

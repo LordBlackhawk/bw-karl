@@ -59,8 +59,8 @@ AbstractAction* RequireUnitPort::prepareForExecution(AbstractExecutionEngine* en
     return (connection != NULL) ? connection->prepareForExecution(engine) : NULL;
 }
 
-ResourcePort::ResourcePort(AbstractItem* o, int m, int g)
-    : AbstractPort(o), minerals(m), gas(g)
+ResourcePort::ResourcePort(AbstractItem* o, BlackboardInformations* i, int m, int g, ResourceCategorySet c)
+    : AbstractPort(o), info(i), category(c), minerals(m), gas(g)
 { }
 
 bool ResourcePort::isRequirePort() const
@@ -86,6 +86,14 @@ void ResourcePort::disconnect()
 void ResourcePort::updateEstimates()
 {
     // do nothing, ResourceExpert updates estimates!!!
+}
+
+void ResourcePort::resourcesConsumed()
+{
+    owner->removePort(this);
+    int sum = minerals + gas;
+    for (auto& it : info->resourceCategories)
+        it.amount -= it.ratio * sum;
 }
 
 SupplyPort::SupplyPort(AbstractItem* o, BWAPI::UnitType ut, bool checkTwoInOneEgg)
@@ -176,8 +184,8 @@ void RequireResourcePort::acceptVisitor(AbstractVisitor* visitor)
     visitor->visitRequireResourcePort(this);
 }
 
-RequireSpacePort::RequireSpacePort(AbstractItem* o, Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p)
-    : AbstractPort(o), fields(f), pos(BWAPI::TilePositions::Unknown), unitType(ut)
+RequireSpacePort::RequireSpacePort(AbstractItem* o, BlackboardInformations* i, BWAPI::UnitType ut, BWAPI::TilePosition p)
+    : AbstractPort(o), info(i), pos(BWAPI::TilePositions::Unknown), unitType(ut)
 {
     connectTo(p);
 }
@@ -212,7 +220,7 @@ void RequireSpacePort::disconnect()
     if (isConnected()) {
         for (int x=pos.x(); x<pos.x()+getWidth(); ++x)
             for (int y=pos.y(); y<pos.y()+getHeight(); ++y)
-                (*fields)[x][y].blocker = NULL;
+                info->fields[x][y].blocker = NULL;
         pos = BWAPI::TilePositions::Unknown;
     }
 }
@@ -237,7 +245,7 @@ void RequireSpacePort::connectTo(BWAPI::TilePosition tp)
         for (int x=pos.x(); x<pos.x()+getWidth(); ++x)
             for (int y=pos.y(); y<pos.y()+getHeight(); ++y)
         {
-            auto& field = (*fields)[x][y];
+            auto& field = info->fields[x][y];
             if (field.blocker != NULL)
                 field.blocker->disconnect();
             field.blocker = this;

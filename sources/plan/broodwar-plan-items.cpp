@@ -75,9 +75,9 @@ bool GatherResourcesPlanItem::isGatherMinerals() const
 }
 
 
-MorphUnitPlanItem::MorphUnitPlanItem(BWAPI::UnitType type, ProvideUnitPort* provider)
+MorphUnitPlanItem::MorphUnitPlanItem(BlackboardInformations* i, BWAPI::UnitType type, ResourceCategorySet c, ProvideUnitPort* provider)
     : AbstractSimpleUnitPlanItem(type.whatBuilds().first),
-      requireResources(this, type.mineralPrice(), type.gasPrice()),
+      requireResources(this, i, type.mineralPrice(), type.gasPrice(), c),
       supply(this, type, true),
       unitType(type)
 {
@@ -107,7 +107,7 @@ AbstractAction* MorphUnitPlanItem::buildAction()
 void MorphUnitPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
 {
     setExecuting();
-    removePort(&requireResources);
+    requireResources.resourcesConsumed();
     if (supply.isRequirePort())
         removePort(&supply);
     removeRequireExistancePorts();
@@ -206,10 +206,10 @@ AbstractAction* AttackUnitPlanItem::buildAction()
 
 
 
-BuildPlanItem::BuildPlanItem(Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p)
+BuildPlanItem::BuildPlanItem(BlackboardInformations* i, BWAPI::UnitType ut, ResourceCategorySet c, BWAPI::TilePosition p)
     : AbstractSimpleUnitPlanItem(ut.whatBuilds().first),
-      requireResources(this, ut.mineralPrice(), ut.gasPrice()),
-      requireSpace(this, f, ut, p),
+      requireResources(this, i, ut.mineralPrice(), ut.gasPrice(), c),
+      requireSpace(this, i, ut, p),
       supply(this, ut),
       unitType(ut)
 {
@@ -234,7 +234,7 @@ AbstractAction* BuildPlanItem::buildAction()
 void BuildPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
 {
     setExecuting();
-    removePort(&requireResources);
+    requireResources.resourcesConsumed();
     removePort(&requireSpace);
     removeRequireExistancePorts();
 }
@@ -247,9 +247,9 @@ void BuildPlanItem::removeFinished(AbstractAction* action)
 }
 
 
-ResearchTechPlanItem::ResearchTechPlanItem(BWAPI::TechType t)
+ResearchTechPlanItem::ResearchTechPlanItem(BlackboardInformations* i, BWAPI::TechType t, ResourceCategorySet c)
     : AbstractSimpleUnitPlanItem(t.whatResearches()),
-      requireResources(this, t.mineralPrice(), t.gasPrice()),
+      requireResources(this, i, t.mineralPrice(), t.gasPrice(), c),
       tech(t)
 {
     provideUnit.updateData(t.whatResearches(), BWAPI::Positions::Unknown);
@@ -271,13 +271,13 @@ AbstractAction* ResearchTechPlanItem::buildAction()
 void ResearchTechPlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
 {
     setExecuting();
-    removePort(&requireResources);
+    requireResources.resourcesConsumed();
 }
 
 
-UpgradePlanItem::UpgradePlanItem(BWAPI::UpgradeType u, int l)
+UpgradePlanItem::UpgradePlanItem(BlackboardInformations* i, BWAPI::UpgradeType u, ResourceCategorySet c, int l)
     : AbstractSimpleUnitPlanItem(u.whatUpgrades()),
-      requireResources(this, u.mineralPrice(l), u.gasPrice(l)),
+      requireResources(this, i, u.mineralPrice(l), u.gasPrice(l), c),
       upgrade(u),
       level(l)
 {
@@ -303,7 +303,7 @@ AbstractAction* UpgradePlanItem::buildAction()
 void UpgradePlanItem::visitResourcesConsumedEvent(ResourcesConsumedEvent* /*event*/)
 {
     setExecuting();
-    removePort(&requireResources);
+    requireResources.resourcesConsumed();
     removeRequireExistancePorts();
 }
 

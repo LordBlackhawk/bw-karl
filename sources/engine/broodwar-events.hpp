@@ -10,8 +10,10 @@ class FrameEvent : public AbstractEvent
         Time    currentTime;
         int     currentMinerals;
         int     currentGas;
+        int     collectedMinerals;
+        int     collectedGas;
 
-        FrameEvent(Time t, int m, int g);
+        FrameEvent(Time t, int m, int g, int cm, int cg);
         void acceptVisitor(AbstractEventVisitor* visitor) override;
 };
 

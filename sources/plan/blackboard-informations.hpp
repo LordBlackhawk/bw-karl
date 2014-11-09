@@ -2,8 +2,14 @@
 
 #include "utils/array2d.hpp"
 #include "utils/time.hpp"
+#include "utils/enum-set.hpp"
 #include <BWAPI.h>
 #include <BWTA.h>
+
+enum class ResourceCategory { Economy, Expansion, Tech, StaticDefense, Units, lastElement };
+struct ResourceCategoryInfo { double amount; double ratio; };
+typedef EnumSet<ResourceCategory>                           ResourceCategorySet;
+typedef EnumArray<ResourceCategoryInfo, ResourceCategory>   ResourceCategoryArray;
 
 class BlackboardInformations;
 class ResourceBoundaryItem;
@@ -51,6 +57,8 @@ struct BlackboardInformations
     Time    lastUpdateTime = -1;
     int     currentMinerals = 0;
     int     currentGas = 0;
+    int     collectedMinerals = 0;
+    int     collectedGas      = 0;
 
     int unusedLarvaCount = 0;   //number of available ProvideUnitPorts providing larva
     int workerCount = 0;    //number of available ProvideUnitPorts providing workers
@@ -64,4 +72,12 @@ struct BlackboardInformations
     std::set<BaseLocation*>     ownBaseLocations;
 
     Array2d<FieldInformations>  fields;
+
+    ResourceCategoryArray       resourceCategories = {
+                                                            { 0.0, 0.4  }, // Economy
+                                                            { 0.0, 0.05 }, // Expansion
+                                                            { 0.0, 0.05 }, // Tech
+                                                            { 0.0, 0.01 }, // StaticDefense
+                                                            { 0.0, 0.49 }  // Units
+                                                     };
 };

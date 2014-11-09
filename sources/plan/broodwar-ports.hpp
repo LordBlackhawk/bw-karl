@@ -1,7 +1,6 @@
 #pragma once
 
 #include "basic-port-impl.hpp"
-
 #include <BWAPI.h>
 
 class AbstractAction;
@@ -55,20 +54,24 @@ class RequireUnitPort final : public BasicPortImpl<RequireUnitPort, ProvideUnitP
 class ResourcePort final : public AbstractPort
 {
     public:
-        ResourcePort(AbstractItem* o, int m, int g);
+        ResourcePort(AbstractItem* o, BlackboardInformations* i, int m, int g, ResourceCategorySet c);
 
         bool isRequirePort() const override;
         bool isActiveConnection() const override;
         void acceptVisitor(AbstractVisitor* visitor) override;
         void disconnect() override;
         void updateEstimates() override;
+        void resourcesConsumed();
 
+        inline ResourceCategorySet getCategory() const { return category; }
         inline int getMinerals() const { return minerals; }
         inline int getGas() const { return gas; }
 
     protected:
-        int minerals;
-        int gas;
+        BlackboardInformations* info;
+        ResourceCategorySet     category;
+        int                     minerals;
+        int                     gas;
 };
 
 class SupplyPort final : public AbstractPort
@@ -125,7 +128,7 @@ template <class T> class Array2d;
 class RequireSpacePort final : public AbstractPort
 {
     public:
-        RequireSpacePort(AbstractItem* o, Array2d<FieldInformations>* f, BWAPI::UnitType ut, BWAPI::TilePosition p = BWAPI::TilePositions::Unknown);
+        RequireSpacePort(AbstractItem* o, BlackboardInformations* i, BWAPI::UnitType ut, BWAPI::TilePosition p = BWAPI::TilePositions::Unknown);
         ~RequireSpacePort();
 
         bool isRequirePort() const override;
@@ -144,7 +147,7 @@ class RequireSpacePort final : public AbstractPort
         inline bool isConnected() const { return (pos != BWAPI::TilePositions::Unknown); }
 
     protected:
-        Array2d<FieldInformations>* fields;
+        BlackboardInformations*     info;
         BWAPI::TilePosition         pos;
         BWAPI::UnitType             unitType;
 };

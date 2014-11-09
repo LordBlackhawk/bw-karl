@@ -5,7 +5,7 @@
 
 AbstractSpaceUnitBoundaryItem::AbstractSpaceUnitBoundaryItem(BWAPI::Unit* u, BlackboardInformations* i, BWAPI::UnitType ut)
     : AbstractBoundaryItem(u),
-      requireSpace(this, &i->fields, ut),
+      requireSpace(this, i, ut),
       unitType(ut),
       info(i)
 {

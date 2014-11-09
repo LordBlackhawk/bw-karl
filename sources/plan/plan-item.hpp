@@ -167,16 +167,16 @@ class Blackboard : public BasicEventVisitor
         void visitAbstractActionEvent(AbstractActionEvent* event) override;
 
         // for creation of plan items:
-        AbstractPlanItem* create(BWAPI::UnitType ut);
-        BuildPlanItem* build(BWAPI::UnitType ut);
-        MorphUnitPlanItem* morph(BWAPI::UnitType ut);
+        AbstractPlanItem* create(BWAPI::UnitType ut, ResourceCategorySet c = ResourceCategorySet::all());
+        BuildPlanItem* build(BWAPI::UnitType ut, ResourceCategorySet c = ResourceCategorySet::all());
+        MorphUnitPlanItem* morph(BWAPI::UnitType ut, ResourceCategorySet c = ResourceCategorySet::all());
         GatherResourcesPlanItem* gather(ProvideUnitPort* provider, ResourceBoundaryItem* m);
         MoveToPositionPlanItem* move(ProvideUnitPort* provider, BWAPI::Position p);
         MoveToPositionPlanItem* move(ProvideUnitPort* provider, BWAPI::TilePosition tp);
         AttackUnitPlanItem* attack(ProvideUnitPort* provider, EnemyUnitBoundaryItem* enemy);
         AttackPositionPlanItem* attack(ProvideUnitPort* provider, BWAPI::Position p);
-        ResearchTechPlanItem* research(BWAPI::TechType tech);
-        UpgradePlanItem* upgrade(BWAPI::UpgradeType upgrade);
+        ResearchTechPlanItem* research(BWAPI::TechType tech, ResourceCategorySet c = ResourceCategorySet::all());
+        UpgradePlanItem* upgrade(BWAPI::UpgradeType upgrade, ResourceCategorySet c = ResourceCategorySet::all());
         GiveUpPlanItem* giveUp();
 
         // for test propose only:

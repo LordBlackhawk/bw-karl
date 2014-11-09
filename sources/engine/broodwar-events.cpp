@@ -1,8 +1,8 @@
 #include "broodwar-events.hpp"
 #include "event-visitor.hpp"
 
-FrameEvent::FrameEvent(Time t, int m, int g)
-    : currentTime(t), currentMinerals(m), currentGas(g)
+FrameEvent::FrameEvent(Time t, int m, int g, int cm, int cg)
+    : currentTime(t), currentMinerals(m), currentGas(g), collectedMinerals(cm), collectedGas(cg)
 { }
 
 void FrameEvent::acceptVisitor(AbstractEventVisitor* visitor)

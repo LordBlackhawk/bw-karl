@@ -241,27 +241,27 @@ AbstractBoundaryItem* Blackboard::lookupUnit(BWAPI::Unit* unit) const
     return (it != unitBoundaries.end()) ? it->second : NULL;
 }
 
-AbstractPlanItem* Blackboard::create(BWAPI::UnitType ut)
+AbstractPlanItem* Blackboard::create(BWAPI::UnitType ut, ResourceCategorySet c)
 {
     BWAPI::UnitType builderType = ut.whatBuilds().first;
     if (builderType.isWorker())
-        return build(ut);
+        return build(ut, c);
     if ((builderType == BWAPI::UnitTypes::Zerg_Larva) || (builderType.isBuilding() && (builderType.getRace() == BWAPI::Races::Zerg)))
-        return morph(ut);
+        return morph(ut, c);
     assert(false && "Blackboard does not know how to create unit of this type.");
     return NULL;
 }
 
-BuildPlanItem* Blackboard::build(BWAPI::UnitType ut)
+BuildPlanItem* Blackboard::build(BWAPI::UnitType ut, ResourceCategorySet c)
 {
-    auto result = new BuildPlanItem(&informations.fields, ut, BWAPI::TilePositions::Unknown);
+    auto result = new BuildPlanItem(&informations, ut, c, BWAPI::TilePositions::Unknown);
     addItem(result);
     return result;
 }
 
-MorphUnitPlanItem* Blackboard::morph(BWAPI::UnitType ut)
+MorphUnitPlanItem* Blackboard::morph(BWAPI::UnitType ut, ResourceCategorySet c)
 {
-    auto result = new MorphUnitPlanItem(ut);
+    auto result = new MorphUnitPlanItem(&informations, ut, c);
     addItem(result);
     return result;
 }
@@ -299,16 +299,16 @@ AttackPositionPlanItem* Blackboard::attack(ProvideUnitPort* provider, BWAPI::Pos
     return result;
 }
 
-ResearchTechPlanItem* Blackboard::research(BWAPI::TechType tech)
+ResearchTechPlanItem* Blackboard::research(BWAPI::TechType tech, ResourceCategorySet c)
 {
-    auto result = new ResearchTechPlanItem(tech);
+    auto result = new ResearchTechPlanItem(&informations, tech, c);
     addItem(result);
     return result;
 }
 
-UpgradePlanItem* Blackboard::upgrade(BWAPI::UpgradeType upgrade)
+UpgradePlanItem* Blackboard::upgrade(BWAPI::UpgradeType upgrade, ResourceCategorySet c)
 {
-    auto result = new UpgradePlanItem(upgrade);
+    auto result = new UpgradePlanItem(&informations, upgrade, c);
     addItem(result);
     return result;
 }
@@ -409,7 +409,7 @@ namespace
 bool Blackboard::sendFrameEvent(AbstractExecutionEngine* engine)
 {
     BWAPI::Player* self = BWAPI::Broodwar->self();
-    engine->generateEvent(new FrameEvent(BWAPI::Broodwar->getFrameCount(), self->minerals(), self->gas()));
+    engine->generateEvent(new FrameEvent(BWAPI::Broodwar->getFrameCount(), self->minerals(), self->gas(), self->gatheredMinerals(), self->gatheredGas()));
 
     for (auto event : BWAPI::Broodwar->getEvents()) {
         if ( (event.getType() == BWAPI::EventType::UnitCreate)
@@ -475,9 +475,11 @@ void Blackboard::visitAbstractActionEvent(AbstractActionEvent* event)
 
 void Blackboard::visitFrameEvent(FrameEvent* event)
 {
-    informations.lastUpdateTime  = event->currentTime;
-    informations.currentMinerals = event->currentMinerals;
-    informations.currentGas      = event->currentGas;
+    informations.lastUpdateTime     = event->currentTime;
+    informations.currentMinerals    = event->currentMinerals;
+    informations.currentGas         = event->currentGas;
+    informations.collectedMinerals  = event->collectedMinerals;
+    informations.collectedGas       = event->collectedGas;
 }
 
 void Blackboard::visitBroodwarEvent(BroodwarEvent* event)
