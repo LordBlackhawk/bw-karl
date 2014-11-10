@@ -32,6 +32,19 @@ bool BaseLocation::isCompleteExplored() const
     return result;
 }
 
+bool BaseLocation::isOccupied() const
+{
+    auto tp = getTilePosition();
+    int xBegin = tp.x(), yBegin = tp.y();
+    int xEnd = xBegin + BWAPI::UnitTypes::Zerg_Hatchery.tileWidth(), yEnd = yBegin + BWAPI::UnitTypes::Zerg_Hatchery.tileHeight();
+
+    bool result = true;
+    for (int x=xBegin; x<xEnd; ++x)
+        for (int y=yBegin; y<yEnd; ++y)
+            result = result && owner->fields[x][y].isBuildable();
+    return !result;
+}
+
 BlackboardInformations::~BlackboardInformations()
 {
     for (auto it : allBaseLocations)

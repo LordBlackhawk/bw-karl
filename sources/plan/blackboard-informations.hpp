@@ -25,6 +25,7 @@ struct BaseLocation
         BaseLocation(BlackboardInformations* o);
         Time lastSeenComplete() const;
         bool isCompleteExplored() const;
+        bool isOccupied() const;
 
         inline BWAPI::TilePosition getTilePosition() const { return origin->getTilePosition(); }
         inline BWAPI::Position getPosition() const { return BWAPI::Position(getTilePosition()); }
@@ -44,6 +45,7 @@ struct FieldInformations
 
     inline bool isExplored() const { return lastSeen > 1; }
     inline bool isMovable() const { return movable && (blocker == NULL); }
+    inline bool isBuildable() const { return buildable && (blocker == NULL); }
 };
 
 struct BlackboardInformations

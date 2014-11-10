@@ -73,7 +73,7 @@ void GasTestingExpert::visitResourceBoundaryItem(ResourceBoundaryItem* item)
         if(item->numberOfWorkers()<3)
         {
             LOG << "GasTestingExpert: found refinery with only "<<item->numberOfWorkers()<<" workers assigned, morphing another one.";
-            currentBlackboard->addItem(new GatherResourcesPlanItem(item, &currentBlackboard->morph(BWAPI::UnitTypes::Zerg_Drone)->provideUnit));
+            currentBlackboard->addItem(new GatherResourcesPlanItem(item, &currentBlackboard->morph(BWAPI::UnitTypes::Zerg_Drone, {ResourceCategory::Economy})->provideUnit));
         }
     }
 }

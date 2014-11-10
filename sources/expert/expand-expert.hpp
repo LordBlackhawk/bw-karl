@@ -13,4 +13,6 @@ class ExpandExpert : public BasicExpert
     protected:
         bool hasExpandInPlan;
         BWAPI::UnitType unitType;
+
+        BWAPI::TilePosition getExpandPosition() const;
 };
