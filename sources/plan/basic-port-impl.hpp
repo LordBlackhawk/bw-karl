@@ -3,6 +3,8 @@
 #include "plan-item.hpp"
 #include <iostream>
 
+extern bool connectToAssertionIsOn;
+
 template <class DerivedClass, class ConnectionClass, bool Require, bool FreeOnDisconnect>
 class BasicPortImpl : public AbstractPort
 {
@@ -45,11 +47,13 @@ class BasicPortImpl : public AbstractPort
         {
             if (connection == port)
                 return;
-            assert(!isActiveConnection() && "Active connection can not be changed!");
+            if (connectToAssertionIsOn)
+                assert(!isActiveConnection() && "Active connection can not be changed!");
             staticDisconnect();
             if (port != NULL) {
                 if (Require) {
-                    assert(!port->isActiveConnection() && "Active connection can not be changed!");
+                    if (connectToAssertionIsOn)
+                        assert(!port->isActiveConnection() && "Active connection can not be changed!");
                     port->staticDisconnect();
                     connection = port;
                     port->connection = This();

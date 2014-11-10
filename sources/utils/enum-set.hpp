@@ -118,6 +118,30 @@ class EnumSet
             return EnumSet<T>(all().bitmask & ~bitmask);
         }
 
+        EnumSet<T>& operator &= (EnumSet<T> other)
+        {
+            bitmask &= other.bitmask;
+            return *this;
+        }
+
+        EnumSet<T>& operator |= (EnumSet<T> other)
+        {
+            bitmask |= other.bitmask;
+            return *this;
+        }
+
+        EnumSet<T> operator & (EnumSet<T> other) const
+        {
+            EnumSet<T> tmp = *this;
+            return tmp &= other;
+        }
+
+        EnumSet<T> operator | (EnumSet<T> other) const
+        {
+            EnumSet<T> tmp = *this;
+            return tmp |= other;
+        }
+
     protected:
         unsigned int bitmask;
 

@@ -77,6 +77,16 @@ void AbstractItem::setUnit(BWAPI::Unit* u)
     unit = u;
 }
 
+ResourceCategorySet AbstractItem::getCategory() const
+{
+    for (auto it : ports) {
+        ResourcePort* port = dynamic_cast<ResourcePort*>(it);
+        if (port != NULL)
+            return port->getCategory();
+    }
+    return ResourceCategorySet();
+}
+
 AbstractBoundaryItem::AbstractBoundaryItem(BWAPI::Unit* u)
     : AbstractItem(u)
 { }
@@ -508,13 +518,30 @@ void Blackboard::visitUnitUpdateEvent(UnitUpdateEvent* event)
     it->second->update(event);
 }
 
+bool connectToAssertionIsOn = true;
+
 namespace
 {
+    struct DeativateConnectToAssertion
+    {
+        bool before;
+        DeativateConnectToAssertion()
+        {
+            before = connectToAssertionIsOn;
+            connectToAssertionIsOn = false;
+        }
+        ~DeativateConnectToAssertion()
+        {
+            connectToAssertionIsOn = before;
+        }
+    };
+
     template <class T>
     AbstractBoundaryItem* becomeBoundaryItem(AbstractBoundaryItem* oldItem, BWAPI::Unit* unit, BWAPI::UnitType unitType, BlackboardInformations* info)
     {
         if ((oldItem == NULL) || (typeid(*oldItem) != typeid(T))) {
             auto result = new T(unit, unitType, info);
+            DeativateConnectToAssertion d;
             result->takeConnectionsFrom(oldItem);
             return result;
         } else {

@@ -13,7 +13,7 @@ bool WorkerExpert::tick(Blackboard* blackboard)
     // Creates one log file at frame 10.
     /*
     if (blackboard->getLastUpdateTime() == 10)
-        LOG << "Current time: " << currentBlackboard->getLastUpdateTime();
+        LOG << "Current time: " << blackboard->getLastUpdateTime();
     */
     return BasicPortExpert::tick(blackboard);
 }

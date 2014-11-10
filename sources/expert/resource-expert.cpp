@@ -148,7 +148,7 @@ void ResourceExpert::resort()
     // Copy amount of category:
     EnumArray<double, ResourceCategory> amount;
     EnumArray<unsigned int, ResourceCategory> indices;
-    for (auto c : EnumSet<ResourceCategory>::all()) {
+    for (auto c : ResourceCategorySet::all()) {
         amount[c] = info->resourceCategories[c].amount;
         indices[c] = 0;
     }
@@ -160,7 +160,7 @@ void ResourceExpert::resort()
         ResourceCategory bestCategory = ResourceCategory::Economy;
         ResourcePort*    bestPort = NULL;
         double           bestValue = 1e10;
-        for (auto c : EnumSet<ResourceCategory>::all()) {
+        for (auto c : ResourceCategorySet::all()) {
             // Remove already taken elements
             auto& list = categoryLists[c];
             auto& index = indices[c];

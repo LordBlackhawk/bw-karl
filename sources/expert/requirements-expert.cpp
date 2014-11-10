@@ -53,7 +53,7 @@ void RequirementsExpert::endTraversal()
             if (!it->isConnected())
                 it->connectTo(provider->second);
         } else {
-            AbstractPlanItem* newprovider = currentBlackboard->create(it->getUnitType());
+            AbstractPlanItem* newprovider = currentBlackboard->create(it->getUnitType(), it->getCategory());
             if (newprovider != NULL) {
                 firstProvider[it->getUnitType()] = newprovider;
                 newprovider->addPurpose(it->connectTo(newprovider), dynamic_cast<AbstractPlanItem*>(it->getOwner()));

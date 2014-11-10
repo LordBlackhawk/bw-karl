@@ -42,6 +42,7 @@ void BlackboardInformations::prepare()
 {
     self = BWAPI::Broodwar->self();
     neutral = BWAPI::Broodwar->neutral();
+    selfRace = self->getRace();
 
     int mapWidth  = BWAPI::Broodwar->mapWidth();
     int mapHeight = BWAPI::Broodwar->mapHeight();

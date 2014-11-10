@@ -46,6 +46,7 @@ class RequireUnitPort final : public BasicPortImpl<RequireUnitPort, ProvideUnitP
         inline BWAPI::Unit* getUnit() const { return (connection != NULL) ? connection->getUnit() : NULL; }
         inline BWAPI::UnitType getUnitType() const { return unitType; }
         inline BWAPI::Position getPosition() const { return (connection != NULL) ? connection->pos : BWAPI::Positions::Unknown; }
+        inline ResourceCategorySet getCategory() const { return owner->getCategory(); }
 
     protected:
         BWAPI::UnitType     unitType;
@@ -122,9 +123,6 @@ class RequireResourcePort final : public BasicPortImpl<RequireResourcePort, Prov
         inline bool isMineralField() const { return (connection != NULL) && connection->isMineralField(); }
 };
 
-struct FieldInformations;
-template <class T> class Array2d;
-
 class RequireSpacePort final : public AbstractPort
 {
     public:
@@ -144,7 +142,7 @@ class RequireSpacePort final : public AbstractPort
         inline int getWidth() const { return unitType.tileWidth(); }
         inline int getHeight() const { return unitType.tileHeight(); }
         inline BWAPI::UnitType getUnitType() const { return unitType; }
-        inline bool isConnected() const { return (pos != BWAPI::TilePositions::Unknown); }
+        inline bool isConnected() const { return (pos.x() < 1000); }
 
     protected:
         BlackboardInformations*     info;
@@ -187,7 +185,7 @@ class ProvideUnitExistancePort final : public BasicPortImpl<ProvideUnitExistance
         void acceptVisitor(AbstractVisitor* visitor) override;
         AbstractAction* prepareForExecution(AbstractExecutionEngine* engine) override;
 
-        BWAPI::UnitType getUnitType() const { return unitType; }
+        inline BWAPI::UnitType getUnitType() const { return unitType; }
 
     protected:
         BWAPI::UnitType unitType;
@@ -202,7 +200,8 @@ class RequireUnitExistancePort final : public BasicPortImpl<RequireUnitExistance
         ProvideUnitExistancePort* connectTo(AbstractItem* provider);
         using BaseClass::connectTo;
 
-        BWAPI::UnitType getUnitType() const { return unitType; }
+        inline BWAPI::UnitType getUnitType() const { return unitType; }
+        inline ResourceCategorySet getCategory() const { return owner->getCategory(); }
 
     protected:
         BWAPI::UnitType unitType;

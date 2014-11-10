@@ -57,6 +57,8 @@ class AbstractItem : public BasicEventVisitor, public AssertBase
         inline BWAPI::Unit* getUnit() const { return unit; }
         void setUnit(BWAPI::Unit* u);
 
+        ResourceCategorySet getCategory() const;
+
     protected:
         BWAPI::Unit* unit;
 };

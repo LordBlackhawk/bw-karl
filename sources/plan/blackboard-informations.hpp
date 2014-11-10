@@ -65,6 +65,7 @@ struct BlackboardInformations
 
     BWAPI::Player* self = NULL;
     BWAPI::Player* neutral = NULL;
+    BWAPI::Race selfRace;
 
     bool isWinner = false;
 

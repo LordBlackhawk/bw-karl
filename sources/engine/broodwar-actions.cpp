@@ -57,8 +57,19 @@ void ZergBuildAction::onBegin(AbstractExecutionEngine* /*engine*/)
 
 ZergBuildAction::Status ZergBuildAction::onTick(AbstractExecutionEngine* engine)
 {
-    if (!unit->exists())
+    if (!unit->exists()) {
+        if (unitType == BWAPI::UnitTypes::Zerg_Extractor) {
+            BWAPI::Unit* newUnit = NULL;
+            for (auto it : BWAPI::Broodwar->self()->getUnits())
+                if ((it->getType() == unitType) && (it->getTilePosition() == pos))
+                    newUnit = it;
+            if (newUnit == NULL)
+                return Failed;
+            unit = newUnit;
+            return Running;
+        }
         return Failed;
+    }
 
     BWAPI::UnitType type = unit->getType();
     if (type == unitType) {

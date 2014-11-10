@@ -127,8 +127,12 @@ void RequireUnitExpert::handleQueued(const BWAPI::UnitType unitType, const std::
     std::sort(pairs.begin(), pairs.end());
 
     // 3. Create a provider if none exists:
-    if (provider.size() == 0U)
-        provider.push(ProviderWithTime(&currentBlackboard->build(unitType)->provideUnit, INFINITE_TIME));
+    if (provider.size() == 0U) {
+        ResourceCategorySet category;
+        for (auto it : require)
+            category |= it->getCategory();
+        provider.push(ProviderWithTime(&currentBlackboard->build(unitType, category)->provideUnit, INFINITE_TIME));
+    }
 
     // 4. Distribute pairs among the provider:
     for (auto it : pairs) {

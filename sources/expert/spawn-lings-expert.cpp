@@ -34,5 +34,5 @@ void SpawnLingsExpert::visitMorphUnitPlanItem(MorphUnitPlanItem* item)
 void SpawnLingsExpert::endTraversal()
 {
     if (hasPool && (numberOfMorphLings < numberOfLarva+2))
-        currentBlackboard->morph(BWAPI::UnitTypes::Zerg_Zergling);
+        currentBlackboard->morph(BWAPI::UnitTypes::Zerg_Zergling, {ResourceCategory::Units});
 }

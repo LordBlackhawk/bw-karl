@@ -2,9 +2,7 @@
 
 #include "basic-expert.hpp"
 
-#include <vector>
-
-class SpawnLingsExpert : public BasicPortExpert
+class SpawnLingsExpert : public BasicExpert
 {
     public:
         void beginTraversal() override;
