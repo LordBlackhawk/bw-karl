@@ -26,6 +26,15 @@ void ExpandExpert::endTraversal()
         if ((double)rand() / (double)RAND_MAX < 0.7)
             item->requireSpace.connectTo(getExpandPosition());
     }
+
+    auto info = currentBlackboard->getInformations();
+    unsigned int numberOfBases = info->ownBaseLocations.size();
+    info->ownBaseLocations.clear();
+    for (auto it : info->allBaseLocations)
+        if (dynamic_cast<OwnUnitBoundaryItem*>(it->getBaseUnit()) != NULL)
+            info->ownBaseLocations.insert(it);
+    if (numberOfBases != info->ownBaseLocations.size())
+        LOG << "Number of bases changed from " << numberOfBases << " to " << info->ownBaseLocations.size() << ".";
 }
 
 BWAPI::TilePosition ExpandExpert::getExpandPosition() const

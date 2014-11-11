@@ -11,6 +11,7 @@ struct ResourceCategoryInfo { double amount; double ratio; };
 typedef EnumSet<ResourceCategory>                           ResourceCategorySet;
 typedef EnumArray<ResourceCategoryInfo, ResourceCategory>   ResourceCategoryArray;
 
+class AbstractBoundaryItem;
 class BlackboardInformations;
 class ResourceBoundaryItem;
 class RequireSpacePort;
@@ -26,6 +27,7 @@ struct BaseLocation
         Time lastSeenComplete() const;
         bool isCompleteExplored() const;
         bool isOccupied() const;
+        AbstractBoundaryItem* getBaseUnit() const;
 
         inline BWAPI::TilePosition getTilePosition() const { return origin->getTilePosition(); }
         inline BWAPI::Position getPosition() const { return BWAPI::Position(getTilePosition()); }

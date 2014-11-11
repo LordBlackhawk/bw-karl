@@ -45,6 +45,22 @@ bool BaseLocation::isOccupied() const
     return !result;
 }
 
+AbstractBoundaryItem* BaseLocation::getBaseUnit() const
+{
+    auto tp = getTilePosition();
+    int xBegin = tp.x(), yBegin = tp.y();
+    int xEnd = xBegin + BWAPI::UnitTypes::Zerg_Hatchery.tileWidth(), yEnd = yBegin + BWAPI::UnitTypes::Zerg_Hatchery.tileHeight();
+
+    for (int x=xBegin; x<xEnd; ++x)
+        for (int y=yBegin; y<yEnd; ++y)
+    {
+        auto blocker = owner->fields[x][y].blocker;
+        if (blocker != NULL)
+            return dynamic_cast<AbstractBoundaryItem*>(blocker->getOwner());
+    }
+    return NULL;
+}
+
 BlackboardInformations::~BlackboardInformations()
 {
     for (auto it : allBaseLocations)
@@ -82,7 +98,7 @@ void BlackboardInformations::prepare()
         baselocation->origin = base;
         for (auto unit : base->getMinerals())
             baselocation->minerals.insert(new ResourceBoundaryItem(unit, unit->getType(), this, baselocation));
-        for (auto unit : base->getGeysers())    //FIXME: is it a good idea to create new BoundaryItems besides the ones already in the plan?
+        for (auto unit : base->getGeysers())
             baselocation->geysers.insert(new ResourceBoundaryItem(unit, unit->getType(), this, baselocation));
         allBaseLocations.insert(baselocation);
         if (base == mybase)

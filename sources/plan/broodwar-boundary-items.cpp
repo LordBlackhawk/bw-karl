@@ -123,6 +123,7 @@ Time OwnHatcheryBoundaryItem::lastPlanedLarva() const
 ProvideUnitPort* OwnHatcheryBoundaryItem::createNewLarva()
 {
     OwnUnitBoundaryItem* result = new OwnUnitBoundaryItem(NULL, BWAPI::UnitTypes::Zerg_Larva, info);
+    result->provideUnit.updateData(BWAPI::UnitTypes::Zerg_Larva, getPosition());
     result->provideUnit.estimatedTime = lastPlanedLarva() + larvaSpawnTime;
     larvas.push_back(result);
     return &result->provideUnit;
