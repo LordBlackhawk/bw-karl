@@ -35,7 +35,10 @@ int AbstractSpaceUnitBoundaryItem::getMaxHealth() const
 double AbstractSpaceUnitBoundaryItem::getGroundDPS() const
 {
     auto weapon = unitType.groundWeapon();
-    return (double)weapon.damageAmount() / (double)weapon.damageCooldown() * 24.0;
+    auto cooldown = weapon.damageCooldown();
+    if (cooldown == 0)
+        return 0.0;
+    return (double)weapon.damageAmount() / (double)cooldown * 24.0;
 }
 
 void AbstractSpaceUnitBoundaryItem::takeConnectionsFrom(AbstractBoundaryItem* other)

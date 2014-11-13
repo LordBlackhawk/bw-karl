@@ -13,14 +13,16 @@ bool AttackExpert::isApplicable(Blackboard* /*blackboard*/)
 
 void AttackExpert::visitOwnUnitBoundaryItem(OwnUnitBoundaryItem* item)
 {
-    if ((item->getUnitType() != BWAPI::UnitTypes::Zerg_Zergling) || item->isConnected())
+    if ((item->getUnitType() != BWAPI::UnitTypes::Zerg_Zergling) && (item->getUnitType() != BWAPI::UnitTypes::Zerg_Hydralisk))
+        return;
+    if (item->isConnected())
         return;
     lings.push_back(&item->provideUnit);
 }
 
 void AttackExpert::visitEnemyUnitBoundaryItem(EnemyUnitBoundaryItem* item)
 {
-    if (item->isFlying() || (!item->isVisible() && !item->isBuilding()))
+    if (item->isFlying() || item->isCloaked() || (!item->isVisible() && !item->isBuilding()))
         return;
     enemies.push_back(item);
 }

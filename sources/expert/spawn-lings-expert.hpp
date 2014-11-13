@@ -15,6 +15,8 @@ class SpawnLingsExpert : public BasicExpert
 
     protected:
         bool hasPool;
+        bool hasHydraliskDen;
         int numberOfLarva;
         int numberOfMorphLings;
+        int numberOfHydralisks;
 };

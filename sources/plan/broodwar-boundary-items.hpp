@@ -109,6 +109,7 @@ class EnemyUnitBoundaryItem : public AbstractSpaceUnitBoundaryItem
         inline bool isGatheringMinerals() const { return currentAction == BWAction::GatheringMinerals; }
         inline bool isGatheringGas() const { return currentAction == BWAction::GatheringGas; }
         inline bool isBeingConstructed() const { return currentAction == BWAction::BeingConstructed; }
+        inline bool isCloaked() const { return unitType.hasPermanentCloak(); }
 
     protected:
         BlackboardInformations* info;

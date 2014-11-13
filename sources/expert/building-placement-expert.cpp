@@ -1,9 +1,6 @@
 // ToDo:
-// - still missing units (geyser, enemy units).
-// - still missing creep created while playing.
 // - still missing flying buildings.
 // - no unit tests yet.
-// - implement movable correctly and not as buildable.
 
 #include "building-placement-expert.hpp"
 #include "expert-registrar.hpp"
@@ -22,10 +19,7 @@ void BuildingPlacementExpert::beginTraversal()
     buildDistance = 1;
 
     auto& ownBaseLocations = currentBlackboard->getInformations()->ownBaseLocations;
-    assert(ownBaseLocations.size() > 0);
-
-    startPos = (*ownBaseLocations.begin())->getTilePosition();
-    startPos = (*ownBaseLocations.begin())->getTilePosition();
+    startPos = ownBaseLocations.empty() ? BWAPI::TilePositions::None : (*ownBaseLocations.begin())->getTilePosition();
 }
 
 void BuildingPlacementExpert::visitRequireSpacePort(RequireSpacePort* port)
@@ -79,6 +73,9 @@ void BuildingPlacementExpert::visitBuildPlanItem(BuildPlanItem* item)
 
 BWAPI::TilePosition BuildingPlacementExpert::getBuildLocationNear()
 {
+    if (startPos == BWAPI::TilePositions::None)
+        return BWAPI::TilePositions::None;
+
     //returns a valid build location near the specified tile position.
     //searches outward in a spiral.
     int x      = startPos.x();
@@ -212,7 +209,7 @@ bool BuildingPlacementExpert::buildable(int x, int y)
     auto& field = currentBlackboard->getInformations()->fields[x][y];
     if (unitType.requiresCreep() && !field.creep)
         return false;
-    return field.buildable && (field.blocker == NULL);
+    return field.isBuildable();
 }
 
 bool BuildingPlacementExpert::movable(int x, int y)

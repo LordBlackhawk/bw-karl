@@ -49,4 +49,12 @@ BOOST_AUTO_TEST_CASE( complete_guerilla_test )
     BOOST_CHECK_EQUAL( planItem->creator, expert );
 }
 
+BOOST_AUTO_TEST_CASE( high_templer )
+{
+    auto unitType = BWAPI::UnitTypes::Protoss_High_Templar;
+    auto weapon = unitType.groundWeapon();
+    BOOST_CHECK_EQUAL(weapon.damageAmount(), 0);
+    BOOST_CHECK_EQUAL(weapon.damageCooldown(), 0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
