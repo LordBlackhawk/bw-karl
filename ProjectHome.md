@@ -1,0 +1,1 @@
+A AI for StarCraft: Broodwar using BWAPI / BWTA
